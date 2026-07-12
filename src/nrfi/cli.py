@@ -19,7 +19,13 @@ from nrfi.data import statsapi, store
 from nrfi.data import weather as weather_mod
 from nrfi.features import build_training_frame
 from nrfi.model import NRFIModel, fit_model, trainable_rows
-from nrfi.predict import fetch_slate, predict_slate, render_predictions_markdown, today_et
+from nrfi.predict import (
+    fetch_slate,
+    predict_slate,
+    render_predictions_markdown,
+    today_et,
+    write_prediction_outputs,
+)
 
 log = logging.getLogger("nrfi")
 
@@ -122,6 +128,8 @@ def cmd_predict(args: argparse.Namespace) -> int:
     predictions.to_csv(csv_path, index=False)
     md = render_predictions_markdown(predictions, date)
     (paths.predictions_dir / "latest.md").write_text(md)
+    # JSON outputs (per-date + manifest) are what the dashboard renders.
+    write_prediction_outputs(predictions, date, model, paths.predictions_dir, paths.reports_dir)
     print(md)
     log.info("wrote %s (%d games)", csv_path, len(predictions))
     return 0

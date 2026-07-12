@@ -68,3 +68,29 @@ python -m nrfi.cli predict --date 2026-07-12 --weather    # any slate
 
 `workflow_dispatch` on either workflow does the same from the Actions tab
 (train accepts `start_season`; predict accepts `date`).
+
+## Dashboard
+
+The `predict` step emits machine-readable JSON alongside the CSV/Markdown so a
+UI can render the real model output (never fabricated numbers):
+
+- `predictions/<date>.json` — the day's games with `p_yrfi` / `p_nrfi`, both
+  probable pitchers, venue, start time, and the missing-probable note.
+- `predictions/latest.json` — a copy of the most recent date.
+- `predictions/index.json` — manifest: model version/metadata, the list of
+  available dates, and the pooled walk-forward backtest summary + calibration
+  table (read from `reports/`), so the UI can show model quality next to the
+  picks.
+
+`predictions_dashboard.html` is the dashboard (a self-contained page). It is
+published as a Claude Design artifact — a hosted snapshot showing the data baked
+in at publish time; re-publish to refresh (this can be scheduled). To refresh
+manually after a new `predict` run, regenerate the embedded values from
+`predictions/index.json` + `predictions/latest.json` and re-publish the same
+file.
+
+**Optional zero-touch hosting.** For a site that updates itself every day with no
+involvement, add a GitHub Pages workflow that assembles `predictions_dashboard.html`
++ `predictions/*.json` into a `site/` folder and deploys it (`actions/deploy-pages`).
+It reuses the exact same JSON, so no pipeline changes are needed — only enabling
+Pages (Settings → Pages → Source: GitHub Actions).

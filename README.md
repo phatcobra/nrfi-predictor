@@ -12,6 +12,10 @@ unattended via GitHub Actions.
 - `predictions/<date>.csv` + `predictions/latest.md` — calibrated
   `P(YRFI)` / `P(NRFI)` for every game on the slate with announced
   probable pitchers, refreshed every morning before first pitch.
+- `predictions/<date>.json` + `predictions/index.json` — the same
+  predictions plus a manifest (model metadata + walk-forward backtest
+  summary + calibration) that the dashboard renders. See
+  `predictions_dashboard.html` and [docs/AUTONOMOUS_OPERATIONS.md](docs/AUTONOMOUS_OPERATIONS.md#dashboard).
 - `reports/backtest.md` — walk-forward log-loss/Brier/AUC vs. a
   climatology baseline plus a calibration table, refreshed on every
   retrain.

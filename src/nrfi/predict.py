@@ -10,7 +10,10 @@ never inferred.
 from __future__ import annotations
 
 import datetime as dt
+import json
 import logging
+import math
+from pathlib import Path
 from zoneinfo import ZoneInfo
 
 import numpy as np
@@ -132,3 +135,114 @@ def render_predictions_markdown(predictions: pd.DataFrame, date: str) -> str:
     lines.append(view.to_markdown(index=False))
     lines.append("")
     return "\n".join(lines)
+
+
+def _clean(value: object) -> object:
+    """JSON-safe scalar: NaN/NaT -> None, numpy scalars -> Python scalars."""
+    if value is None:
+        return None
+    if isinstance(value, float) and math.isnan(value):
+        return None
+    try:
+        if pd.isna(value):
+            return None
+    except (TypeError, ValueError):
+        pass
+    if isinstance(value, np.generic):
+        return value.item()
+    return value
+
+
+def predictions_to_records(predictions: pd.DataFrame) -> list[dict]:
+    """One JSON-safe dict per game, sorted by P(NRFI) descending."""
+    if predictions.empty:
+        return []
+    ordered = predictions.sort_values("p_nrfi", ascending=False, na_position="last")
+    records: list[dict] = []
+    for row in ordered.to_dict("records"):
+        records.append({key: _clean(val) for key, val in row.items()})
+    return records
+
+
+def render_predictions_json(predictions: pd.DataFrame, date: str, model: NRFIModel) -> dict:
+    """The per-date payload the dashboard renders."""
+    records = predictions_to_records(predictions)
+    predicted = [r for r in records if r.get("p_yrfi") is not None]
+    return {
+        "date": date,
+        "model_version": model.metadata.get("trained_at_utc", "unknown"),
+        "generated_utc": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
+        "n_games": len(records),
+        "n_predicted": len(predicted),
+        "games": records,
+    }
+
+
+def _backtest_summary(reports_dir: Path) -> dict | None:
+    """Pooled walk-forward row from the committed backtest, if present."""
+    path = reports_dir / "backtest_metrics.csv"
+    if not path.exists():
+        return None
+    metrics = pd.read_csv(path)
+    pooled = metrics[metrics["season"].astype(str) == "ALL"]
+    if pooled.empty:
+        return None
+    row = pooled.iloc[0]
+    keep = [
+        "n_games",
+        "yrfi_base_rate",
+        "log_loss_model",
+        "log_loss_baseline",
+        "brier_model",
+        "brier_baseline",
+        "brier_skill_score",
+        "roc_auc",
+    ]
+    return {col: _clean(row[col]) for col in keep if col in row}
+
+
+def _calibration_rows(reports_dir: Path) -> list[dict]:
+    path = reports_dir / "calibration_table.csv"
+    if not path.exists():
+        return []
+    table = pd.read_csv(path)
+    return [{key: _clean(val) for key, val in row.items()} for row in table.to_dict("records")]
+
+
+def write_prediction_outputs(
+    predictions: pd.DataFrame,
+    date: str,
+    model: NRFIModel,
+    predictions_dir: Path,
+    reports_dir: Path,
+) -> dict:
+    """Write per-date JSON and refresh the manifest the dashboard reads.
+
+    Returns the per-date payload. The manifest (``index.json``) lists every
+    stored prediction date plus the current model's walk-forward quality and
+    calibration, so the UI can show trustworthiness alongside the picks.
+    """
+    predictions_dir.mkdir(parents=True, exist_ok=True)
+    payload = render_predictions_json(predictions, date, model)
+    (predictions_dir / f"{date}.json").write_text(json.dumps(payload, indent=2))
+
+    dates = sorted(p.stem for p in predictions_dir.glob("*.json") if p.stem not in {"index", "latest"})
+    manifest = {
+        "generated_utc": payload["generated_utc"],
+        "model_version": payload["model_version"],
+        "model_metadata": {
+            "trained_at_utc": model.metadata.get("trained_at_utc"),
+            "train_date_min": model.metadata.get("train_date_min"),
+            "train_date_max": model.metadata.get("train_date_max"),
+            "n_trainable_rows": model.metadata.get("n_trainable_rows"),
+            "base_rate_yrfi": model.metadata.get("base_rate_yrfi"),
+            "calibrated": model.metadata.get("calibrated"),
+        },
+        "latest_date": dates[-1] if dates else date,
+        "dates": dates,
+        "backtest": _backtest_summary(reports_dir),
+        "calibration": _calibration_rows(reports_dir),
+    }
+    (predictions_dir / "index.json").write_text(json.dumps(manifest, indent=2))
+    (predictions_dir / "latest.json").write_text(json.dumps(payload, indent=2))
+    return payload

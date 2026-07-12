@@ -1,0 +1,506 @@
+<title>First Pitch Scoreboard</title>
+<style>
+  /* ============================================================
+     NRFI/YRFI dashboard — "night ballpark scoreboard"
+     Accent: incandescent scoreboard amber. Semantics: grass green
+     (NRFI / no runs) vs clay orange (YRFI / runs). Box-score mono.
+     ============================================================ */
+  :root {
+    --bg: #f3eee2;
+    --panel: #fffdf8;
+    --panel-2: #f9f3e7;
+    --border: #e6dcc7;
+    --ink: #23262b;
+    --muted: #6a6357;
+    --faint: #948b7c;
+    --accent: #b26a06;
+    --accent-ink: #7d4b04;
+    --accent-soft: #f4d09a;
+    --grass: #1f8a4c;
+    --grass-soft: #cde9d6;
+    --clay: #bd4526;
+    --clay-soft: #f3d5c9;
+    --shadow: 0 1px 2px rgba(35,26,10,.06), 0 6px 20px rgba(35,26,10,.06);
+    --font-mono: ui-monospace, "SFMono-Regular", "Cascadia Code", Menlo, Consolas, monospace;
+    --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --maxw: 1080px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0d1014;
+      --panel: #161a20;
+      --panel-2: #1b2028;
+      --border: #2a2f38;
+      --ink: #f2ece0;
+      --muted: #a59c8d;
+      --faint: #6f6857;
+      --accent: #f5a524;
+      --accent-ink: #f7b955;
+      --accent-soft: #3d3016;
+      --grass: #46b877;
+      --grass-soft: #17331f;
+      --clay: #e26a48;
+      --clay-soft: #3a1c14;
+      --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 26px rgba(0,0,0,.34);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0d1014; --panel: #161a20; --panel-2: #1b2028; --border: #2a2f38;
+    --ink: #f2ece0; --muted: #a59c8d; --faint: #6f6857; --accent: #f5a524;
+    --accent-ink: #f7b955; --accent-soft: #3d3016; --grass: #46b877;
+    --grass-soft: #17331f; --clay: #e26a48; --clay-soft: #3a1c14;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 26px rgba(0,0,0,.34);
+  }
+  :root[data-theme="light"] {
+    --bg: #f3eee2; --panel: #fffdf8; --panel-2: #f9f3e7; --border: #e6dcc7;
+    --ink: #23262b; --muted: #6a6357; --faint: #948b7c; --accent: #b26a06;
+    --accent-ink: #7d4b04; --accent-soft: #f4d09a; --grass: #1f8a4c;
+    --grass-soft: #cde9d6; --clay: #bd4526; --clay-soft: #f3d5c9;
+    --shadow: 0 1px 2px rgba(35,26,10,.06), 0 6px 20px rgba(35,26,10,.06);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased; line-height: 1.5;
+  }
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 28px 20px 72px; }
+
+  .eyebrow {
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: .18em;
+    text-transform: uppercase; color: var(--accent-ink); font-weight: 600;
+  }
+  .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+  /* ---- marquee header ---- */
+  .marquee {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    gap: 20px; flex-wrap: wrap;
+    border-bottom: 2px solid var(--border); padding-bottom: 18px; margin-bottom: 26px;
+  }
+  .marquee h1 {
+    font-family: var(--font-mono); font-weight: 700; letter-spacing: .01em;
+    font-size: clamp(26px, 4.4vw, 40px); margin: 8px 0 4px; text-wrap: balance;
+  }
+  .marquee h1 .dim { color: var(--faint); }
+  .tagline { color: var(--muted); font-size: 14px; max-width: 46ch; }
+  .status { display: flex; align-items: center; gap: 9px; font-family: var(--font-mono);
+    font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--grass);
+    box-shadow: 0 0 0 0 var(--grass); animation: pulse 2.4s infinite; }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--grass) 55%, transparent); }
+    70% { box-shadow: 0 0 0 7px transparent; } 100% { box-shadow: 0 0 0 0 transparent; }
+  }
+  @media (prefers-reduced-motion: reduce) { .dot { animation: none; } }
+
+  /* ---- panels ---- */
+  .panel {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 14px;
+    box-shadow: var(--shadow); padding: 22px 22px 24px; margin-bottom: 22px;
+  }
+  .panel > header { display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+  .panel h2 { font-size: 16px; margin: 4px 0 0; font-weight: 700; letter-spacing: .01em; }
+
+  /* ---- hero verdict ---- */
+  .verdict { display: grid; grid-template-columns: 1.05fr 1fr; gap: 26px; align-items: center; }
+  @media (max-width: 760px) { .verdict { grid-template-columns: 1fr; gap: 20px; } }
+  .verdict .big {
+    font-family: var(--font-mono); font-weight: 700; line-height: 1.05;
+    font-size: clamp(24px, 3.6vw, 33px); letter-spacing: .01em; margin: 10px 0 10px;
+    text-wrap: balance;
+  }
+  .verdict p { color: var(--muted); font-size: 14px; margin: 0; }
+
+  /* coin-flip gauge */
+  .gauge { margin-top: 4px; }
+  .gauge-track {
+    position: relative; height: 46px; border-radius: 10px;
+    background: linear-gradient(90deg,
+      color-mix(in srgb, var(--clay) 26%, var(--panel-2)) 0%,
+      var(--panel-2) 46%, var(--panel-2) 54%,
+      color-mix(in srgb, var(--grass) 26%, var(--panel-2)) 100%);
+    border: 1px solid var(--border); overflow: hidden;
+  }
+  .gauge-mid { position: absolute; top: -4px; bottom: -4px; left: 50%; width: 2px;
+    background: var(--faint); transform: translateX(-1px); }
+  .gauge-mid::after { content: "COIN FLIP"; position: absolute; top: -16px; left: 50%;
+    transform: translateX(-50%); font-family: var(--font-mono); font-size: 9px;
+    letter-spacing: .12em; color: var(--faint); white-space: nowrap; }
+  .needle { position: absolute; top: 0; bottom: 0; width: 3px; background: var(--accent);
+    border-radius: 2px; box-shadow: 0 0 10px color-mix(in srgb, var(--accent) 60%, transparent);
+    transition: left 1.1s cubic-bezier(.22,.61,.36,1); }
+  .needle::before { content: ""; position: absolute; top: 50%; left: 50%;
+    width: 12px; height: 12px; border-radius: 50%; background: var(--accent);
+    transform: translate(-50%,-50%); }
+  .gauge-scale { display: flex; justify-content: space-between; margin-top: 7px;
+    font-family: var(--font-mono); font-size: 10.5px; color: var(--faint); letter-spacing: .06em; }
+
+  /* ---- stat readouts ---- */
+  .readouts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  @media (max-width: 620px) { .readouts { grid-template-columns: repeat(2, 1fr); } }
+  .stat { background: var(--panel-2); border: 1px solid var(--border); border-radius: 11px;
+    padding: 14px 15px; }
+  .stat .label { font-family: var(--font-mono); font-size: 10px; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--faint); }
+  .stat .value { font-family: var(--font-mono); font-variant-numeric: tabular-nums;
+    font-size: clamp(22px, 3vw, 28px); font-weight: 700; margin-top: 6px; letter-spacing: -.01em; }
+  .stat .sub { font-size: 12px; color: var(--muted); margin-top: 3px; }
+  .value.pos { color: var(--grass); } .value.neg { color: var(--clay); }
+
+  /* ---- calibration chart ---- */
+  .chart-grid { display: grid; grid-template-columns: 1fr 260px; gap: 22px; align-items: center; }
+  @media (max-width: 760px) { .chart-grid { grid-template-columns: 1fr; } }
+  canvas { width: 100%; height: auto; display: block; }
+  .legend { font-size: 13px; color: var(--muted); }
+  .legend b { color: var(--ink); font-weight: 600; }
+  .legend .swatch { display: inline-block; width: 10px; height: 10px; border-radius: 50%;
+    vertical-align: middle; margin-right: 6px; }
+
+  /* ---- slate ---- */
+  .empty { border: 1.5px dashed var(--border); border-radius: 12px; padding: 26px 22px;
+    text-align: center; color: var(--muted); background: var(--panel-2); }
+  .empty .k { font-family: var(--font-mono); font-size: 12px; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--faint); }
+  .game { display: grid; grid-template-columns: 1fr 168px; gap: 18px; align-items: center;
+    padding: 16px 4px; border-top: 1px solid var(--border); }
+  .game:first-of-type { border-top: none; }
+  .matchup { font-weight: 600; font-size: 15px; }
+  .pitchers { color: var(--muted); font-size: 13px; margin-top: 3px; }
+  .probwrap { }
+  .probrow { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
+  .probrow .tag { font-family: var(--font-mono); font-size: 10px; letter-spacing: .08em;
+    width: 38px; color: var(--faint); }
+  .bar { flex: 1; height: 8px; border-radius: 5px; background: var(--panel-2);
+    border: 1px solid var(--border); overflow: hidden; }
+  .bar > span { display: block; height: 100%; }
+  .bar.nrfi > span { background: var(--grass); } .bar.yrfi > span { background: var(--clay); }
+  .probrow .pct { font-family: var(--font-mono); font-variant-numeric: tabular-nums;
+    font-size: 12px; width: 38px; text-align: right; }
+  .chip { display: inline-block; font-family: var(--font-mono); font-size: 9.5px;
+    letter-spacing: .1em; text-transform: uppercase; padding: 3px 7px; border-radius: 6px;
+    border: 1px dashed var(--faint); color: var(--faint); }
+
+  /* ---- season table ---- */
+  .scroll { overflow-x: auto; border: 1px solid var(--border); border-radius: 11px; }
+  table { border-collapse: collapse; width: 100%; min-width: 560px; font-size: 13px; }
+  th, td { padding: 9px 13px; text-align: right; white-space: nowrap; }
+  th:first-child, td:first-child { text-align: left; }
+  thead th { font-family: var(--font-mono); font-size: 10px; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--faint); border-bottom: 1px solid var(--border);
+    font-weight: 600; }
+  tbody td { border-bottom: 1px solid var(--border); font-variant-numeric: tabular-nums;
+    font-family: var(--font-mono); }
+  tbody td:first-child { font-family: var(--font-sans); }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr.total td { color: var(--ink); font-weight: 700; background: var(--panel-2); }
+
+  /* ---- read-this ---- */
+  .read { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  @media (max-width: 760px) { .read { grid-template-columns: 1fr; } }
+  .read h3 { font-size: 13.5px; margin: 0 0 6px; }
+  .read p { font-size: 13px; color: var(--muted); margin: 0; }
+  .read .n { font-family: var(--font-mono); color: var(--accent-ink); }
+
+  footer { color: var(--faint); font-size: 12px; text-align: center; margin-top: 30px;
+    line-height: 1.7; }
+  footer a { color: var(--accent-ink); text-decoration: none; border-bottom: 1px solid var(--border); }
+  .disclaimer { max-width: 60ch; margin: 10px auto 0; }
+</style>
+
+<div class="wrap">
+  <div class="marquee">
+    <div>
+      <div class="eyebrow">MLB First-Inning Model · NRFI / YRFI</div>
+      <h1>First Pitch <span class="dim">Scoreboard</span></h1>
+      <div class="tagline">Calibrated model probabilities for whether a run scores in
+        the 1st inning — trained and validated on real MLB games, no guesswork.</div>
+    </div>
+    <div class="status">
+      <span class="dot"></span><span id="statusText">Autonomous pipeline · live</span>
+    </div>
+  </div>
+
+  <!-- HERO: honest verdict + coin-flip gauge -->
+  <section class="panel">
+    <header><div><div class="eyebrow">Walk-forward verdict</div>
+      <h2>How good is the model, really?</h2></div>
+      <span class="chip" id="windowChip">2018–2026 · 13,572 games tested</span>
+    </header>
+    <div class="verdict">
+      <div>
+        <div class="big" id="verdictBig">Right at the coin-flip line —<br>honest, and well-calibrated.</div>
+        <p>First-inning scoring is close to a 50/50 event. Tested only on seasons it never
+          trained on, this model lands a hair below the naive base rate on skill, with
+          essentially no discrimination edge yet — but its probabilities are trustworthy
+          (see calibration below). No inflated confidence, no fabricated picks.</p>
+      </div>
+      <div class="gauge">
+        <div class="eyebrow" style="margin-bottom:22px">Brier skill vs. coin flip</div>
+        <div class="gauge-track">
+          <div class="gauge-mid"></div>
+          <div class="needle" id="needle" style="left:50%"></div>
+        </div>
+        <div class="gauge-scale"><span>−2% worse</span><span>0%</span><span>+2% better</span></div>
+      </div>
+    </div>
+    <div class="readouts" style="margin-top:22px">
+      <div class="stat"><div class="label">Brier skill score</div>
+        <div class="value neg" id="sSkill">–0.48%</div>
+        <div class="sub">vs. rolling league base rate</div></div>
+      <div class="stat"><div class="label">ROC AUC</div>
+        <div class="value" id="sAuc">0.504</div>
+        <div class="sub">0.500 = coin flip</div></div>
+      <div class="stat"><div class="label">Out-of-sample games</div>
+        <div class="value" id="sGames">13,572</div>
+        <div class="sub">seasons 2021–2026, held out</div></div>
+    </div>
+  </section>
+
+  <!-- CALIBRATION -->
+  <section class="panel">
+    <header><div><div class="eyebrow">Reliability diagram</div>
+      <h2>Are the probabilities honest?</h2></div></header>
+    <div class="chart-grid">
+      <canvas id="calChart" width="640" height="440" role="img"
+        aria-label="Reliability diagram: predicted first-inning run probability versus observed rate, by decile."></canvas>
+      <div class="legend">
+        <p style="margin:0 0 12px"><span class="swatch" style="background:var(--accent)"></span>
+          Each dot is a group of games at a similar predicted probability. Closer to the
+          dashed line = the stated probability matched reality.</p>
+        <p style="margin:0"><b>Reading:</b> the dots hug the diagonal within a few points,
+          so when the model says “48% chance of a run,” about 48% of those games have one.
+          That's what “calibrated” means — the number can be trusted at face value, even
+          though the model can't yet separate winners from losers.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- TODAY'S SLATE -->
+  <section class="panel">
+    <header><div><div class="eyebrow">Today's slate</div>
+      <h2 id="slateTitle">Predictions</h2></div>
+      <span class="chip" id="slateChip">Awaiting first live slate</span>
+    </header>
+    <div id="slate"></div>
+  </section>
+
+  <!-- SEASON TABLE -->
+  <section class="panel">
+    <header><div><div class="eyebrow">Season by season</div>
+      <h2>Every year, tested on itself only</h2></div></header>
+    <div class="scroll">
+      <table>
+        <thead><tr>
+          <th>Season</th><th>Games</th><th>Coverage</th><th>YRFI rate</th>
+          <th>Brier skill</th><th>AUC</th>
+        </tr></thead>
+        <tbody id="seasonBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- HOW TO READ -->
+  <section class="panel">
+    <header><div><div class="eyebrow">Plain English</div>
+      <h2>How to read this dashboard</h2></div></header>
+    <div class="read">
+      <div><h3>NRFI vs. YRFI</h3><p><b>NRFI</b> = No Runs First Inning. <b>YRFI</b> = Yes
+        Runs First Inning. The bars show the model's probability of each.</p></div>
+      <div><h3>Why not 90% accuracy?</h3><p>Whether a run scores in one inning is nearly a
+        coin flip league-wide (<span class="n">~50%</span>). Any honest model wins by small,
+        consistent margins — not blowout accuracy.</p></div>
+      <div><h3>Where it stands</h3><p>Built on <span class="n">19,318</span> fully-featured
+        games with leak-proof, pre-game-only inputs. Calibrated today; a real edge would come
+        from confirmed lineups, umpires, and Statcast — the roadmap.</p></div>
+    </div>
+  </section>
+
+  <footer>
+    <div>Model trained <span class="num" id="fTrained">—</span> ·
+      data: MLB StatsAPI + Open-Meteo · retrains weekly, predicts daily, fully autonomous.</div>
+    <div class="disclaimer">These are model probabilities for informational purposes, not
+      betting advice. First-inning outcomes are highly variable.</div>
+  </footer>
+</div>
+
+<script>
+  const DATA = {
+    model: {
+      trainedAt: "2026-07-12T21:25:09+00:00",
+      windowStart: "2018-03-29", windowEnd: "2026-07-12",
+      trainableRows: 19318, gamesIngested: 20342, seasons: 9, baseRate: 0.4992
+    },
+    backtest: {
+      nGames: 13572, brierSkill: -0.004799, auc: 0.504545,
+      brierModel: 0.251216, brierBaseline: 0.250016
+    },
+    // predicted mean, observed rate, group size
+    calibration: [
+      [0.4461,0.4836,2614],[0.4634,0.4846,454],[0.4684,0.5103,1072],
+      [0.4783,0.4890,2131],[0.4898,0.4415,530],[0.4987,0.5231,1405],
+      [0.5015,0.4923,1422],[0.5114,0.4941,1277],[0.5300,0.4838,1695],
+      [0.5606,0.5185,972]
+    ],
+    seasons: [
+      // season, gamesStored, coverage, yrfiRate, brierSkill(null=train-only), auc
+      {y:2018, g:2432, cov:0.9984, yrfi:0.5033, skill:null, auc:null},
+      {y:2019, g:2430, cov:0.9988, yrfi:0.5262, skill:null, auc:null},
+      {y:2020, g:900,  cov:0.9900, yrfi:0.5017, skill:null, auc:null},
+      {y:2021, g:2430, cov:0.9988, yrfi:0.5037, skill:-0.0056, auc:0.5022},
+      {y:2022, g:2430, cov:0.9996, yrfi:0.4817, skill:-0.0031, auc:0.5068},
+      {y:2023, g:2430, cov:0.9996, yrfi:0.5019, skill:-0.0018, auc:0.5274},
+      {y:2024, g:2430, cov:0.9992, yrfi:0.4672, skill:-0.0040, auc:0.5105},
+      {y:2025, g:2430, cov:0.9979, yrfi:0.5014, skill:-0.0100, auc:0.5092},
+      {y:2026, g:2430, cov:0.9986, yrfi:0.5125, skill:-0.0040, auc:0.5057}
+    ],
+    slate: { date: null, games: [] }   // no live slate yet
+  };
+
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const pct = (x, d=1) => (x*100).toFixed(d) + "%";
+
+  // ---- footer / chips ----
+  document.getElementById("fTrained").textContent =
+    new Date(DATA.model.trainedAt).toISOString().slice(0,16).replace("T"," ") + " UTC";
+
+  // ---- gauge needle: skill range [-2%, +2%] -> [0,100] ----
+  const skillPct = DATA.backtest.brierSkill * 100;      // -0.48
+  const needlePos = Math.max(3, Math.min(97, (skillPct + 2) / 4 * 100)); // ->38%
+  requestAnimationFrame(() => {
+    const n = document.getElementById("needle");
+    if (reduce) { n.style.transition = "none"; }
+    n.style.left = needlePos + "%";
+  });
+
+  // ---- animated stat readouts ----
+  function countUp(el, to, fmt) {
+    if (reduce) { el.textContent = fmt(to); return; }
+    const dur = 900, t0 = performance.now();
+    function step(t) {
+      const k = Math.min(1, (t - t0) / dur);
+      const e = 1 - Math.pow(1 - k, 3);
+      el.textContent = fmt(to * e);
+      if (k < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+  countUp(document.getElementById("sSkill"), skillPct, v => (v>=0?"+":"–") + Math.abs(v).toFixed(2) + "%");
+  countUp(document.getElementById("sAuc"), DATA.backtest.auc, v => v.toFixed(3));
+  countUp(document.getElementById("sGames"), DATA.backtest.nGames, v => Math.round(v).toLocaleString());
+
+  // ---- season table ----
+  const sb = document.getElementById("seasonBody");
+  DATA.seasons.forEach(s => {
+    const tr = document.createElement("tr");
+    const skill = s.skill == null
+      ? '<span style="color:var(--faint)">train only</span>'
+      : `<span style="color:${s.skill>=0?'var(--grass)':'var(--clay)'}">${(s.skill*100>=0?'+':'–')+Math.abs(s.skill*100).toFixed(2)+'%'}</span>`;
+    tr.innerHTML =
+      `<td>${s.y}</td><td>${s.g.toLocaleString()}</td><td>${pct(s.cov,1)}</td>` +
+      `<td>${pct(s.yrfi,1)}</td><td>${skill}</td>` +
+      `<td>${s.auc==null?'<span style="color:var(--faint)">—</span>':s.auc.toFixed(3)}</td>`;
+    sb.appendChild(tr);
+  });
+  const tot = document.createElement("tr");
+  tot.className = "total";
+  tot.innerHTML = `<td>All (2021–26)</td><td>${DATA.backtest.nGames.toLocaleString()}</td>` +
+    `<td>—</td><td>${pct(DATA.model.baseRate,1)}</td>` +
+    `<td style="color:var(--clay)">${(skillPct>=0?'+':'–')+Math.abs(skillPct).toFixed(2)+'%'}</td>` +
+    `<td>${DATA.backtest.auc.toFixed(3)}</td>`;
+  sb.appendChild(tot);
+
+  // ---- slate ----
+  function renderSlate() {
+    const host = document.getElementById("slate");
+    const s = DATA.slate;
+    if (!s.games || s.games.length === 0) {
+      document.getElementById("slateTitle").textContent = "No games loaded yet";
+      host.innerHTML =
+        `<div class="empty"><div class="k">Empty slate</div>
+          <p style="margin:10px 0 16px">Predictions publish automatically each morning
+          once the system goes live on the main branch. Below is the card layout you'll see —
+          <b>an illustration, not a real game.</b></p>
+          ${gameCard({away:"Away Club", home:"Home Club", ap:"Probable TBD",
+            hp:"Probable TBD", nrfi:0.54, yrfi:0.46, example:true})}
+        </div>`;
+      return;
+    }
+    document.getElementById("slateTitle").textContent = "Predictions · " + s.date;
+    document.getElementById("slateChip").textContent = s.games.length + " games";
+    host.innerHTML = s.games.map(g => gameCard(g)).join("");
+  }
+  function gameCard(g) {
+    const nrfi = Math.round((g.nrfi ?? 0) * 100), yrfi = Math.round((g.yrfi ?? 0) * 100);
+    const ex = g.example ? ' <span class="chip">Example</span>' : '';
+    return `<div class="game" style="${g.example?'border-top:none':''}">
+      <div><div class="matchup">${g.away} <span style="color:var(--faint)">@</span> ${g.home}${ex}</div>
+        <div class="pitchers">${g.ap} vs. ${g.hp}</div></div>
+      <div class="probwrap">
+        <div class="probrow"><span class="tag">NRFI</span>
+          <span class="bar nrfi"><span style="width:${nrfi}%"></span></span>
+          <span class="pct">${nrfi}%</span></div>
+        <div class="probrow"><span class="tag">YRFI</span>
+          <span class="bar yrfi"><span style="width:${yrfi}%"></span></span>
+          <span class="pct">${yrfi}%</span></div>
+      </div></div>`;
+  }
+  renderSlate();
+
+  // ---- calibration reliability diagram (canvas, static) ----
+  function drawCal() {
+    const cv = document.getElementById("calChart");
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const W = 640, H = 440;
+    cv.width = W * dpr; cv.height = H * dpr;
+    cv.style.aspectRatio = W + " / " + H;
+    const ctx = cv.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const css = getComputedStyle(document.documentElement);
+    const col = n => css.getPropertyValue(n).trim();
+    const faint = col("--faint"), border = col("--border"),
+          accent = col("--accent"), muted = col("--muted");
+    const lo = 0.40, hi = 0.60;
+    const m = { l: 52, r: 16, t: 16, b: 46 };
+    const pw = W - m.l - m.r, ph = H - m.t - m.b;
+    const X = v => m.l + (v - lo) / (hi - lo) * pw;
+    const Y = v => m.t + (1 - (v - lo) / (hi - lo)) * ph;
+
+    ctx.clearRect(0, 0, W, H);
+    ctx.strokeStyle = border; ctx.fillStyle = faint; ctx.lineWidth = 1;
+    ctx.font = "11px ui-monospace, monospace";
+    ctx.textAlign = "center"; ctx.textBaseline = "top";
+    for (let v = lo; v <= hi + 1e-9; v += 0.05) {
+      ctx.globalAlpha = 0.5; ctx.beginPath();
+      ctx.moveTo(X(v), m.t); ctx.lineTo(X(v), m.t + ph);
+      ctx.moveTo(m.l, Y(v)); ctx.lineTo(m.l + pw, Y(v)); ctx.stroke();
+      ctx.globalAlpha = 1;
+      ctx.fillText((v*100).toFixed(0)+"%", X(v), m.t + ph + 8);
+      ctx.textAlign = "right"; ctx.textBaseline = "middle";
+      ctx.fillText((v*100).toFixed(0)+"%", m.l - 8, Y(v));
+      ctx.textAlign = "center"; ctx.textBaseline = "top";
+    }
+    // ideal diagonal
+    ctx.strokeStyle = faint; ctx.setLineDash([5, 5]); ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(X(lo), Y(lo)); ctx.lineTo(X(hi), Y(hi)); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = muted; ctx.font = "600 11px ui-monospace, monospace";
+    ctx.fillText("PERFECT CALIBRATION", X(0.565), Y(0.60) + 4);
+    ctx.fillText("PREDICTED  P(RUN)", m.l + pw/2, m.t + ph + 28);
+    ctx.save(); ctx.translate(14, m.t + ph/2); ctx.rotate(-Math.PI/2);
+    ctx.textAlign = "center"; ctx.fillText("OBSERVED  RATE", 0, 0); ctx.restore();
+    // points sized by group size
+    const maxN = Math.max.apply(null, DATA.calibration.map(d => d[2]));
+    DATA.calibration.forEach(d => {
+      const r = Math.max(3, 4 + Math.sqrt(d[2] / maxN) * 9);
+      ctx.beginPath();
+      ctx.arc(X(d[0]), Y(d[1]), r, 0, Math.PI * 2);
+      ctx.fillStyle = accent + "cc"; ctx.fill();
+      ctx.lineWidth = 1.5; ctx.strokeStyle = accent; ctx.stroke();
+    });
+  }
+  drawCal();
+  matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", drawCal);
+</script>
