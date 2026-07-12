@@ -40,7 +40,9 @@ jobs:
           cache-dependency-path: requirements-model.txt
 
       - name: Install dependencies
-        run: pip install -r requirements-model.txt
+        run: |
+          pip install -r requirements-model.txt
+          pip install -e .
 
       - name: Verify a trained model exists
         run: |
