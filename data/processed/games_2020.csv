@@ -1,0 +1,901 @@
+game_pk,season,game_date,game_datetime_utc,game_type,status,day_night,double_header,venue_id,venue_name,home_team_id,home_team_name,away_team_id,away_team_name,home_probable_pitcher_id,home_probable_pitcher_name,away_probable_pitcher_id,away_probable_pitcher_name,innings_recorded,first_inning_runs_away,first_inning_runs_home
+630851,2020,2020-07-23,2020-07-23T23:08:00Z,R,Final,night,N,3309,Nationals Park,120,Washington Nationals,147,New York Yankees,453286.0,Max Scherzer,543037.0,Gerrit Cole,6,2.0,1.0
+631377,2020,2020-07-23,2020-07-24T02:08:00Z,R,Final,night,N,22,Dodger Stadium,119,Los Angeles Dodgers,137,San Francisco Giants,669160.0,Dustin May,456501.0,Johnny Cueto,9,0.0,0.0
+630941,2020,2020-07-24,2020-07-25T00:05:00Z,R,Final,night,N,5325,Globe Life Field,140,Texas Rangers,115,Colorado Rockies,458681.0,Lance Lynn,608566.0,Germán Márquez,9,0.0,0.0
+630966,2020,2020-07-24,2020-07-24T22:40:00Z,R,Final,night,N,12,Tropicana Field,139,Tampa Bay Rays,141,Toronto Blue Jays,450203.0,Charlie Morton,547943.0,Hyun Jin Ryu,9,0.0,0.0
+630989,2020,2020-07-24,2020-07-25T00:15:00Z,R,Final,night,N,2889,Busch Stadium,138,St. Louis Cardinals,134,Pittsburgh Pirates,656427.0,Jack Flaherty,605397.0,Joe Musgrove,9,0.0,0.0
+631091,2020,2020-07-24,2020-07-25T01:10:00Z,R,Final,night,N,2680,Petco Park,135,San Diego Padres,109,Arizona Diamondbacks,663978.0,Chris Paddack,518516.0,Madison Bumgarner,9,0.0,0.0
+631121,2020,2020-07-24,2020-07-24T23:05:00Z,R,Final,night,N,2681,Citizens Bank Park,143,Philadelphia Phillies,146,Miami Marlins,605400.0,Aaron Nola,645261.0,Sandy Alcantara,9,0.0,0.0
+631182,2020,2020-07-24,2020-07-25T02:10:00Z,R,Final,night,N,10,Oakland Coliseum,133,Oakland Athletics,108,Los Angeles Angels,593423.0,Frankie Montas,571760.0,Andrew Heaney,10,0.0,0.0
+631242,2020,2020-07-24,2020-07-24T20:10:00Z,R,Final,day,N,3289,Citi Field,121,New York Mets,144,Atlanta Braves,594798.0,Jacob deGrom,647336.0,Michael Soroka,9,0.0,0.0
+631378,2020,2020-07-24,2020-07-25T01:40:00Z,R,Final,night,N,22,Dodger Stadium,119,Los Angeles Dodgers,137,San Francisco Giants,548389.0,Ross Stripling,542881.0,Tyler Anderson,9,0.0,1.0
+631438,2020,2020-07-24,2020-07-25T01:10:00Z,R,Final,night,N,2392,Minute Maid Park,117,Houston Astros,136,Seattle Mariners,434378.0,Justin Verlander,594835.0,Marco Gonzales,9,0.0,0.0
+631514,2020,2020-07-24,2020-07-25T00:10:00Z,R,Final,night,N,4,Guaranteed Rate Field,145,Chicago White Sox,142,Minnesota Twins,608337.0,Lucas Giolito,621244.0,José Berríos,9,4.0,1.0
+631563,2020,2020-07-24,2020-07-24T23:10:00Z,R,Final,night,N,5,Progressive Field,114,Cleveland Indians,118,Kansas City Royals,669456.0,Shane Bieber,518633.0,Danny Duffy,9,0.0,0.0
+631589,2020,2020-07-24,2020-07-24T22:10:00Z,R,Final,night,N,2602,Great American Ball Park,113,Cincinnati Reds,116,Detroit Tigers,543243.0,Sonny Gray,571510.0,Matthew Boyd,9,0.0,2.0
+631641,2020,2020-07-24,2020-07-24T23:10:00Z,R,Final,night,N,17,Wrigley Field,112,Chicago Cubs,158,Milwaukee Brewers,543294.0,Kyle Hendricks,605540.0,Brandon Woodruff,9,0.0,0.0
+631664,2020,2020-07-24,2020-07-24T23:30:00Z,R,Final,night,N,3,Fenway Park,111,Boston Red Sox,110,Baltimore Orioles,543135.0,Nathan Eovaldi,543548.0,Tommy Milone,9,0.0,0.0
+630899,2020,2020-07-25,2020-07-25T23:15:00Z,R,Final,night,N,3309,Nationals Park,120,Washington Nationals,147,New York Yankees,607200.0,Erick Fedde,572020.0,James Paxton,9,0.0,0.0
+630942,2020,2020-07-25,2020-07-25T20:05:00Z,R,Final,day,N,5325,Globe Life Field,140,Texas Rangers,115,Colorado Rockies,501985.0,Mike Minor,592351.0,Jon Gray,9,0.0,0.0
+630967,2020,2020-07-25,2020-07-25T19:10:00Z,R,Final,day,N,12,Tropicana Field,139,Tampa Bay Rays,141,Toronto Blue Jays,642232.0,Ryan Yarbrough,533167.0,Matt Shoemaker,9,0.0,0.0
+630992,2020,2020-07-25,2020-07-25T18:15:00Z,R,Final,day,N,2889,Busch Stadium,138,St. Louis Cardinals,134,Pittsburgh Pirates,425794.0,Adam Wainwright,592866.0,Trevor Williams,9,0.0,1.0
+631092,2020,2020-07-25,2020-07-26T01:10:00Z,R,Final,night,N,2680,Petco Park,135,San Diego Padres,109,Arizona Diamondbacks,659275.0,Dinelson Lamet,592662.0,Robbie Ray,9,0.0,0.0
+631108,2020,2020-07-25,2020-07-25T20:05:00Z,R,Final,day,N,2681,Citizens Bank Park,143,Philadelphia Phillies,146,Miami Marlins,554430.0,Zack Wheeler,592761.0,Caleb Smith,9,0.0,0.0
+631181,2020,2020-07-25,2020-07-25T20:10:00Z,R,Final,day,N,10,Oakland Coliseum,133,Oakland Athletics,108,Los Angeles Angels,640455.0,Sean Manaea,605164.0,Dylan Bundy,9,0.0,0.0
+631241,2020,2020-07-25,2020-07-25T20:10:00Z,R,Final,day,N,3289,Citi Field,121,New York Mets,144,Atlanta Braves,571927.0,Steven Matz,608331.0,Max Fried,10,0.0,0.0
+631382,2020,2020-07-25,2020-07-25T20:10:00Z,R,Final,day,N,22,Dodger Stadium,119,Los Angeles Dodgers,137,San Francisco Giants,622072.0,Alex Wood,657277.0,Logan Webb,9,1.0,1.0
+631453,2020,2020-07-25,2020-07-25T20:10:00Z,R,Final,day,N,2392,Minute Maid Park,117,Houston Astros,136,Seattle Mariners,621121.0,Lance McCullers Jr.,592836.0,Taijuan Walker,9,0.0,1.0
+631515,2020,2020-07-25,2020-07-25T18:10:00Z,R,Final,day,N,4,Guaranteed Rate Field,145,Chicago White Sox,142,Minnesota Twins,572971.0,Dallas Keuchel,677976.0,Randy Dobnak,9,0.0,0.0
+631565,2020,2020-07-25,2020-07-25T21:10:00Z,R,Final,night,N,5,Progressive Field,114,Cleveland Indians,118,Kansas City Royals,605182.0,Mike Clevinger,663903.0,Brady Singer,10,2.0,0.0
+631603,2020,2020-07-25,2020-07-25T21:10:00Z,R,Final,night,N,2602,Great American Ball Park,113,Cincinnati Reds,116,Detroit Tigers,622491.0,Luis Castillo,467100.0,Iván Nova,9,1.0,1.0
+631642,2020,2020-07-25,2020-07-25T17:05:00Z,R,Final,day,N,17,Wrigley Field,112,Chicago Cubs,158,Milwaukee Brewers,506433.0,Yu Darvish,669203.0,Corbin Burnes,9,0.0,1.0
+631666,2020,2020-07-25,2020-07-25T17:35:00Z,R,Final,day,N,3,Fenway Park,111,Boston Red Sox,110,Baltimore Orioles,527048.0,Martín Pérez,502171.0,Alex Cobb,9,3.0,0.0
+630856,2020,2020-07-26,2020-07-26T17:05:00Z,R,Final,day,N,3309,Nationals Park,120,Washington Nationals,147,New York Yankees,571578.0,Patrick Corbin,642528.0,Jonathan Loáisiga,9,0.0,0.0
+630943,2020,2020-07-26,2020-07-26T18:35:00Z,R,Final,day,N,5325,Globe Life Field,140,Texas Rangers,115,Colorado Rockies,446372.0,Corey Kluber,607536.0,Kyle Freeland,9,0.0,0.0
+630968,2020,2020-07-26,2020-07-26T17:10:00Z,R,Final,day,N,12,Tropicana Field,139,Tampa Bay Rays,141,Toronto Blue Jays,605483.0,Blake Snell,641672.0,Thomas Hatch,10,0.0,0.0
+630993,2020,2020-07-26,2020-07-26T18:15:00Z,R,Final,day,N,2889,Busch Stadium,138,St. Louis Cardinals,134,Pittsburgh Pirates,641712.0,Dakota Hudson,656605.0,Mitch Keller,9,0.0,0.0
+631097,2020,2020-07-26,2020-07-26T20:10:00Z,R,Final,day,N,2680,Petco Park,135,San Diego Padres,109,Arizona Diamondbacks,572070.0,Garrett Richards,668678.0,Zac Gallen,9,0.0,0.0
+631126,2020,2020-07-26,2020-07-26T17:05:00Z,R,Final,day,N,2681,Citizens Bank Park,143,Philadelphia Phillies,146,Miami Marlins,592826.0,Vince Velasquez,667498.0,Robert Dugger,9,0.0,4.0
+631165,2020,2020-07-26,2020-07-26T20:10:00Z,R,Final,day,N,10,Oakland Coliseum,133,Oakland Athletics,108,Los Angeles Angels,571666.0,Mike Fiers,660271.0,Shohei Ohtani,9,0.0,5.0
+631240,2020,2020-07-26,2020-07-26T23:08:00Z,R,Final,night,N,3289,Citi Field,121,New York Mets,144,Atlanta Braves,519144.0,Rick Porcello,656794.0,Sean Newcomb,9,2.0,0.0
+631384,2020,2020-07-26,2020-07-27T02:08:00Z,R,Final,night,N,22,Dodger Stadium,119,Los Angeles Dodgers,137,San Francisco Giants,628711.0,Julio Urías,592767.0,Drew Smyly,9,0.0,0.0
+631441,2020,2020-07-26,2020-07-26T18:10:00Z,R,Final,day,N,2392,Minute Maid Park,117,Houston Astros,136,Seattle Mariners,425844.0,Zack Greinke,579328.0,Yusei Kikuchi,9,2.0,1.0
+631517,2020,2020-07-26,2020-07-26T18:10:00Z,R,Final,day,N,4,Guaranteed Rate Field,145,Chicago White Sox,142,Minnesota Twins,625643.0,Reynaldo López,628317.0,Kenta Maeda,9,4.0,0.0
+631566,2020,2020-07-26,2020-07-26T17:10:00Z,R,Final,day,N,5,Progressive Field,114,Cleveland Indians,118,Kansas City Royals,471911.0,Carlos Carrasco,671790.0,Ronald Bolaños,9,0.0,2.0
+631591,2020,2020-07-26,2020-07-26T17:10:00Z,R,Final,day,N,2602,Great American Ball Park,113,Cincinnati Reds,116,Detroit Tigers,545333.0,Trevor Bauer,605513.0,Spencer Turnbull,9,0.0,0.0
+631643,2020,2020-07-26,2020-07-26T18:20:00Z,R,Final,day,N,17,Wrigley Field,112,Chicago Cubs,158,Milwaukee Brewers,543022.0,Tyler Chatwood,642547.0,Freddy Peralta,9,0.0,0.0
+631668,2020,2020-07-26,2020-07-26T17:35:00Z,R,Final,day,N,3,Fenway Park,111,Boston Red Sox,110,Baltimore Orioles,543901.0,Ryan Weber,453281.0,Wade LeBlanc,9,2.0,0.0
+630861,2020,2020-07-27,2020-07-27T22:05:00Z,R,Final,night,N,3309,Nationals Park,120,Washington Nationals,141,Toronto Blue Jays,434671.0,Aníbal Sánchez,663423.0,Trent Thornton,9,1.0,0.0
+630969,2020,2020-07-27,2020-07-27T22:40:00Z,R,Final,night,N,12,Tropicana Field,139,Tampa Bay Rays,144,Atlanta Braves,607192.0,Tyler Glasnow,592314.0,Mike Foltynewicz,9,0.0,0.0
+631098,2020,2020-07-27,2020-07-27T20:10:00Z,R,Final,day,N,2680,Petco Park,135,San Diego Padres,109,Arizona Diamondbacks,664192.0,Joey Lucchesi,596133.0,Luke Weaver,9,0.0,1.0
+631130,2020,2020-07-27,2020-07-27T23:05:00Z,R,Final,night,N,31,PNC Park,134,Pittsburgh Pirates,158,Milwaukee Brewers,643230.0,Steven Brault,605288.0,Adrian Houser,11,0.0,0.0
+631168,2020,2020-07-27,2020-07-27T19:40:00Z,R,Final,day,N,10,Oakland Coliseum,133,Oakland Athletics,108,Los Angeles Angels,605135.0,Chris Bassitt,656288.0,Griffin Canning,9,0.0,0.0
+631442,2020,2020-07-27,2020-07-27T23:10:00Z,R,Final,night,N,2392,Minute Maid Park,117,Houston Astros,136,Seattle Mariners,657624.0,Josh James,608665.0,Kendall Graveman,9,0.0,0.0
+631489,2020,2020-07-27,2020-07-27T23:10:00Z,R,Final,night,N,2394,Comerica Park,116,Detroit Tigers,118,Kansas City Royals,605242.0,Michael Fulmer,543557.0,Mike Montgomery,9,0.0,0.0
+631592,2020,2020-07-27,2020-07-27T22:40:00Z,R,Final,night,N,2602,Great American Ball Park,113,Cincinnati Reds,112,Chicago Cubs,489119.0,Wade Miley,452657.0,Jon Lester,9,4.0,0.0
+631669,2020,2020-07-27,2020-07-27T23:35:00Z,R,Final,night,N,3,Fenway Park,111,Boston Red Sox,121,New York Mets,592612.0,Josh Osich,608379.0,Michael Wacha,9,0.0,0.0
+630866,2020,2020-07-28,2020-07-28T22:05:00Z,R,Final,night,N,3309,Nationals Park,120,Washington Nationals,141,Toronto Blue Jays,608723.0,Austin Voth,543699.0,Tanner Roark,9,0.0,0.0
+630944,2020,2020-07-28,2020-07-29T01:05:00Z,R,Final,night,N,5325,Globe Life Field,140,Texas Rangers,109,Arizona Diamondbacks,502043.0,Kyle Gibson,518876.0,Merrill Kelly,9,3.0,0.0
+630970,2020,2020-07-28,2020-07-28T22:40:00Z,R,Final,night,N,12,Tropicana Field,139,Tampa Bay Rays,144,Atlanta Braves,630023.0,Yonny Chirinos,657140.0,Kyle Wright,9,0.0,0.0
+631014,2020,2020-07-28,2020-07-29T01:45:00Z,R,Final,night,N,2395,Oracle Park,137,San Francisco Giants,135,San Diego Padres,502188.0,Jeff Samardzija,605200.0,Zach Davies,9,0.0,1.0
+631132,2020,2020-07-28,2020-07-28T23:05:00Z,R,Final,night,N,31,PNC Park,134,Pittsburgh Pirates,158,Milwaukee Brewers,502706.0,Derek Holland,458676.0,Josh Lindblom,9,0.0,0.0
+631171,2020,2020-07-28,2020-07-29T01:40:00Z,R,Final,night,N,10,Oakland Coliseum,133,Oakland Athletics,115,Colorado Rockies,596043.0,Daniel Mengden,622608.0,Antonio Senzatela,9,0.0,0.0
+631269,2020,2020-07-28,2020-07-29T00:10:00Z,R,Final,night,N,3312,Target Field,142,Minnesota Twins,138,St. Louis Cardinals,456701.0,Homer Bailey,593372.0,Carlos Martinez,9,0.0,0.0
+631387,2020,2020-07-28,2020-07-29T01:40:00Z,R,Final,night,N,1,Angel Stadium,108,Los Angeles Angels,136,Seattle Mariners,663776.0,Patrick Sandoval,656954.0,Justus Sheffield,9,0.0,0.0
+631443,2020,2020-07-28,2020-07-29T01:10:00Z,R,Final,night,N,2392,Minute Maid Park,117,Houston Astros,119,Los Angeles Dodgers,664285.0,Framber Valdez,621111.0,Walker Buehler,9,0.0,0.0
+631490,2020,2020-07-28,2020-07-28T23:10:00Z,R,Final,night,N,2394,Comerica Park,116,Detroit Tigers,118,Kansas City Royals,665621.0,Rony García,622092.0,Kyle Zimmer,9,0.0,0.0
+631567,2020,2020-07-28,2020-07-28T19:45:00Z,R,Final,day,Y,5,Progressive Field,114,Cleveland Indians,145,Chicago White Sox,592644.0,Adam Plutko,607074.0,Carlos Rodón,9,0.0,3.0
+631573,2020,2020-07-28,2020-07-28T19:40:00Z,R,Final,day,Y,5,Progressive Field,114,Cleveland Indians,145,Chicago White Sox,650644.0,Aaron Civale,656302.0,Dylan Cease,9,0.0,2.0
+631593,2020,2020-07-28,2020-07-28T22:40:00Z,R,Final,night,N,2602,Great American Ball Park,113,Cincinnati Reds,112,Chicago Cubs,641816.0,Tyler Mahle,621219.0,Alec Mills,9,0.0,0.0
+631663,2020,2020-07-28,2020-07-28T23:30:00Z,R,Final,night,N,3,Fenway Park,111,Boston Red Sox,121,New York Mets,664180.0,Matt Hall,656849.0,David Peterson,9,0.0,0.0
+630272,2020,2020-07-29,2020-07-29T23:10:00Z,R,Final,night,N,4705,Truist Park,144,Atlanta Braves,139,Tampa Bay Rays,647336.0,Michael Soroka,450203.0,Charlie Morton,9,0.0,0.0
+630495,2020,2020-07-29,2020-07-29T23:35:00Z,R,Final,night,N,2,Oriole Park at Camden Yards,110,Baltimore Orioles,147,New York Yankees,592879.0,Asher Wojciechowski,543037.0,Gerrit Cole,9,2.0,1.0
+630916,2020,2020-07-29,2020-07-29T22:05:00Z,R,Final,night,N,3309,Nationals Park,141,Toronto Blue Jays,120,Washington Nationals,663878.0,Nate Pearson,453286.0,Max Scherzer,10,0.0,0.0
+630940,2020,2020-07-29,2020-07-29T20:05:00Z,R,Final,day,N,5325,Globe Life Field,140,Texas Rangers,109,Arizona Diamondbacks,458681.0,Lance Lynn,518516.0,Madison Bumgarner,9,0.0,0.0
+631033,2020,2020-07-29,2020-07-30T01:45:00Z,R,Final,night,N,2395,Oracle Park,137,San Francisco Giants,135,San Diego Padres,456501.0,Johnny Cueto,663978.0,Chris Paddack,9,0.0,0.0
+631137,2020,2020-07-29,2020-07-29T23:05:00Z,R,Final,night,N,31,PNC Park,134,Pittsburgh Pirates,158,Milwaukee Brewers,605397.0,Joe Musgrove,605540.0,Brandon Woodruff,9,0.0,0.0
+631172,2020,2020-07-29,2020-07-29T19:40:00Z,R,Final,day,N,10,Oakland Coliseum,133,Oakland Athletics,115,Colorado Rockies,593423.0,Frankie Montas,608566.0,Germán Márquez,9,0.0,1.0
+631239,2020,2020-07-29,2020-07-29T23:10:00Z,R,Final,night,N,3289,Citi Field,121,New York Mets,111,Boston Red Sox,594798.0,Jacob deGrom,543135.0,Nathan Eovaldi,9,0.0,1.0
+631270,2020,2020-07-29,2020-07-30T00:10:00Z,R,Final,night,N,3312,Target Field,142,Minnesota Twins,138,St. Louis Cardinals,448179.0,Rich Hill,594965.0,Daniel Ponce de Leon,9,0.0,1.0
+631389,2020,2020-07-29,2020-07-30T02:10:00Z,R,Final,night,N,1,Angel Stadium,108,Los Angeles Angels,136,Seattle Mariners,571760.0,Andrew Heaney,643290.0,Justin Dunn,9,0.0,0.0
+631444,2020,2020-07-29,2020-07-29T23:10:00Z,R,Final,night,N,2392,Minute Maid Park,117,Houston Astros,119,Los Angeles Dodgers,664299.0,Cristian Javier,669160.0,Dustin May,13,0.0,0.0
+631492,2020,2020-07-29,2020-07-29T23:10:00Z,R,Final,night,N,2394,Comerica Park,116,Detroit Tigers,118,Kansas City Royals,571510.0,Matthew Boyd,518633.0,Danny Duffy,9,1.0,0.0
+631569,2020,2020-07-29,2020-07-29T22:10:00Z,R,Final,night,N,5,Progressive Field,114,Cleveland Indians,145,Chicago White Sox,668676.0,Zach Plesac,608337.0,Lucas Giolito,9,0.0,0.0
+631594,2020,2020-07-29,2020-07-29T22:40:00Z,R,Final,night,N,2602,Great American Ball Park,113,Cincinnati Reds,112,Chicago Cubs,543243.0,Sonny Gray,543294.0,Kyle Hendricks,9,0.0,0.0
+630145,2020,2020-07-30,2020-07-31T01:40:00Z,R,Final,night,N,15,Chase Field,109,Arizona Diamondbacks,119,Los Angeles Dodgers,592662.0,Robbie Ray,548389.0,Ross Stripling,9,3.0,0.0
+630346,2020,2020-07-30,2020-07-30T23:10:00Z,R,Final,night,N,4705,Truist Park,144,Atlanta Braves,139,Tampa Bay Rays,608331.0,Max Fried,642232.0,Ryan Yarbrough,9,0.0,0.0
+630496,2020,2020-07-30,2020-07-30T23:05:00Z,R,Final,night,N,2,Oriole Park at Camden Yards,110,Baltimore Orioles,147,New York Yankees,607644.0,John Means,457918.0,J.A. Happ,9,5.0,2.0
+630917,2020,2020-07-30,2020-07-30T20:05:00Z,R,Final,day,N,3309,Nationals Park,141,Toronto Blue Jays,120,Washington Nationals,547943.0,Hyun Jin Ryu,607200.0,Erick Fedde,9,0.0,1.0
+631018,2020,2020-07-30,2020-07-31T01:45:00Z,R,Final,night,N,2395,Oracle Park,137,San Francisco Giants,135,San Diego Padres,592332.0,Kevin Gausman,659275.0,Dinelson Lamet,10,0.0,0.0
+631238,2020,2020-07-30,2020-07-30T23:07:00Z,R,Final,night,N,3289,Citi Field,121,New York Mets,111,Boston Red Sox,571927.0,Steven Matz,527048.0,Martín Pérez,9,0.0,0.0
+631271,2020,2020-07-30,2020-07-30T23:07:00Z,R,Final,night,N,3312,Target Field,142,Minnesota Twins,114,Cleveland Indians,621244.0,José Berríos,669456.0,Shane Bieber,9,0.0,0.0
+631390,2020,2020-07-30,2020-07-31T01:40:00Z,R,Final,night,N,1,Angel Stadium,108,Los Angeles Angels,136,Seattle Mariners,605164.0,Dylan Bundy,594835.0,Marco Gonzales,9,3.0,0.0
+631494,2020,2020-07-30,2020-07-30T23:10:00Z,R,Final,night,N,2394,Comerica Park,116,Detroit Tigers,118,Kansas City Royals,467100.0,Iván Nova,663903.0,Brady Singer,9,1.0,1.0
+630201,2020,2020-07-31,2020-08-01T01:40:00Z,R,Final,night,N,15,Chase Field,109,Arizona Diamondbacks,119,Los Angeles Dodgers,668678.0,Zac Gallen,664062.0,Tony Gonsolin,9,0.0,0.0
+630275,2020,2020-07-31,2020-07-31T23:10:00Z,R,Final,night,N,4705,Truist Park,144,Atlanta Braves,121,New York Mets,656794.0,Sean Newcomb,519144.0,Rick Porcello,9,0.0,2.0
+630592,2020,2020-07-31,2020-07-31T23:35:00Z,R,Final,night,N,2,Oriole Park at Camden Yards,110,Baltimore Orioles,139,Tampa Bay Rays,502171.0,Alex Cobb,605483.0,Blake Snell,9,1.0,0.0
+631019,2020,2020-07-31,2020-08-01T01:10:00Z,R,Final,night,N,2395,Oracle Park,137,San Francisco Giants,140,Texas Rangers,657277.0,Logan Webb,501985.0,Mike Minor,9,1.0,0.0
+631066,2020,2020-07-31,2020-08-01T01:40:00Z,R,Final,night,N,680,T-Mobile Park,136,Seattle Mariners,133,Oakland Athletics,592836.0,Taijuan Walker,640455.0,Sean Manaea,9,0.0,0.0
+631222,2020,2020-07-31,2020-07-31T23:05:00Z,R,Final,night,N,3313,Yankee Stadium,147,New York Yankees,111,Boston Red Sox,656756.0,Jordan Montgomery,543901.0,Ryan Weber,9,0.0,0.0
+631272,2020,2020-07-31,2020-08-01T00:10:00Z,R,Final,night,N,3312,Target Field,142,Minnesota Twins,114,Cleveland Indians,677976.0,Randy Dobnak,605182.0,Mike Clevinger,9,0.0,3.0
+631391,2020,2020-07-31,2020-08-01T01:10:00Z,R,Final,night,N,1,Angel Stadium,108,Los Angeles Angels,117,Houston Astros,542882.0,Matt Andriese,621121.0,Lance McCullers Jr.,9,0.0,0.0
+631410,2020,2020-07-31,2020-08-01T00:05:00Z,R,Final,night,N,7,Kauffman Stadium,118,Kansas City Royals,145,Chicago White Sox,663460.0,Kris Bubic,572971.0,Dallas Keuchel,9,0.0,0.0
+631480,2020,2020-07-31,2020-07-31T23:10:00Z,R,Final,night,N,2394,Comerica Park,116,Detroit Tigers,113,Cincinnati Reds,605513.0,Spencer Turnbull,622491.0,Luis Castillo,9,0.0,0.0
+631539,2020,2020-07-31,2020-08-01T00:10:00Z,R,Final,night,N,19,Coors Field,115,Colorado Rockies,135,San Diego Padres,592351.0,Jon Gray,572070.0,Garrett Richards,9,0.0,2.0
+631647,2020,2020-07-31,2020-08-01T00:15:00Z,R,Final,night,N,17,Wrigley Field,112,Chicago Cubs,134,Pittsburgh Pirates,506433.0,Yu Darvish,592866.0,Trevor Williams,9,0.0,0.0
+630100,2020,2020-08-01,2020-08-02T00:10:00Z,R,Final,night,N,15,Chase Field,109,Arizona Diamondbacks,119,Los Angeles Dodgers,596133.0,Luke Weaver,628711.0,Julio Urías,9,0.0,1.0
+630278,2020,2020-08-01,2020-08-01T23:10:00Z,R,Final,night,N,4705,Truist Park,144,Atlanta Braves,121,New York Mets,657053.0,Touki Toussaint,608379.0,Michael Wacha,9,0.0,2.0
+630492,2020,2020-08-01,2020-08-01T23:35:00Z,R,Final,night,N,2,Oriole Park at Camden Yards,110,Baltimore Orioles,139,Tampa Bay Rays,453281.0,Wade LeBlanc,607192.0,Tyler Glasnow,11,0.0,0.0
+631020,2020,2020-08-01,2020-08-02T01:10:00Z,R,Final,night,N,2395,Oracle Park,137,San Francisco Giants,140,Texas Rangers,592767.0,Drew Smyly,543475.0,Jordan Lyles,9,2.0,2.0
+631067,2020,2020-08-01,2020-08-02T01:10:00Z,R,Final,night,N,680,T-Mobile Park,136,Seattle Mariners,133,Oakland Athletics,579328.0,Yusei Kikuchi,571666.0,Mike Fiers,10,0.0,0.0
+631224,2020,2020-08-01,2020-08-01T23:07:00Z,R,Final,night,N,3313,Yankee Stadium,147,New York Yankees,111,Boston Red Sox,547888.0,Masahiro Tanaka,643327.0,Zack Godley,9,0.0,1.0
+631273,2020,2020-08-01,2020-08-01T23:10:00Z,R,Final,night,N,3312,Target Field,142,Minnesota Twins,114,Cleveland Indians,628317.0,Kenta Maeda,471911.0,Carlos Carrasco,9,0.0,0.0
+631392,2020,2020-08-01,2020-08-01T23:07:00Z,R,Final,day,N,1,Angel Stadium,108,Los Angeles Angels,117,Houston Astros,656288.0,Griffin Canning,425844.0,Zack Greinke,10,0.0,0.0
+631413,2020,2020-08-01,2020-08-01T23:05:00Z,R,Final,night,N,7,Kauffman Stadium,118,Kansas City Royals,145,Chicago White Sox,671790.0,Ronald Bolaños,461829.0,Gio Gonzalez,9,4.0,0.0
+631540,2020,2020-08-01,2020-08-02T00:10:00Z,R,Final,night,N,19,Coors Field,115,Colorado Rockies,135,San Diego Padres,607536.0,Kyle Freeland,664192.0,Joey Lucchesi,9,0.0,0.0
+631622,2020,2020-08-01,2020-08-02T00:15:00Z,R,Final,night,N,17,Wrigley Field,112,Chicago Cubs,134,Pittsburgh Pirates,543022.0,Tyler Chatwood,656605.0,Mitch Keller,9,0.0,0.0
+630101,2020,2020-08-02,2020-08-02T20:10:00Z,R,Final,day,N,15,Chase Field,109,Arizona Diamondbacks,119,Los Angeles Dodgers,518876.0,Merrill Kelly,477132.0,Clayton Kershaw,9,2.0,0.0
+630280,2020,2020-08-02,2020-08-02T17:10:00Z,R,Final,day,N,4705,Truist Park,144,Atlanta Braves,121,New York Mets,657140.0,Kyle Wright,656849.0,David Peterson,9,0.0,0.0
+630493,2020,2020-08-02,2020-08-02T17:05:00Z,R,Final,day,N,2,Oriole Park at Camden Yards,110,Baltimore Orioles,139,Tampa Bay Rays,543548.0,Tommy Milone,630023.0,Yonny Chirinos,9,0.0,0.0
+631021,2020,2020-08-02,2020-08-02T20:05:00Z,R,Final,day,N,2395,Oracle Park,137,San Francisco Giants,140,Texas Rangers,502188.0,Jeff Samardzija,663465.0,Kolby Allard,9,0.0,0.0
+631068,2020,2020-08-02,2020-08-02T20:10:00Z,R,Final,day,N,680,T-Mobile Park,136,Seattle Mariners,133,Oakland Athletics,608665.0,Kendall Graveman,605135.0,Chris Bassitt,9,0.0,1.0
+631210,2020,2020-08-02,2020-08-02T23:08:00Z,R,Final,night,N,3313,Yankee Stadium,147,New York Yankees,111,Boston Red Sox,572020.0,James Paxton,592169.0,Austin Brice,9,2.0,0.0
+631274,2020,2020-08-02,2020-08-02T18:10:00Z,R,Final,day,N,3312,Target Field,142,Minnesota Twins,114,Cleveland Indians,461325.0,Tyler Clippard,650644.0,Aaron Civale,9,0.0,1.0
+631393,2020,2020-08-02,2020-08-02T20:10:00Z,R,Final,day,N,1,Angel Stadium,108,Los Angeles Angels,117,Houston Astros,660271.0,Shohei Ohtani,657624.0,Josh James,11,0.0,0.0
+631415,2020,2020-08-02,2020-08-02T18:05:00Z,R,Final,day,N,7,Kauffman Stadium,118,Kansas City Royals,145,Chicago White Sox,596001.0,Jakob Junis,656302.0,Dylan Cease,9,0.0,0.0
+631469,2020,2020-08-02,2020-08-02T16:15:00Z,R,Final,day,Y,2394,Comerica Park,116,Detroit Tigers,113,Cincinnati Reds,596057.0,Daniel Norris,545333.0,Trevor Bauer,7,1.0,0.0
+631470,2020,2020-08-02,2020-08-02T16:10:00Z,R,Final,day,Y,2394,Comerica Park,116,Detroit Tigers,113,Cincinnati Reds,665621.0,Rony García,543101.0,Anthony DeSclafani,7,2.0,0.0
+631541,2020,2020-08-02,2020-08-02T19:10:00Z,R,Final,day,N,19,Coors Field,115,Colorado Rockies,135,San Diego Padres,622608.0,Antonio Senzatela,605200.0,Zach Davies,9,0.0,0.0
+631606,2020,2020-08-02,2020-08-02T18:20:00Z,R,Final,day,N,17,Wrigley Field,112,Chicago Cubs,134,Pittsburgh Pirates,452657.0,Jon Lester,643230.0,Steven Brault,11,1.0,0.0
+630281,2020,2020-08-03,2020-08-03T23:10:00Z,R,Final,night,N,4705,Truist Park,144,Atlanta Braves,121,New York Mets,647336.0,Michael Soroka,594798.0,Jacob deGrom,9,0.0,0.0
+631070,2020,2020-08-03,2020-08-04T01:10:00Z,R,Final,night,N,680,T-Mobile Park,136,Seattle Mariners,133,Oakland Athletics,656954.0,Justus Sheffield,593423.0,Frankie Montas,9,0.0,0.0
+631090,2020,2020-08-03,2020-08-04T01:10:00Z,R,Final,night,N,2680,Petco Park,135,San Diego Padres,119,Los Angeles Dodgers,663978.0,Chris Paddack,621111.0,Walker Buehler,9,1.0,1.0
+631219,2020,2020-08-03,2020-08-03T23:05:00Z,R,Final,night,N,3313,Yankee Stadium,147,New York Yankees,143,Philadelphia Phillies,543037.0,Gerrit Cole,453562.0,Jake Arrieta,9,0.0,1.0
+631275,2020,2020-08-03,2020-08-04T00:10:00Z,R,Final,night,N,3312,Target Field,142,Minnesota Twins,134,Pittsburgh Pirates,626929.0,Lewis Thorpe,502706.0,Derek Holland,9,1.0,0.0
+631293,2020,2020-08-03,2020-08-04T00:10:00Z,R,Final,night,N,32,Miller Park,158,Milwaukee Brewers,145,Chicago White Sox,474463.0,Brett Anderson,607074.0,Carlos Rodón,9,2.0,1.0
+631542,2020,2020-08-03,2020-08-04T00:40:00Z,R,Final,night,N,19,Coors Field,115,Colorado Rockies,137,San Francisco Giants,592346.0,Chi Chi González,456501.0,Johnny Cueto,9,0.0,1.0
+631596,2020,2020-08-03,2020-08-03T22:40:00Z,R,Final,night,N,2602,Great American Ball Park,113,Cincinnati Reds,114,Cleveland Indians,543243.0,Sonny Gray,668676.0,Zach Plesac,9,1.0,0.0
+631645,2020,2020-08-03,2020-08-04T00:15:00Z,R,Final,night,N,17,Wrigley Field,112,Chicago Cubs,118,Kansas City Royals,621219.0,Alec Mills,518633.0,Danny Duffy,9,0.0,0.0
+630109,2020,2020-08-04,2020-08-05T01:10:00Z,R,Final,night,N,15,Chase Field,109,Arizona Diamondbacks,117,Houston Astros,518516.0,Madison Bumgarner,664299.0,Cristian Javier,9,1.0,0.0
+630284,2020,2020-08-04,2020-08-04T23:10:00Z,R,Final,night,N,4705,Truist Park,144,Atlanta Braves,141,Toronto Blue Jays,608331.0,Max Fried,533167.0,Matt Shoemaker,9,0.0,0.0
+630575,2020,2020-08-04,2020-08-04T23:35:00Z,R,Final,night,N,2,Oriole Park at Camden Yards,110,Baltimore Orioles,146,Miami Marlins,607644.0,John Means,641154.0,Pablo López,9,0.0,0.0
+630874,2020,2020-08-04,2020-08-04T23:05:00Z,R,Final,night,N,3309,Nationals Park,120,Washington Nationals,121,New York Mets,571578.0,Patrick Corbin,571927.0,Steven Matz,9,0.0,1.0
+630971,2020,2020-08-04,2020-08-04T22:40:00Z,R,Final,night,N,12,Tropicana Field,139,Tampa Bay Rays,111,Boston Red Sox,450203.0,Charlie Morton,543135.0,Nathan Eovaldi,9,0.0,0.0
+631057,2020,2020-08-04,2020-08-05T02:10:00Z,R,Final,night,N,680,T-Mobile Park,136,Seattle Mariners,108,Los Angeles Angels,643290.0,Justin Dunn,571760.0,Andrew Heaney,9,3.0,0.0
+631069,2020,2020-08-04,2020-08-05T01:10:00Z,R,Final,night,N,2680,Petco Park,135,San Diego Padres,119,Los Angeles Dodgers,659275.0,Dinelson Lamet,669160.0,Dustin May,9,0.0,0.0
+631173,2020,2020-08-04,2020-08-05T01:10:00Z,R,Final,night,N,10,Oakland Coliseum,133,Oakland Athletics,140,Texas Rangers,666200.0,Jesús Luzardo,458681.0,Lance Lynn,9,0.0,0.0
+631276,2020,2020-08-04,2020-08-04T18:10:00Z,R,Final,day,N,3312,Target Field,142,Minnesota Twins,134,Pittsburgh Pirates,621244.0,José Berríos,605397.0,Joe Musgrove,9,0.0,3.0
+631294,2020,2020-08-04,2020-08-05T00:10:00Z,R,Final,night,N,32,Miller Park,158,Milwaukee Brewers,145,Chicago White Sox,605540.0,Brandon Woodruff,608337.0,Lucas Giolito,9,0.0,0.0
+631543,2020,2020-08-04,2020-08-05T00:40:00Z,R,Final,night,N,19,Coors Field,115,Colorado Rockies,137,San Francisco Giants,608566.0,Germán Márquez,592332.0,Kevin Gausman,9,0.0,1.0
+631597,2020,2020-08-04,2020-08-04T22:10:00Z,R,Final,night,N,2602,Great American Ball Park,113,Cincinnati Reds,114,Cleveland Indians,641816.0,Tyler Mahle,669456.0,Shane Bieber,9,0.0,1.0
+631608,2020,2020-08-04,2020-08-05T00:15:00Z,R,Final,night,N,17,Wrigley Field,112,Chicago Cubs,118,Kansas City Royals,543294.0,Kyle Hendricks,663903.0,Brady Singer,9,0.0,0.0
+630110,2020,2020-08-05,2020-08-06T01:10:00Z,R,Final,night,N,15,Chase Field,109,Arizona Diamondbacks,117,Houston Astros,592662.0,Robbie Ray,621121.0,Lance McCullers Jr.,9,0.0,0.0
+630307,2020,2020-08-05,2020-08-05T23:10:00Z,R,Final,night,N,4705,Truist Park,144,Atlanta Braves,141,Toronto Blue Jays,656794.0,Sean Newcomb,547943.0,Hyun Jin Ryu,9,0.0,0.0
+630591,2020,2020-08-05,2020-08-05T21:05:00Z,R,Final,night,Y,2,Oriole Park at Camden Yards,110,Baltimore Orioles,146,Miami Marlins,502171.0,Alex Cobb,622694.0,Elieser Hernández,7,0.0,0.0
+630878,2020,2020-08-05,2020-08-05T22:05:00Z,R,Final,night,N,3309,Nationals Park,120,Washington Nationals,121,New York Mets,453286.0,Max Scherzer,519144.0,Rick Porcello,9,1.0,1.0
+630972,2020,2020-08-05,2020-08-05T22:40:00Z,R,Final,night,N,12,Tropicana Field,139,Tampa Bay Rays,111,Boston Red Sox,642232.0,Ryan Yarbrough,527048.0,Martín Pérez,9,0.0,0.0
+631043,2020,2020-08-05,2020-08-06T01:40:00Z,R,Final,night,N,680,T-Mobile Park,136,Seattle Mariners,108,Los Angeles Angels,594835.0,Marco Gonzales,527054.0,Julio Teheran,9,0.0,0.0
+631085,2020,2020-08-05,2020-08-06T01:10:00Z,R,Final,night,N,2680,Petco Park,135,San Diego Padres,119,Los Angeles Dodgers,572070.0,Garrett Richards,548389.0,Ross Stripling,9,0.0,0.0
+631127,2020,2020-08-05,2020-08-05T20:10:00Z,R,Final,night,Y,2681,Citizens Bank Park,143,Philadelphia Phillies,147,New York Yankees,605400.0,Aaron Nola,642528.0,Jonathan Loáisiga,7,0.0,0.0
+631140,2020,2020-08-05,2020-08-05T23:05:00Z,R,Final,night,N,31,PNC Park,134,Pittsburgh Pirates,142,Minnesota Twins,592866.0,Trevor Williams,677976.0,Randy Dobnak,9,0.0,0.0
+631174,2020,2020-08-05,2020-08-06T01:10:00Z,R,Final,night,N,10,Oakland Coliseum,133,Oakland Athletics,140,Texas Rangers,640455.0,Sean Manaea,502043.0,Kyle Gibson,9,1.0,2.0
+631220,2020,2020-08-05,2020-08-05T20:05:00Z,R,Final,night,Y,2681,Citizens Bank Park,147,New York Yankees,143,Philadelphia Phillies,457918.0,J.A. Happ,554430.0,Zack Wheeler,7,0.0,1.0
+631339,2020,2020-08-05,2020-08-05T21:10:00Z,R,Final,night,Y,2,Oriole Park at Camden Yards,146,Miami Marlins,110,Baltimore Orioles,595001.0,Josh A. Smith,592879.0,Asher Wojciechowski,7,0.0,2.0
+631417,2020,2020-08-05,2020-08-06T00:05:00Z,R,Final,night,N,7,Kauffman Stadium,118,Kansas City Royals,112,Chicago Cubs,663460.0,Kris Bubic,506433.0,Yu Darvish,9,0.0,0.0
+631518,2020,2020-08-05,2020-08-06T00:10:00Z,R,Final,night,N,4,Guaranteed Rate Field,145,Chicago White Sox,158,Milwaukee Brewers,572971.0,Dallas Keuchel,605288.0,Adrian Houser,9,0.0,0.0
+631544,2020,2020-08-05,2020-08-06T00:40:00Z,R,Final,night,N,19,Coors Field,115,Colorado Rockies,137,San Francisco Giants,592351.0,Jon Gray,657277.0,Logan Webb,9,0.0,1.0
+631570,2020,2020-08-05,2020-08-05T23:10:00Z,R,Final,night,N,5,Progressive Field,114,Cleveland Indians,113,Cincinnati Reds,605182.0,Mike Clevinger,622088.0,Tejay Antone,9,0.0,0.0
+630111,2020,2020-08-06,2020-08-06T23:07:00Z,R,Final,day,N,15,Chase Field,109,Arizona Diamondbacks,117,Houston Astros,668678.0,Zac Gallen,656232.0,Brandon Bielak,9,0.0,0.0
+630313,2020,2020-08-06,2020-08-06T23:10:00Z,R,Final,night,N,4705,Truist Park,144,Atlanta Braves,141,Toronto Blue Jays,657053.0,Touki Toussaint,663878.0,Nate Pearson,9,0.0,2.0
+631042,2020,2020-08-06,2020-08-06T20:10:00Z,R,Final,day,N,680,T-Mobile Park,136,Seattle Mariners,108,Los Angeles Angels,592836.0,Taijuan Walker,605164.0,Dylan Bundy,9,0.0,0.0
+631129,2020,2020-08-06,2020-08-06T22:05:00Z,R,Final,night,N,2681,Citizens Bank Park,143,Philadelphia Phillies,147,New York Yankees,621107.0,Zach Eflin,656756.0,Jordan Montgomery,9,0.0,3.0
+631148,2020,2020-08-06,2020-08-06T17:35:00Z,R,Final,day,N,31,PNC Park,134,Pittsburgh Pirates,142,Minnesota Twins,664141.0,JT Brubaker,628317.0,Kenta Maeda,9,3.0,0.0
+631175,2020,2020-08-06,2020-08-06T19:40:00Z,R,Final,day,N,10,Oakland Coliseum,133,Oakland Athletics,140,Texas Rangers,571666.0,Mike Fiers,501985.0,Mike Minor,9,0.0,0.0
+631340,2020,2020-08-06,2020-08-06T23:35:00Z,R,Final,night,N,2,Oriole Park at Camden Yards,146,Miami Marlins,110,Baltimore Orioles,657141.0,Jordan Yamamoto,453281.0,Wade LeBlanc,9,0.0,1.0
+631425,2020,2020-08-06,2020-08-06T23:07:00Z,R,Final,night,N,7,Kauffman Stadium,118,Kansas City Royals,112,Chicago Cubs,641745.0,Brad Keller,543022.0,Tyler Chatwood,9,0.0,1.0
+631513,2020,2020-08-06,2020-08-07T00:10:00Z,R,Final,night,N,4,Guaranteed Rate Field,145,Chicago White Sox,158,Milwaukee Brewers,461829.0,Gio Gonzalez,458676.0,Josh Lindblom,9,0.0,0.0
+631545,2020,2020-08-06,2020-08-06T19:10:00Z,R,Final,day,N,19,Coors Field,115,Colorado Rockies,137,San Francisco Giants,607536.0,Kyle Freeland,542881.0,Tyler Anderson,9,0.0,0.0
+631571,2020,2020-08-06,2020-08-06T22:10:00Z,R,Final,night,N,5,Progressive Field,114,Cleveland Indians,113,Cincinnati Reds,471911.0,Carlos Carrasco,622491.0,Luis Castillo,9,0.0,1.0
+630879,2020,2020-08-07,2020-08-07T22:05:00Z,R,Final,night,N,3309,Nationals Park,120,Washington Nationals,110,Baltimore Orioles,434671.0,Aníbal Sánchez,543548.0,Tommy Milone,9,1.0,0.0
+630920,2020,2020-08-07,2020-08-08T01:05:00Z,R,Final,night,N,5325,Globe Life Field,140,Texas Rangers,108,Los Angeles Angels,543475.0,Jordan Lyles,656288.0,Griffin Canning,9,2.0,0.0
+630974,2020,2020-08-07,2020-08-07T22:40:00Z,R,Final,night,N,12,Tropicana Field,139,Tampa Bay Rays,147,New York Yankees,605483.0,Blake Snell,547888.0,Masahiro Tanaka,9,0.0,0.0
+631045,2020,2020-08-07,2020-08-08T01:40:00Z,R,Final,night,N,680,T-Mobile Park,136,Seattle Mariners,115,Colorado Rockies,579328.0,Yusei Kikuchi,622608.0,Antonio Senzatela,9,0.0,0.0
+631073,2020,2020-08-07,2020-08-08T01:10:00Z,R,Final,night,N,2680,Petco Park,135,San Diego Padres,109,Arizona Diamondbacks,605200.0,Zach Davies,596133.0,Luke Weaver,9,0.0,1.0
+631105,2020,2020-08-07,2020-08-07T23:05:00Z,R,Final,night,N,31,PNC Park,134,Pittsburgh Pirates,116,Detroit Tigers,641771.0,Chad Kuhl,571510.0,Matthew Boyd,11,0.0,0.0
+631176,2020,2020-08-07,2020-08-08T01:10:00Z,R,Final,night,N,10,Oakland Coliseum,133,Oakland Athletics,117,Houston Astros,605135.0,Chris Bassitt,425844.0,Zack Greinke,13,0.0,0.0
+631237,2020,2020-08-07,2020-08-07T23:10:00Z,R,Final,night,N,3289,Citi Field,121,New York Mets,146,Miami Marlins,608379.0,Michael Wacha,650668.0,Humberto Mejía,9,0.0,0.0
+631295,2020,2020-08-07,2020-08-08T00:10:00Z,R,Final,night,N,32,Miller Park,158,Milwaukee Brewers,113,Cincinnati Reds,641778.0,Eric Lauer,545333.0,Trevor Bauer,9,0.0,0.0
+631358,2020,2020-08-07,2020-08-08T01:40:00Z,R,Final,night,N,22,Dodger Stadium,119,Los Angeles Dodgers,137,San Francisco Giants,628711.0,Julio Urías,502188.0,Jeff Samardzija,9,0.0,0.0
+631419,2020,2020-08-07,2020-08-08T00:05:00Z,R,Final,night,N,7,Kauffman Stadium,118,Kansas City Royals,142,Minnesota Twins,596001.0,Jakob Junis,656970.0,Devin Smeltzer,9,0.0,0.0
+631504,2020,2020-08-07,2020-08-08T00:10:00Z,R,Final,night,N,4,Guaranteed Rate Field,145,Chicago White Sox,114,Cleveland Indians,656302.0,Dylan Cease,650644.0,Aaron Civale,9,0.0,1.0
+631623,2020,2020-08-07,2020-08-07T23:30:00Z,R,Final,night,N,3,Fenway Park,111,Boston Red Sox,141,Toronto Blue Jays,543901.0,Ryan Weber,543699.0,Tanner Roark,9,1.0,1.0
+630880,2020,2020-08-08,2020-08-08T22:05:00Z,R,Final,night,N,3309,Nationals Park,120,Washington Nationals,110,Baltimore Orioles,608723.0,Austin Voth,664045.0,Thomas Eshelman,9,0.0,0.0
+630935,2020,2020-08-08,2020-08-08T23:05:00Z,R,Final,night,N,5325,Globe Life Field,140,Texas Rangers,108,Los Angeles Angels,663465.0,Kolby Allard,663776.0,Patrick Sandoval,9,0.0,0.0
+630962,2020,2020-08-08,2020-08-08T18:10:00Z,R,Final,day,Y,12,Tropicana Field,139,Tampa Bay Rays,147,New York Yankees,607192.0,Tyler Glasnow,543037.0,Gerrit Cole,7,0.0,0.0
+630973,2020,2020-08-08,2020-08-08T18:15:00Z,R,Final,day,Y,12,Tropicana Field,139,Tampa Bay Rays,147,New York Yankees,657044.0,Ryan Thompson,650633.0,Michael King,7,0.0,1.0
+631046,2020,2020-08-08,2020-08-09T01:10:00Z,R,Final,night,N,680,T-Mobile Park,136,Seattle Mariners,115,Colorado Rockies,676606.0,Nick Margevicius,624418.0,Ryan Castellani,9,0.0,0.0
+631074,2020,2020-08-08,2020-08-09T01:10:00Z,R,Final,night,N,2680,Petco Park,135,San Diego Padres,109,Arizona Diamondbacks,663978.0,Chris Paddack,518876.0,Merrill Kelly,9,0.0,1.0
+631106,2020,2020-08-08,2020-08-08T20:05:00Z,R,Final,day,N,31,PNC Park,134,Pittsburgh Pirates,116,Detroit Tigers,502706.0,Derek Holland,467100.0,Iván Nova,9,5.0,0.0
+631133,2020,2020-08-08,2020-08-08T22:05:00Z,R,Final,night,N,2681,Citizens Bank Park,143,Philadelphia Phillies,144,Atlanta Braves,453562.0,Jake Arrieta,657140.0,Kyle Wright,9,0.0,0.0
+631177,2020,2020-08-08,2020-08-08T20:10:00Z,R,Final,day,N,10,Oakland Coliseum,133,Oakland Athletics,117,Houston Astros,593423.0,Frankie Montas,664285.0,Framber Valdez,9,0.0,1.0
+631236,2020,2020-08-08,2020-08-08T23:10:00Z,R,Final,night,N,3289,Citi Field,121,New York Mets,146,Miami Marlins,656849.0,David Peterson,641447.0,Daniel Castano,9,1.0,0.0
+631296,2020,2020-08-08,2020-08-08T23:10:00Z,R,Final,night,N,32,Miller Park,158,Milwaukee Brewers,113,Cincinnati Reds,474463.0,Brett Anderson,543101.0,Anthony DeSclafani,9,3.0,0.0
+631343,2020,2020-08-08,2020-08-09T01:10:00Z,R,Final,night,N,22,Dodger Stadium,119,Los Angeles Dodgers,137,San Francisco Giants,477132.0,Clayton Kershaw,456501.0,Johnny Cueto,9,0.0,0.0
+631420,2020,2020-08-08,2020-08-08T23:05:00Z,R,Final,night,N,7,Kauffman Stadium,118,Kansas City Royals,142,Minnesota Twins,518633.0,Danny Duffy,543606.0,Jake Odorizzi,9,0.0,1.0
+631503,2020,2020-08-08,2020-08-08T18:10:00Z,R,Final,day,N,4,Guaranteed Rate Field,145,Chicago White Sox,114,Cleveland Indians,641582.0,Matt Foster,668676.0,Zach Plesac,9,0.0,0.0
+631658,2020,2020-08-08,2020-08-08T23:30:00Z,R,Final,night,N,3,Fenway Park,111,Boston Red Sox,141,Toronto Blue Jays,643327.0,Zack Godley,502624.0,Chase Anderson,9,0.0,0.0
+630882,2020,2020-08-09,2020-08-14T21:05:00Z,R,Final,night,N,2,Oriole Park at Camden Yards,120,Washington Nationals,110,Baltimore Orioles,544931.0,Stephen Strasburg,592879.0,Asher Wojciechowski,9,0.0,0.0
+630922,2020,2020-08-09,2020-08-09T18:35:00Z,R,Final,day,N,5325,Globe Life Field,140,Texas Rangers,108,Los Angeles Angels,458681.0,Lance Lynn,571760.0,Andrew Heaney,9,0.0,0.0
+630946,2020,2020-08-09,2020-08-09T17:10:00Z,R,Final,day,N,12,Tropicana Field,139,Tampa Bay Rays,147,New York Yankees,450203.0,Charlie Morton,572020.0,James Paxton,9,1.0,0.0
+631047,2020,2020-08-09,2020-08-09T20:10:00Z,R,Final,day,N,680,T-Mobile Park,136,Seattle Mariners,115,Colorado Rockies,656954.0,Justus Sheffield,608566.0,Germán Márquez,9,0.0,2.0
+631075,2020,2020-08-09,2020-08-09T20:10:00Z,R,Final,day,N,2680,Petco Park,135,San Diego Padres,109,Arizona Diamondbacks,659275.0,Dinelson Lamet,518516.0,Madison Bumgarner,9,0.0,3.0
+631110,2020,2020-08-09,2020-08-09T17:35:00Z,R,Final,day,N,31,PNC Park,134,Pittsburgh Pirates,116,Detroit Tigers,643230.0,Steven Brault,605513.0,Spencer Turnbull,9,0.0,0.0
+631131,2020,2020-08-09,2020-08-09T17:10:00Z,R,Final,day,Y,2681,Citizens Bank Park,143,Philadelphia Phillies,144,Atlanta Braves,675921.0,Spencer Howard,608331.0,Max Fried,7,0.0,0.0
+631136,2020,2020-08-09,2020-08-09T17:05:00Z,R,Final,day,Y,2681,Citizens Bank Park,143,Philadelphia Phillies,144,Atlanta Braves,592826.0,Vince Velasquez,660623.0,Huascar Ynoa,7,0.0,0.0
+631178,2020,2020-08-09,2020-08-09T20:10:00Z,R,Final,day,N,10,Oakland Coliseum,133,Oakland Athletics,117,Houston Astros,666200.0,Jesús Luzardo,664299.0,Cristian Javier,9,0.0,0.0
+631235,2020,2020-08-09,2020-08-09T17:10:00Z,R,Final,day,N,3289,Citi Field,121,New York Mets,146,Miami Marlins,594798.0,Jacob deGrom,641154.0,Pablo López,9,0.0,0.0
+631297,2020,2020-08-09,2020-08-09T18:10:00Z,R,Final,day,N,32,Miller Park,158,Milwaukee Brewers,113,Cincinnati Reds,605540.0,Brandon Woodruff,543243.0,Sonny Gray,9,1.0,0.0
+631373,2020,2020-08-09,2020-08-09T20:10:00Z,R,Final,day,N,22,Dodger Stadium,119,Los Angeles Dodgers,137,San Francisco Giants,621111.0,Walker Buehler,592332.0,Kevin Gausman,9,0.0,0.0
+631421,2020,2020-08-09,2020-08-09T18:05:00Z,R,Final,day,N,7,Kauffman Stadium,118,Kansas City Royals,142,Minnesota Twins,663903.0,Brady Singer,621244.0,José Berríos,9,0.0,2.0
+631506,2020,2020-08-09,2020-08-09T23:08:00Z,R,Final,night,N,4,Guaranteed Rate Field,145,Chicago White Sox,114,Cleveland Indians,608337.0,Lucas Giolito,669456.0,Shane Bieber,10,0.0,0.0
+631630,2020,2020-08-09,2020-08-09T17:35:00Z,R,Final,day,N,3,Fenway Park,111,Boston Red Sox,141,Toronto Blue Jays,543135.0,Nathan Eovaldi,533167.0,Matt Shoemaker,9,0.0,0.0
+630923,2020,2020-08-10,2020-08-11T01:05:00Z,R,Final,night,N,5325,Globe Life Field,140,Texas Rangers,136,Seattle Mariners,502043.0,Kyle Gibson,643290.0,Justin Dunn,9,0.0,1.0
+631138,2020,2020-08-10,2020-08-10T22:05:00Z,R,Final,night,N,2681,Citizens Bank Park,143,Philadelphia Phillies,144,Atlanta Braves,605400.0,Aaron Nola,656794.0,Sean Newcomb,9,0.0,3.0
+631233,2020,2020-08-10,2020-08-10T23:10:00Z,R,Final,night,N,3289,Citi Field,121,New York Mets,120,Washington Nationals,571927.0,Steven Matz,571578.0,Patrick Corbin,9,0.0,0.0
+631298,2020,2020-08-10,2020-08-11T00:10:00Z,R,Final,night,N,32,Miller Park,158,Milwaukee Brewers,142,Minnesota Twins,605288.0,Adrian Houser,677976.0,Randy Dobnak,9,0.0,0.0
+631346,2020,2020-08-10,2020-08-11T01:40:00Z,R,Final,night,N,22,Dodger Stadium,119,Los Angeles Dodgers,135,San Diego Padres,669160.0,Dustin May,606131.0,Luis Perdomo,9,0.0,1.0
+631395,2020,2020-08-10,2020-08-11T01:40:00Z,R,Final,night,N,1,Angel Stadium,108,Los Angeles Angels,133,Oakland Athletics,527054.0,Julio Teheran,640455.0,Sean Manaea,9,0.0,3.0
+631445,2020,2020-08-10,2020-08-11T01:10:00Z,R,Final,night,N,2392,Minute Maid Park,117,Houston Astros,137,San Francisco Giants,621121.0,Lance McCullers Jr.,657277.0,Logan Webb,9,0.0,0.0
+631473,2020,2020-08-10,2020-08-10T23:10:00Z,R,Final,night,N,2394,Comerica Park,116,Detroit Tigers,145,Chicago White Sox,605242.0,Michael Fulmer,572971.0,Dallas Keuchel,9,0.0,0.0
+631546,2020,2020-08-10,2020-08-11T00:40:00Z,R,Final,night,N,19,Coors Field,115,Colorado Rockies,109,Arizona Diamondbacks,592351.0,Jon Gray,592662.0,Robbie Ray,9,2.0,1.0
+631631,2020,2020-08-10,2020-08-10T23:30:00Z,R,Final,night,N,3,Fenway Park,111,Boston Red Sox,139,Tampa Bay Rays,518489.0,Ryan Brasier,642232.0,Ryan Yarbrough,9,0.0,3.0
+630901,2020,2020-08-11,2020-08-11T22:37:00Z,R,Final,night,N,2756,Sahlen Field,141,Toronto Blue Jays,146,Miami Marlins,547943.0,Hyun Jin Ryu,622694.0,Elieser Hernández,10,0.0,0.0
+630924,2020,2020-08-11,2020-08-12T01:05:00Z,R,Final,night,N,5325,Globe Life Field,140,Texas Rangers,136,Seattle Mariners,501985.0,Mike Minor,594835.0,Marco Gonzales,9,0.0,2.0
+631139,2020,2020-08-11,2020-08-11T23:05:00Z,R,Final,night,N,2681,Citizens Bank Park,143,Philadelphia Phillies,110,Baltimore Orioles,554430.0,Zack Wheeler,502171.0,Alex Cobb,10,0.0,0.0
+631192,2020,2020-08-11,2020-08-11T23:05:00Z,R,Final,night,N,3313,Yankee Stadium,147,New York Yankees,144,Atlanta Braves,656756.0,Jordan Montgomery,657053.0,Touki Toussaint,9,0.0,3.0
+631243,2020,2020-08-11,2020-08-11T23:10:00Z,R,Final,night,N,3289,Citi Field,121,New York Mets,120,Washington Nationals,519144.0,Rick Porcello,453286.0,Max Scherzer,9,1.0,0.0
+631299,2020,2020-08-11,2020-08-12T00:10:00Z,R,Final,night,N,32,Miller Park,158,Milwaukee Brewers,142,Minnesota Twins,458676.0,Josh Lindblom,461325.0,Tyler Clippard,9,2.0,1.0
+631347,2020,2020-08-11,2020-08-12T01:40:00Z,R,Final,night,N,22,Dodger Stadium,119,Los Angeles Dodgers,135,San Diego Padres,548389.0,Ross Stripling,572070.0,Garrett Richards,9,0.0,0.0
+631396,2020,2020-08-11,2020-08-12T01:40:00Z,R,Final,night,N,1,Angel Stadium,108,Los Angeles Angels,133,Oakland Athletics,605164.0,Dylan Bundy,571666.0,Mike Fiers,9,0.0,0.0
+631446,2020,2020-08-11,2020-08-12T01:10:00Z,R,Final,night,N,2392,Minute Maid Park,117,Houston Astros,137,San Francisco Giants,656232.0,Brandon Bielak,542881.0,Tyler Anderson,10,0.0,0.0
+631474,2020,2020-08-11,2020-08-11T23:10:00Z,R,Final,night,N,2394,Comerica Park,116,Detroit Tigers,145,Chicago White Sox,641302.0,Tyler Alexander,461829.0,Gio Gonzalez,9,4.0,0.0
+631547,2020,2020-08-11,2020-08-12T00:40:00Z,R,Final,night,N,19,Coors Field,115,Colorado Rockies,109,Arizona Diamondbacks,607536.0,Kyle Freeland,668678.0,Zac Gallen,9,0.0,0.0
+631572,2020,2020-08-11,2020-08-11T23:10:00Z,R,Final,night,N,5,Progressive Field,114,Cleveland Indians,112,Chicago Cubs,592644.0,Adam Plutko,452657.0,Jon Lester,9,0.0,0.0
+631598,2020,2020-08-11,2020-08-11T22:40:00Z,R,Final,night,N,2602,Great American Ball Park,113,Cincinnati Reds,118,Kansas City Royals,622491.0,Luis Castillo,663460.0,Kris Bubic,10,0.0,0.0
+631646,2020,2020-08-11,2020-08-11T23:30:00Z,R,Final,night,N,3,Fenway Park,111,Boston Red Sox,139,Tampa Bay Rays,527048.0,Martín Pérez,552640.0,Andrew Kittredge,9,1.0,0.0
+630902,2020,2020-08-12,2020-08-12T22:37:00Z,R,Final,night,N,2756,Sahlen Field,141,Toronto Blue Jays,146,Miami Marlins,663878.0,Nate Pearson,657141.0,Jordan Yamamoto,10,3.0,0.0
+630926,2020,2020-08-12,2020-08-13T01:05:00Z,R,Final,night,N,5325,Globe Life Field,140,Texas Rangers,136,Seattle Mariners,543475.0,Jordan Lyles,592836.0,Taijuan Walker,9,0.0,0.0
+631141,2020,2020-08-12,2020-08-12T23:05:00Z,R,Final,night,N,2681,Citizens Bank Park,143,Philadelphia Phillies,110,Baltimore Orioles,621107.0,Zach Eflin,453281.0,Wade LeBlanc,9,0.0,0.0
+631208,2020,2020-08-12,2020-08-12T23:05:00Z,R,Final,night,N,3313,Yankee Stadium,147,New York Yankees,144,Atlanta Braves,547888.0,Masahiro Tanaka,660623.0,Huascar Ynoa,9,0.0,0.0
+631232,2020,2020-08-12,2020-08-12T23:10:00Z,R,Final,night,N,3289,Citi Field,121,New York Mets,120,Washington Nationals,607229.0,Robert Gsellman,434671.0,Aníbal Sánchez,9,3.0,4.0
+631300,2020,2020-08-12,2020-08-12T23:10:00Z,R,Final,night,N,32,Miller Park,158,Milwaukee Brewers,142,Minnesota Twins,641778.0,Eric Lauer,628317.0,Kenta Maeda,9,0.0,0.0
+631350,2020,2020-08-12,2020-08-13T01:40:00Z,R,Final,night,N,22,Dodger Stadium,119,Los Angeles Dodgers,135,San Diego Padres,664062.0,Tony Gonsolin,605200.0,Zach Davies,9,0.0,0.0
+631397,2020,2020-08-12,2020-08-12T20:10:00Z,R,Final,day,N,1,Angel Stadium,108,Los Angeles Angels,133,Oakland Athletics,656288.0,Griffin Canning,605135.0,Chris Bassitt,9,1.0,1.0
+631447,2020,2020-08-12,2020-08-12T23:10:00Z,R,Final,night,N,2392,Minute Maid Park,117,Houston Astros,137,San Francisco Giants,425844.0,Zack Greinke,502239.0,Trevor Cahill,9,1.0,0.0
+631475,2020,2020-08-12,2020-08-12T17:10:00Z,R,Final,day,N,2394,Comerica Park,116,Detroit Tigers,145,Chicago White Sox,571510.0,Matthew Boyd,656302.0,Dylan Cease,9,2.0,1.0
+631535,2020,2020-08-12,2020-08-12T19:10:00Z,R,Final,day,N,19,Coors Field,115,Colorado Rockies,109,Arizona Diamondbacks,622608.0,Antonio Senzatela,596133.0,Luke Weaver,9,1.0,0.0
+631568,2020,2020-08-12,2020-08-12T22:10:00Z,R,Final,night,N,5,Progressive Field,114,Cleveland Indians,112,Chicago Cubs,471911.0,Carlos Carrasco,543294.0,Kyle Hendricks,9,0.0,0.0
+631599,2020,2020-08-12,2020-08-12T22:40:00Z,R,Final,night,N,2602,Great American Ball Park,113,Cincinnati Reds,118,Kansas City Royals,489119.0,Wade Miley,641745.0,Brad Keller,9,1.0,0.0
+631648,2020,2020-08-12,2020-08-12T23:30:00Z,R,Final,night,N,3,Fenway Park,111,Boston Red Sox,139,Tampa Bay Rays,643327.0,Zack Godley,605483.0,Blake Snell,9,1.0,0.0
+631142,2020,2020-08-13,2020-08-13T20:05:00Z,R,Final,day,N,2681,Citizens Bank Park,143,Philadelphia Phillies,110,Baltimore Orioles,453562.0,Jake Arrieta,664045.0,Thomas Eshelman,9,0.0,0.0
+631231,2020,2020-08-13,2020-08-13T17:10:00Z,R,Final,day,N,3289,Citi Field,121,New York Mets,120,Washington Nationals,656849.0,David Peterson,608723.0,Austin Voth,9,1.0,0.0
+631351,2020,2020-08-13,2020-08-14T01:40:00Z,R,Final,night,N,22,Dodger Stadium,119,Los Angeles Dodgers,135,San Diego Padres,628711.0,Julio Urías,663978.0,Chris Paddack,9,2.0,3.0
+631471,2020,2020-08-13,2020-08-13T07:33:00Z,R,Final,day,Y,2394,Comerica Park,116,Detroit Tigers,138,St. Louis Cardinals,,,,,0,,
+631472,2020,2020-08-13,2020-08-13T17:10:00Z,R,Final,day,Y,2394,Comerica Park,116,Detroit Tigers,138,St. Louis Cardinals,,,,,0,,
+631600,2020,2020-08-13,2020-08-13T21:10:00Z,R,Final,night,N,2602,Great American Ball Park,113,Cincinnati Reds,134,Pittsburgh Pirates,543101.0,Anthony DeSclafani,592866.0,Trevor Williams,9,2.0,0.0
+631609,2020,2020-08-13,2020-08-13T23:15:00Z,R,Final,night,N,17,Wrigley Field,112,Chicago Cubs,158,Milwaukee Brewers,506433.0,Yu Darvish,474463.0,Brett Anderson,9,0.0,1.0
+631650,2020,2020-08-13,2020-08-13T20:30:00Z,R,Final,day,N,3,Fenway Park,111,Boston Red Sox,139,Tampa Bay Rays,606996.0,Kyle Hart,607192.0,Tyler Glasnow,9,2.0,3.0
+630115,2020,2020-08-14,2020-08-15T01:40:00Z,R,Final,night,N,15,Chase Field,109,Arizona Diamondbacks,135,San Diego Padres,518876.0,Merrill Kelly,659275.0,Dinelson Lamet,9,0.0,0.0
+630903,2020,2020-08-14,2020-08-14T22:37:00Z,R,Final,night,N,2756,Sahlen Field,141,Toronto Blue Jays,139,Tampa Bay Rays,543699.0,Tanner Roark,670950.0,Trevor Richards,9,2.0,0.0
+631022,2020,2020-08-14,2020-08-15T01:45:00Z,R,Final,night,N,2395,Oracle Park,137,San Francisco Giants,133,Oakland Athletics,456501.0,Johnny Cueto,666200.0,Jesús Luzardo,10,0.0,1.0
+631150,2020,2020-08-14,2020-08-14T23:05:00Z,R,Final,night,N,2681,Citizens Bank Park,143,Philadelphia Phillies,121,New York Mets,675921.0,Spencer Howard,621141.0,Walker Lockett,9,1.0,0.0
+631196,2020,2020-08-14,2020-08-14T23:05:00Z,R,Final,night,N,3313,Yankee Stadium,147,New York Yankees,111,Boston Red Sox,543037.0,Gerrit Cole,605155.0,Colten Brewer,9,0.0,0.0
+631322,2020,2020-08-14,2020-08-14T23:10:00Z,R,Final,night,N,4169,Marlins Park,146,Miami Marlins,144,Atlanta Braves,641154.0,Pablo López,657140.0,Kyle Wright,9,1.0,0.0
+631381,2020,2020-08-14,2020-08-15T01:40:00Z,R,Final,night,N,1,Angel Stadium,108,Los Angeles Angels,119,Los Angeles Dodgers,663776.0,Patrick Sandoval,477132.0,Clayton Kershaw,9,0.0,0.0
+631448,2020,2020-08-14,2020-08-15T01:10:00Z,R,Final,night,N,2392,Minute Maid Park,117,Houston Astros,136,Seattle Mariners,664285.0,Framber Valdez,641482.0,Nestor Cortes,9,1.0,9.0
+631476,2020,2020-08-14,2020-08-14T23:10:00Z,R,Final,night,N,2394,Comerica Park,116,Detroit Tigers,114,Cleveland Indians,467100.0,Iván Nova,650644.0,Aaron Civale,9,0.0,0.0
+631516,2020,2020-08-14,2020-08-15T00:40:00Z,R,Final,night,N,19,Coors Field,115,Colorado Rockies,140,Texas Rangers,624418.0,Ryan Castellani,458681.0,Lance Lynn,9,0.0,1.0
+631601,2020,2020-08-14,2020-08-14T23:10:00Z,R,Final,night,N,2602,Great American Ball Park,113,Cincinnati Reds,134,Pittsburgh Pirates,543243.0,Sonny Gray,641771.0,Chad Kuhl,9,0.0,0.0
+631610,2020,2020-08-14,2020-08-15T00:15:00Z,R,Final,night,N,17,Wrigley Field,112,Chicago Cubs,158,Milwaukee Brewers,621219.0,Alec Mills,605540.0,Brandon Woodruff,9,0.0,0.0
+631683,2020,2020-08-14,2020-08-14T22:59:00Z,R,Final,night,N,2,Oriole Park at Camden Yards,110,Baltimore Orioles,120,Washington Nationals,543548.0,Tommy Milone,544931.0,Stephen Strasburg,9,0.0,1.0
+630116,2020,2020-08-15,2020-08-16T00:10:00Z,R,Final,night,N,15,Chase Field,109,Arizona Diamondbacks,135,San Diego Padres,622065.0,Alex Young,615698.0,Cal Quantrill,9,1.0,0.0
+630568,2020,2020-08-15,2020-08-15T23:35:00Z,R,Final,night,N,2,Oriole Park at Camden Yards,110,Baltimore Orioles,120,Washington Nationals,592879.0,Asher Wojciechowski,571578.0,Patrick Corbin,9,0.0,2.0
+630905,2020,2020-08-15,2020-08-16T17:07:00Z,R,Final,day,N,2756,Sahlen Field,141,Toronto Blue Jays,139,Tampa Bay Rays,502624.0,Chase Anderson,642232.0,Ryan Yarbrough,9,0.0,0.0
+631023,2020,2020-08-15,2020-08-15T23:07:00Z,R,Final,day,N,2395,Oracle Park,137,San Francisco Giants,133,Oakland Athletics,592332.0,Kevin Gausman,640455.0,Sean Manaea,9,0.0,0.0
+631151,2020,2020-08-15,2020-08-15T22:05:00Z,R,Final,night,N,2681,Citizens Bank Park,143,Philadelphia Phillies,121,New York Mets,605400.0,Aaron Nola,571927.0,Steven Matz,9,0.0,0.0
+631197,2020,2020-08-15,2020-08-15T23:07:00Z,R,Final,night,N,3313,Yankee Stadium,147,New York Yankees,111,Boston Red Sox,572020.0,James Paxton,543135.0,Nathan Eovaldi,9,0.0,2.0
+631279,2020,2020-08-15,2020-08-15T17:40:00Z,R,Final,day,Y,3312,Target Field,142,Minnesota Twins,118,Kansas City Royals,,,,,7,0.0,1.0
+631280,2020,2020-08-15,2020-08-15T17:35:00Z,R,Final,day,Y,3312,Target Field,142,Minnesota Twins,118,Kansas City Royals,543606.0,Jake Odorizzi,453178.0,Ian Kennedy,7,0.0,0.0
+631330,2020,2020-08-15,2020-08-15T22:10:00Z,R,Final,night,N,4169,Marlins Park,146,Miami Marlins,144,Atlanta Braves,641447.0,Daniel Castano,608331.0,Max Fried,9,0.0,0.0
+631363,2020,2020-08-15,2020-08-16T01:40:00Z,R,Final,night,N,1,Angel Stadium,108,Los Angeles Angels,119,Los Angeles Dodgers,571760.0,Andrew Heaney,621111.0,Walker Buehler,10,0.0,2.0
+631449,2020,2020-08-15,2020-08-15T23:10:00Z,R,Final,night,N,2392,Minute Maid Park,117,Houston Astros,136,Seattle Mariners,664299.0,Cristian Javier,676606.0,Nick Margevicius,9,0.0,0.0
+631477,2020,2020-08-15,2020-08-15T22:10:00Z,R,Final,night,N,2394,Comerica Park,116,Detroit Tigers,114,Cleveland Indians,605513.0,Spencer Turnbull,669456.0,Shane Bieber,9,0.0,0.0
+631507,2020,2020-08-15,2020-08-15T17:15:00Z,R,Final,day,Y,4,Guaranteed Rate Field,145,Chicago White Sox,138,St. Louis Cardinals,641582.0,Matt Foster,663765.0,Jake Woodford,7,0.0,0.0
+631508,2020,2020-08-15,2020-08-15T17:10:00Z,R,Final,day,Y,4,Guaranteed Rate Field,145,Chicago White Sox,138,St. Louis Cardinals,608337.0,Lucas Giolito,425794.0,Adam Wainwright,7,4.0,0.0
+631533,2020,2020-08-15,2020-08-16T00:10:00Z,R,Final,night,N,19,Coors Field,115,Colorado Rockies,140,Texas Rangers,608566.0,Germán Márquez,502043.0,Kyle Gibson,9,0.0,0.0
+631611,2020,2020-08-15,2020-08-15T19:20:00Z,R,Final,day,N,17,Wrigley Field,112,Chicago Cubs,158,Milwaukee Brewers,607067.0,Colin Rea,605288.0,Adrian Houser,10,0.0,2.0
+630117,2020,2020-08-16,2020-08-16T20:10:00Z,R,Final,day,N,15,Chase Field,109,Arizona Diamondbacks,135,San Diego Padres,592662.0,Robbie Ray,572070.0,Garrett Richards,9,0.0,0.0
+630872,2020,2020-08-16,2020-08-16T18:07:00Z,R,Final,day,N,2756,Sahlen Field,141,Toronto Blue Jays,139,Tampa Bay Rays,533167.0,Matt Shoemaker,630023.0,Yonny Chirinos,8,0.0,2.0
+631024,2020,2020-08-16,2020-08-16T20:05:00Z,R,Final,day,N,2395,Oracle Park,137,San Francisco Giants,133,Oakland Athletics,657277.0,Logan Webb,571666.0,Mike Fiers,9,0.0,0.0
+631124,2020,2020-08-16,2020-08-16T17:05:00Z,R,Final,day,N,2681,Citizens Bank Park,143,Philadelphia Phillies,121,New York Mets,554430.0,Zack Wheeler,519144.0,Rick Porcello,9,0.0,1.0
+631198,2020,2020-08-16,2020-08-16T23:08:00Z,R,Final,night,N,3313,Yankee Stadium,147,New York Yankees,111,Boston Red Sox,457918.0,J.A. Happ,607391.0,Chris Mazza,9,0.0,1.0
+631252,2020,2020-08-16,2020-08-16T18:10:00Z,R,Final,day,N,3312,Target Field,142,Minnesota Twins,118,Kansas City Royals,677976.0,Randy Dobnak,663903.0,Brady Singer,9,1.0,0.0
+631324,2020,2020-08-16,2020-08-16T17:10:00Z,R,Final,day,N,4169,Marlins Park,146,Miami Marlins,144,Atlanta Braves,622694.0,Elieser Hernández,572362.0,Robbie Erlin,9,0.0,0.0
+631364,2020,2020-08-16,2020-08-16T20:10:00Z,R,Final,day,N,1,Angel Stadium,108,Los Angeles Angels,119,Los Angeles Dodgers,527054.0,Julio Teheran,669160.0,Dustin May,9,0.0,0.0
+631450,2020,2020-08-16,2020-08-16T18:10:00Z,R,Final,day,N,2392,Minute Maid Park,117,Houston Astros,136,Seattle Mariners,621121.0,Lance McCullers Jr.,656954.0,Justus Sheffield,9,0.0,0.0
+631479,2020,2020-08-16,2020-08-16T17:10:00Z,R,Final,day,N,2394,Comerica Park,116,Detroit Tigers,114,Cleveland Indians,605242.0,Michael Fulmer,592644.0,Adam Plutko,9,0.0,0.0
+631491,2020,2020-08-16,2020-08-16T18:10:00Z,R,Final,day,N,4,Guaranteed Rate Field,145,Chicago White Sox,138,St. Louis Cardinals,572971.0,Dallas Keuchel,641712.0,Dakota Hudson,9,0.0,1.0
+631521,2020,2020-08-16,2020-08-16T19:10:00Z,R,Final,day,N,19,Coors Field,115,Colorado Rockies,140,Texas Rangers,592351.0,Jon Gray,663465.0,Kolby Allard,9,0.0,0.0
+631612,2020,2020-08-16,2020-08-16T18:20:00Z,R,Final,day,N,17,Wrigley Field,112,Chicago Cubs,158,Milwaukee Brewers,452657.0,Jon Lester,458676.0,Josh Lindblom,9,0.0,3.0
+631679,2020,2020-08-16,2020-08-16T17:05:00Z,R,Final,day,N,2,Oriole Park at Camden Yards,110,Baltimore Orioles,120,Washington Nationals,607644.0,John Means,453286.0,Max Scherzer,9,3.0,1.0
+630118,2020,2020-08-17,2020-08-18T01:40:00Z,R,Final,night,N,15,Chase Field,109,Arizona Diamondbacks,133,Oakland Athletics,668678.0,Zac Gallen,605135.0,Chris Bassitt,9,0.0,0.0
+630316,2020,2020-08-17,2020-08-17T23:10:00Z,R,Final,night,N,4705,Truist Park,144,Atlanta Braves,120,Washington Nationals,657053.0,Touki Toussaint,434671.0,Aníbal Sánchez,9,0.0,0.0
+630927,2020,2020-08-17,2020-08-18T01:05:00Z,R,Final,night,N,5325,Globe Life Field,140,Texas Rangers,135,San Diego Padres,543475.0,Jordan Lyles,605200.0,Zach Davies,9,0.0,0.0
+630996,2020,2020-08-17,2020-08-17T21:20:00Z,R,Final,night,Y,17,Wrigley Field,138,St. Louis Cardinals,112,Chicago Cubs,621052.0,Alex Reyes,668338.0,Tyson Miller,7,1.0,0.0
+631199,2020,2020-08-17,2020-08-17T23:05:00Z,R,Final,night,N,3313,Yankee Stadium,147,New York Yankees,111,Boston Red Sox,656756.0,Jordan Montgomery,527048.0,Martín Pérez,9,0.0,0.0
+631258,2020,2020-08-17,2020-08-18T00:10:00Z,R,Final,night,N,3312,Target Field,142,Minnesota Twins,118,Kansas City Royals,605538.0,Matt Wisler,663460.0,Kris Bubic,9,0.0,0.0
+631325,2020,2020-08-17,2020-08-17T23:10:00Z,R,Final,night,N,4169,Marlins Park,146,Miami Marlins,121,New York Mets,657141.0,Jordan Yamamoto,607229.0,Robert Gsellman,9,0.0,1.0
+631352,2020,2020-08-17,2020-08-18T01:40:00Z,R,Final,night,N,22,Dodger Stadium,119,Los Angeles Dodgers,136,Seattle Mariners,548389.0,Ross Stripling,643290.0,Justin Dunn,9,2.0,1.0
+631365,2020,2020-08-17,2020-08-18T01:40:00Z,R,Final,night,N,1,Angel Stadium,108,Los Angeles Angels,137,San Francisco Giants,656288.0,Griffin Canning,542881.0,Tyler Anderson,9,2.0,0.0
+631451,2020,2020-08-17,2020-08-18T01:10:00Z,R,Final,night,N,2392,Minute Maid Park,117,Houston Astros,115,Colorado Rockies,656232.0,Brandon Bielak,607536.0,Kyle Freeland,9,0.0,2.0
+631493,2020,2020-08-17,2020-08-18T00:10:00Z,R,Final,night,N,4,Guaranteed Rate Field,145,Chicago White Sox,116,Detroit Tigers,461829.0,Gio Gonzalez,571510.0,Matthew Boyd,9,0.0,2.0
+631613,2020,2020-08-17,2020-08-17T21:15:00Z,R,Final,night,Y,17,Wrigley Field,112,Chicago Cubs,138,St. Louis Cardinals,543294.0,Kyle Hendricks,547942.0,Kwang Hyun Kim,7,0.0,0.0
+631678,2020,2020-08-17,2020-08-17T23:35:00Z,R,Final,night,N,2,Oriole Park at Camden Yards,110,Baltimore Orioles,141,Toronto Blue Jays,502171.0,Alex Cobb,547943.0,Hyun Jin Ryu,9,0.0,0.0
+630174,2020,2020-08-18,2020-08-18T22:10:00Z,R,Final,day,N,15,Chase Field,109,Arizona Diamondbacks,133,Oakland Athletics,596133.0,Luke Weaver,593423.0,Frankie Montas,9,0.0,5.0
+630322,2020,2020-08-18,2020-08-18T23:10:00Z,R,Final,night,N,4705,Truist Park,144,Atlanta Braves,120,Washington Nationals,458708.0,Josh Tomlin,608723.0,Austin Voth,9,0.0,1.0
+630928,2020,2020-08-18,2020-08-18T20:05:00Z,R,Final,day,N,5325,Globe Life Field,140,Texas Rangers,135,San Diego Padres,501985.0,Mike Minor,670970.0,Adrian Morejon,9,4.0,0.0
+631114,2020,2020-08-18,2020-08-18T23:05:00Z,R,Final,night,N,31,PNC Park,134,Pittsburgh Pirates,114,Cleveland Indians,664141.0,JT Brubaker,471911.0,Carlos Carrasco,10,0.0,1.0
+631200,2020,2020-08-18,2020-08-18T23:05:00Z,R,Final,night,N,3313,Yankee Stadium,147,New York Yankees,139,Tampa Bay Rays,547888.0,Masahiro Tanaka,605483.0,Blake Snell,9,0.0,0.0
+631260,2020,2020-08-18,2020-08-19T00:10:00Z,R,Final,night,N,3312,Target Field,142,Minnesota Twins,158,Milwaukee Brewers,628317.0,Kenta Maeda,669203.0,Corbin Burnes,12,0.0,0.0
+631326,2020,2020-08-18,2020-08-18T23:10:00Z,R,Final,night,N,4169,Marlins Park,146,Miami Marlins,121,New York Mets,650668.0,Humberto Mejía,621261.0,Corey Oswalt,9,0.0,0.0
+631353,2020,2020-08-18,2020-08-18T23:10:00Z,R,Final,day,N,22,Dodger Stadium,119,Los Angeles Dodgers,136,Seattle Mariners,664062.0,Tony Gonsolin,594835.0,Marco Gonzales,9,0.0,0.0
+631366,2020,2020-08-18,2020-08-18T20:10:00Z,R,Final,day,N,1,Angel Stadium,108,Los Angeles Angels,137,San Francisco Giants,605164.0,Dylan Bundy,502239.0,Trevor Cahill,9,1.0,1.0
+631452,2020,2020-08-18,2020-08-18T19:10:00Z,R,Final,day,N,2392,Minute Maid Park,117,Houston Astros,115,Colorado Rockies,425844.0,Zack Greinke,622608.0,Antonio Senzatela,11,0.0,0.0
+631496,2020,2020-08-18,2020-08-19T00:10:00Z,R,Final,night,N,4,Guaranteed Rate Field,145,Chicago White Sox,116,Detroit Tigers,656302.0,Dylan Cease,669373.0,Tarik Skubal,9,0.0,1.0
+631620,2020,2020-08-18,2020-08-19T00:15:00Z,R,Final,night,N,17,Wrigley Field,112,Chicago Cubs,138,St. Louis Cardinals,506433.0,Yu Darvish,594965.0,Daniel Ponce de Leon,9,0.0,0.0
+631651,2020,2020-08-18,2020-08-18T23:30:00Z,R,Final,night,N,3,Fenway Park,111,Boston Red Sox,143,Philadelphia Phillies,643327.0,Zack Godley,621107.0,Zach Eflin,9,0.0,1.0
+631681,2020,2020-08-18,2020-08-18T23:35:00Z,R,Final,night,N,2,Oriole Park at Camden Yards,110,Baltimore Orioles,141,Toronto Blue Jays,453281.0,Wade LeBlanc,663878.0,Nate Pearson,10,0.0,2.0
+630997,2020,2020-08-19,2020-08-19T18:25:00Z,R,Final,day,Y,17,Wrigley Field,138,St. Louis Cardinals,112,Chicago Cubs,670912.0,Johan Oviedo,640470.0,Adbert Alzolay,7,0.0,0.0
+631025,2020,2020-08-19,2020-08-20T01:45:00Z,R,Final,night,N,2395,Oracle Park,137,San Francisco Giants,108,Los Angeles Angels,456501.0,Johnny Cueto,663776.0,Patrick Sandoval,9,0.0,0.0
+631048,2020,2020-08-19,2020-08-20T01:40:00Z,R,Final,night,N,680,T-Mobile Park,136,Seattle Mariners,119,Los Angeles Dodgers,592836.0,Taijuan Walker,628711.0,Julio Urías,9,0.0,1.0
+631076,2020,2020-08-19,2020-08-20T01:10:00Z,R,Final,night,N,2680,Petco Park,135,San Diego Padres,140,Texas Rangers,663978.0,Chris Paddack,458681.0,Lance Lynn,10,0.0,0.0
+631120,2020,2020-08-19,2020-08-19T23:05:00Z,R,Final,night,N,31,PNC Park,134,Pittsburgh Pirates,114,Cleveland Indians,643230.0,Steven Brault,650644.0,Aaron Civale,9,0.0,0.0
+631179,2020,2020-08-19,2020-08-20T01:40:00Z,R,Final,night,N,10,Oakland Coliseum,133,Oakland Athletics,109,Arizona Diamondbacks,666200.0,Jesús Luzardo,518876.0,Merrill Kelly,9,0.0,2.0
+631201,2020,2020-08-19,2020-08-19T23:05:00Z,R,Final,night,N,3313,Yankee Stadium,147,New York Yankees,139,Tampa Bay Rays,543037.0,Gerrit Cole,607192.0,Tyler Glasnow,9,0.0,0.0
+631249,2020,2020-08-19,2020-08-20T00:10:00Z,R,Final,night,N,3312,Target Field,142,Minnesota Twins,158,Milwaukee Brewers,448179.0,Rich Hill,474463.0,Brett Anderson,9,0.0,0.0
+631327,2020,2020-08-19,2020-08-19T23:10:00Z,R,Final,night,N,4169,Marlins Park,146,Miami Marlins,121,New York Mets,641154.0,Pablo López,594798.0,Jacob deGrom,9,0.0,0.0
+631418,2020,2020-08-19,2020-08-19T21:05:00Z,R,Final,night,Y,7,Kauffman Stadium,118,Kansas City Royals,113,Cincinnati Reds,641745.0,Brad Keller,622491.0,Luis Castillo,7,0.0,3.0
+631422,2020,2020-08-19,2020-08-19T21:10:00Z,R,Final,night,Y,7,Kauffman Stadium,118,Kansas City Royals,113,Cincinnati Reds,518774.0,Matt Harvey,545333.0,Trevor Bauer,7,0.0,0.0
+631497,2020,2020-08-19,2020-08-20T00:10:00Z,R,Final,night,N,4,Guaranteed Rate Field,145,Chicago White Sox,116,Detroit Tigers,641540.0,Dane Dunning,663554.0,Casey Mize,9,0.0,0.0
+631522,2020,2020-08-19,2020-08-20T00:40:00Z,R,Final,night,N,19,Coors Field,115,Colorado Rockies,117,Houston Astros,624418.0,Ryan Castellani,664285.0,Framber Valdez,9,0.0,0.0
+631621,2020,2020-08-19,2020-08-19T18:20:00Z,R,Final,day,Y,17,Wrigley Field,112,Chicago Cubs,138,St. Louis Cardinals,621219.0,Alec Mills,656427.0,Jack Flaherty,7,4.0,1.0
+631652,2020,2020-08-19,2020-08-19T17:35:00Z,R,Final,day,N,3,Fenway Park,111,Boston Red Sox,143,Philadelphia Phillies,606996.0,Kyle Hart,453562.0,Jake Arrieta,9,2.0,0.0
+631682,2020,2020-08-19,2020-08-19T17:05:00Z,R,Final,day,N,2,Oriole Park at Camden Yards,110,Baltimore Orioles,141,Toronto Blue Jays,543548.0,Tommy Milone,543699.0,Tanner Roark,9,0.0,0.0
+630918,2020,2020-08-20,2020-08-20T17:12:00Z,R,Final,day,Y,2756,Sahlen Field,141,Toronto Blue Jays,143,Philadelphia Phillies,663423.0,Trent Thornton,592826.0,Vince Velasquez,7,7.0,2.0
+630919,2020,2020-08-20,2020-08-20T17:07:00Z,R,Final,day,Y,2756,Sahlen Field,141,Toronto Blue Jays,143,Philadelphia Phillies,502624.0,Chase Anderson,675921.0,Spencer Howard,7,1.0,0.0
+630986,2020,2020-08-20,2020-08-21T00:15:00Z,R,Final,night,N,2889,Busch Stadium,138,St. Louis Cardinals,113,Cincinnati Reds,425794.0,Adam Wainwright,543243.0,Sonny Gray,9,2.0,0.0
+631026,2020,2020-08-20,2020-08-21T01:45:00Z,R,Final,night,N,2395,Oracle Park,137,San Francisco Giants,108,Los Angeles Angels,592332.0,Kevin Gausman,660761.0,José Suarez,9,1.0,2.0
+631049,2020,2020-08-20,2020-08-20T23:10:00Z,R,Final,day,N,680,T-Mobile Park,136,Seattle Mariners,119,Los Angeles Dodgers,579328.0,Yusei Kikuchi,477132.0,Clayton Kershaw,9,0.0,0.0
+631077,2020,2020-08-20,2020-08-21T00:10:00Z,R,Final,night,N,2680,Petco Park,135,San Diego Padres,140,Texas Rangers,659275.0,Dinelson Lamet,502043.0,Kyle Gibson,10,0.0,1.0
+631118,2020,2020-08-20,2020-08-20T23:05:00Z,R,Final,night,N,31,PNC Park,134,Pittsburgh Pirates,114,Cleveland Indians,592866.0,Trevor Williams,669456.0,Shane Bieber,9,0.0,0.0
+631180,2020,2020-08-20,2020-08-21T01:40:00Z,R,Final,night,N,10,Oakland Coliseum,133,Oakland Athletics,109,Arizona Diamondbacks,640455.0,Sean Manaea,622065.0,Alex Young,9,0.0,1.0
+631202,2020,2020-08-20,2020-08-20T17:05:00Z,R,Final,day,N,3313,Yankee Stadium,147,New York Yankees,139,Tampa Bay Rays,572020.0,James Paxton,595928.0,John Curtiss,9,0.0,1.0
+631248,2020,2020-08-20,2020-08-20T23:10:00Z,R,Final,night,N,3312,Target Field,142,Minnesota Twins,158,Milwaukee Brewers,621244.0,José Berríos,605540.0,Brandon Woodruff,9,0.0,0.0
+631498,2020,2020-08-20,2020-08-20T18:10:00Z,R,Final,day,N,4,Guaranteed Rate Field,145,Chicago White Sox,116,Detroit Tigers,608337.0,Lucas Giolito,605513.0,Spencer Turnbull,9,0.0,3.0
+631523,2020,2020-08-20,2020-08-20T19:10:00Z,R,Final,day,N,19,Coors Field,115,Colorado Rockies,117,Houston Astros,608566.0,Germán Márquez,664299.0,Cristian Javier,9,0.0,0.0
+631684,2020,2020-08-20,2020-08-20T23:35:00Z,R,Final,night,N,2,Oriole Park at Camden Yards,110,Baltimore Orioles,111,Boston Red Sox,592879.0,Asher Wojciechowski,543135.0,Nathan Eovaldi,9,0.0,0.0
+630324,2020,2020-08-21,2020-08-21T23:10:00Z,R,Final,night,N,4705,Truist Park,144,Atlanta Braves,143,Philadelphia Phillies,608331.0,Max Fried,605400.0,Aaron Nola,9,1.0,0.0
+630886,2020,2020-08-21,2020-08-21T22:05:00Z,R,Final,night,N,3309,Nationals Park,120,Washington Nationals,146,Miami Marlins,571578.0,Patrick Corbin,622694.0,Elieser Hernández,9,0.0,0.0
+630960,2020,2020-08-21,2020-08-21T22:40:00Z,R,Final,night,N,12,Tropicana Field,139,Tampa Bay Rays,141,Toronto Blue Jays,642232.0,Ryan Yarbrough,533167.0,Matt Shoemaker,10,0.0,1.0
+630990,2020,2020-08-21,2020-08-22T00:15:00Z,R,Final,night,N,2889,Busch Stadium,138,St. Louis Cardinals,113,Cincinnati Reds,641712.0,Dakota Hudson,543101.0,Anthony DeSclafani,9,0.0,0.0
+631027,2020,2020-08-21,2020-08-22T01:45:00Z,R,Final,night,N,2395,Oracle Park,137,San Francisco Giants,109,Arizona Diamondbacks,657277.0,Logan Webb,592662.0,Robbie Ray,9,0.0,0.0
+631050,2020,2020-08-21,2020-08-22T01:10:00Z,R,Final,night,N,680,T-Mobile Park,136,Seattle Mariners,140,Texas Rangers,676606.0,Nick Margevicius,663465.0,Kolby Allard,9,0.0,4.0
+631078,2020,2020-08-21,2020-08-22T01:10:00Z,R,Final,night,N,2680,Petco Park,135,San Diego Padres,117,Houston Astros,572070.0,Garrett Richards,621121.0,Lance McCullers Jr.,9,1.0,1.0
+631103,2020,2020-08-21,2020-08-21T23:05:00Z,R,Final,night,N,31,PNC Park,134,Pittsburgh Pirates,158,Milwaukee Brewers,641771.0,Chad Kuhl,605288.0,Adrian Houser,9,0.0,0.0
+631186,2020,2020-08-21,2020-08-22T01:40:00Z,R,Final,night,N,10,Oakland Coliseum,133,Oakland Athletics,108,Los Angeles Angels,571666.0,Mike Fiers,571760.0,Andrew Heaney,9,0.0,3.0
+631348,2020,2020-08-21,2020-08-22T01:40:00Z,R,Final,night,N,22,Dodger Stadium,119,Los Angeles Dodgers,115,Colorado Rockies,621111.0,Walker Buehler,592351.0,Jon Gray,9,0.0,1.0
+631409,2020,2020-08-21,2020-08-22T00:05:00Z,R,Final,night,N,7,Kauffman Stadium,118,Kansas City Royals,142,Minnesota Twins,518633.0,Danny Duffy,543606.0,Jake Odorizzi,9,0.0,4.0
+631548,2020,2020-08-21,2020-08-21T23:10:00Z,R,Final,night,N,5,Progressive Field,114,Cleveland Indians,116,Detroit Tigers,592644.0,Adam Plutko,605242.0,Michael Fulmer,9,0.0,0.0
+631633,2020,2020-08-21,2020-08-22T00:15:00Z,R,Final,night,N,17,Wrigley Field,112,Chicago Cubs,145,Chicago White Sox,452657.0,Jon Lester,572971.0,Dallas Keuchel,9,0.0,0.0
+631665,2020,2020-08-21,2020-08-21T23:35:00Z,R,Final,night,N,2,Oriole Park at Camden Yards,110,Baltimore Orioles,111,Boston Red Sox,607644.0,John Means,605155.0,Colten Brewer,9,0.0,0.0
+630338,2020,2020-08-22,2020-08-22T23:10:00Z,R,Final,night,N,4705,Truist Park,144,Atlanta Braves,143,Philadelphia Phillies,572362.0,Robbie Erlin,554430.0,Zack Wheeler,9,2.0,0.0
+630890,2020,2020-08-22,2020-08-22T20:05:00Z,R,Final,night,Y,3309,Nationals Park,120,Washington Nationals,146,Miami Marlins,453286.0,Max Scherzer,641447.0,Daniel Castano,7,0.0,2.0
+630948,2020,2020-08-22,2020-08-22T22:40:00Z,R,Final,night,N,12,Tropicana Field,139,Tampa Bay Rays,141,Toronto Blue Jays,642083.0,Aaron Slegers,547943.0,Hyun Jin Ryu,10,0.0,0.0
+630991,2020,2020-08-22,2020-08-23T00:15:00Z,R,Final,night,N,2889,Busch Stadium,138,St. Louis Cardinals,113,Cincinnati Reds,547942.0,Kwang Hyun Kim,489119.0,Wade Miley,9,0.0,0.0
+631028,2020,2020-08-22,2020-08-23T01:15:00Z,R,Final,night,N,2395,Oracle Park,137,San Francisco Giants,109,Arizona Diamondbacks,542881.0,Tyler Anderson,668678.0,Zac Gallen,9,0.0,1.0
+631051,2020,2020-08-22,2020-08-23T01:10:00Z,R,Final,night,N,680,T-Mobile Park,136,Seattle Mariners,140,Texas Rangers,656954.0,Justus Sheffield,543475.0,Jordan Lyles,9,0.0,3.0
+631079,2020,2020-08-22,2020-08-23T01:10:00Z,R,Final,night,N,2680,Petco Park,135,San Diego Padres,117,Houston Astros,605200.0,Zach Davies,656232.0,Brandon Bielak,9,1.0,2.0
+631104,2020,2020-08-22,2020-08-22T20:05:00Z,R,Final,day,N,31,PNC Park,134,Pittsburgh Pirates,158,Milwaukee Brewers,502706.0,Derek Holland,458676.0,Josh Lindblom,9,0.0,1.0
+631154,2020,2020-08-22,2020-08-22T20:10:00Z,R,Final,day,N,10,Oakland Coliseum,133,Oakland Athletics,108,Los Angeles Angels,605135.0,Chris Bassitt,656288.0,Griffin Canning,9,1.0,0.0
+631341,2020,2020-08-22,2020-08-22T20:10:00Z,R,Final,night,Y,3309,Nationals Park,146,Miami Marlins,120,Washington Nationals,664350.0,Sixto Sánchez,640444.0,Wil Crowe,7,0.0,0.0
+631349,2020,2020-08-22,2020-08-23T01:10:00Z,R,Final,night,N,22,Dodger Stadium,119,Los Angeles Dodgers,115,Colorado Rockies,669160.0,Dustin May,607536.0,Kyle Freeland,9,0.0,1.0
+631403,2020,2020-08-22,2020-08-22T23:05:00Z,R,Final,night,N,7,Kauffman Stadium,118,Kansas City Royals,142,Minnesota Twins,663903.0,Brady Singer,677976.0,Randy Dobnak,9,3.0,0.0
+631564,2020,2020-08-22,2020-08-22T23:10:00Z,R,Final,night,N,5,Progressive Field,114,Cleveland Indians,116,Detroit Tigers,663474.0,Triston McKenzie,571510.0,Matthew Boyd,9,0.0,0.0
+631638,2020,2020-08-22,2020-08-23T00:15:00Z,R,Final,night,N,17,Wrigley Field,112,Chicago Cubs,145,Chicago White Sox,543294.0,Kyle Hendricks,625643.0,Reynaldo López,9,0.0,0.0
+631667,2020,2020-08-22,2020-08-22T23:35:00Z,R,Final,night,N,2,Oriole Park at Camden Yards,110,Baltimore Orioles,111,Boston Red Sox,502171.0,Alex Cobb,527048.0,Martín Pérez,10,0.0,0.0
+630273,2020,2020-08-23,2020-08-23T23:08:00Z,R,Final,night,N,4705,Truist Park,144,Atlanta Braves,143,Philadelphia Phillies,458708.0,Josh Tomlin,621107.0,Zach Eflin,9,0.0,0.0
+630897,2020,2020-08-23,2020-08-23T16:35:00Z,R,Final,day,N,3309,Nationals Park,120,Washington Nationals,146,Miami Marlins,434671.0,Aníbal Sánchez,650668.0,Humberto Mejía,9,0.0,1.0
+630949,2020,2020-08-23,2020-08-23T17:10:00Z,R,Final,day,N,12,Tropicana Field,139,Tampa Bay Rays,141,Toronto Blue Jays,676596.0,Josh Fleming,663423.0,Trent Thornton,9,0.0,0.0
+630976,2020,2020-08-23,2020-08-23T18:15:00Z,R,Final,day,N,2889,Busch Stadium,138,St. Louis Cardinals,113,Cincinnati Reds,594965.0,Daniel Ponce de Leon,641816.0,Tyler Mahle,9,2.0,0.0
+631029,2020,2020-08-23,2020-08-23T20:10:00Z,R,Final,day,N,2395,Oracle Park,137,San Francisco Giants,109,Arizona Diamondbacks,502239.0,Trevor Cahill,596133.0,Luke Weaver,9,0.0,0.0
+631052,2020,2020-08-23,2020-08-23T20:10:00Z,R,Final,day,N,680,T-Mobile Park,136,Seattle Mariners,140,Texas Rangers,643290.0,Justin Dunn,501985.0,Mike Minor,9,0.0,1.0
+631080,2020,2020-08-23,2020-08-23T20:10:00Z,R,Final,day,N,2680,Petco Park,135,San Diego Padres,117,Houston Astros,670970.0,Adrian Morejon,425844.0,Zack Greinke,9,3.0,0.0
+631107,2020,2020-08-23,2020-08-23T17:35:00Z,R,Final,day,N,31,PNC Park,134,Pittsburgh Pirates,158,Milwaukee Brewers,664141.0,JT Brubaker,669203.0,Corbin Burnes,9,0.0,1.0
+631170,2020,2020-08-23,2020-08-23T20:10:00Z,R,Final,day,N,10,Oakland Coliseum,133,Oakland Athletics,108,Los Angeles Angels,593423.0,Frankie Montas,605164.0,Dylan Bundy,10,0.0,2.0
+631354,2020,2020-08-23,2020-08-23T20:10:00Z,R,Final,day,N,22,Dodger Stadium,119,Los Angeles Dodgers,115,Colorado Rockies,548389.0,Ross Stripling,622608.0,Antonio Senzatela,9,0.0,1.0
+631412,2020,2020-08-23,2020-08-23T18:05:00Z,R,Final,day,N,7,Kauffman Stadium,118,Kansas City Royals,142,Minnesota Twins,663460.0,Kris Bubic,605538.0,Matt Wisler,9,2.0,0.0
+631551,2020,2020-08-23,2020-08-23T17:10:00Z,R,Final,day,N,5,Progressive Field,114,Cleveland Indians,116,Detroit Tigers,471911.0,Carlos Carrasco,669373.0,Tarik Skubal,9,1.0,1.0
+631639,2020,2020-08-23,2020-08-23T18:20:00Z,R,Final,day,N,17,Wrigley Field,112,Chicago Cubs,145,Chicago White Sox,506433.0,Yu Darvish,656302.0,Dylan Cease,9,0.0,0.0
+631670,2020,2020-08-23,2020-08-23T17:05:00Z,R,Final,day,N,2,Oriole Park at Camden Yards,110,Baltimore Orioles,111,Boston Red Sox,453281.0,Wade LeBlanc,643327.0,Zack Godley,9,1.0,0.0
+630193,2020,2020-08-24,2020-08-25T01:40:00Z,R,Final,night,N,15,Chase Field,109,Arizona Diamondbacks,115,Colorado Rockies,664199.0,Taylor Clarke,624418.0,Ryan Castellani,9,1.0,0.0
+630898,2020,2020-08-24,2020-08-24T22:05:00Z,R,Final,night,N,3309,Nationals Park,120,Washington Nationals,146,Miami Marlins,608723.0,Austin Voth,641154.0,Pablo López,9,0.0,0.0
+630929,2020,2020-08-24,2020-08-25T00:05:00Z,R,Final,night,N,5325,Globe Life Field,140,Texas Rangers,133,Oakland Athletics,458681.0,Lance Lynn,666200.0,Jesús Luzardo,9,1.0,2.0
+630950,2020,2020-08-24,2020-08-24T19:10:00Z,R,Final,day,N,12,Tropicana Field,139,Tampa Bay Rays,141,Toronto Blue Jays,605483.0,Blake Snell,543699.0,Tanner Roark,9,0.0,0.0
+630977,2020,2020-08-24,2020-08-25T00:15:00Z,R,Final,night,N,2889,Busch Stadium,138,St. Louis Cardinals,118,Kansas City Royals,656427.0,Jack Flaherty,641745.0,Brad Keller,9,0.0,1.0
+631301,2020,2020-08-24,2020-08-25T00:10:00Z,R,Final,night,N,32,Miller Park,158,Milwaukee Brewers,113,Cincinnati Reds,474463.0,Brett Anderson,545333.0,Trevor Bauer,9,0.0,1.0
+631439,2020,2020-08-24,2020-08-25T01:10:00Z,R,Final,night,N,2392,Minute Maid Park,117,Houston Astros,108,Los Angeles Angels,664285.0,Framber Valdez,663776.0,Patrick Sandoval,9,0.0,0.0
+631468,2020,2020-08-24,2020-08-24T23:10:00Z,R,Final,night,N,2394,Comerica Park,116,Detroit Tigers,112,Chicago Cubs,663554.0,Casey Mize,621219.0,Alec Mills,9,0.0,0.0
+631552,2020,2020-08-24,2020-08-24T23:10:00Z,R,Final,night,N,5,Progressive Field,114,Cleveland Indians,142,Minnesota Twins,650644.0,Aaron Civale,628317.0,Kenta Maeda,9,0.0,1.0
+630194,2020,2020-08-25,2020-08-26T01:40:00Z,R,Final,night,N,15,Chase Field,109,Arizona Diamondbacks,115,Colorado Rockies,622065.0,Alex Young,608566.0,Germán Márquez,9,2.0,0.0
+630855,2020,2020-08-25,2020-08-25T22:05:00Z,R,Final,night,N,3309,Nationals Park,120,Washington Nationals,143,Philadelphia Phillies,607200.0,Erick Fedde,453562.0,Jake Arrieta,9,0.0,1.0
+630862,2020,2020-08-25,2020-08-25T22:37:00Z,R,Final,night,N,2756,Sahlen Field,141,Toronto Blue Jays,111,Boston Red Sox,502624.0,Chase Anderson,606996.0,Kyle Hart,9,0.0,4.0
+630930,2020,2020-08-25,2020-08-26T00:05:00Z,R,Final,night,N,5325,Globe Life Field,140,Texas Rangers,133,Oakland Athletics,502043.0,Kyle Gibson,640455.0,Sean Manaea,9,0.0,0.0
+630951,2020,2020-08-25,2020-08-25T22:40:00Z,R,Final,night,N,12,Tropicana Field,139,Tampa Bay Rays,110,Baltimore Orioles,607192.0,Tyler Glasnow,543548.0,Tommy Milone,9,1.0,0.0
+630978,2020,2020-08-25,2020-08-26T00:15:00Z,R,Final,night,N,2889,Busch Stadium,138,St. Louis Cardinals,118,Kansas City Royals,425794.0,Adam Wainwright,518774.0,Matt Harvey,9,0.0,0.0
+631015,2020,2020-08-25,2020-08-26T01:45:00Z,R,Final,night,N,2395,Oracle Park,137,San Francisco Giants,119,Los Angeles Dodgers,456501.0,Johnny Cueto,628711.0,Julio Urías,11,3.0,3.0
+631081,2020,2020-08-25,2020-08-26T01:10:00Z,R,Final,night,N,2680,Petco Park,135,San Diego Padres,136,Seattle Mariners,663978.0,Chris Paddack,594835.0,Marco Gonzales,9,2.0,0.0
+631227,2020,2020-08-25,2020-08-25T21:10:00Z,R,Final,night,Y,3289,Citi Field,121,New York Mets,146,Miami Marlins,519144.0,Rick Porcello,641447.0,Daniel Castano,7,0.0,0.0
+631302,2020,2020-08-25,2020-08-26T00:10:00Z,R,Final,night,N,32,Miller Park,158,Milwaukee Brewers,113,Cincinnati Reds,605540.0,Brandon Woodruff,622491.0,Luis Castillo,9,0.0,0.0
+631323,2020,2020-08-25,2020-08-25T21:15:00Z,R,Final,night,Y,3289,Citi Field,146,Miami Marlins,121,New York Mets,669432.0,Trevor Rogers,607625.0,Seth Lugo,7,0.0,0.0
+631423,2020,2020-08-25,2020-08-25T20:05:00Z,R,Final,day,Y,2392,Minute Maid Park,117,Houston Astros,108,Los Angeles Angels,664299.0,Cristian Javier,660761.0,José Suarez,7,0.0,5.0
+631426,2020,2020-08-25,2020-08-25T20:10:00Z,R,Final,day,Y,2392,Minute Maid Park,117,Houston Astros,108,Los Angeles Angels,656232.0,Brandon Bielak,527054.0,Julio Teheran,7,4.0,0.0
+631467,2020,2020-08-25,2020-08-25T23:10:00Z,R,Final,night,N,2394,Comerica Park,116,Detroit Tigers,112,Chicago Cubs,605513.0,Spencer Turnbull,543022.0,Tyler Chatwood,9,0.0,2.0
+631499,2020,2020-08-25,2020-08-26T00:10:00Z,R,Final,night,N,4,Guaranteed Rate Field,145,Chicago White Sox,134,Pittsburgh Pirates,608337.0,Lucas Giolito,643230.0,Steven Brault,9,0.0,0.0
+631553,2020,2020-08-25,2020-08-25T23:10:00Z,R,Final,night,N,5,Progressive Field,114,Cleveland Indians,142,Minnesota Twins,669456.0,Shane Bieber,448179.0,Rich Hill,9,0.0,1.0
+630099,2020,2020-08-26,2020-08-27T01:40:00Z,R,Final,night,N,15,Chase Field,109,Arizona Diamondbacks,115,Colorado Rockies,592662.0,Robbie Ray,592351.0,Jon Gray,9,2.0,0.0
+630360,2020,2020-08-26,2020-08-26T20:15:00Z,R,Final,night,Y,4705,Truist Park,144,Atlanta Braves,147,New York Yankees,608331.0,Max Fried,547888.0,Masahiro Tanaka,7,0.0,0.0
+630361,2020,2020-08-26,2020-08-26T20:10:00Z,R,Final,night,Y,4705,Truist Park,144,Atlanta Braves,147,New York Yankees,666120.0,Ian Anderson,543037.0,Gerrit Cole,7,0.0,1.0
+630853,2020,2020-08-26,2020-08-26T22:05:00Z,R,Final,night,N,3309,Nationals Park,120,Washington Nationals,143,Philadelphia Phillies,571578.0,Patrick Corbin,605400.0,Aaron Nola,9,0.0,0.0
+630863,2020,2020-08-26,2020-08-26T22:37:00Z,R,Final,night,N,2756,Sahlen Field,141,Toronto Blue Jays,111,Boston Red Sox,657240.0,Julian Merryweather,605155.0,Colten Brewer,9,0.0,1.0
+630931,2020,2020-08-26,2020-08-27T00:05:00Z,R,Final,night,N,5325,Globe Life Field,140,Texas Rangers,133,Oakland Athletics,663465.0,Kolby Allard,571666.0,Mike Fiers,9,0.0,0.0
+630952,2020,2020-08-26,2020-08-26T22:40:00Z,R,Final,night,N,12,Tropicana Field,139,Tampa Bay Rays,110,Baltimore Orioles,670950.0,Trevor Richards,592879.0,Asher Wojciechowski,9,2.0,0.0
+630979,2020,2020-08-26,2020-08-27T00:15:00Z,R,Final,night,N,2889,Busch Stadium,138,St. Louis Cardinals,118,Kansas City Royals,641712.0,Dakota Hudson,596001.0,Jakob Junis,9,0.0,0.0
+631226,2020,2020-08-26,2020-08-26T23:10:00Z,R,Final,night,N,3289,Citi Field,121,New York Mets,146,Miami Marlins,594798.0,Jacob deGrom,622694.0,Elieser Hernández,9,0.0,1.0
+631455,2020,2020-08-26,2020-08-26T23:10:00Z,R,Final,night,N,2394,Comerica Park,116,Detroit Tigers,112,Chicago Cubs,605242.0,Michael Fulmer,452657.0,Jon Lester,9,0.0,0.0
+631500,2020,2020-08-26,2020-08-26T18:10:00Z,R,Final,day,N,4,Guaranteed Rate Field,145,Chicago White Sox,134,Pittsburgh Pirates,572971.0,Dallas Keuchel,592866.0,Trevor Williams,9,0.0,0.0
+631554,2020,2020-08-26,2020-08-26T23:10:00Z,R,Final,night,N,5,Progressive Field,114,Cleveland Indians,142,Minnesota Twins,605182.0,Mike Clevinger,621244.0,José Berríos,9,1.0,0.0
+630999,2020,2020-08-27,2020-08-27T19:15:00Z,R,Final,day,Y,2889,Busch Stadium,138,St. Louis Cardinals,134,Pittsburgh Pirates,547942.0,Kwang Hyun Kim,641771.0,Chad Kuhl,8,0.0,0.0
+631000,2020,2020-08-27,2020-08-27T19:20:00Z,R,Final,day,Y,2889,Busch Stadium,138,St. Louis Cardinals,134,Pittsburgh Pirates,670912.0,Johan Oviedo,664074.0,Cody Ponce,7,0.0,0.0
+631001,2020,2020-08-27,2020-08-27T20:10:00Z,R,Final,day,Y,2395,Oracle Park,137,San Francisco Giants,119,Los Angeles Dodgers,592332.0,Kevin Gausman,657571.0,Caleb Ferguson,7,0.0,0.0
+631017,2020,2020-08-27,2020-08-27T20:05:00Z,R,Final,day,Y,2395,Oracle Park,137,San Francisco Giants,119,Los Angeles Dodgers,657277.0,Logan Webb,621111.0,Walker Buehler,7,1.0,0.0
+631082,2020,2020-08-27,2020-08-27T19:15:00Z,R,Final,day,Y,2680,Petco Park,135,San Diego Padres,136,Seattle Mariners,572070.0,Garrett Richards,579328.0,Yusei Kikuchi,7,6.0,1.0
+631083,2020,2020-08-27,2020-08-27T19:10:00Z,R,Final,day,Y,2680,Petco Park,135,San Diego Padres,136,Seattle Mariners,659275.0,Dinelson Lamet,664714.0,Ljay Newsome,7,0.0,0.0
+631290,2020,2020-08-27,2020-08-27T21:10:00Z,R,Final,night,Y,32,Miller Park,158,Milwaukee Brewers,113,Cincinnati Reds,605288.0,Adrian Houser,543243.0,Sonny Gray,7,0.0,0.0
+631303,2020,2020-08-27,2020-08-27T21:15:00Z,R,Final,night,Y,32,Miller Park,158,Milwaukee Brewers,113,Cincinnati Reds,458676.0,Josh Lindblom,,,7,0.0,0.0
+630216,2020,2020-08-28,2020-08-29T01:40:00Z,R,Final,night,N,15,Chase Field,109,Arizona Diamondbacks,137,San Francisco Giants,668678.0,Zac Gallen,542881.0,Tyler Anderson,9,0.0,1.0
+630871,2020,2020-08-28,2020-08-28T22:37:00Z,R,Final,night,N,2756,Sahlen Field,141,Toronto Blue Jays,110,Baltimore Orioles,547943.0,Hyun Jin Ryu,607644.0,John Means,10,0.0,0.0
+630933,2020,2020-08-28,2020-08-29T00:05:00Z,R,Final,night,N,5325,Globe Life Field,140,Texas Rangers,119,Los Angeles Dodgers,501985.0,Mike Minor,669160.0,Dustin May,9,0.0,0.0
+630980,2020,2020-08-28,2020-08-29T00:15:00Z,R,Final,night,N,2889,Busch Stadium,138,St. Louis Cardinals,114,Cleveland Indians,594965.0,Daniel Ponce de Leon,663474.0,Triston McKenzie,9,4.0,0.0
+631125,2020,2020-08-28,2020-08-28T23:05:00Z,R,Final,night,N,2681,Citizens Bank Park,143,Philadelphia Phillies,144,Atlanta Braves,554430.0,Zack Wheeler,572362.0,Robbie Erlin,11,0.0,0.0
+631203,2020,2020-08-28,2020-08-28T20:05:00Z,R,Final,night,Y,3313,Yankee Stadium,147,New York Yankees,121,New York Mets,656756.0,Jordan Montgomery,608379.0,Michael Wacha,7,0.0,2.0
+631230,2020,2020-08-28,2020-08-28T20:10:00Z,R,Final,night,Y,3313,Yankee Stadium,121,New York Mets,147,New York Yankees,656849.0,David Peterson,642528.0,Jonathan Loáisiga,7,0.0,1.0
+631291,2020,2020-08-28,2020-08-29T00:10:00Z,R,Final,night,N,32,Miller Park,158,Milwaukee Brewers,134,Pittsburgh Pirates,669203.0,Corbin Burnes,502706.0,Derek Holland,9,0.0,1.0
+631304,2020,2020-08-28,2020-08-28T23:10:00Z,R,Final,night,N,4169,Marlins Park,146,Miami Marlins,139,Tampa Bay Rays,664350.0,Sixto Sánchez,642232.0,Ryan Yarbrough,9,0.0,0.0
+631394,2020,2020-08-28,2020-08-29T01:40:00Z,R,Final,night,N,1,Angel Stadium,108,Los Angeles Angels,136,Seattle Mariners,571760.0,Andrew Heaney,676606.0,Nick Margevicius,9,0.0,0.0
+631501,2020,2020-08-28,2020-08-28T23:10:00Z,R,Final,night,N,4,Guaranteed Rate Field,145,Chicago White Sox,118,Kansas City Royals,625643.0,Reynaldo López,518633.0,Danny Duffy,9,0.0,0.0
+631524,2020,2020-08-28,2020-08-29T00:40:00Z,R,Final,night,N,19,Coors Field,115,Colorado Rockies,135,San Diego Padres,607536.0,Kyle Freeland,605200.0,Zach Davies,9,0.0,4.0
+631582,2020,2020-08-28,2020-08-28T23:10:00Z,R,Final,night,N,2602,Great American Ball Park,113,Cincinnati Reds,112,Chicago Cubs,641816.0,Tyler Mahle,543294.0,Kyle Hendricks,9,2.0,0.0
+631653,2020,2020-08-28,2020-08-28T23:30:00Z,R,Final,night,N,3,Fenway Park,111,Boston Red Sox,120,Washington Nationals,527048.0,Martín Pérez,453286.0,Max Scherzer,9,0.0,0.0
+630217,2020,2020-08-29,2020-08-30T00:10:00Z,R,Final,night,N,15,Chase Field,109,Arizona Diamondbacks,137,San Francisco Giants,596133.0,Luke Weaver,502239.0,Trevor Cahill,9,2.0,0.0
+630906,2020,2020-08-29,2020-08-29T22:37:00Z,R,Final,night,N,2756,Sahlen Field,141,Toronto Blue Jays,110,Baltimore Orioles,592836.0,Taijuan Walker,502171.0,Alex Cobb,9,0.0,2.0
+630934,2020,2020-08-29,2020-08-29T23:05:00Z,R,Final,night,N,5325,Globe Life Field,140,Texas Rangers,119,Los Angeles Dodgers,458681.0,Lance Lynn,548389.0,Ross Stripling,9,0.0,0.0
+630981,2020,2020-08-29,2020-08-29T17:15:00Z,R,Final,day,N,2889,Busch Stadium,138,St. Louis Cardinals,114,Cleveland Indians,656427.0,Jack Flaherty,471911.0,Carlos Carrasco,12,1.0,0.0
+631134,2020,2020-08-29,2020-08-29T17:15:00Z,R,Final,day,N,2681,Citizens Bank Park,143,Philadelphia Phillies,144,Atlanta Braves,621107.0,Zach Eflin,458708.0,Josh Tomlin,9,0.0,1.0
+631204,2020,2020-08-29,2020-08-29T17:05:00Z,R,Final,day,N,3313,Yankee Stadium,147,New York Yankees,121,New York Mets,457918.0,J.A. Happ,607229.0,Robert Gsellman,9,0.0,1.0
+631277,2020,2020-08-29,2020-08-29T23:10:00Z,R,Final,night,N,32,Miller Park,158,Milwaukee Brewers,134,Pittsburgh Pirates,474463.0,Brett Anderson,664141.0,JT Brubaker,9,1.0,1.0
+631319,2020,2020-08-29,2020-08-29T22:10:00Z,R,Final,night,N,4169,Marlins Park,146,Miami Marlins,139,Tampa Bay Rays,641154.0,Pablo López,676596.0,Josh Fleming,9,0.0,0.0
+631369,2020,2020-08-29,2020-08-30T01:40:00Z,R,Final,night,N,1,Angel Stadium,108,Los Angeles Angels,136,Seattle Mariners,605164.0,Dylan Bundy,656954.0,Justus Sheffield,9,0.0,1.0
+631427,2020,2020-08-29,2020-08-29T20:15:00Z,R,Final,day,Y,2392,Minute Maid Park,117,Houston Astros,133,Oakland Athletics,425844.0,Zack Greinke,593423.0,Frankie Montas,7,1.0,3.0
+631428,2020,2020-08-29,2020-08-29T20:10:00Z,R,Final,day,Y,2392,Minute Maid Park,117,Houston Astros,133,Oakland Athletics,621121.0,Lance McCullers Jr.,605135.0,Chris Bassitt,7,0.0,3.0
+631457,2020,2020-08-29,2020-08-29T17:15:00Z,R,Final,day,Y,2394,Comerica Park,116,Detroit Tigers,142,Minnesota Twins,669373.0,Tarik Skubal,605538.0,Matt Wisler,7,0.0,0.0
+631458,2020,2020-08-29,2020-08-29T17:10:00Z,R,Final,day,Y,2394,Comerica Park,116,Detroit Tigers,142,Minnesota Twins,571510.0,Matthew Boyd,677976.0,Randy Dobnak,7,0.0,0.0
+631502,2020,2020-08-29,2020-08-29T18:10:00Z,R,Final,day,N,4,Guaranteed Rate Field,145,Chicago White Sox,118,Kansas City Royals,656302.0,Dylan Cease,663903.0,Brady Singer,9,0.0,0.0
+631525,2020,2020-08-29,2020-08-30T00:10:00Z,R,Final,night,N,19,Coors Field,115,Colorado Rockies,135,San Diego Padres,622608.0,Antonio Senzatela,673258.0,Michel Baez,9,0.0,0.0
+631581,2020,2020-08-29,2020-08-29T20:10:00Z,R,Final,night,Y,2602,Great American Ball Park,113,Cincinnati Reds,112,Chicago Cubs,545333.0,Trevor Bauer,506433.0,Yu Darvish,7,0.0,0.0
+631595,2020,2020-08-29,2020-08-29T20:15:00Z,R,Final,night,Y,2602,Great American Ball Park,113,Cincinnati Reds,112,Chicago Cubs,622088.0,Tejay Antone,621219.0,Alec Mills,7,1.0,1.0
+631654,2020,2020-08-29,2020-08-29T23:30:00Z,R,Final,night,N,3,Fenway Park,111,Boston Red Sox,120,Washington Nationals,607391.0,Chris Mazza,434671.0,Aníbal Sánchez,9,0.0,3.0
+630219,2020,2020-08-30,2020-08-30T20:10:00Z,R,Final,day,N,15,Chase Field,109,Arizona Diamondbacks,137,San Francisco Giants,664199.0,Taylor Clarke,456501.0,Johnny Cueto,9,1.0,0.0
+630852,2020,2020-08-30,2020-08-30T19:07:00Z,R,Final,day,N,2756,Sahlen Field,141,Toronto Blue Jays,110,Baltimore Orioles,543699.0,Tanner Roark,605347.0,Jorge López,9,0.0,0.0
+630921,2020,2020-08-30,2020-08-30T18:35:00Z,R,Final,day,N,5325,Globe Life Field,140,Texas Rangers,119,Los Angeles Dodgers,502043.0,Kyle Gibson,664062.0,Tony Gonsolin,9,1.0,0.0
+630982,2020,2020-08-30,2020-08-30T18:15:00Z,R,Final,day,N,2889,Busch Stadium,138,St. Louis Cardinals,114,Cleveland Indians,425794.0,Adam Wainwright,650644.0,Aaron Civale,9,0.0,0.0
+631135,2020,2020-08-30,2020-08-30T23:08:00Z,R,Final,night,N,2681,Citizens Bank Park,143,Philadelphia Phillies,144,Atlanta Braves,453562.0,Jake Arrieta,543548.0,Tommy Milone,9,0.0,0.0
+631205,2020,2020-08-30,2020-08-30T17:05:00Z,R,Final,day,Y,3313,Yankee Stadium,147,New York Yankees,121,New York Mets,650633.0,Michael King,519144.0,Rick Porcello,8,0.0,1.0
+631229,2020,2020-08-30,2020-08-30T17:10:00Z,R,Final,day,Y,3313,Yankee Stadium,121,New York Mets,147,New York Yankees,607625.0,Seth Lugo,665620.0,Deivi García,8,0.0,0.0
+631278,2020,2020-08-30,2020-08-30T18:10:00Z,R,Final,day,N,32,Miller Park,158,Milwaukee Brewers,134,Pittsburgh Pirates,605540.0,Brandon Woodruff,643230.0,Steven Brault,9,0.0,0.0
+631306,2020,2020-08-30,2020-08-30T17:10:00Z,R,Final,day,N,4169,Marlins Park,146,Miami Marlins,139,Tampa Bay Rays,645261.0,Sandy Alcantara,605483.0,Blake Snell,9,3.0,0.0
+631371,2020,2020-08-30,2020-08-30T20:10:00Z,R,Final,day,N,1,Angel Stadium,108,Los Angeles Angels,136,Seattle Mariners,656288.0,Griffin Canning,643290.0,Justin Dunn,10,0.0,0.0
+631459,2020,2020-08-30,2020-08-30T17:10:00Z,R,Final,day,N,2394,Comerica Park,116,Detroit Tigers,142,Minnesota Twins,663554.0,Casey Mize,628317.0,Kenta Maeda,9,0.0,1.0
+631505,2020,2020-08-30,2020-08-30T18:10:00Z,R,Final,day,N,4,Guaranteed Rate Field,145,Chicago White Sox,118,Kansas City Royals,641540.0,Dane Dunning,663460.0,Kris Bubic,10,0.0,0.0
+631526,2020,2020-08-30,2020-08-30T19:10:00Z,R,Final,day,N,19,Coors Field,115,Colorado Rockies,135,San Diego Padres,624418.0,Ryan Castellani,663978.0,Chris Paddack,9,3.0,0.0
+631584,2020,2020-08-30,2020-08-30T17:10:00Z,R,Final,day,N,2602,Great American Ball Park,113,Cincinnati Reds,112,Chicago Cubs,622491.0,Luis Castillo,543022.0,Tyler Chatwood,9,0.0,0.0
+631655,2020,2020-08-30,2020-08-30T17:35:00Z,R,Final,day,N,3,Fenway Park,111,Boston Red Sox,120,Washington Nationals,643327.0,Zack Godley,608723.0,Austin Voth,9,0.0,3.0
+630900,2020,2020-08-31,2020-08-31T18:07:00Z,R,Final,day,N,2756,Sahlen Field,141,Toronto Blue Jays,110,Baltimore Orioles,502624.0,Chase Anderson,669211.0,Keegan Akin,11,1.0,0.0
+631143,2020,2020-08-31,2020-08-31T23:05:00Z,R,Final,night,N,2681,Citizens Bank Park,143,Philadelphia Phillies,120,Washington Nationals,675921.0,Spencer Howard,607200.0,Erick Fedde,9,0.0,1.0
+631206,2020,2020-08-31,2020-08-31T23:05:00Z,R,Final,night,N,3313,Yankee Stadium,147,New York Yankees,139,Tampa Bay Rays,543037.0,Gerrit Cole,607192.0,Tyler Glasnow,9,2.0,0.0
+631223,2020,2020-08-31,2020-08-31T17:10:00Z,R,Final,day,N,3289,Citi Field,121,New York Mets,146,Miami Marlins,594798.0,Jacob deGrom,669432.0,Trevor Rogers,9,0.0,0.0
+631247,2020,2020-08-31,2020-09-01T00:10:00Z,R,Final,night,N,3312,Target Field,142,Minnesota Twins,145,Chicago White Sox,448179.0,Rich Hill,608337.0,Lucas Giolito,9,0.0,0.0
+631281,2020,2020-08-31,2020-08-31T23:40:00Z,R,Final,night,N,32,Miller Park,158,Milwaukee Brewers,134,Pittsburgh Pirates,608718.0,Brent Suter,592866.0,Trevor Williams,9,0.0,0.0
+631374,2020,2020-08-31,2020-08-31T20:10:00Z,R,Final,day,N,1,Angel Stadium,108,Los Angeles Angels,136,Seattle Mariners,642545.0,Jaime Barria,594835.0,Marco Gonzales,9,0.0,0.0
+631414,2020,2020-08-31,2020-09-01T00:05:00Z,R,Final,night,N,7,Kauffman Stadium,118,Kansas City Royals,114,Cleveland Indians,641745.0,Brad Keller,669456.0,Shane Bieber,9,0.0,0.0
+631527,2020,2020-08-31,2020-09-01T01:40:00Z,R,Final,night,N,19,Coors Field,115,Colorado Rockies,135,San Diego Padres,608566.0,Germán Márquez,572070.0,Garrett Richards,9,0.0,0.0
+631585,2020,2020-08-31,2020-08-31T22:40:00Z,R,Final,night,N,2602,Great American Ball Park,113,Cincinnati Reds,138,St. Louis Cardinals,543101.0,Anthony DeSclafani,641712.0,Dakota Hudson,9,1.0,1.0
+631656,2020,2020-08-31,2020-08-31T23:30:00Z,R,Final,night,N,3,Fenway Park,111,Boston Red Sox,144,Atlanta Braves,605155.0,Colten Brewer,608331.0,Max Fried,9,1.0,1.0
+631109,2020,2020-09-01,2020-09-01T23:05:00Z,R,Final,night,N,31,PNC Park,134,Pittsburgh Pirates,112,Chicago Cubs,641771.0,Chad Kuhl,452657.0,Jon Lester,11,1.0,0.0
+631153,2020,2020-09-01,2020-09-01T23:05:00Z,R,Final,night,N,2681,Citizens Bank Park,143,Philadelphia Phillies,120,Washington Nationals,605400.0,Aaron Nola,571578.0,Patrick Corbin,9,0.0,0.0
+631207,2020,2020-09-01,2020-09-01T23:05:00Z,R,Final,night,N,3313,Yankee Stadium,147,New York Yankees,139,Tampa Bay Rays,547888.0,Masahiro Tanaka,670950.0,Trevor Richards,9,0.0,1.0
+631261,2020,2020-09-01,2020-09-02T00:10:00Z,R,Final,night,N,3312,Target Field,142,Minnesota Twins,145,Chicago White Sox,501381.0,Michael Pineda,572971.0,Dallas Keuchel,9,2.0,0.0
+631287,2020,2020-09-01,2020-09-01T23:40:00Z,R,Final,night,N,32,Miller Park,158,Milwaukee Brewers,116,Detroit Tigers,458676.0,Josh Lindblom,605242.0,Michael Fulmer,9,0.0,0.0
+631307,2020,2020-09-01,2020-09-01T22:40:00Z,R,Final,night,N,4169,Marlins Park,146,Miami Marlins,141,Toronto Blue Jays,622694.0,Elieser Hernández,657240.0,Julian Merryweather,9,1.0,0.0
+631355,2020,2020-09-01,2020-09-02T01:40:00Z,R,Final,night,N,22,Dodger Stadium,119,Los Angeles Dodgers,109,Arizona Diamondbacks,628711.0,Julio Urías,622065.0,Alex Young,9,0.0,1.0
+631416,2020,2020-09-01,2020-09-02T00:05:00Z,R,Final,night,N,7,Kauffman Stadium,118,Kansas City Royals,114,Cleveland Indians,518774.0,Matt Harvey,668676.0,Zach Plesac,9,3.0,0.0
+631430,2020,2020-09-01,2020-09-02T00:10:00Z,R,Final,night,N,2392,Minute Maid Park,117,Houston Astros,140,Texas Rangers,664285.0,Framber Valdez,472610.0,Luis García,10,2.0,0.0
+631528,2020,2020-09-01,2020-09-02T00:40:00Z,R,Final,night,N,19,Coors Field,115,Colorado Rockies,137,San Francisco Giants,592351.0,Jon Gray,592332.0,Kevin Gausman,9,3.0,0.0
+631586,2020,2020-09-01,2020-09-01T22:40:00Z,R,Final,night,N,2602,Great American Ball Park,113,Cincinnati Reds,138,St. Louis Cardinals,543243.0,Sonny Gray,547942.0,Kwang Hyun Kim,9,6.0,0.0
+631657,2020,2020-09-01,2020-09-01T23:30:00Z,R,Final,night,N,3,Fenway Park,111,Boston Red Sox,144,Atlanta Braves,543901.0,Ryan Weber,666120.0,Ian Anderson,9,2.0,0.0
+631671,2020,2020-09-01,2020-09-01T23:35:00Z,R,Final,night,N,2,Oriole Park at Camden Yards,110,Baltimore Orioles,121,New York Mets,592879.0,Asher Wojciechowski,642558.0,Ariel Jurado,9,0.0,3.0
+631111,2020,2020-09-02,2020-09-02T23:05:00Z,R,Final,night,N,31,PNC Park,134,Pittsburgh Pirates,112,Chicago Cubs,605397.0,Joe Musgrove,543294.0,Kyle Hendricks,9,0.0,0.0
+631145,2020,2020-09-02,2020-09-02T23:05:00Z,R,Final,night,N,2681,Citizens Bank Park,143,Philadelphia Phillies,120,Washington Nationals,554430.0,Zack Wheeler,453286.0,Max Scherzer,9,0.0,0.0
+631194,2020,2020-09-02,2020-09-02T23:05:00Z,R,Final,night,N,3313,Yankee Stadium,147,New York Yankees,139,Tampa Bay Rays,656756.0,Jordan Montgomery,450203.0,Charlie Morton,9,4.0,0.0
+631253,2020,2020-09-02,2020-09-03T00:10:00Z,R,Final,night,N,3312,Target Field,142,Minnesota Twins,145,Chicago White Sox,621244.0,José Berríos,625643.0,Reynaldo López,9,0.0,0.0
+631283,2020,2020-09-02,2020-09-02T23:40:00Z,R,Final,night,N,32,Miller Park,158,Milwaukee Brewers,116,Detroit Tigers,605288.0,Adrian Houser,605513.0,Spencer Turnbull,9,3.0,0.0
+631308,2020,2020-09-02,2020-09-02T22:40:00Z,R,Final,night,N,4169,Marlins Park,146,Miami Marlins,141,Toronto Blue Jays,664350.0,Sixto Sánchez,547943.0,Hyun Jin Ryu,9,0.0,0.0
+631356,2020,2020-09-02,2020-09-03T01:40:00Z,R,Final,night,N,22,Dodger Stadium,119,Los Angeles Dodgers,109,Arizona Diamondbacks,621111.0,Walker Buehler,668678.0,Zac Gallen,10,0.0,0.0
+631379,2020,2020-09-02,2020-09-03T01:40:00Z,R,Final,night,N,1,Angel Stadium,108,Los Angeles Angels,135,San Diego Padres,527054.0,Julio Teheran,659275.0,Dinelson Lamet,9,0.0,0.0
+631404,2020,2020-09-02,2020-09-03T00:05:00Z,R,Final,night,N,7,Kauffman Stadium,118,Kansas City Royals,114,Cleveland Indians,596001.0,Jakob Junis,663474.0,Triston McKenzie,9,0.0,0.0
+631431,2020,2020-09-02,2020-09-03T00:10:00Z,R,Final,night,N,2392,Minute Maid Park,117,Houston Astros,140,Texas Rangers,664299.0,Cristian Javier,663465.0,Kolby Allard,9,0.0,2.0
+631529,2020,2020-09-02,2020-09-02T19:10:00Z,R,Final,day,N,19,Coors Field,115,Colorado Rockies,137,San Francisco Giants,607536.0,Kyle Freeland,657277.0,Logan Webb,9,4.0,0.0
+631587,2020,2020-09-02,2020-09-02T22:40:00Z,R,Final,night,N,2602,Great American Ball Park,113,Cincinnati Reds,138,St. Louis Cardinals,641816.0,Tyler Mahle,670912.0,Johan Oviedo,9,0.0,0.0
+631624,2020,2020-09-02,2020-09-02T23:30:00Z,R,Final,night,N,3,Fenway Park,111,Boston Red Sox,144,Atlanta Braves,622490.0,Robinson Leyer,572362.0,Robbie Erlin,9,0.0,3.0
+631673,2020,2020-09-02,2020-09-02T20:05:00Z,R,Final,day,N,2,Oriole Park at Camden Yards,110,Baltimore Orioles,121,New York Mets,607644.0,John Means,608379.0,Michael Wacha,9,2.0,0.0
+631112,2020,2020-09-03,2020-09-03T17:35:00Z,R,Final,day,N,31,PNC Park,134,Pittsburgh Pirates,112,Chicago Cubs,664141.0,JT Brubaker,621219.0,Alec Mills,9,0.0,0.0
+631146,2020,2020-09-03,2020-09-03T20:05:00Z,R,Final,day,N,2681,Citizens Bank Park,143,Philadelphia Phillies,120,Washington Nationals,621107.0,Zach Eflin,434671.0,Aníbal Sánchez,10,0.0,2.0
+631234,2020,2020-09-03,2020-09-03T20:10:00Z,R,Final,day,N,3289,Citi Field,121,New York Mets,147,New York Yankees,607229.0,Robert Gsellman,457918.0,J.A. Happ,10,0.0,0.0
+631368,2020,2020-09-03,2020-09-03T23:10:00Z,R,Final,day,N,1,Angel Stadium,108,Los Angeles Angels,135,San Diego Padres,571760.0,Andrew Heaney,605182.0,Mike Clevinger,9,0.0,0.0
+631370,2020,2020-09-03,2020-09-04T01:40:00Z,R,Final,night,N,22,Dodger Stadium,119,Los Angeles Dodgers,109,Arizona Diamondbacks,477132.0,Clayton Kershaw,596133.0,Luke Weaver,9,0.0,2.0
+631405,2020,2020-09-03,2020-09-04T00:05:00Z,R,Final,night,N,7,Kauffman Stadium,118,Kansas City Royals,145,Chicago White Sox,518633.0,Danny Duffy,656302.0,Dylan Cease,9,0.0,1.0
+631432,2020,2020-09-03,2020-09-03T18:10:00Z,R,Final,day,N,2392,Minute Maid Park,117,Houston Astros,140,Texas Rangers,425844.0,Zack Greinke,458681.0,Lance Lynn,9,0.0,4.0
+631614,2020,2020-09-03,2020-09-03T23:30:00Z,R,Final,night,N,3,Fenway Park,111,Boston Red Sox,141,Toronto Blue Jays,527048.0,Martín Pérez,592836.0,Taijuan Walker,10,0.0,0.0
+630323,2020,2020-09-04,2020-09-04T20:15:00Z,R,Final,night,Y,4705,Truist Park,144,Atlanta Braves,120,Washington Nationals,660623.0,Huascar Ynoa,640444.0,Wil Crowe,7,1.0,1.0
+630371,2020,2020-09-04,2020-09-04T20:10:00Z,R,Final,night,Y,4705,Truist Park,144,Atlanta Braves,120,Washington Nationals,543548.0,Tommy Milone,608723.0,Austin Voth,7,0.0,1.0
+630497,2020,2020-09-04,2020-09-04T21:10:00Z,R,Final,night,Y,2,Oriole Park at Camden Yards,110,Baltimore Orioles,147,New York Yankees,605347.0,Jorge López,665620.0,Deivi García,7,0.0,0.0
+630865,2020,2020-09-04,2020-09-04T20:15:00Z,R,Final,night,Y,3,Fenway Park,141,Toronto Blue Jays,111,Boston Red Sox,548389.0,Ross Stripling,607391.0,Chris Mazza,7,0.0,0.0
+630954,2020,2020-09-04,2020-09-04T22:40:00Z,R,Final,night,N,12,Tropicana Field,139,Tampa Bay Rays,146,Miami Marlins,676596.0,Josh Fleming,641154.0,Pablo López,9,0.0,0.0
+631003,2020,2020-09-04,2020-09-05T01:45:00Z,R,Final,night,N,2395,Oracle Park,137,San Francisco Giants,109,Arizona Diamondbacks,542881.0,Tyler Anderson,664199.0,Taylor Clarke,9,1.0,1.0
+631041,2020,2020-09-04,2020-09-05T01:10:00Z,R,Final,night,N,680,T-Mobile Park,136,Seattle Mariners,140,Texas Rangers,579328.0,Yusei Kikuchi,621129.0,Kyle Cody,9,0.0,0.0
+631113,2020,2020-09-04,2020-09-04T20:05:00Z,R,Final,night,Y,31,PNC Park,134,Pittsburgh Pirates,113,Cincinnati Reds,643230.0,Steven Brault,622491.0,Luis Castillo,7,0.0,0.0
+631156,2020,2020-09-04,2020-09-05T01:40:00Z,R,Final,night,N,10,Oakland Coliseum,133,Oakland Athletics,135,San Diego Padres,666200.0,Jesús Luzardo,605200.0,Zach Davies,9,0.0,0.0
+631221,2020,2020-09-04,2020-09-04T23:10:00Z,R,Final,night,N,3289,Citi Field,121,New York Mets,143,Philadelphia Phillies,519144.0,Rick Porcello,453562.0,Jake Arrieta,9,0.0,0.0
+631262,2020,2020-09-04,2020-09-04T18:10:00Z,R,Final,day,Y,3312,Target Field,142,Minnesota Twins,116,Detroit Tigers,677976.0,Randy Dobnak,571510.0,Matthew Boyd,7,0.0,2.0
+631345,2020,2020-09-04,2020-09-05T01:40:00Z,R,Final,night,N,22,Dodger Stadium,119,Los Angeles Dodgers,115,Colorado Rockies,669160.0,Dustin May,622608.0,Antonio Senzatela,9,1.0,1.0
+631357,2020,2020-09-04,2020-09-05T01:10:00Z,R,Final,night,N,1,Angel Stadium,108,Los Angeles Angels,117,Houston Astros,605164.0,Dylan Bundy,621121.0,Lance McCullers Jr.,11,0.0,3.0
+631406,2020,2020-09-04,2020-09-05T00:05:00Z,R,Final,night,N,7,Kauffman Stadium,118,Kansas City Royals,145,Chicago White Sox,663903.0,Brady Singer,641540.0,Dane Dunning,9,1.0,0.0
+631456,2020,2020-09-04,2020-09-04T18:15:00Z,R,Final,day,Y,3312,Target Field,116,Detroit Tigers,142,Minnesota Twins,641302.0,Tyler Alexander,605538.0,Matt Wisler,8,0.0,0.0
+631555,2020,2020-09-04,2020-09-04T23:10:00Z,R,Final,night,N,5,Progressive Field,114,Cleveland Indians,158,Milwaukee Brewers,471911.0,Carlos Carrasco,669203.0,Corbin Burnes,9,0.0,0.0
+631602,2020,2020-09-04,2020-09-04T20:10:00Z,R,Final,night,Y,31,PNC Park,113,Cincinnati Reds,134,Pittsburgh Pirates,545333.0,Trevor Bauer,664074.0,Cody Ponce,7,0.0,2.0
+631644,2020,2020-09-04,2020-09-05T00:15:00Z,R,Final,night,N,17,Wrigley Field,112,Chicago Cubs,138,St. Louis Cardinals,506433.0,Yu Darvish,656427.0,Jack Flaherty,9,0.0,2.0
+631649,2020,2020-09-04,2020-09-04T20:10:00Z,R,Final,night,Y,3,Fenway Park,111,Boston Red Sox,141,Toronto Blue Jays,643327.0,Zack Godley,543699.0,Tanner Roark,7,0.0,0.0
+631674,2020,2020-09-04,2020-09-04T21:05:00Z,R,Final,night,Y,2,Oriole Park at Camden Yards,110,Baltimore Orioles,147,New York Yankees,664045.0,Thomas Eshelman,650633.0,Michael King,9,0.0,1.0
+630383,2020,2020-09-05,2020-09-05T23:10:00Z,R,Final,night,N,4705,Truist Park,144,Atlanta Braves,120,Washington Nationals,608331.0,Max Fried,607200.0,Erick Fedde,9,2.0,1.0
+630955,2020,2020-09-05,2020-09-05T22:40:00Z,R,Final,night,N,12,Tropicana Field,139,Tampa Bay Rays,146,Miami Marlins,605483.0,Blake Snell,645261.0,Sandy Alcantara,9,0.0,0.0
+630998,2020,2020-09-05,2020-09-05T21:20:00Z,R,Final,night,Y,17,Wrigley Field,138,St. Louis Cardinals,112,Chicago Cubs,,,,,7,0.0,0.0
+631004,2020,2020-09-05,2020-09-06T01:15:00Z,R,Final,night,N,2395,Oracle Park,137,San Francisco Giants,109,Arizona Diamondbacks,502239.0,Trevor Cahill,518516.0,Madison Bumgarner,9,1.0,0.0
+631044,2020,2020-09-05,2020-09-06T01:10:00Z,R,Final,night,N,680,T-Mobile Park,136,Seattle Mariners,140,Texas Rangers,656954.0,Justus Sheffield,502043.0,Kyle Gibson,9,0.0,0.0
+631115,2020,2020-09-05,2020-09-05T23:05:00Z,R,Final,night,N,31,PNC Park,134,Pittsburgh Pirates,113,Cincinnati Reds,592866.0,Trevor Williams,543101.0,Anthony DeSclafani,9,0.0,0.0
+631157,2020,2020-09-05,2020-09-05T20:07:00Z,R,Final,day,N,10,Oakland Coliseum,133,Oakland Athletics,135,San Diego Padres,640455.0,Sean Manaea,663978.0,Chris Paddack,9,0.0,2.0
+631228,2020,2020-09-05,2020-09-05T23:10:00Z,R,Final,night,N,3289,Citi Field,121,New York Mets,143,Philadelphia Phillies,607625.0,Seth Lugo,675921.0,Spencer Howard,9,1.0,0.0
+631264,2020,2020-09-05,2020-09-05T23:10:00Z,R,Final,night,N,3312,Target Field,142,Minnesota Twins,116,Detroit Tigers,628317.0,Kenta Maeda,669373.0,Tarik Skubal,9,1.0,0.0
+631328,2020,2020-09-05,2020-09-06T01:10:00Z,R,Final,night,N,22,Dodger Stadium,119,Los Angeles Dodgers,115,Colorado Rockies,664062.0,Tony Gonsolin,608566.0,Germán Márquez,9,0.0,0.0
+631388,2020,2020-09-05,2020-09-05T23:07:00Z,R,Final,night,Y,1,Angel Stadium,108,Los Angeles Angels,117,Houston Astros,656288.0,Griffin Canning,656232.0,Brandon Bielak,7,0.0,1.0
+631408,2020,2020-09-05,2020-09-05T23:05:00Z,R,Final,night,N,7,Kauffman Stadium,118,Kansas City Royals,145,Chicago White Sox,663460.0,Kris Bubic,608337.0,Lucas Giolito,9,2.0,0.0
+631440,2020,2020-09-05,2020-09-05T23:12:00Z,R,Final,night,Y,1,Angel Stadium,117,Houston Astros,108,Los Angeles Angels,664353.0,José Urquidy,,,7,0.0,1.0
+631556,2020,2020-09-05,2020-09-05T23:10:00Z,R,Final,night,N,5,Progressive Field,114,Cleveland Indians,158,Milwaukee Brewers,650644.0,Aaron Civale,605540.0,Brandon Woodruff,9,0.0,0.0
+631607,2020,2020-09-05,2020-09-05T21:15:00Z,R,Final,night,Y,17,Wrigley Field,112,Chicago Cubs,138,St. Louis Cardinals,640470.0,Adbert Alzolay,425794.0,Adam Wainwright,7,0.0,1.0
+631625,2020,2020-09-05,2020-09-05T23:30:00Z,R,Final,night,N,3,Fenway Park,111,Boston Red Sox,141,Toronto Blue Jays,543901.0,Ryan Weber,502624.0,Chase Anderson,9,0.0,0.0
+631675,2020,2020-09-05,2020-09-05T23:35:00Z,R,Final,night,N,2,Oriole Park at Camden Yards,110,Baltimore Orioles,147,New York Yankees,669211.0,Keegan Akin,543037.0,Gerrit Cole,9,0.0,0.0
+630491,2020,2020-09-06,2020-09-06T17:10:00Z,R,Final,day,N,4705,Truist Park,144,Atlanta Braves,120,Washington Nationals,458708.0,Josh Tomlin,571578.0,Patrick Corbin,9,0.0,0.0
+630956,2020,2020-09-06,2020-09-06T17:10:00Z,R,Final,day,N,12,Tropicana Field,139,Tampa Bay Rays,146,Miami Marlins,607192.0,Tyler Glasnow,669432.0,Trevor Rogers,10,2.0,1.0
+631005,2020,2020-09-06,2020-09-06T20:05:00Z,R,Final,day,N,2395,Oracle Park,137,San Francisco Giants,109,Arizona Diamondbacks,456501.0,Johnny Cueto,622065.0,Alex Young,9,2.0,0.0
+631030,2020,2020-09-06,2020-09-06T20:10:00Z,R,Final,day,N,680,T-Mobile Park,136,Seattle Mariners,140,Texas Rangers,643290.0,Justin Dunn,543475.0,Jordan Lyles,9,0.0,2.0
+631116,2020,2020-09-06,2020-09-06T17:35:00Z,R,Final,day,N,31,PNC Park,134,Pittsburgh Pirates,113,Cincinnati Reds,641771.0,Chad Kuhl,622088.0,Tejay Antone,9,0.0,0.0
+631158,2020,2020-09-06,2020-09-06T20:10:00Z,R,Final,day,N,10,Oakland Coliseum,133,Oakland Athletics,135,San Diego Padres,571666.0,Mike Fiers,572070.0,Garrett Richards,9,0.0,1.0
+631209,2020,2020-09-06,2020-09-06T17:10:00Z,R,Final,day,N,3289,Citi Field,121,New York Mets,143,Philadelphia Phillies,594798.0,Jacob deGrom,605400.0,Aaron Nola,9,0.0,1.0
+631254,2020,2020-09-06,2020-09-06T18:10:00Z,R,Final,day,N,3312,Target Field,142,Minnesota Twins,116,Detroit Tigers,448179.0,Rich Hill,663554.0,Casey Mize,9,0.0,0.0
+631344,2020,2020-09-06,2020-09-07T02:10:00Z,R,Final,night,N,22,Dodger Stadium,119,Los Angeles Dodgers,115,Colorado Rockies,628711.0,Julio Urías,624418.0,Ryan Castellani,9,0.0,1.0
+631359,2020,2020-09-06,2020-09-06T20:10:00Z,R,Final,day,N,1,Angel Stadium,108,Los Angeles Angels,117,Houston Astros,642545.0,Jaime Barria,664285.0,Framber Valdez,9,2.0,0.0
+631407,2020,2020-09-06,2020-09-06T18:05:00Z,R,Final,day,N,7,Kauffman Stadium,118,Kansas City Royals,145,Chicago White Sox,518774.0,Matt Harvey,572971.0,Dallas Keuchel,9,0.0,0.0
+631557,2020,2020-09-06,2020-09-06T17:10:00Z,R,Final,day,N,5,Progressive Field,114,Cleveland Indians,158,Milwaukee Brewers,669456.0,Shane Bieber,474463.0,Brett Anderson,9,0.0,1.0
+631604,2020,2020-09-06,2020-09-06T23:08:00Z,R,Final,night,N,17,Wrigley Field,112,Chicago Cubs,138,St. Louis Cardinals,452657.0,Jon Lester,641712.0,Dakota Hudson,9,1.0,1.0
+631626,2020,2020-09-06,2020-09-06T17:35:00Z,R,Final,day,N,3,Fenway Park,111,Boston Red Sox,141,Toronto Blue Jays,592811.0,Andrew Triggs,592662.0,Robbie Ray,9,0.0,3.0
+631676,2020,2020-09-06,2020-09-06T17:05:00Z,R,Final,day,N,2,Oriole Park at Camden Yards,110,Baltimore Orioles,147,New York Yankees,665152.0,Dean Kremer,547888.0,Masahiro Tanaka,9,0.0,2.0
+630415,2020,2020-09-07,2020-09-07T17:10:00Z,R,Final,day,N,4705,Truist Park,144,Atlanta Braves,146,Miami Marlins,666120.0,Ian Anderson,570632.0,José Ureña,10,0.0,2.0
+630857,2020,2020-09-07,2020-09-07T22:05:00Z,R,Final,night,N,3309,Nationals Park,120,Washington Nationals,139,Tampa Bay Rays,453286.0,Max Scherzer,450203.0,Charlie Morton,9,0.0,0.0
+630859,2020,2020-09-07,2020-09-07T22:37:00Z,R,Final,night,N,2756,Sahlen Field,141,Toronto Blue Jays,147,New York Yankees,547943.0,Hyun Jin Ryu,656756.0,Jordan Montgomery,9,2.0,1.0
+631006,2020,2020-09-07,2020-09-08T00:05:00Z,R,Final,night,N,2395,Oracle Park,137,San Francisco Giants,109,Arizona Diamondbacks,592332.0,Kevin Gausman,668678.0,Zac Gallen,9,0.0,0.0
+631031,2020,2020-09-07,2020-09-07T20:10:00Z,R,Final,day,N,680,T-Mobile Park,136,Seattle Mariners,140,Texas Rangers,594835.0,Marco Gonzales,663465.0,Kolby Allard,9,0.0,2.0
+631084,2020,2020-09-07,2020-09-08T01:10:00Z,R,Final,night,N,2680,Petco Park,135,San Diego Padres,115,Colorado Rockies,659275.0,Dinelson Lamet,607536.0,Kyle Freeland,9,0.0,0.0
+631159,2020,2020-09-07,2020-09-08T01:10:00Z,R,Final,night,N,10,Oakland Coliseum,133,Oakland Athletics,117,Houston Astros,605135.0,Chris Bassitt,664299.0,Cristian Javier,9,0.0,0.0
+631225,2020,2020-09-07,2020-09-07T17:10:00Z,R,Final,day,N,3289,Citi Field,121,New York Mets,143,Philadelphia Phillies,656849.0,David Peterson,554430.0,Zack Wheeler,10,3.0,0.0
+631255,2020,2020-09-07,2020-09-07T18:10:00Z,R,Final,day,N,3312,Target Field,142,Minnesota Twins,116,Detroit Tigers,501381.0,Michael Pineda,605242.0,Michael Fulmer,9,0.0,0.0
+631558,2020,2020-09-07,2020-09-07T22:10:00Z,R,Final,night,N,5,Progressive Field,114,Cleveland Indians,118,Kansas City Royals,668676.0,Zach Plesac,641745.0,Brad Keller,9,0.0,0.0
+631605,2020,2020-09-07,2020-09-07T20:10:00Z,R,Final,day,N,17,Wrigley Field,112,Chicago Cubs,138,St. Louis Cardinals,543294.0,Kyle Hendricks,670912.0,Johan Oviedo,9,0.0,1.0
+630220,2020,2020-09-08,2020-09-09T01:40:00Z,R,Final,night,N,15,Chase Field,109,Arizona Diamondbacks,119,Los Angeles Dodgers,596133.0,Luke Weaver,621111.0,Walker Buehler,10,0.0,0.0
+630438,2020,2020-09-08,2020-09-08T23:10:00Z,R,Final,night,N,4705,Truist Park,144,Atlanta Braves,146,Miami Marlins,657140.0,Kyle Wright,664350.0,Sixto Sánchez,9,0.0,0.0
+630860,2020,2020-09-08,2020-09-08T22:37:00Z,R,Final,night,N,2756,Sahlen Field,141,Toronto Blue Jays,147,New York Yankees,592836.0,Taijuan Walker,457918.0,J.A. Happ,9,0.0,0.0
+630867,2020,2020-09-08,2020-09-08T22:05:00Z,R,Final,night,N,3309,Nationals Park,120,Washington Nationals,139,Tampa Bay Rays,434671.0,Aníbal Sánchez,642232.0,Ryan Yarbrough,9,0.0,1.0
+630904,2020,2020-09-08,2020-09-09T00:05:00Z,R,Final,night,N,5325,Globe Life Field,140,Texas Rangers,108,Los Angeles Angels,458681.0,Lance Lynn,571760.0,Andrew Heaney,9,0.0,0.0
+630983,2020,2020-09-08,2020-09-08T19:15:00Z,R,Final,day,Y,2889,Busch Stadium,138,St. Louis Cardinals,142,Minnesota Twins,593372.0,Carlos Martinez,621244.0,José Berríos,7,0.0,0.0
+630984,2020,2020-09-08,2020-09-08T19:20:00Z,R,Final,day,Y,2889,Busch Stadium,138,St. Louis Cardinals,142,Minnesota Twins,594965.0,Daniel Ponce de Leon,677976.0,Randy Dobnak,7,0.0,0.0
+631007,2020,2020-09-08,2020-09-09T01:45:00Z,R,Final,night,N,2395,Oracle Park,137,San Francisco Giants,136,Seattle Mariners,657277.0,Logan Webb,664714.0,Ljay Newsome,9,1.0,1.0
+631071,2020,2020-09-08,2020-09-09T01:10:00Z,R,Final,night,N,2680,Petco Park,135,San Diego Padres,115,Colorado Rockies,605182.0,Mike Clevinger,592346.0,Chi Chi González,9,3.0,5.0
+631096,2020,2020-09-08,2020-09-08T23:05:00Z,R,Final,night,N,31,PNC Park,134,Pittsburgh Pirates,145,Chicago White Sox,605397.0,Joe Musgrove,656302.0,Dylan Cease,9,0.0,0.0
+631149,2020,2020-09-08,2020-09-08T20:05:00Z,R,Final,night,Y,2681,Citizens Bank Park,143,Philadelphia Phillies,111,Boston Red Sox,621107.0,Zach Eflin,527048.0,Martín Pérez,7,0.0,0.0
+631152,2020,2020-09-08,2020-09-08T20:10:00Z,R,Final,night,Y,2681,Citizens Bank Park,143,Philadelphia Phillies,111,Boston Red Sox,592826.0,Vince Velasquez,607391.0,Chris Mazza,7,0.0,2.0
+631160,2020,2020-09-08,2020-09-08T22:15:00Z,R,Final,day,Y,10,Oakland Coliseum,133,Oakland Athletics,117,Houston Astros,501985.0,Mike Minor,608328.0,Chase De Jong,7,0.0,0.0
+631211,2020,2020-09-08,2020-09-08T23:10:00Z,R,Final,night,N,3289,Citi Field,121,New York Mets,110,Baltimore Orioles,608379.0,Michael Wacha,607644.0,John Means,9,0.0,0.0
+631429,2020,2020-09-08,2020-09-08T22:10:00Z,R,Final,day,Y,10,Oakland Coliseum,117,Houston Astros,133,Oakland Athletics,425844.0,Zack Greinke,593423.0,Frankie Montas,7,0.0,0.0
+631460,2020,2020-09-08,2020-09-08T23:10:00Z,R,Final,night,N,2394,Comerica Park,116,Detroit Tigers,158,Milwaukee Brewers,605513.0,Spencer Turnbull,605288.0,Adrian Houser,9,0.0,0.0
+631559,2020,2020-09-08,2020-09-08T22:10:00Z,R,Final,night,N,5,Progressive Field,114,Cleveland Indians,118,Kansas City Royals,663474.0,Triston McKenzie,596001.0,Jakob Junis,9,0.0,2.0
+631615,2020,2020-09-08,2020-09-09T00:15:00Z,R,Final,night,N,17,Wrigley Field,112,Chicago Cubs,113,Cincinnati Reds,621219.0,Alec Mills,641816.0,Tyler Mahle,9,0.0,0.0
+630221,2020,2020-09-09,2020-09-10T01:40:00Z,R,Final,night,N,15,Chase Field,109,Arizona Diamondbacks,119,Los Angeles Dodgers,664199.0,Taylor Clarke,477132.0,Clayton Kershaw,10,1.0,0.0
+630439,2020,2020-09-09,2020-09-09T23:10:00Z,R,Final,night,N,4705,Truist Park,144,Atlanta Braves,146,Miami Marlins,543548.0,Tommy Milone,641154.0,Pablo López,9,0.0,0.0
+630864,2020,2020-09-09,2020-09-09T22:37:00Z,R,Final,night,N,2756,Sahlen Field,141,Toronto Blue Jays,147,New York Yankees,543699.0,Tanner Roark,665620.0,Deivi García,9,0.0,0.0
+630925,2020,2020-09-09,2020-09-10T00:05:00Z,R,Final,night,N,5325,Globe Life Field,140,Texas Rangers,108,Los Angeles Angels,621129.0,Kyle Cody,527054.0,Julio Teheran,9,1.0,0.0
+631008,2020,2020-09-09,2020-09-10T01:45:00Z,R,Final,night,N,2395,Oracle Park,137,San Francisco Giants,136,Seattle Mariners,542881.0,Tyler Anderson,676606.0,Nick Margevicius,9,0.0,0.0
+631056,2020,2020-09-09,2020-09-10T00:10:00Z,R,Final,night,N,2680,Petco Park,135,San Diego Padres,115,Colorado Rockies,605200.0,Zach Davies,622608.0,Antonio Senzatela,9,1.0,2.0
+631100,2020,2020-09-09,2020-09-09T23:05:00Z,R,Final,night,N,31,PNC Park,134,Pittsburgh Pirates,145,Chicago White Sox,664141.0,JT Brubaker,641540.0,Dane Dunning,9,0.0,0.0
+631161,2020,2020-09-09,2020-09-10T01:10:00Z,R,Final,night,N,10,Oakland Coliseum,133,Oakland Athletics,117,Houston Astros,666200.0,Jesús Luzardo,677651.0,Luis Garcia,9,1.0,0.0
+631212,2020,2020-09-09,2020-09-09T23:10:00Z,R,Final,night,N,3289,Citi Field,121,New York Mets,110,Baltimore Orioles,519144.0,Rick Porcello,605347.0,Jorge López,9,2.0,0.0
+631461,2020,2020-09-09,2020-09-09T17:10:00Z,R,Final,day,N,2394,Comerica Park,116,Detroit Tigers,158,Milwaukee Brewers,571510.0,Matthew Boyd,669203.0,Corbin Burnes,9,0.0,0.0
+631560,2020,2020-09-09,2020-09-09T22:10:00Z,R,Final,night,N,5,Progressive Field,114,Cleveland Indians,118,Kansas City Royals,471911.0,Carlos Carrasco,518633.0,Danny Duffy,9,0.0,0.0
+631616,2020,2020-09-09,2020-09-10T00:15:00Z,R,Final,night,N,17,Wrigley Field,112,Chicago Cubs,113,Cincinnati Reds,506433.0,Yu Darvish,545333.0,Trevor Bauer,9,3.0,0.0
+630223,2020,2020-09-10,2020-09-11T01:40:00Z,R,Final,night,N,15,Chase Field,109,Arizona Diamondbacks,119,Los Angeles Dodgers,518516.0,Madison Bumgarner,669160.0,Dustin May,9,0.0,0.0
+630869,2020,2020-09-10,2020-09-10T22:05:00Z,R,Final,night,N,3309,Nationals Park,120,Washington Nationals,144,Atlanta Braves,608723.0,Austin Voth,572362.0,Robbie Erlin,9,0.0,3.0
+630908,2020,2020-09-10,2020-09-10T20:05:00Z,R,Final,day,N,5325,Globe Life Field,140,Texas Rangers,108,Los Angeles Angels,502043.0,Kyle Gibson,605164.0,Dylan Bundy,9,3.0,1.0
+630957,2020,2020-09-10,2020-09-10T22:40:00Z,R,Final,night,N,12,Tropicana Field,139,Tampa Bay Rays,111,Boston Red Sox,676596.0,Josh Fleming,592464.0,Mike Kickham,9,0.0,0.0
+630994,2020,2020-09-10,2020-09-10T18:15:00Z,R,Final,day,Y,2889,Busch Stadium,138,St. Louis Cardinals,116,Detroit Tigers,656427.0,Jack Flaherty,669373.0,Tarik Skubal,7,0.0,0.0
+630995,2020,2020-09-10,2020-09-10T18:20:00Z,R,Final,day,Y,2889,Busch Stadium,138,St. Louis Cardinals,116,Detroit Tigers,596295.0,Austin Gomber,519455.0,Jordan Zimmermann,7,0.0,0.0
+631072,2020,2020-09-10,2020-09-11T01:10:00Z,R,Final,night,N,2680,Petco Park,135,San Diego Padres,137,San Francisco Giants,663978.0,Chris Paddack,502239.0,Trevor Cahill,9,0.0,3.0
+631162,2020,2020-09-10,2020-09-10T19:40:00Z,R,Final,day,N,10,Oakland Coliseum,133,Oakland Athletics,117,Houston Astros,640455.0,Sean Manaea,664353.0,José Urquidy,9,0.0,0.0
+631309,2020,2020-09-10,2020-09-10T22:40:00Z,R,Final,night,N,4169,Marlins Park,146,Miami Marlins,143,Philadelphia Phillies,645261.0,Sandy Alcantara,453562.0,Jake Arrieta,9,1.0,1.0
+631561,2020,2020-09-10,2020-09-10T22:10:00Z,R,Final,night,N,5,Progressive Field,114,Cleveland Indians,118,Kansas City Royals,650644.0,Aaron Civale,663903.0,Brady Singer,9,0.0,0.0
+631634,2020,2020-09-10,2020-09-11T00:15:00Z,R,Final,night,N,17,Wrigley Field,112,Chicago Cubs,113,Cincinnati Reds,640470.0,Adbert Alzolay,543243.0,Sonny Gray,9,2.0,0.0
+630224,2020,2020-09-11,2020-09-12T01:40:00Z,R,Final,night,N,15,Chase Field,109,Arizona Diamondbacks,136,Seattle Mariners,592761.0,Caleb Smith,579328.0,Yusei Kikuchi,9,0.0,3.0
+630868,2020,2020-09-11,2020-09-11T22:37:00Z,R,Final,night,N,2756,Sahlen Field,141,Toronto Blue Jays,121,New York Mets,502624.0,Chase Anderson,594798.0,Jacob deGrom,9,0.0,1.0
+630873,2020,2020-09-11,2020-09-11T22:05:00Z,R,Final,night,N,3309,Nationals Park,120,Washington Nationals,144,Atlanta Braves,607200.0,Erick Fedde,458708.0,Josh Tomlin,12,0.0,3.0
+630909,2020,2020-09-11,2020-09-12T00:05:00Z,R,Final,night,N,5325,Globe Life Field,140,Texas Rangers,133,Oakland Athletics,472610.0,Luis García,571666.0,Mike Fiers,9,4.0,1.0
+630958,2020,2020-09-11,2020-09-11T22:40:00Z,R,Final,night,N,12,Tropicana Field,139,Tampa Bay Rays,111,Boston Red Sox,605483.0,Blake Snell,592811.0,Andrew Triggs,9,0.0,0.0
+630985,2020,2020-09-11,2020-09-12T00:15:00Z,R,Final,night,N,2889,Busch Stadium,138,St. Louis Cardinals,113,Cincinnati Reds,425794.0,Adam Wainwright,622491.0,Luis Castillo,9,2.0,0.0
+631183,2020,2020-09-11,2020-09-11T20:10:00Z,R,Final,night,Y,3313,Yankee Stadium,147,New York Yankees,110,Baltimore Orioles,547888.0,Masahiro Tanaka,669211.0,Keegan Akin,7,1.0,4.0
+631184,2020,2020-09-11,2020-09-11T20:05:00Z,R,Final,night,Y,3313,Yankee Stadium,147,New York Yankees,110,Baltimore Orioles,543037.0,Gerrit Cole,502171.0,Alex Cobb,7,0.0,3.0
+631256,2020,2020-09-11,2020-09-12T00:10:00Z,R,Final,night,N,3312,Target Field,142,Minnesota Twins,114,Cleveland Indians,628317.0,Kenta Maeda,669456.0,Shane Bieber,9,0.0,0.0
+631284,2020,2020-09-11,2020-09-12T00:10:00Z,R,Final,night,N,32,Miller Park,158,Milwaukee Brewers,112,Chicago Cubs,605540.0,Brandon Woodruff,452657.0,Jon Lester,9,0.0,0.0
+631310,2020,2020-09-11,2020-09-11T21:10:00Z,R,Final,night,Y,4169,Marlins Park,146,Miami Marlins,143,Philadelphia Phillies,669432.0,Trevor Rogers,605400.0,Aaron Nola,7,0.0,0.0
+631318,2020,2020-09-11,2020-09-11T21:15:00Z,R,Final,night,Y,4169,Marlins Park,146,Miami Marlins,143,Philadelphia Phillies,641447.0,Daniel Castano,453284.0,Blake Parker,7,0.0,0.0
+631399,2020,2020-09-11,2020-09-12T00:05:00Z,R,Final,night,N,7,Kauffman Stadium,118,Kansas City Royals,134,Pittsburgh Pirates,663460.0,Kris Bubic,643230.0,Steven Brault,9,0.0,1.0
+631478,2020,2020-09-11,2020-09-12T00:10:00Z,R,Final,night,N,4,Guaranteed Rate Field,145,Chicago White Sox,116,Detroit Tigers,608337.0,Lucas Giolito,663554.0,Casey Mize,9,0.0,0.0
+631530,2020,2020-09-11,2020-09-12T00:40:00Z,R,Final,night,N,19,Coors Field,115,Colorado Rockies,108,Los Angeles Angels,608566.0,Germán Márquez,656288.0,Griffin Canning,9,2.0,0.0
+630225,2020,2020-09-12,2020-09-13T00:10:00Z,R,Final,night,N,15,Chase Field,109,Arizona Diamondbacks,136,Seattle Mariners,668678.0,Zac Gallen,656954.0,Justus Sheffield,9,4.0,0.0
+630870,2020,2020-09-12,2020-09-12T22:37:00Z,R,Final,night,N,2756,Sahlen Field,141,Toronto Blue Jays,121,New York Mets,592662.0,Robbie Ray,607625.0,Seth Lugo,9,0.0,0.0
+630877,2020,2020-09-12,2020-09-12T22:05:00Z,R,Final,night,N,3309,Nationals Park,120,Washington Nationals,144,Atlanta Braves,571578.0,Patrick Corbin,666120.0,Ian Anderson,9,1.0,0.0
+630910,2020,2020-09-12,2020-09-12T21:05:00Z,R,Final,night,Y,5325,Globe Life Field,140,Texas Rangers,133,Oakland Athletics,580792.0,Nick Goody,641726.0,Daulton Jefferies,7,0.0,5.0
+630932,2020,2020-09-12,2020-09-12T21:10:00Z,R,Final,night,Y,5325,Globe Life Field,140,Texas Rangers,133,Oakland Athletics,663465.0,Kolby Allard,605135.0,Chris Bassitt,7,0.0,0.0
+630959,2020,2020-09-12,2020-09-12T22:40:00Z,R,Final,night,N,12,Tropicana Field,139,Tampa Bay Rays,111,Boston Red Sox,607192.0,Tyler Glasnow,543135.0,Nathan Eovaldi,9,0.0,1.0
+630988,2020,2020-09-12,2020-09-13T00:15:00Z,R,Final,night,N,2889,Busch Stadium,138,St. Louis Cardinals,113,Cincinnati Reds,641712.0,Dakota Hudson,622088.0,Tejay Antone,9,0.0,0.0
+631185,2020,2020-09-12,2020-09-12T17:05:00Z,R,Final,day,N,3313,Yankee Stadium,147,New York Yankees,110,Baltimore Orioles,656756.0,Jordan Montgomery,665152.0,Dean Kremer,10,0.0,1.0
+631257,2020,2020-09-12,2020-09-13T00:07:00Z,R,Final,night,N,3312,Target Field,142,Minnesota Twins,114,Cleveland Indians,448179.0,Rich Hill,668676.0,Zach Plesac,9,0.0,0.0
+631285,2020,2020-09-12,2020-09-12T23:10:00Z,R,Final,night,N,32,Miller Park,158,Milwaukee Brewers,112,Chicago Cubs,608718.0,Brent Suter,543294.0,Kyle Hendricks,9,0.0,0.0
+631311,2020,2020-09-12,2020-09-12T22:10:00Z,R,Final,night,N,4169,Marlins Park,146,Miami Marlins,143,Philadelphia Phillies,570632.0,José Ureña,675921.0,Spencer Howard,9,4.0,0.0
+631331,2020,2020-09-12,2020-09-13T00:07:00Z,R,Final,night,N,22,Dodger Stadium,119,Los Angeles Dodgers,117,Houston Astros,628711.0,Julio Urías,664285.0,Framber Valdez,9,1.0,0.0
+631400,2020,2020-09-12,2020-09-12T23:05:00Z,R,Final,night,N,7,Kauffman Stadium,118,Kansas City Royals,134,Pittsburgh Pirates,672578.0,Carlos Hernández,592866.0,Trevor Williams,9,0.0,1.0
+631495,2020,2020-09-12,2020-09-12T23:10:00Z,R,Final,night,N,4,Guaranteed Rate Field,145,Chicago White Sox,116,Detroit Tigers,625643.0,Reynaldo López,605242.0,Michael Fulmer,9,0.0,3.0
+631531,2020,2020-09-12,2020-09-13T00:10:00Z,R,Final,night,N,19,Coors Field,115,Colorado Rockies,108,Los Angeles Angels,607536.0,Kyle Freeland,642545.0,Jaime Barria,11,0.0,0.0
+630226,2020,2020-09-13,2020-09-13T20:10:00Z,R,Final,day,N,15,Chase Field,109,Arizona Diamondbacks,136,Seattle Mariners,596133.0,Luke Weaver,643290.0,Justin Dunn,9,1.0,1.0
+630875,2020,2020-09-13,2020-09-13T19:07:00Z,R,Final,day,N,2756,Sahlen Field,141,Toronto Blue Jays,121,New York Mets,547943.0,Hyun Jin Ryu,656849.0,David Peterson,9,1.0,0.0
+630883,2020,2020-09-13,2020-09-13T16:35:00Z,R,Final,day,N,3309,Nationals Park,120,Washington Nationals,144,Atlanta Braves,453286.0,Max Scherzer,657140.0,Kyle Wright,9,1.0,0.0
+630911,2020,2020-09-13,2020-09-13T18:35:00Z,R,Final,day,N,5325,Globe Life Field,140,Texas Rangers,133,Oakland Athletics,458681.0,Lance Lynn,593423.0,Frankie Montas,9,1.0,0.0
+630947,2020,2020-09-13,2020-09-13T17:10:00Z,R,Final,day,N,12,Tropicana Field,139,Tampa Bay Rays,111,Boston Red Sox,450203.0,Charlie Morton,527048.0,Martín Pérez,9,2.0,1.0
+630961,2020,2020-09-13,2020-09-13T18:15:00Z,R,Final,day,N,2889,Busch Stadium,138,St. Louis Cardinals,113,Cincinnati Reds,593372.0,Carlos Martinez,641816.0,Tyler Mahle,9,0.0,1.0
+631058,2020,2020-09-13,2020-09-13T20:15:00Z,R,Final,day,Y,2680,Petco Park,135,San Diego Padres,137,San Francisco Giants,572070.0,Garrett Richards,657277.0,Logan Webb,7,0.0,0.0
+631060,2020,2020-09-13,2020-09-13T20:10:00Z,R,Final,day,Y,2680,Petco Park,135,San Diego Padres,137,San Francisco Giants,605182.0,Mike Clevinger,456501.0,Johnny Cueto,7,0.0,0.0
+631187,2020,2020-09-13,2020-09-13T17:05:00Z,R,Final,day,N,3313,Yankee Stadium,147,New York Yankees,110,Baltimore Orioles,457918.0,J.A. Happ,607644.0,John Means,9,0.0,0.0
+631259,2020,2020-09-13,2020-09-13T18:10:00Z,R,Final,day,N,3312,Target Field,142,Minnesota Twins,114,Cleveland Indians,501381.0,Michael Pineda,663474.0,Triston McKenzie,9,1.0,0.0
+631286,2020,2020-09-13,2020-09-13T18:10:00Z,R,Final,day,N,32,Miller Park,158,Milwaukee Brewers,112,Chicago Cubs,605288.0,Adrian Houser,621219.0,Alec Mills,9,0.0,0.0
+631312,2020,2020-09-13,2020-09-13T17:10:00Z,R,Final,day,Y,4169,Marlins Park,146,Miami Marlins,143,Philadelphia Phillies,664350.0,Sixto Sánchez,665759.0,Ramón Rosso,7,0.0,0.0
+631320,2020,2020-09-13,2020-09-13T17:15:00Z,R,Final,day,Y,4169,Marlins Park,146,Miami Marlins,143,Philadelphia Phillies,666129.0,Braxton Garrett,621107.0,Zach Eflin,7,0.0,3.0
+631332,2020,2020-09-13,2020-09-14T00:08:00Z,R,Final,night,N,22,Dodger Stadium,119,Los Angeles Dodgers,117,Houston Astros,660813.0,Brusdar Graterol,425844.0,Zack Greinke,9,0.0,1.0
+631401,2020,2020-09-13,2020-09-13T18:05:00Z,R,Final,day,N,7,Kauffman Stadium,118,Kansas City Royals,134,Pittsburgh Pirates,641745.0,Brad Keller,641771.0,Chad Kuhl,9,0.0,4.0
+631481,2020,2020-09-13,2020-09-13T18:10:00Z,R,Final,day,N,4,Guaranteed Rate Field,145,Chicago White Sox,116,Detroit Tigers,680692.0,Jonathan Stiever,605513.0,Spencer Turnbull,9,1.0,0.0
+631532,2020,2020-09-13,2020-09-13T19:10:00Z,R,Final,day,N,19,Coors Field,115,Colorado Rockies,108,Los Angeles Angels,624418.0,Ryan Castellani,571760.0,Andrew Heaney,9,0.0,0.0
+631053,2020,2020-09-14,2020-09-14T21:10:00Z,R,Final,day,Y,680,T-Mobile Park,136,Seattle Mariners,133,Oakland Athletics,594835.0,Marco Gonzales,666200.0,Jesús Luzardo,7,0.0,0.0
+631054,2020,2020-09-14,2020-09-14T21:15:00Z,R,Final,day,Y,680,T-Mobile Park,136,Seattle Mariners,133,Oakland Athletics,642231.0,Jimmy Yacabonis,501985.0,Mike Minor,7,1.0,0.0
+631061,2020,2020-09-14,2020-09-15T01:10:00Z,R,Final,night,N,2680,Petco Park,135,San Diego Padres,119,Los Angeles Dodgers,659275.0,Dinelson Lamet,477132.0,Clayton Kershaw,9,0.0,0.0
+631282,2020,2020-09-14,2020-09-14T21:10:00Z,R,Final,night,Y,32,Miller Park,158,Milwaukee Brewers,138,St. Louis Cardinals,458676.0,Josh Lindblom,547942.0,Kwang Hyun Kim,8,0.0,0.0
+631288,2020,2020-09-14,2020-09-14T21:15:00Z,R,Final,night,Y,32,Miller Park,158,Milwaukee Brewers,138,St. Louis Cardinals,669203.0,Corbin Burnes,594965.0,Daniel Ponce de Leon,9,0.0,0.0
+631321,2020,2020-09-14,2020-09-14T20:10:00Z,R,Final,day,N,4169,Marlins Park,146,Miami Marlins,143,Philadelphia Phillies,641154.0,Pablo López,592826.0,Vince Velasquez,9,1.0,0.0
+631482,2020,2020-09-14,2020-09-15T00:10:00Z,R,Final,night,N,4,Guaranteed Rate Field,145,Chicago White Sox,142,Minnesota Twins,656302.0,Dylan Cease,621244.0,José Berríos,9,0.0,0.0
+631588,2020,2020-09-14,2020-09-14T20:10:00Z,R,Final,night,Y,2602,Great American Ball Park,113,Cincinnati Reds,134,Pittsburgh Pirates,545333.0,Trevor Bauer,664074.0,Cody Ponce,7,0.0,0.0
+631590,2020,2020-09-14,2020-09-14T20:15:00Z,R,Final,night,Y,2602,Great American Ball Park,113,Cincinnati Reds,134,Pittsburgh Pirates,543101.0,Anthony DeSclafani,656605.0,Mitch Keller,7,1.0,0.0
+631677,2020,2020-09-14,2020-09-14T23:35:00Z,R,Final,night,N,2,Oriole Park at Camden Yards,110,Baltimore Orioles,144,Atlanta Braves,605347.0,Jorge López,657053.0,Touki Toussaint,9,0.0,1.0
+630936,2020,2020-09-15,2020-09-15T22:40:00Z,R,Final,night,N,12,Tropicana Field,139,Tampa Bay Rays,120,Washington Nationals,595928.0,John Curtiss,434671.0,Aníbal Sánchez,9,0.0,0.0
+631062,2020,2020-09-15,2020-09-16T01:10:00Z,R,Final,night,N,2680,Petco Park,135,San Diego Padres,119,Los Angeles Dodgers,605200.0,Zach Davies,664062.0,Tony Gonsolin,9,1.0,0.0
+631144,2020,2020-09-15,2020-09-15T23:05:00Z,R,Final,night,N,2681,Citizens Bank Park,143,Philadelphia Phillies,121,New York Mets,453562.0,Jake Arrieta,519144.0,Rick Porcello,9,0.0,0.0
+631195,2020,2020-09-15,2020-09-15T23:05:00Z,R,Final,night,N,3313,Yankee Stadium,147,New York Yankees,141,Toronto Blue Jays,665620.0,Deivi García,592836.0,Taijuan Walker,9,0.0,0.0
+631263,2020,2020-09-15,2020-09-15T23:40:00Z,R,Final,night,N,32,Miller Park,158,Milwaukee Brewers,138,St. Louis Cardinals,474463.0,Brett Anderson,656427.0,Jack Flaherty,9,1.0,2.0
+631314,2020,2020-09-15,2020-09-15T22:40:00Z,R,Final,night,N,4169,Marlins Park,146,Miami Marlins,111,Boston Red Sox,645261.0,Sandy Alcantara,656557.0,Tanner Houck,9,0.0,0.0
+631360,2020,2020-09-15,2020-09-16T01:40:00Z,R,Final,night,N,1,Angel Stadium,108,Los Angeles Angels,109,Arizona Diamondbacks,527054.0,Julio Teheran,518516.0,Madison Bumgarner,9,2.0,0.0
+631433,2020,2020-09-15,2020-09-16T00:10:00Z,R,Final,night,N,2392,Minute Maid Park,117,Houston Astros,140,Texas Rangers,664353.0,José Urquidy,621129.0,Kyle Cody,9,0.0,1.0
+631462,2020,2020-09-15,2020-09-15T23:10:00Z,R,Final,night,N,2394,Comerica Park,116,Detroit Tigers,118,Kansas City Royals,571510.0,Matthew Boyd,596001.0,Jakob Junis,9,0.0,3.0
+631483,2020,2020-09-15,2020-09-16T00:10:00Z,R,Final,night,N,4,Guaranteed Rate Field,145,Chicago White Sox,142,Minnesota Twins,641540.0,Dane Dunning,677976.0,Randy Dobnak,9,0.0,1.0
+631520,2020,2020-09-15,2020-09-16T00:40:00Z,R,Final,night,N,19,Coors Field,115,Colorado Rockies,133,Oakland Athletics,622608.0,Antonio Senzatela,640455.0,Sean Manaea,9,0.0,0.0
+631574,2020,2020-09-15,2020-09-15T22:40:00Z,R,Final,night,N,2602,Great American Ball Park,113,Cincinnati Reds,134,Pittsburgh Pirates,547179.0,Michael Lorenzen,605397.0,Joe Musgrove,9,0.0,3.0
+631618,2020,2020-09-15,2020-09-16T00:15:00Z,R,Final,night,N,17,Wrigley Field,112,Chicago Cubs,114,Cleveland Indians,506433.0,Yu Darvish,471911.0,Carlos Carrasco,9,0.0,0.0
+631680,2020,2020-09-15,2020-09-15T23:35:00Z,R,Final,night,N,2,Oriole Park at Camden Yards,110,Baltimore Orioles,144,Atlanta Braves,664045.0,Thomas Eshelman,660623.0,Huascar Ynoa,9,0.0,0.0
+630937,2020,2020-09-16,2020-09-16T17:10:00Z,R,Final,day,N,12,Tropicana Field,139,Tampa Bay Rays,120,Washington Nationals,664126.0,Pete Fairbanks,608723.0,Austin Voth,10,0.0,1.0
+631032,2020,2020-09-16,2020-09-17T01:45:00Z,R,Final,night,N,2395,Oracle Park,136,Seattle Mariners,137,San Francisco Giants,664714.0,Ljay Newsome,592767.0,Drew Smyly,9,1.0,0.0
+631063,2020,2020-09-16,2020-09-16T20:10:00Z,R,Final,day,N,2680,Petco Park,135,San Diego Padres,119,Los Angeles Dodgers,670970.0,Adrian Morejon,660813.0,Brusdar Graterol,9,0.0,0.0
+631119,2020,2020-09-16,2020-09-16T23:05:00Z,R,Final,night,N,2681,Citizens Bank Park,143,Philadelphia Phillies,121,New York Mets,554430.0,Zack Wheeler,594798.0,Jacob deGrom,9,0.0,0.0
+631189,2020,2020-09-16,2020-09-16T23:05:00Z,R,Final,night,N,3313,Yankee Stadium,147,New York Yankees,141,Toronto Blue Jays,543037.0,Gerrit Cole,543699.0,Tanner Roark,9,0.0,1.0
+631265,2020,2020-09-16,2020-09-16T21:10:00Z,R,Final,night,Y,32,Miller Park,158,Milwaukee Brewers,138,St. Louis Cardinals,605540.0,Brandon Woodruff,425794.0,Adam Wainwright,7,0.0,2.0
+631289,2020,2020-09-16,2020-09-16T21:15:00Z,R,Final,night,Y,32,Miller Park,158,Milwaukee Brewers,138,St. Louis Cardinals,608718.0,Brent Suter,670912.0,Johan Oviedo,7,0.0,4.0
+631315,2020,2020-09-16,2020-09-16T22:40:00Z,R,Final,night,N,4169,Marlins Park,146,Miami Marlins,111,Boston Red Sox,669432.0,Trevor Rogers,592464.0,Mike Kickham,9,0.0,2.0
+631361,2020,2020-09-16,2020-09-17T01:40:00Z,R,Final,night,N,1,Angel Stadium,108,Los Angeles Angels,109,Arizona Diamondbacks,605164.0,Dylan Bundy,592761.0,Caleb Smith,9,0.0,0.0
+631434,2020,2020-09-16,2020-09-17T00:10:00Z,R,Final,night,N,2392,Minute Maid Park,117,Houston Astros,140,Texas Rangers,621121.0,Lance McCullers Jr.,502043.0,Kyle Gibson,9,0.0,0.0
+631463,2020,2020-09-16,2020-09-16T23:10:00Z,R,Final,night,N,2394,Comerica Park,116,Detroit Tigers,118,Kansas City Royals,669373.0,Tarik Skubal,663903.0,Brady Singer,9,2.0,0.0
+631484,2020,2020-09-16,2020-09-17T00:10:00Z,R,Final,night,N,4,Guaranteed Rate Field,145,Chicago White Sox,142,Minnesota Twins,608337.0,Lucas Giolito,543606.0,Jake Odorizzi,9,0.0,0.0
+631509,2020,2020-09-16,2020-09-16T19:10:00Z,R,Final,day,N,19,Coors Field,115,Colorado Rockies,133,Oakland Athletics,608566.0,Germán Márquez,571666.0,Mike Fiers,9,0.0,0.0
+631575,2020,2020-09-16,2020-09-16T22:40:00Z,R,Final,night,N,2602,Great American Ball Park,113,Cincinnati Reds,134,Pittsburgh Pirates,622491.0,Luis Castillo,664141.0,JT Brubaker,9,0.0,0.0
+631619,2020,2020-09-16,2020-09-17T00:15:00Z,R,Final,night,N,17,Wrigley Field,112,Chicago Cubs,114,Cleveland Indians,452657.0,Jon Lester,650644.0,Aaron Civale,10,1.0,0.0
+631659,2020,2020-09-16,2020-09-16T23:35:00Z,R,Final,night,N,2,Oriole Park at Camden Yards,110,Baltimore Orioles,144,Atlanta Braves,669211.0,Keegan Akin,430935.0,Cole Hamels,9,0.0,0.0
+630953,2020,2020-09-17,2020-09-17T20:40:00Z,R,Final,night,Y,2,Oriole Park at Camden Yards,139,Tampa Bay Rays,110,Baltimore Orioles,,,669145.0,Bruce Zimmermann,7,0.0,3.0
+631034,2020,2020-09-17,2020-09-17T20:10:00Z,R,Final,day,N,2395,Oracle Park,136,Seattle Mariners,137,San Francisco Giants,676606.0,Nick Margevicius,542881.0,Tyler Anderson,9,0.0,0.0
+631101,2020,2020-09-17,2020-09-17T23:05:00Z,R,Final,night,N,31,PNC Park,134,Pittsburgh Pirates,138,St. Louis Cardinals,643230.0,Steven Brault,641712.0,Dakota Hudson,9,0.0,0.0
+631117,2020,2020-09-17,2020-09-17T23:05:00Z,R,Final,night,N,2681,Citizens Bank Park,143,Philadelphia Phillies,121,New York Mets,605400.0,Aaron Nola,607625.0,Seth Lugo,9,3.0,4.0
+631190,2020,2020-09-17,2020-09-17T23:05:00Z,R,Final,night,N,3313,Yankee Stadium,147,New York Yankees,141,Toronto Blue Jays,547888.0,Masahiro Tanaka,502624.0,Chase Anderson,9,0.0,2.0
+631313,2020,2020-09-17,2020-09-17T17:10:00Z,R,Final,day,N,4169,Marlins Park,146,Miami Marlins,111,Boston Red Sox,570632.0,José Ureña,543135.0,Nathan Eovaldi,9,0.0,0.0
+631362,2020,2020-09-17,2020-09-17T20:10:00Z,R,Final,day,N,1,Angel Stadium,108,Los Angeles Angels,109,Arizona Diamondbacks,656288.0,Griffin Canning,622065.0,Alex Young,9,0.0,3.0
+631435,2020,2020-09-17,2020-09-17T23:10:00Z,R,Final,night,N,2392,Minute Maid Park,117,Houston Astros,140,Texas Rangers,664285.0,Framber Valdez,543475.0,Jordan Lyles,9,0.0,0.0
+631464,2020,2020-09-17,2020-09-17T23:10:00Z,R,Final,night,N,2394,Comerica Park,116,Detroit Tigers,114,Cleveland Indians,663554.0,Casey Mize,669456.0,Shane Bieber,9,1.0,0.0
+631485,2020,2020-09-17,2020-09-17T18:10:00Z,R,Final,day,N,4,Guaranteed Rate Field,145,Chicago White Sox,142,Minnesota Twins,625643.0,Reynaldo López,628317.0,Kenta Maeda,9,0.0,0.0
+631510,2020,2020-09-17,2020-09-18T00:40:00Z,R,Final,night,N,19,Coors Field,115,Colorado Rockies,119,Los Angeles Dodgers,607536.0,Kyle Freeland,628711.0,Julio Urías,9,0.0,2.0
+631660,2020,2020-09-17,2020-09-17T20:35:00Z,R,Final,night,Y,2,Oriole Park at Camden Yards,110,Baltimore Orioles,139,Tampa Bay Rays,665152.0,Dean Kremer,605483.0,Blake Snell,7,0.0,0.0
+630907,2020,2020-09-18,2020-09-18T20:05:00Z,R,Final,night,Y,2681,Citizens Bank Park,141,Toronto Blue Jays,143,Philadelphia Phillies,592662.0,Robbie Ray,621107.0,Zach Eflin,7,1.0,0.0
+630987,2020,2020-09-18,2020-09-18T20:10:00Z,R,Final,night,Y,31,PNC Park,138,St. Louis Cardinals,134,Pittsburgh Pirates,594965.0,Daniel Ponce de Leon,641771.0,Chad Kuhl,7,0.0,0.0
+631040,2020,2020-09-18,2020-09-19T01:40:00Z,R,Final,night,N,2680,Petco Park,136,Seattle Mariners,135,San Diego Padres,579328.0,Yusei Kikuchi,663978.0,Chris Paddack,9,0.0,0.0
+631102,2020,2020-09-18,2020-09-18T20:05:00Z,R,Final,night,Y,31,PNC Park,134,Pittsburgh Pirates,138,St. Louis Cardinals,592866.0,Trevor Williams,593372.0,Carlos Martinez,7,1.0,2.0
+631122,2020,2020-09-18,2020-09-18T20:10:00Z,R,Final,night,Y,2681,Citizens Bank Park,143,Philadelphia Phillies,141,Toronto Blue Jays,571735.0,David Hale,548389.0,Ross Stripling,7,0.0,1.0
+631163,2020,2020-09-18,2020-09-19T01:40:00Z,R,Final,night,N,10,Oakland Coliseum,133,Oakland Athletics,137,San Francisco Giants,605135.0,Chris Bassitt,657277.0,Logan Webb,9,0.0,1.0
+631213,2020,2020-09-18,2020-09-18T23:10:00Z,R,Final,night,N,3289,Citi Field,121,New York Mets,144,Atlanta Braves,571927.0,Steven Matz,608331.0,Max Fried,9,1.0,0.0
+631266,2020,2020-09-18,2020-09-19T00:10:00Z,R,Final,night,N,32,Miller Park,158,Milwaukee Brewers,118,Kansas City Royals,605288.0,Adrian Houser,518633.0,Danny Duffy,9,3.0,0.0
+631316,2020,2020-09-18,2020-09-18T21:10:00Z,R,Final,night,Y,4169,Marlins Park,146,Miami Marlins,120,Washington Nationals,664350.0,Sixto Sánchez,607200.0,Erick Fedde,7,0.0,0.0
+631342,2020,2020-09-18,2020-09-18T21:15:00Z,R,Final,night,Y,4169,Marlins Park,146,Miami Marlins,120,Washington Nationals,641447.0,Daniel Castano,640444.0,Wil Crowe,7,2.0,1.0
+631367,2020,2020-09-18,2020-09-19T01:10:00Z,R,Final,night,N,1,Angel Stadium,108,Los Angeles Angels,140,Texas Rangers,642545.0,Jaime Barria,623474.0,Jimmy Herget,9,0.0,0.0
+631436,2020,2020-09-18,2020-09-19T00:10:00Z,R,Final,night,N,2392,Minute Maid Park,117,Houston Astros,109,Arizona Diamondbacks,425844.0,Zack Greinke,668678.0,Zac Gallen,9,0.0,1.0
+631465,2020,2020-09-18,2020-09-18T23:10:00Z,R,Final,night,N,2394,Comerica Park,116,Detroit Tigers,114,Cleveland Indians,605242.0,Michael Fulmer,668676.0,Zach Plesac,9,0.0,0.0
+631511,2020,2020-09-18,2020-09-19T00:10:00Z,R,Final,night,N,19,Coors Field,115,Colorado Rockies,119,Los Angeles Dodgers,624418.0,Ryan Castellani,622072.0,Alex Wood,9,0.0,0.0
+631576,2020,2020-09-18,2020-09-18T23:10:00Z,R,Final,night,N,2602,Great American Ball Park,113,Cincinnati Reds,145,Chicago White Sox,641816.0,Tyler Mahle,680692.0,Jonathan Stiever,9,0.0,1.0
+631627,2020,2020-09-18,2020-09-18T23:30:00Z,R,Final,night,N,3,Fenway Park,111,Boston Red Sox,147,New York Yankees,527048.0,Martín Pérez,656756.0,Jordan Montgomery,12,0.0,0.0
+631629,2020,2020-09-18,2020-09-19T00:15:00Z,R,Final,night,N,17,Wrigley Field,112,Chicago Cubs,142,Minnesota Twins,543294.0,Kyle Hendricks,448179.0,Rich Hill,9,0.0,1.0
+631661,2020,2020-09-18,2020-09-18T23:35:00Z,R,Final,night,N,2,Oriole Park at Camden Yards,110,Baltimore Orioles,139,Tampa Bay Rays,502171.0,Alex Cobb,607192.0,Tyler Glasnow,9,1.0,0.0
+631036,2020,2020-09-19,2020-09-20T01:10:00Z,R,Final,night,N,2680,Petco Park,136,Seattle Mariners,135,San Diego Padres,656954.0,Justus Sheffield,672715.0,Luis Patiño,9,0.0,1.0
+631123,2020,2020-09-19,2020-09-19T22:05:00Z,R,Final,night,N,2681,Citizens Bank Park,143,Philadelphia Phillies,141,Toronto Blue Jays,592826.0,Vince Velasquez,547943.0,Hyun Jin Ryu,9,0.0,0.0
+631147,2020,2020-09-19,2020-09-19T23:05:00Z,R,Final,night,N,31,PNC Park,134,Pittsburgh Pirates,138,St. Louis Cardinals,656605.0,Mitch Keller,547942.0,Kwang Hyun Kim,9,0.0,1.0
+631164,2020,2020-09-19,2020-09-19T20:10:00Z,R,Final,day,N,10,Oakland Coliseum,133,Oakland Athletics,137,San Francisco Giants,666200.0,Jesús Luzardo,592332.0,Kevin Gausman,9,0.0,0.0
+631214,2020,2020-09-19,2020-09-19T23:07:00Z,R,Final,night,N,3289,Citi Field,121,New York Mets,144,Atlanta Braves,656849.0,David Peterson,666120.0,Ian Anderson,9,0.0,2.0
+631267,2020,2020-09-19,2020-09-19T23:10:00Z,R,Final,night,N,32,Miller Park,158,Milwaukee Brewers,118,Kansas City Royals,669203.0,Corbin Burnes,663460.0,Kris Bubic,9,0.0,0.0
+631317,2020,2020-09-19,2020-09-19T22:10:00Z,R,Final,night,N,4169,Marlins Park,146,Miami Marlins,120,Washington Nationals,641154.0,Pablo López,571578.0,Patrick Corbin,9,0.0,1.0
+631372,2020,2020-09-19,2020-09-20T01:10:00Z,R,Final,night,N,1,Angel Stadium,108,Los Angeles Angels,140,Texas Rangers,571760.0,Andrew Heaney,458681.0,Lance Lynn,9,3.0,0.0
+631437,2020,2020-09-19,2020-09-19T23:10:00Z,R,Final,night,N,2392,Minute Maid Park,117,Houston Astros,109,Arizona Diamondbacks,664299.0,Cristian Javier,596133.0,Luke Weaver,9,0.0,0.0
+631466,2020,2020-09-19,2020-09-19T22:10:00Z,R,Final,night,N,2394,Comerica Park,116,Detroit Tigers,114,Cleveland Indians,605513.0,Spencer Turnbull,663474.0,Triston McKenzie,9,0.0,1.0
+631512,2020,2020-09-19,2020-09-20T00:10:00Z,R,Final,night,N,19,Coors Field,115,Colorado Rockies,119,Los Angeles Dodgers,592346.0,Chi Chi González,477132.0,Clayton Kershaw,9,2.0,1.0
+631577,2020,2020-09-19,2020-09-19T23:07:00Z,R,Final,night,N,2602,Great American Ball Park,113,Cincinnati Reds,145,Chicago White Sox,545333.0,Trevor Bauer,572971.0,Dallas Keuchel,9,0.0,0.0
+631628,2020,2020-09-19,2020-09-19T23:30:00Z,R,Final,night,N,3,Fenway Park,111,Boston Red Sox,147,New York Yankees,607391.0,Chris Mazza,457918.0,J.A. Happ,9,2.0,0.0
+631632,2020,2020-09-19,2020-09-20T00:15:00Z,R,Final,night,N,17,Wrigley Field,112,Chicago Cubs,142,Minnesota Twins,621219.0,Alec Mills,501381.0,Michael Pineda,9,1.0,0.0
+631662,2020,2020-09-19,2020-09-19T23:35:00Z,R,Final,night,N,2,Oriole Park at Camden Yards,110,Baltimore Orioles,139,Tampa Bay Rays,605347.0,Jorge López,450203.0,Charlie Morton,9,0.0,1.0
+631037,2020,2020-09-20,2020-09-20T20:10:00Z,R,Final,day,N,2680,Petco Park,136,Seattle Mariners,135,San Diego Padres,643290.0,Justin Dunn,659275.0,Dinelson Lamet,11,0.0,0.0
+631086,2020,2020-09-20,2020-09-20T20:05:00Z,R,Final,day,N,31,PNC Park,134,Pittsburgh Pirates,138,St. Louis Cardinals,605397.0,Joe Musgrove,656427.0,Jack Flaherty,9,0.0,0.0
+631128,2020,2020-09-20,2020-09-20T19:05:00Z,R,Final,day,N,2681,Citizens Bank Park,143,Philadelphia Phillies,141,Toronto Blue Jays,658431.0,Adonis Medina,592836.0,Taijuan Walker,9,2.0,1.0
+631166,2020,2020-09-20,2020-09-20T20:10:00Z,R,Final,day,N,10,Oakland Coliseum,133,Oakland Athletics,137,San Francisco Giants,501985.0,Mike Minor,542881.0,Tyler Anderson,9,0.0,0.0
+631215,2020,2020-09-20,2020-09-20T17:10:00Z,R,Final,day,N,3289,Citi Field,121,New York Mets,144,Atlanta Braves,519144.0,Rick Porcello,657140.0,Kyle Wright,9,0.0,0.0
+631268,2020,2020-09-20,2020-09-20T18:10:00Z,R,Final,day,N,32,Miller Park,158,Milwaukee Brewers,118,Kansas City Royals,458676.0,Josh Lindblom,641745.0,Brad Keller,9,0.0,2.0
+631305,2020,2020-09-20,2020-09-20T17:10:00Z,R,Final,day,Y,4169,Marlins Park,146,Miami Marlins,120,Washington Nationals,645261.0,Sandy Alcantara,453286.0,Max Scherzer,7,0.0,1.0
+631329,2020,2020-09-20,2020-09-20T17:15:00Z,R,Final,day,Y,4169,Marlins Park,146,Miami Marlins,120,Washington Nationals,,,664069.0,Ben Braymer,7,3.0,0.0
+631375,2020,2020-09-20,2020-09-20T20:10:00Z,R,Final,day,N,1,Angel Stadium,108,Los Angeles Angels,140,Texas Rangers,527054.0,Julio Teheran,621129.0,Kyle Cody,9,2.0,0.0
+631424,2020,2020-09-20,2020-09-20T18:10:00Z,R,Final,day,N,2392,Minute Maid Park,117,Houston Astros,109,Arizona Diamondbacks,664353.0,José Urquidy,518516.0,Madison Bumgarner,9,0.0,0.0
+631454,2020,2020-09-20,2020-09-20T17:10:00Z,R,Final,day,N,2394,Comerica Park,116,Detroit Tigers,114,Cleveland Indians,571510.0,Matthew Boyd,471911.0,Carlos Carrasco,9,0.0,0.0
+631519,2020,2020-09-20,2020-09-20T19:10:00Z,R,Final,day,N,19,Coors Field,115,Colorado Rockies,119,Los Angeles Dodgers,622608.0,Antonio Senzatela,664062.0,Tony Gonsolin,9,0.0,0.0
+631578,2020,2020-09-20,2020-09-20T17:10:00Z,R,Final,day,N,2602,Great American Ball Park,113,Cincinnati Reds,145,Chicago White Sox,547179.0,Michael Lorenzen,656302.0,Dylan Cease,9,0.0,0.0
+631617,2020,2020-09-20,2020-09-20T23:08:00Z,R,Final,night,N,17,Wrigley Field,112,Chicago Cubs,142,Minnesota Twins,506433.0,Yu Darvish,621244.0,José Berríos,9,1.0,0.0
+631635,2020,2020-09-20,2020-09-20T17:07:00Z,R,Final,day,N,3,Fenway Park,111,Boston Red Sox,147,New York Yankees,656557.0,Tanner Houck,665620.0,Deivi García,9,0.0,0.0
+631672,2020,2020-09-20,2020-09-20T17:05:00Z,R,Final,day,N,2,Oriole Park at Camden Yards,110,Baltimore Orioles,139,Tampa Bay Rays,607644.0,John Means,642232.0,Ryan Yarbrough,9,0.0,2.0
+630440,2020,2020-09-21,2020-09-21T23:10:00Z,R,Final,night,N,4705,Truist Park,144,Atlanta Braves,146,Miami Marlins,660623.0,Huascar Ynoa,669432.0,Trevor Rogers,9,3.0,4.0
+630876,2020,2020-09-21,2020-09-21T22:37:00Z,R,Final,night,N,2756,Sahlen Field,141,Toronto Blue Jays,147,New York Yankees,533167.0,Matt Shoemaker,650633.0,Michael King,9,0.0,0.0
+630884,2020,2020-09-21,2020-09-21T22:05:00Z,R,Final,night,N,3309,Nationals Park,120,Washington Nationals,143,Philadelphia Phillies,434671.0,Aníbal Sánchez,554430.0,Zack Wheeler,9,0.0,2.0
+631009,2020,2020-09-21,2020-09-22T01:45:00Z,R,Final,night,N,2395,Oracle Park,137,San Francisco Giants,115,Colorado Rockies,456501.0,Johnny Cueto,608566.0,Germán Márquez,9,2.0,0.0
+631038,2020,2020-09-21,2020-09-22T01:10:00Z,R,Final,night,N,680,T-Mobile Park,136,Seattle Mariners,117,Houston Astros,594835.0,Marco Gonzales,621121.0,Lance McCullers Jr.,9,0.0,0.0
+631087,2020,2020-09-21,2020-09-21T23:05:00Z,R,Final,night,N,31,PNC Park,134,Pittsburgh Pirates,112,Chicago Cubs,664141.0,JT Brubaker,452657.0,Jon Lester,9,0.0,0.0
+631216,2020,2020-09-21,2020-09-21T23:10:00Z,R,Final,night,N,3289,Citi Field,121,New York Mets,139,Tampa Bay Rays,594798.0,Jacob deGrom,664126.0,Pete Fairbanks,9,0.0,0.0
+631376,2020,2020-09-21,2020-09-21T20:10:00Z,R,Final,day,N,1,Angel Stadium,108,Los Angeles Angels,140,Texas Rangers,605164.0,Dylan Bundy,502043.0,Kyle Gibson,9,1.0,0.0
+631402,2020,2020-09-21,2020-09-22T00:05:00Z,R,Final,night,N,7,Kauffman Stadium,118,Kansas City Royals,138,St. Louis Cardinals,672578.0,Carlos Hernández,425794.0,Adam Wainwright,9,0.0,0.0
+631562,2020,2020-09-21,2020-09-21T22:10:00Z,R,Final,night,N,5,Progressive Field,114,Cleveland Indians,145,Chicago White Sox,650644.0,Aaron Civale,641540.0,Dane Dunning,9,0.0,3.0
+631579,2020,2020-09-21,2020-09-21T22:40:00Z,R,Final,night,N,2602,Great American Ball Park,113,Cincinnati Reds,158,Milwaukee Brewers,622491.0,Luis Castillo,605540.0,Brandon Woodruff,9,0.0,0.0
+630243,2020,2020-09-22,2020-09-23T01:10:00Z,R,Final,night,N,15,Chase Field,109,Arizona Diamondbacks,140,Texas Rangers,592761.0,Caleb Smith,543475.0,Jordan Lyles,9,0.0,0.0
+630385,2020,2020-09-22,2020-09-22T23:10:00Z,R,Final,night,N,4705,Truist Park,144,Atlanta Braves,146,Miami Marlins,669060.0,Bryse Wilson,570632.0,José Ureña,9,0.0,1.0
+630881,2020,2020-09-22,2020-09-22T22:37:00Z,R,Final,night,N,2756,Sahlen Field,141,Toronto Blue Jays,147,New York Yankees,543699.0,Tanner Roark,543037.0,Gerrit Cole,9,2.0,0.0
+630888,2020,2020-09-22,2020-09-22T19:05:00Z,R,Final,day,Y,3309,Nationals Park,120,Washington Nationals,143,Philadelphia Phillies,608723.0,Austin Voth,605400.0,Aaron Nola,7,0.0,1.0
+630896,2020,2020-09-22,2020-09-22T19:10:00Z,R,Final,day,Y,3309,Nationals Park,120,Washington Nationals,143,Philadelphia Phillies,502179.0,Paolo Espino,,,8,0.0,0.0
+631010,2020,2020-09-22,2020-09-23T01:45:00Z,R,Final,night,N,2395,Oracle Park,137,San Francisco Giants,115,Colorado Rockies,592767.0,Drew Smyly,607536.0,Kyle Freeland,9,0.0,1.0
+631039,2020,2020-09-22,2020-09-23T01:10:00Z,R,Final,night,N,680,T-Mobile Park,136,Seattle Mariners,117,Houston Astros,664714.0,Ljay Newsome,664285.0,Framber Valdez,9,1.0,1.0
+631064,2020,2020-09-22,2020-09-23T01:10:00Z,R,Final,night,N,2680,Petco Park,135,San Diego Padres,108,Los Angeles Angels,605200.0,Zach Davies,656288.0,Griffin Canning,9,0.0,1.0
+631088,2020,2020-09-22,2020-09-22T23:05:00Z,R,Final,night,N,31,PNC Park,134,Pittsburgh Pirates,112,Chicago Cubs,643230.0,Steven Brault,500779.0,Jose Quintana,9,0.0,0.0
+631217,2020,2020-09-22,2020-09-22T23:10:00Z,R,Final,night,N,3289,Citi Field,121,New York Mets,139,Tampa Bay Rays,607625.0,Seth Lugo,605483.0,Blake Snell,9,0.0,0.0
+631251,2020,2020-09-22,2020-09-22T23:40:00Z,R,Final,night,N,3312,Target Field,142,Minnesota Twins,116,Detroit Tigers,456701.0,Homer Bailey,669373.0,Tarik Skubal,10,0.0,1.0
+631333,2020,2020-09-22,2020-09-23T01:40:00Z,R,Final,night,N,22,Dodger Stadium,119,Los Angeles Dodgers,133,Oakland Athletics,669160.0,Dustin May,593423.0,Frankie Montas,9,1.0,1.0
+631411,2020,2020-09-22,2020-09-23T00:05:00Z,R,Final,night,N,7,Kauffman Stadium,118,Kansas City Royals,138,St. Louis Cardinals,663903.0,Brady Singer,596295.0,Austin Gomber,9,0.0,0.0
+631550,2020,2020-09-22,2020-09-22T22:10:00Z,R,Final,night,N,5,Progressive Field,114,Cleveland Indians,145,Chicago White Sox,615698.0,Cal Quantrill,625643.0,Reynaldo López,10,0.0,1.0
+631580,2020,2020-09-22,2020-09-22T22:40:00Z,R,Final,night,N,2602,Great American Ball Park,113,Cincinnati Reds,158,Milwaukee Brewers,543243.0,Sonny Gray,474463.0,Brett Anderson,9,0.0,2.0
+631636,2020,2020-09-22,2020-09-22T23:30:00Z,R,Final,night,N,3,Fenway Park,111,Boston Red Sox,110,Baltimore Orioles,601713.0,Nick Pivetta,669211.0,Keegan Akin,9,1.0,0.0
+630263,2020,2020-09-23,2020-09-23T22:10:00Z,R,Final,day,N,15,Chase Field,109,Arizona Diamondbacks,140,Texas Rangers,622065.0,Alex Young,605138.0,Wes Benjamin,9,1.0,0.0
+630554,2020,2020-09-23,2020-09-23T23:10:00Z,R,Final,night,N,4705,Truist Park,144,Atlanta Braves,146,Miami Marlins,608331.0,Max Fried,664350.0,Sixto Sánchez,9,2.0,3.0
+630885,2020,2020-09-23,2020-09-23T22:37:00Z,R,Final,night,N,2756,Sahlen Field,141,Toronto Blue Jays,147,New York Yankees,592662.0,Robbie Ray,547888.0,Masahiro Tanaka,9,0.0,2.0
+630892,2020,2020-09-23,2020-09-23T22:05:00Z,R,Final,night,N,3309,Nationals Park,120,Washington Nationals,143,Philadelphia Phillies,607200.0,Erick Fedde,621107.0,Zach Eflin,9,1.0,0.0
+631011,2020,2020-09-23,2020-09-24T01:45:00Z,R,Final,night,N,2395,Oracle Park,137,San Francisco Giants,115,Colorado Rockies,670056.0,Caleb Baragar,624418.0,Ryan Castellani,9,0.0,0.0
+631035,2020,2020-09-23,2020-09-23T22:40:00Z,R,Final,day,N,680,T-Mobile Park,136,Seattle Mariners,117,Houston Astros,676606.0,Nick Margevicius,425844.0,Zack Greinke,9,0.0,1.0
+631065,2020,2020-09-23,2020-09-23T20:10:00Z,R,Final,day,N,2680,Petco Park,135,San Diego Padres,108,Los Angeles Angels,605182.0,Mike Clevinger,642545.0,Jaime Barria,9,0.0,2.0
+631089,2020,2020-09-23,2020-09-23T23:05:00Z,R,Final,night,N,31,PNC Park,134,Pittsburgh Pirates,112,Chicago Cubs,592866.0,Trevor Williams,543294.0,Kyle Hendricks,9,1.0,2.0
+631218,2020,2020-09-23,2020-09-23T23:10:00Z,R,Final,night,N,3289,Citi Field,121,New York Mets,139,Tampa Bay Rays,608379.0,Michael Wacha,607192.0,Tyler Glasnow,9,0.0,0.0
+631250,2020,2020-09-23,2020-09-23T23:40:00Z,R,Final,night,N,3312,Target Field,142,Minnesota Twins,116,Detroit Tigers,628317.0,Kenta Maeda,663554.0,Casey Mize,9,0.0,0.0
+631334,2020,2020-09-23,2020-09-24T01:40:00Z,R,Final,night,N,22,Dodger Stadium,119,Los Angeles Dodgers,133,Oakland Athletics,523260.0,Joe Kelly,640455.0,Sean Manaea,9,3.0,0.0
+631380,2020,2020-09-23,2020-09-24T00:05:00Z,R,Final,night,N,7,Kauffman Stadium,118,Kansas City Royals,138,St. Louis Cardinals,518633.0,Danny Duffy,593372.0,Carlos Martinez,9,0.0,2.0
+631534,2020,2020-09-23,2020-09-23T22:10:00Z,R,Final,night,N,5,Progressive Field,114,Cleveland Indians,145,Chicago White Sox,669456.0,Shane Bieber,608337.0,Lucas Giolito,9,0.0,0.0
+631583,2020,2020-09-23,2020-09-23T22:40:00Z,R,Final,night,N,2602,Great American Ball Park,113,Cincinnati Reds,158,Milwaukee Brewers,545333.0,Trevor Bauer,605288.0,Adrian Houser,9,0.0,2.0
+631637,2020,2020-09-23,2020-09-23T23:30:00Z,R,Final,night,N,3,Fenway Park,111,Boston Red Sox,110,Baltimore Orioles,543135.0,Nathan Eovaldi,665152.0,Dean Kremer,9,0.0,2.0
+630887,2020,2020-09-24,2020-09-24T22:37:00Z,R,Final,night,N,2756,Sahlen Field,141,Toronto Blue Jays,147,New York Yankees,547943.0,Hyun Jin Ryu,656756.0,Jordan Montgomery,9,0.0,0.0
+630893,2020,2020-09-24,2020-09-24T22:05:00Z,R,Final,night,N,3309,Nationals Park,120,Washington Nationals,121,New York Mets,571578.0,Patrick Corbin,656849.0,David Peterson,9,0.0,0.0
+630912,2020,2020-09-24,2020-09-25T00:05:00Z,R,Final,night,N,5325,Globe Life Field,140,Texas Rangers,117,Houston Astros,458681.0,Lance Lynn,664299.0,Cristian Javier,9,2.0,0.0
+630975,2020,2020-09-24,2020-09-25T00:15:00Z,R,Final,night,N,2889,Busch Stadium,138,St. Louis Cardinals,158,Milwaukee Brewers,547942.0,Kwang Hyun Kim,669203.0,Corbin Burnes,9,0.0,0.0
+631012,2020,2020-09-24,2020-09-24T19:45:00Z,R,Final,day,N,2395,Oracle Park,137,San Francisco Giants,115,Colorado Rockies,592332.0,Kevin Gausman,592346.0,Chi Chi González,11,0.0,2.0
+631099,2020,2020-09-24,2020-09-24T17:35:00Z,R,Final,day,N,31,PNC Park,134,Pittsburgh Pirates,112,Chicago Cubs,641771.0,Chad Kuhl,621219.0,Alec Mills,9,0.0,1.0
+631335,2020,2020-09-24,2020-09-25T01:40:00Z,R,Final,night,N,22,Dodger Stadium,119,Los Angeles Dodgers,133,Oakland Athletics,621111.0,Walker Buehler,571666.0,Mike Fiers,9,0.0,1.0
+631398,2020,2020-09-24,2020-09-25T00:05:00Z,R,Final,night,N,7,Kauffman Stadium,118,Kansas City Royals,116,Detroit Tigers,663460.0,Kris Bubic,605242.0,Michael Fulmer,9,0.0,3.0
+631549,2020,2020-09-24,2020-09-24T22:10:00Z,R,Final,night,N,5,Progressive Field,114,Cleveland Indians,145,Chicago White Sox,668676.0,Zach Plesac,572971.0,Dallas Keuchel,9,0.0,0.0
+631640,2020,2020-09-24,2020-09-24T23:30:00Z,R,Final,night,N,3,Fenway Park,111,Boston Red Sox,110,Baltimore Orioles,527048.0,Martín Pérez,502171.0,Alex Cobb,9,0.0,0.0
+631685,2020,2020-09-24,2020-09-24T23:10:00Z,R,Final,night,N,4705,Truist Park,144,Atlanta Braves,146,Miami Marlins,666120.0,Ian Anderson,641154.0,Pablo López,9,0.0,0.0
+630203,2020,2020-09-25,2020-09-25T22:45:00Z,R,Final,day,Y,15,Chase Field,109,Arizona Diamondbacks,115,Colorado Rockies,664199.0,Taylor Clarke,665733.0,Antonio Santos,7,1.0,6.0
+630270,2020,2020-09-25,2020-09-25T22:40:00Z,R,Final,day,Y,15,Chase Field,109,Arizona Diamondbacks,115,Colorado Rockies,668678.0,Zac Gallen,622608.0,Antonio Senzatela,7,0.0,0.0
+630569,2020,2020-09-25,2020-09-25T23:10:00Z,R,Final,night,N,4705,Truist Park,144,Atlanta Braves,111,Boston Red Sox,657140.0,Kyle Wright,607391.0,Chris Mazza,11,0.0,1.0
+630889,2020,2020-09-25,2020-09-25T22:37:00Z,R,Final,night,N,2756,Sahlen Field,141,Toronto Blue Jays,110,Baltimore Orioles,592836.0,Taijuan Walker,605347.0,Jorge López,9,0.0,0.0
+630913,2020,2020-09-25,2020-09-26T00:05:00Z,R,Final,night,N,5325,Globe Life Field,140,Texas Rangers,117,Houston Astros,621129.0,Kyle Cody,664353.0,José Urquidy,10,0.0,0.0
+630938,2020,2020-09-25,2020-09-25T22:40:00Z,R,Final,night,N,12,Tropicana Field,139,Tampa Bay Rays,143,Philadelphia Phillies,450203.0,Charlie Morton,592826.0,Vince Velasquez,9,0.0,0.0
+630963,2020,2020-09-25,2020-09-25T21:15:00Z,R,Final,night,Y,2889,Busch Stadium,138,St. Louis Cardinals,158,Milwaukee Brewers,656427.0,Jack Flaherty,608718.0,Brent Suter,7,0.0,0.0
+631013,2020,2020-09-25,2020-09-25T23:10:00Z,R,Final,night,Y,2395,Oracle Park,137,San Francisco Giants,135,San Diego Padres,542881.0,Tyler Anderson,663978.0,Chris Paddack,7,0.0,0.0
+631059,2020,2020-09-25,2020-09-25T23:15:00Z,R,Final,night,Y,2395,Oracle Park,135,San Diego Padres,137,San Francisco Giants,659275.0,Dinelson Lamet,502188.0,Jeff Samardzija,7,0.0,0.0
+631167,2020,2020-09-25,2020-09-26T01:40:00Z,R,Final,night,N,10,Oakland Coliseum,133,Oakland Athletics,136,Seattle Mariners,605135.0,Chris Bassitt,579328.0,Yusei Kikuchi,10,0.0,0.0
+631191,2020,2020-09-25,2020-09-25T23:05:00Z,R,Final,night,N,3313,Yankee Stadium,147,New York Yankees,146,Miami Marlins,457918.0,J.A. Happ,645261.0,Sandy Alcantara,10,3.0,0.0
+631246,2020,2020-09-25,2020-09-26T00:10:00Z,R,Final,night,N,3312,Target Field,142,Minnesota Twins,113,Cincinnati Reds,621244.0,José Berríos,641816.0,Tyler Mahle,9,0.0,0.0
+631292,2020,2020-09-25,2020-09-25T21:20:00Z,R,Final,night,Y,2889,Busch Stadium,158,Milwaukee Brewers,138,St. Louis Cardinals,458676.0,Josh Lindblom,594965.0,Daniel Ponce de Leon,7,1.0,0.0
+631336,2020,2020-09-25,2020-09-26T01:40:00Z,R,Final,night,N,22,Dodger Stadium,119,Los Angeles Dodgers,108,Los Angeles Angels,477132.0,Clayton Kershaw,571760.0,Andrew Heaney,9,0.0,1.0
+631383,2020,2020-09-25,2020-09-26T00:05:00Z,R,Final,night,N,7,Kauffman Stadium,118,Kansas City Royals,116,Detroit Tigers,641745.0,Brad Keller,605513.0,Spencer Turnbull,9,0.0,1.0
+631486,2020,2020-09-25,2020-09-26T00:10:00Z,R,Final,night,N,4,Guaranteed Rate Field,145,Chicago White Sox,112,Chicago Cubs,656302.0,Dylan Cease,506433.0,Yu Darvish,9,0.0,0.0
+631536,2020,2020-09-25,2020-09-25T23:10:00Z,R,Final,night,N,5,Progressive Field,114,Cleveland Indians,134,Pittsburgh Pirates,471911.0,Carlos Carrasco,656605.0,Mitch Keller,9,0.0,1.0
+630271,2020,2020-09-26,2020-09-27T00:10:00Z,R,Final,night,N,15,Chase Field,109,Arizona Diamondbacks,115,Colorado Rockies,596133.0,Luke Weaver,608566.0,Germán Márquez,9,0.0,1.0
+630570,2020,2020-09-26,2020-09-26T23:10:00Z,R,Final,night,N,4705,Truist Park,144,Atlanta Braves,111,Boston Red Sox,656353.0,Tucker Davidson,656557.0,Tanner Houck,9,0.0,0.0
+630891,2020,2020-09-26,2020-09-26T22:37:00Z,R,Final,night,N,2756,Sahlen Field,141,Toronto Blue Jays,110,Baltimore Orioles,643615.0,T.J. Zeuch,607644.0,John Means,9,0.0,0.0
+630894,2020,2020-09-26,2020-09-26T19:10:00Z,R,Final,day,Y,3309,Nationals Park,120,Washington Nationals,121,New York Mets,434671.0,Aníbal Sánchez,519144.0,Rick Porcello,7,0.0,0.0
+630895,2020,2020-09-26,2020-09-26T19:05:00Z,R,Final,day,Y,3309,Nationals Park,120,Washington Nationals,121,New York Mets,453286.0,Max Scherzer,594798.0,Jacob deGrom,7,0.0,0.0
+630914,2020,2020-09-26,2020-09-26T23:05:00Z,R,Final,night,N,5325,Globe Life Field,140,Texas Rangers,117,Houston Astros,502043.0,Kyle Gibson,621121.0,Lance McCullers Jr.,9,0.0,0.0
+630939,2020,2020-09-26,2020-09-26T23:07:00Z,R,Final,night,N,12,Tropicana Field,139,Tampa Bay Rays,143,Philadelphia Phillies,595928.0,John Curtiss,554430.0,Zack Wheeler,9,1.0,0.0
+630964,2020,2020-09-26,2020-09-26T23:07:00Z,R,Final,night,N,2889,Busch Stadium,138,St. Louis Cardinals,158,Milwaukee Brewers,425794.0,Adam Wainwright,605540.0,Brandon Woodruff,9,0.0,0.0
+631016,2020,2020-09-26,2020-09-27T01:15:00Z,R,Final,night,N,2395,Oracle Park,137,San Francisco Giants,135,San Diego Padres,456501.0,Johnny Cueto,605200.0,Zach Davies,9,0.0,0.0
+631055,2020,2020-09-26,2020-09-26T20:15:00Z,R,Final,day,Y,10,Oakland Coliseum,136,Seattle Mariners,133,Oakland Athletics,643290.0,Justin Dunn,621112.0,Paul Blackburn,7,1.0,0.0
+631169,2020,2020-09-26,2020-09-26T20:10:00Z,R,Final,day,Y,10,Oakland Coliseum,133,Oakland Athletics,136,Seattle Mariners,501985.0,Mike Minor,656954.0,Justus Sheffield,8,0.0,0.0
+631193,2020,2020-09-26,2020-09-26T17:05:00Z,R,Final,day,N,3313,Yankee Stadium,147,New York Yankees,146,Miami Marlins,665620.0,Deivi García,669432.0,Trevor Rogers,9,0.0,0.0
+631245,2020,2020-09-26,2020-09-26T23:10:00Z,R,Final,night,N,3312,Target Field,142,Minnesota Twins,113,Cincinnati Reds,501381.0,Michael Pineda,622491.0,Luis Castillo,9,2.0,1.0
+631337,2020,2020-09-26,2020-09-27T01:10:00Z,R,Final,night,N,22,Dodger Stadium,119,Los Angeles Dodgers,108,Los Angeles Angels,664062.0,Tony Gonsolin,527054.0,Julio Teheran,9,0.0,3.0
+631385,2020,2020-09-26,2020-09-26T23:05:00Z,R,Final,night,N,7,Kauffman Stadium,118,Kansas City Royals,116,Detroit Tigers,672578.0,Carlos Hernández,571510.0,Matthew Boyd,9,3.0,1.0
+631487,2020,2020-09-26,2020-09-26T23:10:00Z,R,Final,night,N,4,Guaranteed Rate Field,145,Chicago White Sox,112,Chicago Cubs,641540.0,Dane Dunning,452657.0,Jon Lester,9,0.0,0.0
+631537,2020,2020-09-26,2020-09-26T23:10:00Z,R,Final,night,N,5,Progressive Field,114,Cleveland Indians,134,Pittsburgh Pirates,650644.0,Aaron Civale,605397.0,Joe Musgrove,9,1.0,0.0
+630202,2020,2020-09-27,2020-09-27T19:10:00Z,R,Final,day,N,15,Chase Field,109,Arizona Diamondbacks,115,Colorado Rockies,518516.0,Madison Bumgarner,607536.0,Kyle Freeland,9,0.0,2.0
+630573,2020,2020-09-27,2020-09-27T19:10:00Z,R,Final,day,N,4705,Truist Park,144,Atlanta Braves,111,Boston Red Sox,669060.0,Bryse Wilson,601713.0,Nick Pivetta,9,1.0,1.0
+630854,2020,2020-09-27,2020-09-27T19:05:00Z,R,Final,day,N,3309,Nationals Park,120,Washington Nationals,121,New York Mets,608723.0,Austin Voth,607625.0,Seth Lugo,9,2.0,1.0
+630858,2020,2020-09-27,2020-09-27T19:07:00Z,R,Final,day,N,2756,Sahlen Field,141,Toronto Blue Jays,110,Baltimore Orioles,543699.0,Tanner Roark,669211.0,Keegan Akin,9,0.0,0.0
+630915,2020,2020-09-27,2020-09-27T19:05:00Z,R,Final,day,N,5325,Globe Life Field,140,Texas Rangers,117,Houston Astros,543475.0,Jordan Lyles,608328.0,Chase De Jong,9,1.0,0.0
+630945,2020,2020-09-27,2020-09-27T19:10:00Z,R,Final,day,N,12,Tropicana Field,139,Tampa Bay Rays,143,Philadelphia Phillies,676596.0,Josh Fleming,605400.0,Aaron Nola,9,0.0,0.0
+630965,2020,2020-09-27,2020-09-27T19:15:00Z,R,Final,day,N,2889,Busch Stadium,138,St. Louis Cardinals,158,Milwaukee Brewers,596295.0,Austin Gomber,474463.0,Brett Anderson,9,0.0,0.0
+631002,2020,2020-09-27,2020-09-27T19:05:00Z,R,Final,day,N,2395,Oracle Park,137,San Francisco Giants,135,San Diego Padres,592767.0,Drew Smyly,670970.0,Adrian Morejon,9,0.0,0.0
+631155,2020,2020-09-27,2020-09-27T19:10:00Z,R,Final,day,N,10,Oakland Coliseum,133,Oakland Athletics,136,Seattle Mariners,593423.0,Frankie Montas,594835.0,Marco Gonzales,9,1.0,1.0
+631188,2020,2020-09-27,2020-09-27T19:05:00Z,R,Final,day,N,3313,Yankee Stadium,147,New York Yankees,146,Miami Marlins,657376.0,Clarke Schmidt,570632.0,José Ureña,9,0.0,0.0
+631244,2020,2020-09-27,2020-09-27T19:10:00Z,R,Final,day,N,3312,Target Field,142,Minnesota Twins,113,Cincinnati Reds,448179.0,Rich Hill,543243.0,Sonny Gray,10,0.0,0.0
+631338,2020,2020-09-27,2020-09-27T19:10:00Z,R,Final,day,N,22,Dodger Stadium,119,Los Angeles Dodgers,108,Los Angeles Angels,624647.0,Victor González,663776.0,Patrick Sandoval,9,0.0,1.0
+631386,2020,2020-09-27,2020-09-27T17:05:00Z,R,Final,day,N,7,Kauffman Stadium,118,Kansas City Royals,116,Detroit Tigers,663903.0,Brady Singer,519455.0,Jordan Zimmermann,9,1.0,0.0
+631488,2020,2020-09-27,2020-09-27T19:10:00Z,R,Final,day,N,4,Guaranteed Rate Field,145,Chicago White Sox,112,Chicago Cubs,625643.0,Reynaldo López,640470.0,Adbert Alzolay,9,0.0,0.0
+631538,2020,2020-09-27,2020-09-27T19:10:00Z,R,Final,day,N,5,Progressive Field,114,Cleveland Indians,134,Pittsburgh Pirates,615698.0,Cal Quantrill,664141.0,JT Brubaker,9,0.0,0.0
