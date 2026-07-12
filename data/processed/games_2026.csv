@@ -1429,16 +1429,16 @@ game_pk,season,game_date,game_datetime_utc,game_type,status,day_night,double_hea
 824576,2026,2026-07-11,2026-07-11T18:10:00Z,R,Final,day,N,4,Rate Field,145,Chicago White Sox,133,Athletics,663542.0,Bryan Hudson,695611.0,Gage Jump,9,0.0,0.0
 824813,2026,2026-07-11,2026-07-11T23:05:00Z,R,Final,night,N,2,Oriole Park at Camden Yards,110,Baltimore Orioles,118,Kansas City Royals,680694.0,Kyle Bradish,702070.0,Noah Cameron,9,0.0,0.0
 822708,2026,2026-07-12,2026-07-12T17:35:00Z,R,Final,day,N,3309,Nationals Park,120,Washington Nationals,147,New York Yankees,676917.0,Cade Cavalli,701542.0,Will Warren,9,0.0,1.0
-822876,2026,2026-07-12,2026-07-12T18:35:00Z,R,Live,day,N,5325,Globe Life Field,140,Texas Rangers,117,Houston Astros,669022.0,MacKenzie Gore,664299.0,Cristian Javier,8,0.0,0.0
+822876,2026,2026-07-12,2026-07-12T18:35:00Z,R,Final,day,N,5325,Globe Life Field,140,Texas Rangers,117,Houston Astros,669022.0,MacKenzie Gore,664299.0,Cristian Javier,9,0.0,0.0
 822951,2026,2026-07-12,2026-07-12T17:40:00Z,R,Final,day,N,12,Tropicana Field,139,Tampa Bay Rays,136,Seattle Mariners,693855.0,Ian Seymour,676106.0,Emerson Hancock,9,0.0,0.0
 823029,2026,2026-07-12,2026-07-12T18:15:00Z,R,Final,day,N,2889,Busch Stadium,138,St. Louis Cardinals,144,Atlanta Braves,669160.0,Dustin May,664849.0,Danny Young,9,0.0,1.0
-823199,2026,2026-07-12,2026-07-12T20:05:00Z,R,Live,day,N,2395,Oracle Park,137,San Francisco Giants,115,Colorado Rockies,686790.0,Trevor McDonald,547179.0,Michael Lorenzen,5,1.0,0.0
-823274,2026,2026-07-12,2026-07-12T20:10:00Z,R,Live,day,N,2680,Petco Park,135,San Diego Padres,141,Toronto Blue Jays,608566.0,Germán Márquez,592332.0,Kevin Gausman,4,1.0,0.0
+823199,2026,2026-07-12,2026-07-12T20:05:00Z,R,Live,day,N,2395,Oracle Park,137,San Francisco Giants,115,Colorado Rockies,686790.0,Trevor McDonald,547179.0,Michael Lorenzen,7,1.0,0.0
+823274,2026,2026-07-12,2026-07-12T20:10:00Z,R,Live,day,N,2680,Petco Park,135,San Diego Padres,141,Toronto Blue Jays,608566.0,Germán Márquez,592332.0,Kevin Gausman,6,1.0,0.0
 823358,2026,2026-07-12,2026-07-12T16:15:00Z,R,Final,day,N,31,PNC Park,134,Pittsburgh Pirates,158,Milwaukee Brewers,694973.0,Paul Skenes,688107.0,Robert Gasser,9,0.0,0.0
 823602,2026,2026-07-12,2026-07-12T17:40:00Z,R,Final,day,N,3289,Citi Field,121,New York Mets,111,Boston Red Sox,804267.0,Zach Thornton,801139.0,Payton Tolle,10,0.0,1.0
 823681,2026,2026-07-12,2026-07-12T18:10:00Z,R,Final,day,N,3312,Target Field,142,Minnesota Twins,108,Los Angeles Angels,671737.0,Taj Bradley,667755.0,José Soriano,9,0.0,0.0
 823842,2026,2026-07-12,2026-07-12T17:40:00Z,R,Final,day,N,4169,loanDepot park,146,Miami Marlins,114,Cleveland Guardians,663969.0,Tyler Phillips,676282.0,Joey Cantillo,9,2.0,0.0
-823925,2026,2026-07-12,2026-07-12T20:10:00Z,R,Live,day,N,22,UNIQLO Field at Dodger Stadium,119,Los Angeles Dodgers,109,Arizona Diamondbacks,686218.0,Emmet Sheehan,683352.0,Mitch Bratt,4,0.0,1.0
+823925,2026,2026-07-12,2026-07-12T20:10:00Z,R,Live,day,N,22,UNIQLO Field at Dodger Stadium,119,Los Angeles Dodgers,109,Arizona Diamondbacks,686218.0,Emmet Sheehan,683352.0,Mitch Bratt,5,0.0,1.0
 824250,2026,2026-07-12,2026-07-12T17:40:00Z,R,Final,day,N,2394,Comerica Park,116,Detroit Tigers,143,Philadelphia Phillies,669373.0,Tarik Skubal,554430.0,Zack Wheeler,9,0.0,0.0
 824491,2026,2026-07-12,2026-07-12T17:40:00Z,R,Final,day,N,2602,Great American Ball Park,113,Cincinnati Reds,112,Chicago Cubs,671096.0,Andrew Abbott,571510.0,Matthew Boyd,9,2.0,0.0
 824574,2026,2026-07-12,2026-07-12T18:10:00Z,R,Final,day,N,4,Rate Field,145,Chicago White Sox,133,Athletics,702273.0,Noah Schultz,669372.0,J.T. Ginn,9,1.0,6.0

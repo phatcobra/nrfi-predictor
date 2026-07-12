@@ -1,5 +1,5 @@
 {
-  "base_rate_yrfi": 0.4991717569106533,
+  "base_rate_yrfi": 0.4991459185258036,
   "calibrated": true,
   "features": [
     "hp_fi_runs_allowed_shrunk",
@@ -29,22 +29,22 @@
     "is_indoor_park"
   ],
   "n_calibration_rows": 2898,
-  "n_fit_rows": 16420,
-  "n_trainable_rows": 19318,
+  "n_fit_rows": 16421,
+  "n_trainable_rows": 19319,
   "package_version": "1.0.0",
   "train_date_max": "2026-07-12",
   "train_date_min": "2018-03-29",
-  "trained_at_utc": "2026-07-12T21:25:09+00:00",
+  "trained_at_utc": "2026-07-12T21:45:40+00:00",
   "unobserved_features": [],
   "walk_forward_pooled": {
-    "brier_baseline": 0.25001566927314633,
-    "brier_model": 0.2512155680553046,
-    "brier_skill_score": -0.004799294322818337,
-    "log_loss_baseline": 0.6931787577866684,
-    "log_loss_model": 0.6961482111342006,
-    "mean_predicted_yrfi": 0.4912869983647063,
-    "n_games": 13572,
-    "roc_auc": 0.5045452645010656,
-    "yrfi_base_rate": 0.49344238137341584
+    "brier_baseline": 0.25001675428042336,
+    "brier_model": 0.2512153702648385,
+    "brier_skill_score": -0.00479414264801914,
+    "log_loss_baseline": 0.6931809283999384,
+    "log_loss_model": 0.6961477735652821,
+    "mean_predicted_yrfi": 0.491287531908893,
+    "n_games": 13573,
+    "roc_auc": 0.5045385337899294,
+    "yrfi_base_rate": 0.493406026670596
   }
 }
