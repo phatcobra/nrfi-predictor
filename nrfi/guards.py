@@ -18,14 +18,18 @@ PREDICTION_STALE_AFTER_S = 6 * 3600
 
 
 def odds_fresh(odds_age_sec: Optional[int]) -> bool:
-    return odds_age_sec is not None and odds_age_sec <= ODDS_MAX_AGE_SECONDS
+    return odds_age_sec is not None and 0 <= odds_age_sec <= ODDS_MAX_AGE_SECONDS
 
 
 def market_usable(p_market: Optional[float], books_n: int,
                   odds_age_sec: Optional[int]) -> tuple[bool, Optional[str]]:
-    """(usable, degraded_reason). Edge may only display when usable."""
+    """Return market usability and a stable, machine-readable reason."""
     if p_market is None or books_n < MIN_BOOKS_FOR_MARKET:
         return False, "no_market_consensus"
+    if odds_age_sec is None:
+        return False, "odds_age_unknown"
+    if odds_age_sec < 0:
+        return False, "odds_timestamp_in_future"
     if not odds_fresh(odds_age_sec):
         return False, f"odds_stale_{odds_age_sec}s"
     return True, None
@@ -52,6 +56,10 @@ def data_health(rows: list[dict], now_utc: Optional[datetime] = None) -> str:
     """Header dot. red: no scored rows or newest prediction stale >6h.
     amber: any DEGRADED/BLOCKED row. green: all rows OK and fresh."""
     now_utc = now_utc or datetime.now(timezone.utc)
+    if now_utc.tzinfo is None:
+        now_utc = now_utc.replace(tzinfo=timezone.utc)
+    else:
+        now_utc = now_utc.astimezone(timezone.utc)
     if not rows:
         return RED
     newest = None
@@ -59,10 +67,15 @@ def data_health(rows: list[dict], now_utc: Optional[datetime] = None) -> str:
         ts = r.get("predicted_at")
         if ts is None:
             continue
-        dt = ts if isinstance(ts, datetime) else datetime.fromisoformat(
-            str(ts).replace("Z", "+00:00"))
+        try:
+            dt = ts if isinstance(ts, datetime) else datetime.fromisoformat(
+                str(ts).replace("Z", "+00:00"))
+        except (TypeError, ValueError):
+            continue
         if dt.tzinfo is None:
             dt = dt.replace(tzinfo=timezone.utc)
+        else:
+            dt = dt.astimezone(timezone.utc)
         newest = dt if newest is None or dt > newest else newest
     if newest is None or (now_utc - newest).total_seconds() > PREDICTION_STALE_AFTER_S:
         return RED
