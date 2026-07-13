@@ -1,0 +1,36 @@
+name: model-experiment
+on:
+  push:
+    branches: [model-experiment]
+  workflow_dispatch:
+
+jobs:
+  backtest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install experiment dependencies
+        run: pip install -q pandas numpy scikit-learn
+      - name: Mount observed history from alternate branch
+        run: |
+          git fetch --depth=1 origin 'claude/mlb-first-inning-prediction-2gn7eg'
+          git worktree add /tmp/nrfi-history FETCH_HEAD
+      - name: Run strict future-season backtest
+        run: |
+          python experiments/half_inning_backtest.py \
+            --data /tmp/nrfi-history/data/processed \
+            | tee half-inning-backtest.json
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: half-inning-backtest
+          path: half-inning-backtest.json
+          retention-days: 14
