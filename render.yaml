@@ -1,7 +1,7 @@
-# Render blueprint: one web service + autonomous paper-mode cycles.
-# Secrets are configured in Render; this file intentionally contains no values.
-# Render cron schedules are UTC. The split odds jobs avoid an invalid wrapped
-# hour range and together cover 14:00-23:59 plus 00:00-04:59 UTC.
+# Render blueprint for the fail-closed paper-mode service.
+# Render cron schedules are UTC. Raw normalized feature tables are populated by
+# the validated upstream loader; this blueprint never runs the incompatible
+# legacy SportsDataIO staging ingester.
 
 services:
   - type: web
@@ -23,11 +23,11 @@ services:
         sync: false
       - key: SNOWFLAKE_ROLE
         sync: false
-      - key: SDIO_API_KEY
-        sync: false
       - key: OPTIC_API_KEY
         sync: false
       - key: OPTIC_FI_TOTAL_MARKET_ID
+        sync: false
+      - key: NRFI_SPORTSBOOKS
         sync: false
       - key: API_BEARER_TOKEN
         sync: false
@@ -35,17 +35,29 @@ services:
         sync: false
       - key: SENTRY_DSN
         sync: false
-      - key: GH_TOKEN
-        sync: false
-      - key: GITHUB_REPO
-        value: phatcobra/nrfi-predictor
 
   - type: cron
-    name: nrfi-ingest-morning
+    name: nrfi-ingest-final-outcomes
     runtime: python
-    schedule: "30 9 * * *"
+    schedule: "0 9 * * *"
     buildCommand: pip install -r requirements.txt
-    startCommand: python -m nrfi.ingest_sportsdata
+    startCommand: python -m nrfi.ingest_first_inning_outcomes --yesterday
+    envVars: *envs
+
+  - type: cron
+    name: nrfi-grade-nightly
+    runtime: python
+    schedule: "20 9 * * *"
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m nrfi.grade_nightly
+    envVars: *envs
+
+  - type: cron
+    name: nrfi-data-readiness
+    runtime: python
+    schedule: "40 9 * * *"
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m nrfi.data_readiness
     envVars: *envs
 
   - type: cron
@@ -70,22 +82,6 @@ services:
     schedule: "*/10 0-4 * * *"
     buildCommand: pip install -r requirements.txt
     startCommand: python -m nrfi.ingest_opticodds
-    envVars: *envs
-
-  - type: cron
-    name: nrfi-grade-nightly
-    runtime: python
-    schedule: "5 4 * * *"
-    buildCommand: pip install -r requirements.txt
-    startCommand: python -m nrfi.grade_nightly
-    envVars: *envs
-
-  - type: cron
-    name: nrfi-retrain-weekly
-    runtime: python
-    schedule: "0 6 * * 1"
-    buildCommand: pip install -r requirements.txt
-    startCommand: python -m nrfi.retrain_weekly
     envVars: *envs
 
   - type: cron
