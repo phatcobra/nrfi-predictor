@@ -1,55 +1,42 @@
-"""Snowflake warehouse connector.
-
-Provides the module-level helpers plus the SnowflakeLoader class that the
-pipeline modules (features, train, predict_daily, api) instantiate.
-
-Fail-closed rules:
-  - No fabricated results: query errors raise; callers decide how to null
-    the affected game. Nothing here invents a default row.
-  - Schema creation lives in sql/*.sql (run via scripts/init_snowflake.py),
-    not in ad-hoc strings here.
-"""
+"""Snowflake warehouse connector with fail-closed query semantics."""
 from __future__ import annotations
 
-import os
-from typing import Any, Sequence
+from collections.abc import Sequence
+from typing import Any
 
 import pandas as pd
 
 from nrfi._obs import logger, sentry_sdk
-
 from nrfi.config import (
     SNOWFLAKE_ACCOUNT,
-    SNOWFLAKE_USER,
-    SNOWFLAKE_PASSWORD,
     SNOWFLAKE_DATABASE,
-    SNOWFLAKE_SCHEMA,
-    SNOWFLAKE_WAREHOUSE,
+    SNOWFLAKE_PASSWORD,
     SNOWFLAKE_ROLE,
+    SNOWFLAKE_SCHEMA,
+    SNOWFLAKE_USER,
+    SNOWFLAKE_WAREHOUSE,
 )
 
-_ENGINE = None  # singleton
+_ENGINE = None
 
 
 def get_snowflake_engine():
-    """Get or create the Snowflake SQLAlchemy engine (lazy singleton)."""
+    """Create the lazy singleton SQLAlchemy engine after validating credentials."""
     global _ENGINE
     if _ENGINE is None:
         from sqlalchemy import create_engine
         from snowflake.sqlalchemy import URL
+
         missing = [
-            n for n, v in (
+            name for name, value in (
                 ("SNOWFLAKE_ACCOUNT", SNOWFLAKE_ACCOUNT),
                 ("SNOWFLAKE_USER", SNOWFLAKE_USER),
                 ("SNOWFLAKE_PASSWORD", SNOWFLAKE_PASSWORD),
-            ) if not v
+            ) if not value
         ]
         if missing:
             raise RuntimeError(
-                f"Snowflake credentials missing: {', '.join(missing)}. "
-                "Set env vars (human-managed via AWS Secrets Manager); "
-                "this system fails closed rather than running degraded."
-            )
+                f"Snowflake credentials missing: {', '.join(missing)}")
         _ENGINE = create_engine(
             URL(
                 account=SNOWFLAKE_ACCOUNT,
@@ -62,38 +49,61 @@ def get_snowflake_engine():
             ),
             pool_pre_ping=True,
         )
-        logger.info(f"Snowflake engine ready: {SNOWFLAKE_DATABASE}.{SNOWFLAKE_SCHEMA}")
+        logger.info(
+            f"Snowflake engine ready: {SNOWFLAKE_DATABASE}.{SNOWFLAKE_SCHEMA}")
     return _ENGINE
 
 
-def execute_query_df(query: str, params: Sequence[Any] | dict | None = None) -> pd.DataFrame:
-    """Execute SQL, return DataFrame with lower-cased column names."""
+def _is_positional(params: Sequence[Any] | dict | None) -> bool:
+    return params is not None and not isinstance(params, dict)
+
+
+def execute_query_df(
+    query: str,
+    params: Sequence[Any] | dict | None = None,
+    engine=None,
+) -> pd.DataFrame:
+    """Execute SQL and return lower-case columns.
+
+    SQLAlchemy ``text()`` supports named ``:parameter`` binds, not the DBAPI
+    ``%s`` placeholders used by the pipeline. Positional calls therefore use
+    the Snowflake DBAPI cursor directly; named or unparameterized calls use the
+    SQLAlchemy path.
+    """
     from sqlalchemy import text
-    engine = get_snowflake_engine()
+
+    active_engine = engine or get_snowflake_engine()
     with sentry_sdk.start_span(op="db.query", description=query[:100]):
-        df = pd.read_sql(text(query), engine, params=params)
-    df.columns = [c.lower() for c in df.columns]
-    return df
+        if _is_positional(params):
+            raw_connection = active_engine.raw_connection()
+            cursor = None
+            try:
+                cursor = raw_connection.cursor()
+                cursor.execute(query, tuple(params or ()))
+                columns = [description[0] for description in cursor.description or []]
+                frame = pd.DataFrame(cursor.fetchall(), columns=columns)
+            finally:
+                if cursor is not None:
+                    cursor.close()
+                raw_connection.close()
+        else:
+            frame = pd.read_sql(text(query), active_engine, params=params or {})
+    frame.columns = [str(column).lower() for column in frame.columns]
+    return frame
 
 
 def execute_statement(statement: str, params: dict | None = None) -> None:
-    """Execute a DDL/DML statement inside a transaction."""
+    """Execute named-bind DDL/DML inside a transaction."""
     from sqlalchemy import text
+
     engine = get_snowflake_engine()
-    with engine.begin() as conn:
-        conn.execute(text(statement), params or {})
+    with engine.begin() as connection:
+        connection.execute(text(statement), params or {})
 
 
 class SnowflakeLoader:
-    """Instance wrapper used across the pipeline.
-
-    execute_query returns a list of dicts (lower-cased keys) because the
-    feature/prediction code accesses rows as dicts. bulk_insert accepts a
-    table name plus records.
-    """
-
     def __init__(self) -> None:
-        self._engine = None  # created lazily on first use
+        self._engine = None
 
     @property
     def engine(self):
@@ -102,25 +112,29 @@ class SnowflakeLoader:
         return self._engine
 
     def execute_query(
-        self, query: str, params: Sequence[Any] | dict | None = None
+        self,
+        query: str,
+        params: Sequence[Any] | dict | None = None,
     ) -> list[dict]:
-        df = execute_query_df(query, params)
-        return df.to_dict("records")
+        return execute_query_df(query, params, engine=self.engine).to_dict("records")
 
     def execute_statement(self, statement: str, params: dict | None = None) -> None:
-        execute_statement(statement, params)
+        from sqlalchemy import text
+
+        with self.engine.begin() as connection:
+            connection.execute(text(statement), params or {})
 
     def bulk_insert(self, table: str, records: list[dict]) -> None:
         if not records:
             logger.info(f"bulk_insert: nothing to insert into {table}")
             return
-        df = pd.DataFrame(records)
-        with sentry_sdk.start_span(op="db.bulk_insert", description=f"{table}: {len(df)} rows"):
-            # table may be schema-qualified: DB.SCHEMA.TABLE
-            parts = table.split(".")
-            name = parts[-1]
-            schema = ".".join(parts[:-1]) if len(parts) > 1 else None
-            df.to_sql(
+        frame = pd.DataFrame(records)
+        parts = table.split(".")
+        name = parts[-1]
+        schema = ".".join(parts[:-1]) if len(parts) > 1 else None
+        with sentry_sdk.start_span(
+                op="db.bulk_insert", description=f"{table}: {len(frame)} rows"):
+            frame.to_sql(
                 name,
                 self.engine,
                 schema=schema,
@@ -129,39 +143,71 @@ class SnowflakeLoader:
                 chunksize=5000,
                 method="multi",
             )
-        logger.info(f"Inserted {len(df)} rows into {table}")
+        logger.info(f"inserted {len(frame)} rows into {table}")
 
     def merge_upsert(
-        self, table: str, records: list[dict], key_cols: Sequence[str]
+        self,
+        table: str,
+        records: list[dict],
+        key_cols: Sequence[str],
     ) -> None:
-        """Idempotent upsert: stage to a temp table then MERGE on key_cols."""
+        """Idempotently stage records and merge them on validated key columns."""
         if not records:
             return
-        df = pd.DataFrame(records)
+        frame = pd.DataFrame(records)
+        missing_keys = [key for key in key_cols if key not in frame.columns]
+        if missing_keys:
+            raise ValueError(f"merge keys missing from records: {missing_keys}")
+        if frame[list(key_cols)].isna().any().any():
+            raise ValueError("merge keys cannot contain null values")
+
         from sqlalchemy import text
-        tmp = f"TMP_{abs(hash(table)) % 10**8}"
-        with self.engine.begin() as conn:
-            df.to_sql(tmp, conn, if_exists="replace", index=False, method="multi")
-            cols = list(df.columns)
-            on = " AND ".join(f"t.{k} = s.{k}" for k in key_cols)
-            update = ", ".join(f"t.{c} = s.{c}" for c in cols if c not in key_cols)
-            insert_cols = ", ".join(cols)
-            insert_vals = ", ".join(f"s.{c}" for c in cols)
-            merge = f"""
+
+        temporary = f"TMP_{abs(hash((table, tuple(frame.columns)))) % 10**8}"
+        with self.engine.begin() as connection:
+            frame.to_sql(
+                temporary,
+                connection,
+                if_exists="replace",
+                index=False,
+                method="multi",
+            )
+            columns = list(frame.columns)
+            on_clause = " AND ".join(f"t.{key} = s.{key}" for key in key_cols)
+            update_columns = [column for column in columns if column not in key_cols]
+            insert_columns = ", ".join(columns)
+            insert_values = ", ".join(f"s.{column}" for column in columns)
+            matched_clause = ""
+            if update_columns:
+                assignments = ", ".join(
+                    f"t.{column} = s.{column}" for column in update_columns)
+                matched_clause = f"WHEN MATCHED THEN UPDATE SET {assignments}"
+            merge_sql = f"""
                 MERGE INTO {table} t
-                USING {tmp} s ON {on}
-                WHEN MATCHED THEN UPDATE SET {update}
-                WHEN NOT MATCHED THEN INSERT ({insert_cols}) VALUES ({insert_vals})
+                USING {temporary} s ON {on_clause}
+                {matched_clause}
+                WHEN NOT MATCHED THEN INSERT ({insert_columns})
+                VALUES ({insert_values})
             """
-            conn.execute(text(merge))
-            conn.execute(text(f"DROP TABLE IF EXISTS {tmp}"))
-        logger.info(f"Merged {len(df)} rows into {table} on ({', '.join(key_cols)})")
+            try:
+                connection.execute(text(merge_sql))
+            finally:
+                connection.execute(text(f"DROP TABLE IF EXISTS {temporary}"))
+        logger.info(
+            f"merged {len(frame)} rows into {table} on ({', '.join(key_cols)})")
 
 
-def load_from_s3(s3_path: str, table: str, file_format: str = "PARQUET") -> None:
-    """COPY INTO from S3 (requires STORAGE INTEGRATION configured by a human)."""
+def load_from_s3(s3_path: str, table: str,
+                 file_format: str = "PARQUET") -> None:
+    """Load an explicitly configured S3 object; any row error aborts."""
+    allowed_formats = {"CSV", "JSON", "PARQUET"}
+    normalized_format = file_format.upper()
+    if normalized_format not in allowed_formats:
+        raise ValueError(f"unsupported file format {file_format!r}")
+    if not s3_path.startswith("s3://"):
+        raise ValueError("s3_path must start with s3://")
     execute_statement(
         f"COPY INTO {table} FROM '{s3_path}' "
-        f"FILE_FORMAT = (TYPE = {file_format}) ON_ERROR = 'ABORT_STATEMENT'"
+        f"FILE_FORMAT = (TYPE = {normalized_format}) ON_ERROR = 'ABORT_STATEMENT'"
     )
-    logger.info(f"Loaded {s3_path} into {table}")
+    logger.info(f"loaded {s3_path} into {table}")
