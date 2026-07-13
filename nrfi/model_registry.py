@@ -69,14 +69,19 @@ def promote_candidate(version: str, loader: SnowflakeLoader | None = None) -> No
             f"UPDATE {MODEL_STATUS_TABLE} SET status = 'retired' "
             "WHERE status = 'production' AND model_version <> :version"
         ), {"version": version})
-        result = connection.execute(text(
+        connection.execute(text(
             f"UPDATE {MODEL_STATUS_TABLE} "
-            "SET status = 'production', gate_report = OBJECT_INSERT(" 
+            "SET status = 'production', gate_report = OBJECT_INSERT("
             "COALESCE(gate_report, OBJECT_CONSTRUCT()), 'promoted_at', "
             "TO_VARIANT(:promoted_at), TRUE) "
             "WHERE model_version = :version AND status = 'candidate' "
             "AND gates_passed = TRUE AND holdout_passed = TRUE "
             "AND COALESCE(holdout_burned_rerun, FALSE) = FALSE"
         ), {"version": version, "promoted_at": promoted_at})
-        if result.rowcount != 1:
-            raise RuntimeError("candidate changed during promotion; transaction aborted")
+        verified = connection.execute(text(
+            f"SELECT status FROM {MODEL_STATUS_TABLE} "
+            "WHERE model_version = :version"
+        ), {"version": version}).mappings().first()
+        if verified is None or verified.get("status") != "production":
+            raise RuntimeError(
+                "candidate changed during promotion; transaction aborted")
