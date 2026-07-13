@@ -20,5 +20,13 @@ jobs:
           pip install -r requirements.txt
       - name: Byte-compile package
         run: python -m py_compile nrfi/*.py scripts/*.py
-      - name: Full offline test suite
-        run: pytest tests/ -q
+      - name: Import and package integrity
+        run: pytest tests/test_static_integrity.py -q
+      - name: No-fabrication redlines
+        run: pytest tests/test_no_fabricated_defaults.py -q
+      - name: Feature chronology and coverage
+        run: pytest tests/test_feature_builder.py -q
+      - name: Ensemble, calibration, and persistence
+        run: pytest tests/test_ensemble.py -q
+      - name: Game-day fail-closed simulation
+        run: pytest tests/test_gameday_simulation.py -q
