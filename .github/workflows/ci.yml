@@ -1,11 +1,13 @@
 name: ci
+
 on:
+  workflow_dispatch:
   push:
     branches: [main, "phase*"]
   pull_request:
 
 jobs:
-  static-checks:
+  release-gate:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -16,6 +18,18 @@ jobs:
           cache: pip
       - name: Install declared dependencies
         run: pip install --disable-pip-version-check -q -r requirements.txt
+      - name: Import smoke gate
+        run: |
+          python - <<'PY'
+          import nrfi.api
+          import nrfi.build_features
+          import nrfi.ensemble
+          import nrfi.grade_nightly
+          import nrfi.model_registry
+          import nrfi.predict_daily
+          import nrfi.train
+          print("core imports passed")
+          PY
       - name: Byte-compile package
         run: python -m py_compile nrfi/*.py scripts/*.py
       - name: Run complete offline release gate
