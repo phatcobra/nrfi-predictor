@@ -22,10 +22,10 @@ from typing import Dict, List, Optional
 
 import numpy as np
 from nrfi._obs import sentry_sdk
-from nrfi.config import Config, MIN_BOOKS_FOR_MARKET, TZ_ET
-from nrfi.guards import coverage_blocks, market_usable, tier_for
 from nrfi.build_features import FeatureBuilder, coverage
+from nrfi.config import Config, MIN_BOOKS_FOR_MARKET, TZ_ET
 from nrfi.ensemble import n_eff_for_game, shrink_to_venue
+from nrfi.guards import coverage_blocks, market_usable, tier_for
 from nrfi.ingest_opticodds import OpticOddsIngester
 from nrfi.snowflake_loader import SnowflakeLoader
 from nrfi.train import NFRIModelTrainer
@@ -38,6 +38,24 @@ if os.getenv("SENTRY_DSN"):
                     traces_sample_rate=0.1)
 
 PREDICTIONS_TABLE = "NRFI_DB.ML.PREDICTIONS"
+
+
+def _as_utc(value: object) -> datetime:
+    """Parse a provider timestamp and normalize it to timezone-aware UTC.
+
+    Naive timestamps are interpreted as UTC because Snowflake TIMESTAMP_NTZ and
+    some provider payloads omit an offset. Invalid values raise ValueError so
+    the caller can mark market freshness unavailable instead of guessing.
+    """
+    if isinstance(value, datetime):
+        dt = value
+    elif isinstance(value, str):
+        dt = datetime.fromisoformat(value.strip().replace("Z", "+00:00"))
+    else:
+        raise ValueError("timestamp must be a datetime or ISO-8601 string")
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(timezone.utc)
 
 
 class NFRIDailyPredictor:
@@ -80,8 +98,8 @@ class NFRIDailyPredictor:
                 "venue_id": g.get("venue_id"),
                 "game_time": g.get("game_datetime"),
                 "is_doubleheader": g.get("doubleheader", "N") != "N",
-                "lineups": None,            # wired in Phase 3 lineup feed
-                "lineup_confirmed": False,  # honest default until feed exists
+                "lineups": None,
+                "lineup_confirmed": False,
             })
         logger.info(f"{len(games)} games scheduled on {target_date}")
         return games
@@ -95,22 +113,39 @@ class NFRIDailyPredictor:
                "best_nrfi_american": None}
         if not entry or not entry.get("books"):
             return out
+
         books = entry["books"]
         out["books_n"] = len(books)
         newest = entry.get("newest_captured_at")
         if newest is not None:
-            ts = str(newest)
             try:
-                dt = datetime.fromisoformat(ts.replace("Z", "+00:00"))
-                out["odds_age_sec"] = int((now_utc - dt).total_seconds())
-            except ValueError:
+                dt = _as_utc(newest)
+                now = _as_utc(now_utc)
+                out["odds_age_sec"] = int((now - dt).total_seconds())
+            except (TypeError, ValueError, OverflowError):
                 out["odds_age_sec"] = None
-        probs = [b["yrfi_prob_novig"] for b in books.values()
-                 if b.get("yrfi_prob_novig") is not None]
+
+        probs = []
+        for book in books.values():
+            value = book.get("yrfi_prob_novig")
+            try:
+                p = float(value)
+            except (TypeError, ValueError):
+                continue
+            if np.isfinite(p) and 0.0 <= p <= 1.0:
+                probs.append(p)
         if len(probs) >= MIN_BOOKS_FOR_MARKET:
             out["p_yrfi_market"] = float(statistics.median(probs))
-        nrfi_prices = [b["nrfi_american"] for b in books.values()
-                       if b.get("nrfi_american") is not None]
+
+        nrfi_prices = []
+        for book in books.values():
+            value = book.get("nrfi_american")
+            try:
+                price = float(value)
+            except (TypeError, ValueError):
+                continue
+            if np.isfinite(price):
+                nrfi_prices.append(price)
         if nrfi_prices:
             out["best_nrfi_american"] = max(nrfi_prices)
         return out
@@ -119,6 +154,7 @@ class NFRIDailyPredictor:
 
     def score_game(self, game: Dict, odds_by_matchup: dict,
                    now_utc: datetime) -> Dict:
+        now_utc = _as_utc(now_utc)
         row = {
             "game_id": game["game_id"],
             "game_date": game["game_date"],
@@ -134,12 +170,10 @@ class NFRIDailyPredictor:
             "tier": None, "status": "OK", "block_reason": None,
         }
 
-        # ---- fail-closed gate 1: probable pitchers
         if game.get("home_pitcher_id") is None or game.get("away_pitcher_id") is None:
             row.update(status="BLOCKED", block_reason="no_probable_pitcher")
             return row
 
-        # ---- features (exception or low coverage => BLOCKED)
         try:
             feats = self.builder.build_game(game)
         except Exception as e:
@@ -155,11 +189,13 @@ class NFRIDailyPredictor:
         X = np.array([[feats.get(n, np.nan) for n in self.trainer.feature_names]],
                      dtype=float)
         p_cal = float(self.trainer.predict_proba(X)[0])
+        if not np.isfinite(p_cal) or not 0.0 <= p_cal <= 1.0:
+            row.update(status="BLOCKED", block_reason="invalid_model_probability")
+            return row
         venue_rate = self.trainer.venue_yrfi_rates.get(str(game.get("venue_id")))
-        row["p_yrfi"] = shrink_to_venue(p_cal, venue_rate,
-                                        n_eff_for_game(feats, cov))
+        row["p_yrfi"] = float(shrink_to_venue(
+            p_cal, venue_rate, n_eff_for_game(feats, cov)))
 
-        # ---- market (stale/missing => DEGRADED, edge stays null)
         m = self.market_consensus(
             odds_by_matchup.get((game["home_team"], game["away_team"])), now_utc)
         row.update(books_n=m["books_n"], odds_age_sec=m["odds_age_sec"])
@@ -167,7 +203,7 @@ class NFRIDailyPredictor:
                                        m["odds_age_sec"])
         if usable:
             row["p_yrfi_market"] = m["p_yrfi_market"]
-            row["edge"] = row["p_yrfi"] - m["p_yrfi_market"]  # diagnostic only
+            row["edge"] = row["p_yrfi"] - m["p_yrfi_market"]
         else:
             row.update(status="DEGRADED", block_reason=reason)
 
@@ -182,7 +218,7 @@ class NFRIDailyPredictor:
             logger.warning("no games scheduled")
             return []
         date_str = games[0]["game_date"]
-        self.builder.prepare(max_date=date_str)  # bulk pull once, leakage-safe
+        self.builder.prepare(max_date=date_str)
         odds_by_matchup = self.odds.get_nrfi_odds(date_str)
 
         rows = [self.score_game(g, odds_by_matchup, now_utc) for g in games]
