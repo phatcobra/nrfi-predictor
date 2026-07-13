@@ -1,9 +1,7 @@
-# Render blueprint: one web service + the autonomous cycles (ET schedules).
-# HUMAN: set the env vars in the Render dashboard (values from AWS Secrets
-# Manager); this file intentionally contains no secret values.
-# NOTE: Render cron uses UTC; ET 06:00 = 10:00/11:00 UTC depending on DST.
-# Schedules below use UTC for EDT (summer). Adjust at DST changes or move
-# to a TZ-aware scheduler later.
+# Render blueprint: one web service + autonomous paper-mode cycles.
+# Secrets are configured in Render; this file intentionally contains no values.
+# Render cron schedules are UTC. The split odds jobs avoid an invalid wrapped
+# hour range and together cover 14:00-23:59 plus 00:00-04:59 UTC.
 
 services:
   - type: web
@@ -45,7 +43,7 @@ services:
   - type: cron
     name: nrfi-ingest-morning
     runtime: python
-    schedule: "30 9 * * *"          # 05:30 ET (EDT)
+    schedule: "30 9 * * *"
     buildCommand: pip install -r requirements.txt
     startCommand: python -m nrfi.ingest_sportsdata
     envVars: *envs
@@ -53,15 +51,23 @@ services:
   - type: cron
     name: nrfi-predict-daily
     runtime: python
-    schedule: "0 10 * * *"          # 06:00 ET
+    schedule: "0 10 * * *"
     buildCommand: pip install -r requirements.txt
     startCommand: python -m nrfi.predict_daily
     envVars: *envs
 
   - type: cron
-    name: nrfi-refresh-odds
+    name: nrfi-refresh-odds-day
     runtime: python
-    schedule: "*/10 14-4 * * *"     # every 10 min through game hours (UTC)
+    schedule: "*/10 14-23 * * *"
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m nrfi.ingest_opticodds
+    envVars: *envs
+
+  - type: cron
+    name: nrfi-refresh-odds-late
+    runtime: python
+    schedule: "*/10 0-4 * * *"
     buildCommand: pip install -r requirements.txt
     startCommand: python -m nrfi.ingest_opticodds
     envVars: *envs
@@ -69,7 +75,7 @@ services:
   - type: cron
     name: nrfi-grade-nightly
     runtime: python
-    schedule: "5 4 * * *"           # 00:05 ET
+    schedule: "5 4 * * *"
     buildCommand: pip install -r requirements.txt
     startCommand: python -m nrfi.grade_nightly
     envVars: *envs
@@ -77,7 +83,7 @@ services:
   - type: cron
     name: nrfi-retrain-weekly
     runtime: python
-    schedule: "0 6 * * 1"           # Mon 02:00 ET -> PR for human merge
+    schedule: "0 6 * * 1"
     buildCommand: pip install -r requirements.txt
     startCommand: python -m nrfi.retrain_weekly
     envVars: *envs
@@ -85,7 +91,7 @@ services:
   - type: cron
     name: nrfi-audit-monthly
     runtime: python
-    schedule: "0 7 1 * *"           # 1st, 03:00 ET
+    schedule: "0 7 1 * *"
     buildCommand: pip install -r requirements.txt
     startCommand: python -m nrfi.audit_monthly
     envVars: *envs
