@@ -199,12 +199,14 @@ class FeatureBuilder:
                         "strikeouts", "innings_pitched"])
         self.pfi = _Cum(fr.get("pitcher_fi"), "pitcher_id", "game_date",
                         ["first_inning_runs", "first_inning_hits", "first_inning_walks"])
-        # nrfi indicator needs a derived column
+        # NRFI indicator preserves missing outcomes as NaN rather than false.
         pfi_df = fr.get("pitcher_fi")
         if pfi_df is not None and not pfi_df.empty:
             pfi_df = pfi_df.copy()
-            pfi_df["fi_zero"] = (pd.to_numeric(
-                pfi_df["first_inning_runs"], errors="coerce") == 0).astype(float)
+            pfi_runs = pd.to_numeric(
+                pfi_df["first_inning_runs"], errors="coerce")
+            pfi_df["fi_zero"] = np.where(
+                pfi_runs.isna(), np.nan, (pfi_runs == 0).astype(float))
             self.pfi_nrfi = _Cum(pfi_df, "pitcher_id", "game_date", ["fi_zero"])
         else:
             self.pfi_nrfi = _Cum(pd.DataFrame(), "pitcher_id", "game_date", ["fi_zero"])
@@ -217,8 +219,10 @@ class FeatureBuilder:
         tfi_df = fr.get("team_fi")
         if tfi_df is not None and not tfi_df.empty:
             tfi_df = tfi_df.copy()
-            tfi_df["fi_scored"] = (pd.to_numeric(
-                tfi_df["first_inning_runs"], errors="coerce") > 0).astype(float)
+            tfi_runs = pd.to_numeric(
+                tfi_df["first_inning_runs"], errors="coerce")
+            tfi_df["fi_scored"] = np.where(
+                tfi_runs.isna(), np.nan, (tfi_runs > 0).astype(float))
             self.tfi = _Cum(tfi_df, "team", "game_date",
                             ["first_inning_runs", "fi_scored"])
         else:
