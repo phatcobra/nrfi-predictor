@@ -1,17 +1,8 @@
-"""Set-based feature builder - THE single feature code path (train == serve).
+"""Leakage-safe set-based feature construction used by training and serving.
 
-Efficiency contract (SYSTEM_DESIGN_V3 SS6.3/SS10):
-  - Each raw table is pulled ONCE per build (bulk query), then every game's
-    trailing windows are answered in-memory via per-key cumulative sums +
-    binary search. A 24K-game backfill is ~7 bulk queries, not ~450K.
-
-Correctness contract:
-  - Leakage guard: every window is strictly `date < as_of` (searchsorted
-    side='left' on the game's as_of).
-  - Rate stats are ratio-of-sums.
-  - Missing => NaN + family missing flag. No defaults, no randomness.
-  - Coverage = share of non-missing feature values; callers block below
-    FEATURE_COVERAGE_MIN.
+Every source table is loaded once. Per-game windows use only rows strictly before
+``game_date``. Missing observations remain missing; they are never converted into
+zero-valued outcomes or included in rate denominators.
 """
 from __future__ import annotations
 
@@ -31,399 +22,511 @@ NAN = float("nan")
 FEATURE_VERSION = "fv3.1"
 PITCHER_DAY_WINDOWS = [7, 14, 30, 90, 365]
 TEAM_DAY_WINDOWS = [7, 14, 30]
-PITCHER_GS_WINDOW = 30  # trailing 30 games started (spec)
-
-
+PITCHER_GS_WINDOW = 30
 WEATHER_KEYS = frozenset(
-    {"temp_f", "wind_speed", "humidity", "wind_out_component"})
+    {"temp_f", "wind_speed", "humidity", "wind_out_component"}
+)
+
+
+def _missing(value: object) -> bool:
+    return value is None or bool(pd.isna(value))
 
 
 def coverage(features: Dict[str, float]) -> float:
-    """Share of non-missing values (missing flags excluded from the base).
-
-    Dome games: weather fields are NOT APPLICABLE rather than missing, so
-    they leave the denominator instead of dragging coverage down. This is
-    denominator logic, not imputation - the values stay NaN."""
+    """Return the observed share of applicable non-flag features."""
     dome = features.get("is_dome") == 1.0
-    vals = [v for k, v in features.items()
-            if not k.endswith("_missing")
-            and not (dome and k in WEATHER_KEYS)]
-    if not vals:
+    values = [
+        value
+        for name, value in features.items()
+        if not name.endswith("_missing")
+        and not (dome and name in WEATHER_KEYS)
+    ]
+    if not values:
         return 0.0
-    present = sum(
-        0 if (v is None or (isinstance(v, float) and np.isnan(v))) else 1
-        for v in vals
-    )
-    return present / len(vals)
+    return sum(not _missing(value) for value in values) / len(values)
 
 
 class _Cum:
-    """Per-key date-sorted cumulative sums; O(log n) leakage-safe windows."""
+    """Per-key date-sorted cumulative sums and non-null observation counts."""
 
-    def __init__(self, df: pd.DataFrame, key: str, date_col: str,
-                 sum_cols: Sequence[str]):
+    def __init__(
+        self,
+        frame: pd.DataFrame,
+        key: str,
+        date_col: str,
+        sum_cols: Sequence[str],
+    ) -> None:
         self.sum_cols = list(sum_cols)
         self.data: dict = {}
-        if df is None or df.empty:
+        if frame is None or frame.empty:
             return
-        df = df.dropna(subset=[key, date_col]).sort_values([key, date_col])
-        for k, g in df.groupby(key, sort=False):
-            dates = g[date_col].to_numpy(dtype="datetime64[ns]")
-            cums = {}
-            for c in self.sum_cols:
-                v = pd.to_numeric(g[c], errors="coerce").fillna(0.0).to_numpy()
-                cums[c] = np.concatenate([[0.0], np.cumsum(v)])
-            # count of non-null observations per col (for "did we have data")
-            cnts = {}
-            for c in self.sum_cols:
-                nn = (~pd.to_numeric(g[c], errors="coerce").isna()).astype(float).to_numpy()
-                cnts[c] = np.concatenate([[0.0], np.cumsum(nn)])
-            self.data[k] = (dates, cums, cnts)
 
-    def window(self, key, as_of: np.datetime64, days: Optional[int] = None,
-               last_n: Optional[int] = None) -> Optional[Dict[str, float]]:
-        """Sums + row count for rows with date < as_of (and >= as_of-days,
-        or the last_n rows). None when the key has no prior rows."""
+        clean = frame.dropna(subset=[key, date_col]).sort_values([key, date_col])
+        for group_key, group in clean.groupby(key, sort=False):
+            dates = group[date_col].to_numpy(dtype="datetime64[ns]")
+            sums: dict[str, np.ndarray] = {}
+            counts: dict[str, np.ndarray] = {}
+            for column in self.sum_cols:
+                numeric = pd.to_numeric(group[column], errors="coerce")
+                sums[column] = np.concatenate(
+                    [[0.0], np.cumsum(numeric.fillna(0.0).to_numpy(dtype=float))]
+                )
+                counts[column] = np.concatenate(
+                    [[0.0], np.cumsum(numeric.notna().to_numpy(dtype=float))]
+                )
+            self.data[group_key] = (dates, sums, counts)
+
+    def window(
+        self,
+        key: object,
+        as_of: np.datetime64,
+        days: Optional[int] = None,
+        last_n: Optional[int] = None,
+    ) -> Optional[Dict[str, float]]:
+        """Aggregate rows strictly before ``as_of`` inside the requested window."""
         entry = self.data.get(key)
         if entry is None:
             return None
-        dates, cums, cnts = entry
-        hi = int(np.searchsorted(dates, as_of, side="left"))  # strictly before
-        if hi == 0:
+        dates, sums, counts = entry
+        high = int(np.searchsorted(dates, as_of, side="left"))
+        if high == 0:
             return None
         if days is not None:
-            lo_date = as_of - np.timedelta64(days, "D")
-            lo = int(np.searchsorted(dates, lo_date, side="left"))
+            low_date = as_of - np.timedelta64(days, "D")
+            low = int(np.searchsorted(dates, low_date, side="left"))
         elif last_n is not None:
-            lo = max(0, hi - last_n)
+            low = max(0, high - last_n)
         else:
-            lo = 0
-        if hi <= lo:
+            low = 0
+        if high <= low:
             return None
-        out = {c: cums[c][hi] - cums[c][lo] for c in self.sum_cols}
-        out["_rows"] = float(hi - lo)
-        for c in self.sum_cols:
-            out[f"_n_{c}"] = cnts[c][hi] - cnts[c][lo]
-        return out
+
+        result = {
+            column: float(sums[column][high] - sums[column][low])
+            for column in self.sum_cols
+        }
+        result["_rows"] = float(high - low)
+        for column in self.sum_cols:
+            result[f"_n_{column}"] = float(
+                counts[column][high] - counts[column][low]
+            )
+        return result
 
 
-def _ratio(w: Optional[dict], num: str, den: str, scale: float = 1.0) -> float:
-    if w is None:
+def _ratio(
+    window: Optional[dict],
+    numerator: str,
+    denominator: str,
+    scale: float = 1.0,
+) -> float:
+    if window is None:
         return NAN
-    d = w.get(den, 0.0)
-    if not d:
+    denominator_value = window.get(denominator, 0.0)
+    if not denominator_value:
         return NAN
-    return scale * w[num] / d
+    return float(scale * window[numerator] / denominator_value)
 
 
-def _per_row(w: Optional[dict], col: str) -> float:
-    if w is None or not w.get("_rows"):
+def _per_observation(window: Optional[dict], column: str) -> float:
+    """Mean over observed values only; null rows never enter the denominator."""
+    if window is None:
         return NAN
-    if w.get(f"_n_{col}", 0.0) == 0.0:
-        return NAN  # rows existed but this column was never observed
-    return w[col] / w["_rows"]
+    observed = float(window.get(f"_n_{column}", 0.0))
+    if observed <= 0:
+        return NAN
+    return float(window[column] / observed)
 
 
-def _count(w: Optional[dict]) -> float:
-    return NAN if w is None else w.get("_rows", NAN)
+def _count(window: Optional[dict], column: Optional[str] = None) -> float:
+    if window is None:
+        return NAN
+    if column is None:
+        return float(window.get("_rows", NAN))
+    return float(window.get(f"_n_{column}", NAN))
 
 
-def _family_missing(f: Dict[str, float], prefix: str) -> float:
-    vals = [v for k, v in f.items()
-            if k.startswith(prefix) and not k.endswith("_missing")]
-    if not vals:
-        return 1.0
-    return 1.0 if all(isinstance(v, float) and np.isnan(v) for v in vals) else 0.0
+def _family_missing(features: Dict[str, float], prefix: str) -> float:
+    values = [
+        value
+        for name, value in features.items()
+        if name.startswith(prefix) and not name.endswith("_missing")
+    ]
+    return 1.0 if not values or all(_missing(value) for value in values) else 0.0
 
 
 class FeatureBuilder:
-    """Bulk-load raw tables once, then answer per-game feature vectors."""
+    """Bulk-load source frames once, then build chronological game features."""
 
-    def __init__(self, sf: Optional[SnowflakeLoader] = None,
-                 raw_frames: Optional[Dict[str, pd.DataFrame]] = None):
-        """raw_frames lets tests (and the DuckDB export) inject data directly;
-        otherwise frames are bulk-queried from Snowflake at prepare()."""
+    def __init__(
+        self,
+        sf: Optional[SnowflakeLoader] = None,
+        raw_frames: Optional[Dict[str, pd.DataFrame]] = None,
+    ) -> None:
         self.sf = sf
         self._frames = raw_frames
         self._prepared = False
 
-    # ------------------------------------------------------------ loading
-
     def _bulk(self, query: str, params: list) -> pd.DataFrame:
-        rows = self.sf.execute_query(query, params)
-        return pd.DataFrame(rows)
+        if self.sf is None:
+            raise RuntimeError("Snowflake loader is required when raw_frames are absent")
+        return pd.DataFrame(self.sf.execute_query(query, params))
 
     def prepare(self, max_date: str) -> None:
-        """One bulk query per raw table (7 total). max_date bounds the pull;
-        per-game leakage is enforced by the < as_of window, not here."""
+        """Load each source once; per-game leakage is blocked inside ``window``."""
         if self._frames is None:
-            p = [max_date]
+            params = [max_date]
             self._frames = {
                 "pitcher_games": self._bulk(
                     "SELECT pitcher_id, game_date, earned_runs, runs_allowed, hits, walks, "
                     "strikeouts, innings_pitched, opponent_team "
-                    "FROM NRFI_DB.RAW.PITCHER_GAME_LOGS WHERE game_date < %s", p),
+                    "FROM NRFI_DB.RAW.PITCHER_GAME_LOGS WHERE game_date < %s",
+                    params,
+                ),
                 "pitcher_fi": self._bulk(
                     "SELECT pitcher_id, game_date, first_inning_runs, first_inning_hits, "
                     "first_inning_walks FROM NRFI_DB.RAW.PITCHER_INNING_LOGS "
-                    "WHERE inning = 1 AND game_date < %s", p),
+                    "WHERE inning = 1 AND game_date < %s",
+                    params,
+                ),
                 "statcast_pitcher": self._bulk(
                     "SELECT pitcher_id, game_date, exit_velocity_sum, barrels, hard_hits, "
-                    "whiffs, swings, batted_balls FROM NRFI_DB.RAW.STATCAST_PITCHER_DAILY "
-                    "WHERE game_date < %s", p),
+                    "whiffs, swings, batted_balls "
+                    "FROM NRFI_DB.RAW.STATCAST_PITCHER_DAILY WHERE game_date < %s",
+                    params,
+                ),
                 "team_games": self._bulk(
                     "SELECT team, game_date, runs, hits, at_bats, total_bases, "
                     "times_on_base, plate_appearances, woba_num, woba_den "
-                    "FROM NRFI_DB.RAW.TEAM_GAME_LOGS WHERE game_date < %s", p),
+                    "FROM NRFI_DB.RAW.TEAM_GAME_LOGS WHERE game_date < %s",
+                    params,
+                ),
                 "team_fi": self._bulk(
                     "SELECT team, game_date, first_inning_runs "
-                    "FROM NRFI_DB.RAW.TEAM_INNING_LOGS WHERE inning = 1 AND game_date < %s", p),
+                    "FROM NRFI_DB.RAW.TEAM_INNING_LOGS "
+                    "WHERE inning = 1 AND game_date < %s",
+                    params,
+                ),
                 "batters": self._bulk(
                     "SELECT batter_id, game_date, woba_num, woba_den, times_on_base, "
                     "plate_appearances FROM NRFI_DB.RAW.BATTER_GAME_LOGS "
-                    "WHERE game_date < %s", p),
+                    "WHERE game_date < %s",
+                    params,
+                ),
                 "parks": self._bulk(
                     "SELECT venue_id, runs_factor, hr_factor, hits_factor "
-                    "FROM NRFI_DB.RAW.PARK_FACTORS", []),
+                    "FROM NRFI_DB.RAW.PARK_FACTORS",
+                    [],
+                ),
             }
 
-        fr = self._frames
-        for name in ("pitcher_games", "pitcher_fi", "statcast_pitcher",
-                     "team_games", "team_fi", "batters"):
-            df = fr.get(name)
-            if df is not None and not df.empty:
-                df["game_date"] = pd.to_datetime(df["game_date"])
+        frames = self._frames
+        for name in (
+            "pitcher_games",
+            "pitcher_fi",
+            "statcast_pitcher",
+            "team_games",
+            "team_fi",
+            "batters",
+        ):
+            frame = frames.get(name)
+            if frame is not None and not frame.empty:
+                frame["game_date"] = pd.to_datetime(frame["game_date"], errors="raise")
 
-        self.pg = _Cum(fr.get("pitcher_games"), "pitcher_id", "game_date",
-                       ["earned_runs", "runs_allowed", "hits", "walks",
-                        "strikeouts", "innings_pitched"])
-        self.pfi = _Cum(fr.get("pitcher_fi"), "pitcher_id", "game_date",
-                        ["first_inning_runs", "first_inning_hits", "first_inning_walks"])
-        # NRFI indicator preserves missing outcomes as NaN rather than false.
-        pfi_df = fr.get("pitcher_fi")
-        if pfi_df is not None and not pfi_df.empty:
-            pfi_df = pfi_df.copy()
-            pfi_runs = pd.to_numeric(
-                pfi_df["first_inning_runs"], errors="coerce")
-            pfi_df["fi_zero"] = np.where(
-                pfi_runs.isna(), np.nan, (pfi_runs == 0).astype(float))
-            self.pfi_nrfi = _Cum(pfi_df, "pitcher_id", "game_date", ["fi_zero"])
+        self.pg = _Cum(
+            frames.get("pitcher_games"),
+            "pitcher_id",
+            "game_date",
+            ["earned_runs", "runs_allowed", "hits", "walks", "strikeouts", "innings_pitched"],
+        )
+        self.pfi = _Cum(
+            frames.get("pitcher_fi"),
+            "pitcher_id",
+            "game_date",
+            ["first_inning_runs", "first_inning_hits", "first_inning_walks"],
+        )
+
+        pitcher_fi = frames.get("pitcher_fi")
+        if pitcher_fi is not None and not pitcher_fi.empty:
+            pitcher_fi = pitcher_fi.copy()
+            runs = pd.to_numeric(pitcher_fi["first_inning_runs"], errors="coerce")
+            pitcher_fi["fi_zero"] = np.where(
+                runs.isna(), np.nan, (runs == 0).astype(float)
+            )
+            self.pfi_nrfi = _Cum(
+                pitcher_fi, "pitcher_id", "game_date", ["fi_zero"]
+            )
         else:
-            self.pfi_nrfi = _Cum(pd.DataFrame(), "pitcher_id", "game_date", ["fi_zero"])
-        self.scp = _Cum(fr.get("statcast_pitcher"), "pitcher_id", "game_date",
-                        ["exit_velocity_sum", "barrels", "hard_hits",
-                         "whiffs", "swings", "batted_balls"])
-        self.tg = _Cum(fr.get("team_games"), "team", "game_date",
-                       ["runs", "hits", "at_bats", "total_bases", "times_on_base",
-                        "plate_appearances", "woba_num", "woba_den"])
-        tfi_df = fr.get("team_fi")
-        if tfi_df is not None and not tfi_df.empty:
-            tfi_df = tfi_df.copy()
-            tfi_runs = pd.to_numeric(
-                tfi_df["first_inning_runs"], errors="coerce")
-            tfi_df["fi_scored"] = np.where(
-                tfi_runs.isna(), np.nan, (tfi_runs > 0).astype(float))
-            self.tfi = _Cum(tfi_df, "team", "game_date",
-                            ["first_inning_runs", "fi_scored"])
+            self.pfi_nrfi = _Cum(
+                pd.DataFrame(), "pitcher_id", "game_date", ["fi_zero"]
+            )
+
+        self.scp = _Cum(
+            frames.get("statcast_pitcher"),
+            "pitcher_id",
+            "game_date",
+            ["exit_velocity_sum", "barrels", "hard_hits", "whiffs", "swings", "batted_balls"],
+        )
+        self.tg = _Cum(
+            frames.get("team_games"),
+            "team",
+            "game_date",
+            ["runs", "hits", "at_bats", "total_bases", "times_on_base", "plate_appearances", "woba_num", "woba_den"],
+        )
+
+        team_fi = frames.get("team_fi")
+        if team_fi is not None and not team_fi.empty:
+            team_fi = team_fi.copy()
+            runs = pd.to_numeric(team_fi["first_inning_runs"], errors="coerce")
+            team_fi["fi_scored"] = np.where(
+                runs.isna(), np.nan, (runs > 0).astype(float)
+            )
+            self.tfi = _Cum(
+                team_fi, "team", "game_date", ["first_inning_runs", "fi_scored"]
+            )
         else:
-            self.tfi = _Cum(pd.DataFrame(), "team", "game_date",
-                            ["first_inning_runs", "fi_scored"])
-        self.bat = _Cum(fr.get("batters"), "batter_id", "game_date",
-                        ["woba_num", "woba_den", "times_on_base", "plate_appearances"])
-        parks = fr.get("parks")
-        self.parks = ({} if parks is None or parks.empty else
-                      parks.set_index("venue_id").to_dict("index"))
+            self.tfi = _Cum(
+                pd.DataFrame(), "team", "game_date", ["first_inning_runs", "fi_scored"]
+            )
+
+        self.bat = _Cum(
+            frames.get("batters"),
+            "batter_id",
+            "game_date",
+            ["woba_num", "woba_den", "times_on_base", "plate_appearances"],
+        )
+        parks = frames.get("parks")
+        self.parks = (
+            {}
+            if parks is None or parks.empty
+            else parks.set_index("venue_id").to_dict("index")
+        )
         self._prepared = True
 
-    # ------------------------------------------------------------ features
-
     def build_game(self, game: Dict) -> Dict[str, float]:
-        assert self._prepared, "call prepare(max_date) first"
-        as_of = np.datetime64(pd.to_datetime(game["game_date"]))
-        f: Dict[str, float] = {}
-        for side, pid_key, team_key, opp_key in (
-            ("away", "away_pitcher_id", "away_team", "home_team"),
-            ("home", "home_pitcher_id", "home_team", "away_team"),
+        if not self._prepared:
+            raise RuntimeError("call prepare(max_date) first")
+        as_of = np.datetime64(pd.to_datetime(game["game_date"], errors="raise"))
+        features: Dict[str, float] = {}
+        for side, pitcher_key, team_key in (
+            ("away", "away_pitcher_id", "away_team"),
+            ("home", "home_pitcher_id", "home_team"),
         ):
-            f.update(self._pitcher(game.get(pid_key), side, as_of))
-            f.update(self._team(game.get(team_key), side, as_of))
-        f.update(self._park(game.get("venue_id")))
-        f.update(self._weather(game))
-        f.update(self._lineups(game.get("lineups"), as_of))
-        d = pd.to_datetime(game["game_date"])
-        f["season"] = float(d.year)
-        f["season_week"] = float(int(d.strftime("%V")))
-        f["is_doubleheader"] = 1.0 if game.get("is_doubleheader") else 0.0
-        return f
+            features.update(self._pitcher(game.get(pitcher_key), side, as_of))
+            features.update(self._team(game.get(team_key), side, as_of))
+        features.update(self._park(game.get("venue_id")))
+        features.update(self._weather(game))
+        features.update(self._lineups(game.get("lineups"), as_of))
+        game_date = pd.to_datetime(game["game_date"], errors="raise")
+        features["season"] = float(game_date.year)
+        features["season_week"] = float(int(game_date.strftime("%V")))
+        features["is_doubleheader"] = 1.0 if game.get("is_doubleheader") else 0.0
+        return features
 
     def build_games(self, games: List[Dict]) -> Dict[str, Dict[str, float]]:
-        return {str(g["game_id"]): self.build_game(g) for g in games}
+        return {str(game["game_id"]): self.build_game(game) for game in games}
 
-    def _pitcher(self, pid, side: str, as_of) -> Dict[str, float]:
-        f: Dict[str, float] = {}
-        if pid is None:
-            f[f"{side}_p_missing"] = 1.0
-            return f
-        career = self.pg.window(pid, as_of)
-        f[f"{side}_p_career_era"] = _ratio(career, "earned_runs", "innings_pitched", 9.0)
-        f[f"{side}_p_career_whip"] = (
-            NAN if career is None else
-            _ratio({"hw": career["hits"] + career["walks"],
-                    "ip": career["innings_pitched"]}, "hw", "ip"))
-        f[f"{side}_p_career_k9"] = _ratio(career, "strikeouts", "innings_pitched", 9.0)
-        f[f"{side}_p_career_bb9"] = _ratio(career, "walks", "innings_pitched", 9.0)
-        f[f"{side}_p_career_ip"] = NAN if career is None else career["innings_pitched"]
+    def _pitcher(self, pitcher_id: object, side: str, as_of: np.datetime64) -> Dict[str, float]:
+        features: Dict[str, float] = {}
+        if _missing(pitcher_id):
+            features[f"{side}_p_missing"] = 1.0
+            return features
 
-        # trailing 30 GS (spec window)
-        g30 = self.pg.window(pid, as_of, last_n=PITCHER_GS_WINDOW)
-        f[f"{side}_p_30gs_era"] = _ratio(g30, "earned_runs", "innings_pitched", 9.0)
-        f[f"{side}_p_30gs_k9"] = _ratio(g30, "strikeouts", "innings_pitched", 9.0)
+        career = self.pg.window(pitcher_id, as_of)
+        features[f"{side}_p_career_era"] = _ratio(career, "earned_runs", "innings_pitched", 9.0)
+        features[f"{side}_p_career_whip"] = (
+            NAN
+            if career is None
+            else _ratio(
+                {"hw": career["hits"] + career["walks"], "ip": career["innings_pitched"]},
+                "hw",
+                "ip",
+            )
+        )
+        features[f"{side}_p_career_k9"] = _ratio(career, "strikeouts", "innings_pitched", 9.0)
+        features[f"{side}_p_career_bb9"] = _ratio(career, "walks", "innings_pitched", 9.0)
+        features[f"{side}_p_career_ip"] = NAN if career is None else float(career["innings_pitched"])
 
-        fi = self.pfi.window(pid, as_of)
-        f[f"{side}_p_fi_ra9"] = _ratio(fi, "first_inning_runs", "_rows", 9.0)
-        f[f"{side}_p_fi_whip"] = (
-            NAN if fi is None else
-            (fi["first_inning_hits"] + fi["first_inning_walks"]) / fi["_rows"])
-        f[f"{side}_p_fi_runs_rate"] = _per_row(fi, "first_inning_runs")
-        fi_nrfi = self.pfi_nrfi.window(pid, as_of)
-        f[f"{side}_p_fi_nrfi_rate"] = _per_row(fi_nrfi, "fi_zero")
-        f[f"{side}_p_fi_games"] = _count(fi)
+        recent_starts = self.pg.window(pitcher_id, as_of, last_n=PITCHER_GS_WINDOW)
+        features[f"{side}_p_30gs_era"] = _ratio(recent_starts, "earned_runs", "innings_pitched", 9.0)
+        features[f"{side}_p_30gs_k9"] = _ratio(recent_starts, "strikeouts", "innings_pitched", 9.0)
+
+        first_inning = self.pfi.window(pitcher_id, as_of)
+        features[f"{side}_p_fi_ra9"] = _per_observation(first_inning, "first_inning_runs") * 9.0
+        features[f"{side}_p_fi_whip"] = (
+            NAN
+            if first_inning is None
+            or first_inning.get("_n_first_inning_hits", 0.0) <= 0
+            or first_inning.get("_n_first_inning_walks", 0.0) <= 0
+            else float(
+                (first_inning["first_inning_hits"] + first_inning["first_inning_walks"])
+                / min(
+                    first_inning["_n_first_inning_hits"],
+                    first_inning["_n_first_inning_walks"],
+                )
+            )
+        )
+        features[f"{side}_p_fi_runs_rate"] = _per_observation(first_inning, "first_inning_runs")
+        first_inning_nrfi = self.pfi_nrfi.window(pitcher_id, as_of)
+        features[f"{side}_p_fi_nrfi_rate"] = _per_observation(first_inning_nrfi, "fi_zero")
+        features[f"{side}_p_fi_games"] = _count(first_inning, "first_inning_runs")
 
         for days in PITCHER_DAY_WINDOWS:
-            w = self.pg.window(pid, as_of, days=days)
-            f[f"{side}_p_{days}d_era"] = _ratio(w, "earned_runs", "innings_pitched", 9.0)
-            f[f"{side}_p_{days}d_whip"] = (
-                NAN if w is None else
-                _ratio({"hw": w["hits"] + w["walks"],
-                        "ip": w["innings_pitched"]}, "hw", "ip"))
-            f[f"{side}_p_{days}d_starts"] = _count(w)
+            window = self.pg.window(pitcher_id, as_of, days=days)
+            features[f"{side}_p_{days}d_era"] = _ratio(window, "earned_runs", "innings_pitched", 9.0)
+            features[f"{side}_p_{days}d_whip"] = (
+                NAN
+                if window is None
+                else _ratio(
+                    {"hw": window["hits"] + window["walks"], "ip": window["innings_pitched"]},
+                    "hw",
+                    "ip",
+                )
+            )
+            features[f"{side}_p_{days}d_starts"] = _count(window)
 
-        # rest days: gap since previous start
-        entry = self.pg.data.get(pid)
-        if entry is not None:
-            dates = entry[0]
-            hi = int(np.searchsorted(dates, as_of, side="left"))
-            f[f"{side}_p_rest_days"] = (
-                float((as_of - dates[hi - 1]) / np.timedelta64(1, "D"))
-                if hi > 0 else NAN)
+        entry = self.pg.data.get(pitcher_id)
+        if entry is None:
+            features[f"{side}_p_rest_days"] = NAN
         else:
-            f[f"{side}_p_rest_days"] = NAN
+            dates = entry[0]
+            high = int(np.searchsorted(dates, as_of, side="left"))
+            features[f"{side}_p_rest_days"] = (
+                float((as_of - dates[high - 1]) / np.timedelta64(1, "D"))
+                if high > 0
+                else NAN
+            )
 
-        sc = self.scp.window(pid, as_of, days=30)
-        f[f"{side}_p_avg_exit_velo"] = _ratio(sc, "exit_velocity_sum", "batted_balls")
-        f[f"{side}_p_barrel_pct"] = _ratio(sc, "barrels", "batted_balls", 100.0)
-        f[f"{side}_p_hard_hit_pct"] = _ratio(sc, "hard_hits", "batted_balls", 100.0)
-        f[f"{side}_p_whiff_pct"] = _ratio(sc, "whiffs", "swings", 100.0)
+        statcast = self.scp.window(pitcher_id, as_of, days=30)
+        features[f"{side}_p_avg_exit_velo"] = _ratio(statcast, "exit_velocity_sum", "batted_balls")
+        features[f"{side}_p_barrel_pct"] = _ratio(statcast, "barrels", "batted_balls", 100.0)
+        features[f"{side}_p_hard_hit_pct"] = _ratio(statcast, "hard_hits", "batted_balls", 100.0)
+        features[f"{side}_p_whiff_pct"] = _ratio(statcast, "whiffs", "swings", 100.0)
+        features[f"{side}_p_missing"] = _family_missing(features, f"{side}_p_")
+        return features
 
-        f[f"{side}_p_missing"] = _family_missing(f, f"{side}_p_")
-        return f
+    def _team(self, team: object, side: str, as_of: np.datetime64) -> Dict[str, float]:
+        features: Dict[str, float] = {}
+        if _missing(team) or not str(team):
+            features[f"{side}_t_missing"] = 1.0
+            return features
 
-    def _team(self, team, side: str, as_of) -> Dict[str, float]:
-        f: Dict[str, float] = {}
-        if not team:
-            f[f"{side}_t_missing"] = 1.0
-            return f
         season = self.tg.window(team, as_of, days=365)
-        f[f"{side}_t_season_avg"] = _ratio(season, "hits", "at_bats")
-        f[f"{side}_t_season_obp"] = _ratio(season, "times_on_base", "plate_appearances")
-        f[f"{side}_t_season_slg"] = _ratio(season, "total_bases", "at_bats")
-        f[f"{side}_t_season_woba"] = _ratio(season, "woba_num", "woba_den")
-        f[f"{side}_t_season_rpg"] = _per_row(season, "runs")
+        features[f"{side}_t_season_avg"] = _ratio(season, "hits", "at_bats")
+        features[f"{side}_t_season_obp"] = _ratio(season, "times_on_base", "plate_appearances")
+        features[f"{side}_t_season_slg"] = _ratio(season, "total_bases", "at_bats")
+        features[f"{side}_t_season_woba"] = _ratio(season, "woba_num", "woba_den")
+        features[f"{side}_t_season_rpg"] = _per_observation(season, "runs")
 
-        fi = self.tfi.window(team, as_of, days=365)
-        f[f"{side}_t_fi_rpg"] = _per_row(fi, "first_inning_runs")
-        f[f"{side}_t_fi_scoring_pct"] = _per_row(fi, "fi_scored")
+        first_inning = self.tfi.window(team, as_of, days=365)
+        features[f"{side}_t_fi_rpg"] = _per_observation(first_inning, "first_inning_runs")
+        features[f"{side}_t_fi_scoring_pct"] = _per_observation(first_inning, "fi_scored")
 
         for days in TEAM_DAY_WINDOWS:
-            w = self.tg.window(team, as_of, days=days)
-            f[f"{side}_t_{days}d_rpg"] = _per_row(w, "runs")
-            f[f"{side}_t_{days}d_woba"] = _ratio(w, "woba_num", "woba_den")
-        f[f"{side}_t_missing"] = _family_missing(f, f"{side}_t_")
-        return f
+            window = self.tg.window(team, as_of, days=days)
+            features[f"{side}_t_{days}d_rpg"] = _per_observation(window, "runs")
+            features[f"{side}_t_{days}d_woba"] = _ratio(window, "woba_num", "woba_den")
+        features[f"{side}_t_missing"] = _family_missing(features, f"{side}_t_")
+        return features
 
-    def _park(self, venue_id) -> Dict[str, float]:
-        row = self.parks.get(venue_id) if venue_id is not None else None
-        f = {
+    def _park(self, venue_id: object) -> Dict[str, float]:
+        row = None if _missing(venue_id) else self.parks.get(venue_id)
+        features = {
             "park_runs_factor": NAN if row is None else float(row.get("runs_factor", NAN)),
             "park_hr_factor": NAN if row is None else float(row.get("hr_factor", NAN)),
             "park_hits_factor": NAN if row is None else float(row.get("hits_factor", NAN)),
         }
-        f["park_missing"] = _family_missing(f, "park_")
-        return f
+        features["park_missing"] = _family_missing(features, "park_")
+        return features
 
     @staticmethod
     def _weather(game: Dict) -> Dict[str, float]:
-        w = game.get("weather") or {}
-        is_dome = bool(game.get("is_dome", False))
+        weather = game.get("weather") or {}
+        dome = bool(game.get("is_dome", False))
 
-        def num(v):
+        def number(value: object) -> float:
             try:
-                return float(v) if v is not None else NAN
+                return float(value) if value is not None else NAN
             except (TypeError, ValueError):
                 return NAN
 
-        f = {
-            "temp_f": num(w.get("temperature")),
-            "wind_speed": num(w.get("wind_speed")),
-            "humidity": num(w.get("humidity")),
-            "is_dome": 1.0 if is_dome else 0.0,
+        features = {
+            "temp_f": number(weather.get("temperature")),
+            "wind_speed": number(weather.get("wind_speed")),
+            "humidity": number(weather.get("humidity")),
+            "is_dome": 1.0 if dome else 0.0,
         }
-        wd, cf = w.get("wind_dir_deg"), game.get("cf_azimuth_deg")
-        if wd is not None and cf is not None and not np.isnan(f["wind_speed"]):
-            f["wind_out_component"] = f["wind_speed"] * float(
-                np.cos(np.radians(float(wd) - float(cf))))
+        wind_direction = weather.get("wind_dir_deg")
+        center_field = game.get("cf_azimuth_deg")
+        if (
+            wind_direction is not None
+            and center_field is not None
+            and not _missing(features["wind_speed"])
+        ):
+            features["wind_out_component"] = features["wind_speed"] * float(
+                np.cos(np.radians(float(wind_direction) - float(center_field)))
+            )
         else:
-            f["wind_out_component"] = NAN
-        if is_dome:
-            f["weather_missing"] = 0.0
-        else:
-            f["weather_missing"] = (
-                1.0 if any(np.isnan(v) for v in (f["temp_f"], f["wind_speed"]))
-                else 0.0)
-        return f
+            features["wind_out_component"] = NAN
+        features["weather_missing"] = (
+            0.0
+            if dome
+            else 1.0
+            if _missing(features["temp_f"]) or _missing(features["wind_speed"])
+            else 0.0
+        )
+        return features
 
-    def _lineups(self, lineups, as_of) -> Dict[str, float]:
-        f: Dict[str, float] = {}
+    def _lineups(self, lineups: object, as_of: np.datetime64) -> Dict[str, float]:
+        features: Dict[str, float] = {}
+        lineup_map = lineups if isinstance(lineups, dict) else {}
         for side in ("away", "home"):
-            batters = (lineups or {}).get(side) or []
-            wobas, obps = [], []
-            for b in batters[:3]:
-                w = self.bat.window(b, as_of, days=30)
-                if w is not None:
-                    wobas.append(_ratio(w, "woba_num", "woba_den"))
-                    obps.append(_ratio(w, "times_on_base", "plate_appearances"))
-            if len(wobas) == 3 and not any(np.isnan(v) for v in wobas):
-                f[f"{side}_lineup_top3_woba"] = float(np.mean(wobas))
-                f[f"{side}_lineup_top3_obp"] = float(np.mean(obps))
-                f[f"{side}_lineup_missing"] = 0.0
-            else:
-                f[f"{side}_lineup_top3_woba"] = NAN
-                f[f"{side}_lineup_top3_obp"] = NAN
-                f[f"{side}_lineup_missing"] = 1.0
-        return f
+            batters = lineup_map.get(side) or []
+            wobas: list[float] = []
+            obps: list[float] = []
+            for batter_id in batters[:3]:
+                window = self.bat.window(batter_id, as_of, days=30)
+                if window is not None:
+                    wobas.append(_ratio(window, "woba_num", "woba_den"))
+                    obps.append(_ratio(window, "times_on_base", "plate_appearances"))
+            valid = (
+                len(wobas) == 3
+                and len(obps) == 3
+                and not any(_missing(value) for value in wobas + obps)
+            )
+            features[f"{side}_lineup_top3_woba"] = float(np.mean(wobas)) if valid else NAN
+            features[f"{side}_lineup_top3_obp"] = float(np.mean(obps)) if valid else NAN
+            features[f"{side}_lineup_missing"] = 0.0 if valid else 1.0
+        return features
 
-    # ------------------------------------------------------------ persist
-
-    def persist(self, games: List[Dict], feature_version: str = FEATURE_VERSION) -> int:
-        """Backfill/append FEATURES.GAME_FEATURES (f stored as JSON text)."""
+    def persist(
+        self,
+        games: List[Dict],
+        feature_version: str = FEATURE_VERSION,
+    ) -> int:
+        """Upsert versioned JSON feature rows into Snowflake."""
         rows = []
-        now = datetime.now(timezone.utc).isoformat()
-        for g in games:
-            f = self.build_game(g)
-            miss = sum(1 for k, v in f.items()
-                       if not k.endswith("_missing")
-                       and isinstance(v, float) and np.isnan(v))
-            rows.append({
-                "game_id": str(g["game_id"]),
-                "feature_version": feature_version,
-                "computed_at": now,
-                "as_of": pd.to_datetime(g["game_date"]).isoformat(),
-                "f": json.dumps({k: (None if isinstance(v, float) and np.isnan(v) else v)
-                                 for k, v in f.items()}),
-                "missing_ct": miss,
-                "coverage": coverage(f),
-            })
+        computed_at = datetime.now(timezone.utc).isoformat()
+        for game in games:
+            features = self.build_game(game)
+            serializable = {
+                name: None if _missing(value) else float(value)
+                for name, value in features.items()
+            }
+            rows.append(
+                {
+                    "game_id": str(game["game_id"]),
+                    "feature_version": feature_version,
+                    "computed_at": computed_at,
+                    "as_of": pd.to_datetime(game["game_date"], errors="raise").isoformat(),
+                    "f": json.dumps(serializable),
+                    "missing_ct": sum(value is None for value in serializable.values()),
+                    "coverage": coverage(features),
+                }
+            )
         if self.sf is not None and rows:
-            self.sf.merge_upsert("NRFI_DB.FEATURES.GAME_FEATURES", rows,
-                                 key_cols=["game_id", "feature_version"])
+            self.sf.merge_upsert(
+                "NRFI_DB.FEATURES.GAME_FEATURES",
+                rows,
+                key_cols=["game_id", "feature_version"],
+            )
         return len(rows)
