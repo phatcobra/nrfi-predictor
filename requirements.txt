@@ -2,11 +2,12 @@
 pybaseball>=2.2.5
 pandas>=2.0.0
 numpy>=1.24.0
+pyarrow>=15.0.0
 requests>=2.31.0
 sqlalchemy>=2.0.0
 MLB-StatsAPI>=1.6.0
 
-# Warehouse (was missing entirely; imports failed in prod)
+# Warehouse
 snowflake-connector-python>=3.6.0
 snowflake-sqlalchemy>=1.5.0
 
@@ -16,11 +17,11 @@ scikit-learn>=1.3.0
 shap>=0.43.0
 joblib>=1.3.0
 
-# API / serving (single FastAPI app; Flask/Mangum/Streamlit removed)
+# API / serving
 fastapi>=0.104.0
 uvicorn[standard]>=0.24.0
 
-# Observability (was imported but never declared)
+# Observability
 sentry-sdk>=1.39.0
 loguru>=0.7.0
 
