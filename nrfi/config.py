@@ -100,8 +100,9 @@ if not TEST_SEASONS:
 if max(TRAIN_SEASONS + VAL_SEASONS) >= min(TEST_SEASONS):
     raise RuntimeError("training/validation seasons overlap the locked holdout")
 
-TRAIN_START_DATE = f"{min(TRAIN_SEASONS)}-03-01"
-TRAIN_END_DATE = f"{max(VAL_SEASONS)}-12-31"
+# Use actual regular/postseason coverage rather than impossible offseason dates.
+TRAIN_START_DATE = f"{min(TRAIN_SEASONS)}-04-01"
+TRAIN_END_DATE = f"{max(VAL_SEASONS)}-11-30"
 HOLDOUT_START_DATE = f"{min(TEST_SEASONS)}-03-01"
 HOLDOUT_END_DATE = f"{max(TEST_SEASONS)}-11-30"
 CALIBRATION_METHOD = "isotonic_oof"
@@ -123,7 +124,6 @@ ALLOWED_ORIGINS = [
 # -- Automation ---------------------------------------------------------------
 DAILY_PREDICTION_CRON = "0 6 * * *"
 NIGHTLY_GRADING_CRON = "5 0 * * *"
-WEEKLY_RETRAIN_CRON = "0 2 * * 1"
 
 
 class Config:
