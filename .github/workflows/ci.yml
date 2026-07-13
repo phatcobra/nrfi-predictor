@@ -15,28 +15,25 @@ jobs:
           python-version: "3.11"
           cache: pip
       - name: Install declared dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+        run: pip install --disable-pip-version-check -q -r requirements.txt
       - name: Byte-compile package
         run: python -m py_compile nrfi/*.py scripts/*.py
-      - name: Import and package integrity
-        run: pytest tests/test_static_integrity.py -q
-      - name: No-fabrication redlines
-        run: pytest tests/test_no_fabricated_defaults.py -q
-      - name: Feature ratio-of-sums
-        run: pytest tests/test_feature_builder.py::test_ratio_of_sums_not_avg_of_ratios -q
-      - name: Feature strict chronology
-        run: pytest tests/test_feature_builder.py::test_leakage_strictly_before_as_of -q
-      - name: Feature missing-value contract
-        run: pytest tests/test_feature_builder.py::test_missing_is_nan_and_flagged_never_default -q
-      - name: Feature rest and trailing windows
-        run: pytest tests/test_feature_builder.py::test_rest_days_and_windows -q
-      - name: Feature coverage math
-        run: pytest tests/test_feature_builder.py::test_coverage_math -q
-      - name: Feature park and team aggregates
-        run: pytest tests/test_feature_builder.py::test_park_and_team_features -q
-      - name: Ensemble, calibration, and persistence
-        run: pytest tests/test_ensemble.py -q
-      - name: Game-day fail-closed simulation
-        run: pytest tests/test_gameday_simulation.py -q
+      - name: Run complete offline release gate
+        id: pytest
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -o pipefail
+          pytest tests/ -q 2>&1 | tee pytest.log
+          echo "exit_code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
+      - name: Upload pytest diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pytest-diagnostics-${{ github.sha }}
+          path: pytest.log
+          if-no-files-found: error
+          retention-days: 14
+      - name: Enforce offline release gate
+        if: steps.pytest.outputs.exit_code != '0'
+        run: exit 1
