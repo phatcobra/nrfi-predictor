@@ -1,8 +1,4 @@
-"""Training orchestration: feature builder -> gated stack -> calibration -> registry.
-
-Training is strictly bounded before the locked holdout. Failed candidates may be
-registered for audit but cannot be persisted as loadable model bundles.
-"""
+"""Train, calibrate, persist, and register a fail-closed NRFI candidate."""
 from __future__ import annotations
 
 import json
@@ -18,6 +14,7 @@ import pandas as pd
 from nrfi._obs import sentry_sdk
 from nrfi.build_features import FeatureBuilder, coverage
 from nrfi.config import CV_PURGE_DAYS, Config
+from nrfi.data_readiness import require_warehouse_ready
 from nrfi.ensemble import StackedEnsemble
 from nrfi.snowflake_loader import SnowflakeLoader
 from nrfi.venn_abers import VennAbersCalibrator
@@ -41,11 +38,9 @@ class NFRIModelTrainer:
         self.venue_yrfi_rates: Dict[str, float] = {}
         self.feature_names: List[str] = []
 
-    # ------------------------------------------------------------- data
-
     def load_training_data(self, start_date: str, end_date: str,
                            allow_holdout: bool = False) -> pd.DataFrame:
-        """Load labeled games, refusing holdout overlap by default."""
+        """Load labels while refusing holdout overlap unless explicitly evaluating it."""
         start = pd.Timestamp(start_date)
         end = pd.Timestamp(end_date)
         if start > end:
@@ -78,7 +73,8 @@ class NFRIModelTrainer:
         frame["game_date"] = pd.to_datetime(frame["game_date"], errors="raise")
         duplicate_ids = frame["game_id"].astype(str).duplicated(keep=False)
         if duplicate_ids.any():
-            examples = frame.loc[duplicate_ids, "game_id"].astype(str).head(5).tolist()
+            examples = frame.loc[
+                duplicate_ids, "game_id"].astype(str).head(5).tolist()
             raise ValueError(f"duplicate game_id rows in labels: {examples}")
         frame = frame.sort_values(["game_date", "game_id"]).reset_index(drop=True)
         logger.info(f"loaded {len(frame)} labeled games {start_date}..{end_date}")
@@ -94,7 +90,8 @@ class NFRIModelTrainer:
         games_df = games_df.copy()
         games_df["game_date"] = pd.to_datetime(
             games_df["game_date"], errors="raise")
-        games_df = games_df.sort_values(["game_date", "game_id"]).reset_index(drop=True)
+        games_df = games_df.sort_values(
+            ["game_date", "game_id"]).reset_index(drop=True)
 
         builder = builder or FeatureBuilder(self.sf)
         builder.prepare(max_date=games_df["game_date"].max().date().isoformat())
@@ -116,40 +113,41 @@ class NFRIModelTrainer:
                 continue
             label = int(game["yrfi"])
             if label not in (0, 1):
-                raise ValueError(f"invalid YRFI label {label} for game {game['game_id']}")
+                raise ValueError(
+                    f"invalid YRFI label {label} for game {game['game_id']}")
             feature_dicts.append(features)
             labels.append(label)
             dates.append(pd.Timestamp(game["game_date"]))
             kept_rows.append(game)
 
         if not feature_dicts:
-            raise ValueError("all games were dropped by feature construction/coverage gates")
-        self.feature_names = sorted({name for values in feature_dicts for name in values})
+            raise ValueError(
+                "all games were dropped by feature construction/coverage gates")
+        self.feature_names = sorted({
+            name for values in feature_dicts for name in values})
         if not self.feature_names:
             raise ValueError("feature builder returned no feature columns")
 
-        X = np.array([
+        matrix = np.array([
             [values.get(name, np.nan) for name in self.feature_names]
             for values in feature_dicts
         ], dtype=float)
-        y = np.asarray(labels, dtype=int)
+        targets = np.asarray(labels, dtype=int)
         date_series = pd.Series(dates).reset_index(drop=True)
         kept = pd.DataFrame(kept_rows).reset_index(drop=True)
-
-        if len(np.unique(y)) < 2:
+        if len(np.unique(targets)) < 2:
             raise ValueError("prepared training set contains only one target class")
         if not date_series.is_monotonic_increasing:
             raise ValueError("prepared training dates are not chronological")
         logger.info(
-            f"{X.shape[0]}x{X.shape[1]} (dropped {dropped} low-coverage); "
-            f"YRFI rate {y.mean():.3f}")
-        return X, y, date_series, kept
-
-    # ---------------------------------------------------------- training
+            f"{matrix.shape[0]}x{matrix.shape[1]} "
+            f"(dropped {dropped} low-coverage); YRFI rate {targets.mean():.3f}")
+        return matrix, targets, date_series, kept
 
     def train(self, X: np.ndarray, y: np.ndarray, dates: pd.Series,
               kept_games: pd.DataFrame) -> Dict:
-        dates = pd.Series(pd.to_datetime(dates, errors="raise")).reset_index(drop=True)
+        dates = pd.Series(pd.to_datetime(
+            dates, errors="raise")).reset_index(drop=True)
         if dates.empty:
             raise ValueError("training dates are empty")
         if dates.max() > pd.Timestamp(self.config.TRAIN_END_DATE):
@@ -161,7 +159,6 @@ class NFRIModelTrainer:
 
         self.ensemble = StackedEnsemble(purge_days=CV_PURGE_DAYS)
         report = self.ensemble.fit(X, y, dates, self.feature_names)
-
         mask = self.ensemble._oof_mask
         if mask.sum() < 50:
             raise ValueError("insufficient OOF rows for probability calibration")
@@ -169,8 +166,8 @@ class NFRIModelTrainer:
             self.ensemble._oof_scores[mask], y[mask])
 
         venue_frame = kept_games.assign(yrfi=np.asarray(y, dtype=int))
-        venue_rates = venue_frame.groupby("venue_id", dropna=True)["yrfi"].agg(
-            ["mean", "count"])
+        venue_rates = venue_frame.groupby(
+            "venue_id", dropna=True)["yrfi"].agg(["mean", "count"])
         self.venue_yrfi_rates = {
             str(venue_id): float(values["mean"])
             for venue_id, values in venue_rates.iterrows()
@@ -186,7 +183,6 @@ class NFRIModelTrainer:
         return report
 
     def predict_proba(self, X: np.ndarray) -> np.ndarray:
-        """Return calibrated P(YRFI); venue shrinkage is applied by caller."""
         if self.ensemble is None or self.calibrator is None:
             raise RuntimeError("model not loaded - refusing to guess")
         probabilities = np.asarray(
@@ -196,8 +192,6 @@ class NFRIModelTrainer:
         if np.any((probabilities < 0.0) | (probabilities > 1.0)):
             raise ValueError("model emitted probabilities outside [0, 1]")
         return probabilities
-
-    # ----------------------------------------------------------- persist
 
     def save_model(self, model_dir: str, version: str | None = None,
                    metrics: Dict | None = None) -> str:
@@ -256,10 +250,17 @@ class NFRIModelTrainer:
 
     def register_model(self, version: str, metrics: Dict,
                        status: str = "candidate") -> None:
+        training_start = metrics.get("training_start")
+        training_end = metrics.get("training_end")
+        train_range = (
+            f"{training_start}..{training_end}"
+            if training_start and training_end else None
+        )
         self.sf.merge_upsert("NRFI_DB.ML.MODEL_STATUS", [{
             "model_version": version,
             "trained_at": datetime.now(timezone.utc).isoformat(),
             "feature_version": "fv3.1",
+            "train_range": train_range,
             "cv_logloss": metrics.get("stack", {}).get("logloss"),
             "cv_brier": metrics.get("stack", {}).get("brier"),
             "gates_passed": metrics.get("gates_passed"),
@@ -270,10 +271,15 @@ class NFRIModelTrainer:
 
 def main() -> None:
     trainer = NFRIModelTrainer()
+    readiness = require_warehouse_ready(trainer.sf)
+    logger.info(
+        f"warehouse ready for {readiness['training_window']['start']}.."
+        f"{readiness['training_window']['end']}")
     games = trainer.load_training_data(
         trainer.config.TRAIN_START_DATE, trainer.config.TRAIN_END_DATE)
     X, y, dates, kept = trainer.prepare_features(games)
     report = trainer.train(X, y, dates, kept)
+    report["warehouse_readiness"] = readiness
     version = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
     if not report.get("gates_passed"):
         trainer.register_model(version, report, status="rejected")
