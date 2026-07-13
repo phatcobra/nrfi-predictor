@@ -3,6 +3,7 @@ on:
   push:
     branches: [phase1-data-foundation]
     paths: [.github/workflows/apply-build-feature-null-fix.yml]
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -35,7 +36,9 @@ jobs:
                   tfi_runs.isna(), np.nan, (tfi_runs > 0).astype(float))'''
           if text.count(old_pitcher) != 1 or text.count(old_team) != 1:
               raise SystemExit('exact null-indicator patch precondition failed')
-          path.write_text(text.replace(old_pitcher, new_pitcher).replace(old_team, new_team))
+          path.write_text(
+              text.replace(old_pitcher, new_pitcher).replace(old_team, new_team)
+          )
           PY
           git diff --check
       - name: Commit patch
