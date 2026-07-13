@@ -24,8 +24,18 @@ jobs:
         run: pytest tests/test_static_integrity.py -q
       - name: No-fabrication redlines
         run: pytest tests/test_no_fabricated_defaults.py -q
-      - name: Feature chronology and coverage
-        run: pytest tests/test_feature_builder.py -q
+      - name: Feature ratio-of-sums
+        run: pytest tests/test_feature_builder.py::test_ratio_of_sums_not_avg_of_ratios -q
+      - name: Feature strict chronology
+        run: pytest tests/test_feature_builder.py::test_leakage_strictly_before_as_of -q
+      - name: Feature missing-value contract
+        run: pytest tests/test_feature_builder.py::test_missing_is_nan_and_flagged_never_default -q
+      - name: Feature rest and trailing windows
+        run: pytest tests/test_feature_builder.py::test_rest_days_and_windows -q
+      - name: Feature coverage math
+        run: pytest tests/test_feature_builder.py::test_coverage_math -q
+      - name: Feature park and team aggregates
+        run: pytest tests/test_feature_builder.py::test_park_and_team_features -q
       - name: Ensemble, calibration, and persistence
         run: pytest tests/test_ensemble.py -q
       - name: Game-day fail-closed simulation
