@@ -1,0 +1,50 @@
+name: apply-build-feature-null-fix
+on:
+  push:
+    branches: [phase1-data-foundation]
+    paths: [.github/workflows/apply-build-feature-null-fix.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: phase1-data-foundation
+      - name: Preserve null first-inning indicators
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('nrfi/build_features.py')
+          text = path.read_text()
+          old_pitcher = '''            pfi_df["fi_zero"] = (pd.to_numeric(
+                  pfi_df["first_inning_runs"], errors="coerce") == 0).astype(float)'''
+          new_pitcher = '''            pfi_runs = pd.to_numeric(
+                  pfi_df["first_inning_runs"], errors="coerce")
+              pfi_df["fi_zero"] = np.where(
+                  pfi_runs.isna(), np.nan, (pfi_runs == 0).astype(float))'''
+          old_team = '''            tfi_df["fi_scored"] = (pd.to_numeric(
+                  tfi_df["first_inning_runs"], errors="coerce") > 0).astype(float)'''
+          new_team = '''            tfi_runs = pd.to_numeric(
+                  tfi_df["first_inning_runs"], errors="coerce")
+              tfi_df["fi_scored"] = np.where(
+                  tfi_runs.isna(), np.nan, (tfi_runs > 0).astype(float))'''
+          if text.count(old_pitcher) != 1 or text.count(old_team) != 1:
+              raise SystemExit('exact null-indicator patch precondition failed')
+          path.write_text(
+              text.replace(old_pitcher, new_pitcher).replace(old_team, new_team)
+          )
+          PY
+          git diff --check
+      - name: Commit patch
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add nrfi/build_features.py
+          git commit -m "Preserve missing first-inning indicators as NaN"
+          git push origin HEAD:phase1-data-foundation
