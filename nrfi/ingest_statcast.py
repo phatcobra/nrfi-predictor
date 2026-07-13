@@ -23,7 +23,7 @@ except ImportError:
     pb = None
     logger.warning("pybaseball not installed; Statcast ingestion disabled.")
 
-from src.config import DATABASE_URL, STATCAST_START_YEAR
+from nrfi.config import DATABASE_URL, STATCAST_START_YEAR
 
 _ENGINE = create_engine(DATABASE_URL, echo=False)
 

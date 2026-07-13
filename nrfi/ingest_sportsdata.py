@@ -24,7 +24,7 @@ from loguru import logger
 from sqlalchemy import create_engine, text
 from tenacity import retry, stop_after_attempt, wait_exponential
 
-from src.config import (
+from nrfi.config import (
     DATABASE_URL,
     SDIO_API_KEY,
     SDIO_BASE_URL,
