@@ -13,9 +13,25 @@ from pathlib import Path
 PKG = Path(__file__).resolve().parents[1] / "nrfi"
 
 
+def _module_scope_nodes(body):
+    """Module body plus try/except/if branches (shim modules define names
+    inside try/except ImportError)."""
+    for node in body:
+        yield node
+        if isinstance(node, ast.Try):
+            yield from _module_scope_nodes(node.body)
+            for h in node.handlers:
+                yield from _module_scope_nodes(h.body)
+            yield from _module_scope_nodes(node.orelse)
+            yield from _module_scope_nodes(node.finalbody)
+        elif isinstance(node, ast.If):
+            yield from _module_scope_nodes(node.body)
+            yield from _module_scope_nodes(node.orelse)
+
+
 def _toplevel_names(tree: ast.Module) -> set[str]:
     names: set[str] = set()
-    for node in tree.body:
+    for node in _module_scope_nodes(tree.body):
         if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
             names.add(node.name)
         elif isinstance(node, ast.Assign):

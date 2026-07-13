@@ -1,0 +1,91 @@
+# Render blueprint: one web service + the autonomous cycles (ET schedules).
+# HUMAN: set the env vars in the Render dashboard (values from AWS Secrets
+# Manager); this file intentionally contains no secret values.
+# NOTE: Render cron uses UTC; ET 06:00 = 10:00/11:00 UTC depending on DST.
+# Schedules below use UTC for EDT (summer). Adjust at DST changes or move
+# to a TZ-aware scheduler later.
+
+services:
+  - type: web
+    name: nrfi-api
+    runtime: python
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn nrfi.api:app --host 0.0.0.0 --port $PORT
+    envVars: &envs
+      - key: SNOWFLAKE_ACCOUNT
+        sync: false
+      - key: SNOWFLAKE_USER
+        sync: false
+      - key: SNOWFLAKE_PASSWORD
+        sync: false
+      - key: SNOWFLAKE_DATABASE
+        sync: false
+      - key: SNOWFLAKE_WAREHOUSE
+        sync: false
+      - key: SNOWFLAKE_ROLE
+        sync: false
+      - key: SDIO_API_KEY
+        sync: false
+      - key: OPTIC_API_KEY
+        sync: false
+      - key: OPTIC_FI_TOTAL_MARKET_ID
+        sync: false
+      - key: API_BEARER_TOKEN
+        sync: false
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: SENTRY_DSN
+        sync: false
+      - key: GH_TOKEN
+        sync: false
+      - key: GITHUB_REPO
+        value: phatcobra/nrfi-predictor
+
+  - type: cron
+    name: nrfi-ingest-morning
+    runtime: python
+    schedule: "30 9 * * *"          # 05:30 ET (EDT)
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m nrfi.ingest_sportsdata
+    envVars: *envs
+
+  - type: cron
+    name: nrfi-predict-daily
+    runtime: python
+    schedule: "0 10 * * *"          # 06:00 ET
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m nrfi.predict_daily
+    envVars: *envs
+
+  - type: cron
+    name: nrfi-refresh-odds
+    runtime: python
+    schedule: "*/10 14-4 * * *"     # every 10 min through game hours (UTC)
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m nrfi.ingest_opticodds
+    envVars: *envs
+
+  - type: cron
+    name: nrfi-grade-nightly
+    runtime: python
+    schedule: "5 4 * * *"           # 00:05 ET
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m nrfi.grade_nightly
+    envVars: *envs
+
+  - type: cron
+    name: nrfi-retrain-weekly
+    runtime: python
+    schedule: "0 6 * * 1"           # Mon 02:00 ET -> PR for human merge
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m nrfi.retrain_weekly
+    envVars: *envs
+
+  - type: cron
+    name: nrfi-audit-monthly
+    runtime: python
+    schedule: "0 7 1 * *"           # 1st, 03:00 ET
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m nrfi.audit_monthly
+    envVars: *envs

@@ -18,12 +18,13 @@ import os
 import time
 from datetime import datetime
 
-import sentry_sdk
+from nrfi._obs import sentry_sdk
 from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from nrfi.config import ALLOWED_ORIGINS, API_BEARER_TOKEN, TZ_ET
+from nrfi.guards import data_health, display_fields
 from nrfi.snowflake_loader import SnowflakeLoader
 
 logger = logging.getLogger(__name__)
@@ -195,6 +196,138 @@ async def trigger_predict(date: str | None = Query(None)):
         raise HTTPException(status_code=500, detail="job failed")
     return {"status": "done", "scored": len(rows),
             "timestamp": datetime.now(TZ_ET).isoformat()}
+
+
+# ============================== v3 (display contract) =======================
+# FIRSTFRAME renders: "NRFI x% / Market y% / Edge +-z%"; "Locks" filter =
+# edge_pct >= 5 AND tier = HIGH (display-only diagnostics, not betting
+# advice); header dot = meta.data_health. Null => UNAVAILABLE,
+# status BLOCKED => BLOCKED. No pick/staking fields exist.
+
+@app.get("/v3/predictions")
+async def v3_predictions(date: str | None = Query(None)):
+    date = _validate_date(date) if date else datetime.now(TZ_ET).strftime("%Y-%m-%d")
+
+    def q():
+        return sf().execute_query(f"""
+            SELECT {PREDICTION_COLS}
+            FROM NRFI_DB.ML.PREDICTIONS
+            WHERE game_date = %s
+            QUALIFY ROW_NUMBER() OVER (
+                PARTITION BY game_id ORDER BY predicted_at DESC) = 1
+            ORDER BY game_id
+        """, [date])
+
+    try:
+        rows = cached(f"v3:{date}", q)
+    except Exception as e:
+        sentry_sdk.capture_exception(e)
+        raise HTTPException(status_code=500, detail="internal error")
+    games = []
+    for r in rows:
+        games.append({
+            "game_id": r["game_id"], "date": str(r["game_date"]),
+            "away": {"team": r["away_team"], "sp": r["away_pitcher"]},
+            "home": {"team": r["home_team"], "sp": r["home_pitcher"]},
+            "status": r["status"], "block_reason": r["block_reason"],
+            **display_fields(r),
+            "tier": r["tier"], "lineup_confirmed": r["lineup_confirmed"],
+            "odds": {"age_sec": r["odds_age_sec"], "books_n": r["books_n"]},
+            "model_version": r["model_version"],
+            "generated_at": str(r["predicted_at"]),
+        })
+    return {"date": date, "count": len(games), "games": games,
+            "meta": {"data_health": data_health(rows),
+                     "mode": "paper", "display_only": True}}
+
+
+@app.get("/v3/metrics/calibration")
+async def v3_calibration(window_days: int = Query(30, ge=1, le=365)):
+    def q():
+        return sf().execute_query("""
+            SELECT FLOOR(p_yrfi * 10) / 10 AS p_lo,
+                   AVG(p_yrfi) AS p_mean,
+                   AVG(CASE WHEN yrfi_actual THEN 1.0 ELSE 0.0 END) AS yrfi_rate,
+                   COUNT(*) AS n
+            FROM NRFI_DB.ML.PREDICTION_GRADES
+            WHERE graded_at >= DATEADD(day, -%s, CURRENT_TIMESTAMP())
+            GROUP BY 1 ORDER BY 1
+        """, [window_days])
+
+    try:
+        return {"window_days": window_days, "deciles": cached(f"cal:{window_days}", q)}
+    except Exception as e:
+        sentry_sdk.capture_exception(e)
+        raise HTTPException(status_code=500, detail="internal error")
+
+
+@app.get("/v3/metrics/summary")
+async def v3_summary(window_days: int = Query(30, ge=1, le=365)):
+    base = await metrics_summary(window_days)  # reuse interim endpoint
+
+    def readiness():
+        from nrfi.grade_nightly import evidence_readiness
+        return evidence_readiness(sf())
+
+    try:
+        base["evidence_readiness"] = cached("readiness", readiness)
+    except Exception as e:
+        sentry_sdk.capture_exception(e)
+        base["evidence_readiness"] = {"error": "unavailable"}
+    return base
+
+
+@app.get("/v3/health")
+async def v3_health():
+    out = {"snowflake": "ok", "model_registry": "unknown",
+           "newest_prediction_age_s": None, "newest_odds_age_s": None}
+    try:
+        sf().execute_query("SELECT 1 AS ok")
+    except Exception:
+        out["snowflake"] = "down"
+        return {"status": "red", "checks": out}
+    try:
+        prod = sf().execute_query(
+            "SELECT COUNT(*) AS n FROM NRFI_DB.ML.MODEL_STATUS "
+            "WHERE status = 'production'")
+        out["model_registry"] = "ok" if prod and prod[0]["n"] > 0 else "no_production_model"
+        for key, table, col in (
+                ("newest_prediction_age_s", "NRFI_DB.ML.PREDICTIONS", "predicted_at"),
+                ("newest_odds_age_s", "NRFI_DB.CORE.ODDS_SNAPSHOTS", "captured_at")):
+            r = sf().execute_query(
+                f"SELECT TIMESTAMPDIFF(second, MAX({col}), CURRENT_TIMESTAMP()) "
+                f"AS age FROM {table}")
+            out[key] = r[0]["age"] if r else None
+    except Exception as e:
+        sentry_sdk.capture_exception(e)
+    red = out["snowflake"] != "ok" or out["model_registry"] == "no_production_model"
+    return {"status": "red" if red else "green", "checks": out}
+
+
+@app.post("/v3/jobs/{job}", dependencies=[Depends(require_token)])
+async def v3_jobs(job: str, date: str | None = Query(None)):
+    if date:
+        _validate_date(date)
+    try:
+        if job == "predict":
+            from nrfi.predict_daily import NFRIDailyPredictor
+            return {"job": job, "scored": len(NFRIDailyPredictor().run(date))}
+        if job == "grade":
+            from nrfi.grade_nightly import grade_date
+            d = date or datetime.now(TZ_ET).strftime("%Y-%m-%d")
+            return {"job": job, "graded": grade_date(sf(), d)}
+        if job == "ingest_odds":
+            from nrfi.ingest_opticodds import ingest_date
+            from datetime import date as _date
+            return {"job": job,
+                    "snapshots": ingest_date(_date.fromisoformat(date) if date else None)}
+    except HTTPException:
+        raise
+    except Exception as e:
+        sentry_sdk.capture_exception(e)
+        logger.error(f"job {job} failed: {e}")
+        raise HTTPException(status_code=500, detail="job failed")
+    raise HTTPException(status_code=404, detail="unknown job")
 
 
 if __name__ == "__main__":

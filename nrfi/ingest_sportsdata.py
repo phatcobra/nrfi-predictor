@@ -20,7 +20,7 @@ from typing import Any
 
 import pandas as pd
 import requests
-from loguru import logger
+from nrfi._obs import logger
 from sqlalchemy import create_engine, text
 from tenacity import retry, stop_after_attempt, wait_exponential
 

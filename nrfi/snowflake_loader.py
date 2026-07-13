@@ -15,10 +15,8 @@ import os
 from typing import Any, Sequence
 
 import pandas as pd
-import sentry_sdk
-from loguru import logger
-from sqlalchemy import create_engine, text
-from snowflake.sqlalchemy import URL
+
+from nrfi._obs import logger, sentry_sdk
 
 from nrfi.config import (
     SNOWFLAKE_ACCOUNT,
@@ -37,6 +35,8 @@ def get_snowflake_engine():
     """Get or create the Snowflake SQLAlchemy engine (lazy singleton)."""
     global _ENGINE
     if _ENGINE is None:
+        from sqlalchemy import create_engine
+        from snowflake.sqlalchemy import URL
         missing = [
             n for n, v in (
                 ("SNOWFLAKE_ACCOUNT", SNOWFLAKE_ACCOUNT),
@@ -68,6 +68,7 @@ def get_snowflake_engine():
 
 def execute_query_df(query: str, params: Sequence[Any] | dict | None = None) -> pd.DataFrame:
     """Execute SQL, return DataFrame with lower-cased column names."""
+    from sqlalchemy import text
     engine = get_snowflake_engine()
     with sentry_sdk.start_span(op="db.query", description=query[:100]):
         df = pd.read_sql(text(query), engine, params=params)
@@ -77,6 +78,7 @@ def execute_query_df(query: str, params: Sequence[Any] | dict | None = None) -> 
 
 def execute_statement(statement: str, params: dict | None = None) -> None:
     """Execute a DDL/DML statement inside a transaction."""
+    from sqlalchemy import text
     engine = get_snowflake_engine()
     with engine.begin() as conn:
         conn.execute(text(statement), params or {})
@@ -136,6 +138,7 @@ class SnowflakeLoader:
         if not records:
             return
         df = pd.DataFrame(records)
+        from sqlalchemy import text
         tmp = f"TMP_{abs(hash(table)) % 10**8}"
         with self.engine.begin() as conn:
             df.to_sql(tmp, conn, if_exists="replace", index=False, method="multi")

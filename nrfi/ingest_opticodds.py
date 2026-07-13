@@ -16,10 +16,7 @@ import hashlib
 import time
 from datetime import date, datetime, timezone
 
-import requests
-import sentry_sdk
-from loguru import logger
-from tenacity import retry, stop_after_attempt, wait_exponential
+from nrfi._obs import logger, sentry_sdk
 
 from nrfi.config import (
     NRFI_SPORTSBOOKS,
@@ -55,8 +52,18 @@ def _require_config() -> None:
         )
 
 
-@retry(stop=stop_after_attempt(4), wait=wait_exponential(min=2, max=20))
 def _get(endpoint: str, params: list[tuple[str, str]]) -> dict:
+    import requests
+    from tenacity import retry, stop_after_attempt, wait_exponential
+
+    @retry(stop=stop_after_attempt(4), wait=wait_exponential(min=2, max=20))
+    def _go():
+        return _do_get(endpoint, params)
+    return _go()
+
+
+def _do_get(endpoint: str, params: list[tuple[str, str]]) -> dict:
+    import requests
     url = f"{OPTIC_BASE_URL}/{endpoint}"
     with sentry_sdk.start_span(op="http", description=f"OpticOdds {endpoint}"):
         resp = requests.get(url, headers={"x-api-key": OPTIC_API_KEY},

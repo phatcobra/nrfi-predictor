@@ -21,18 +21,11 @@ from datetime import datetime, timezone
 from typing import Dict, List, Optional
 
 import numpy as np
-import sentry_sdk
-import statsapi
-
-from nrfi.config import (
-    Config,
-    FEATURE_COVERAGE_MIN,
-    HIGH_TIER_COVERAGE_MIN,
-    MIN_BOOKS_FOR_MARKET,
-    ODDS_MAX_AGE_SECONDS,
-    TZ_ET,
-)
-from nrfi.features import NFRIFeatureEngineer
+from nrfi._obs import sentry_sdk
+from nrfi.config import Config, MIN_BOOKS_FOR_MARKET, TZ_ET
+from nrfi.guards import coverage_blocks, market_usable, tier_for
+from nrfi.build_features import FeatureBuilder, coverage
+from nrfi.ensemble import n_eff_for_game, shrink_to_venue
 from nrfi.ingest_opticodds import OpticOddsIngester
 from nrfi.snowflake_loader import SnowflakeLoader
 from nrfi.train import NFRIModelTrainer
@@ -52,7 +45,7 @@ class NFRIDailyPredictor:
                  config: Optional[Config] = None):
         self.config = config or Config()
         self.sf = SnowflakeLoader()
-        self.feature_engineer = NFRIFeatureEngineer(self.sf)
+        self.builder = FeatureBuilder(self.sf)
         self.odds = OpticOddsIngester()
         self.trainer = NFRIModelTrainer()
         self.model_version = model_version or self._latest_model_version()
@@ -70,6 +63,7 @@ class NFRIDailyPredictor:
 
     def get_todays_games(self, target_date: Optional[str] = None) -> List[Dict]:
         """Schedule + probable pitchers from the MLB Stats API (ET dates)."""
+        import statsapi  # lazy: not needed for offline scoring tests
         target_date = target_date or datetime.now(TZ_ET).strftime("%Y-%m-%d")
         schedule = statsapi.schedule(date=target_date)
         games = []
@@ -147,44 +141,38 @@ class NFRIDailyPredictor:
 
         # ---- features (exception or low coverage => BLOCKED)
         try:
-            feats = self.feature_engineer.generate_game_features(game)
+            feats = self.builder.build_game(game)
         except Exception as e:
             sentry_sdk.capture_exception(e)
             row.update(status="BLOCKED", block_reason=f"feature_error:{type(e).__name__}")
             return row
-        coverage = NFRIFeatureEngineer.coverage(feats)
-        if coverage < FEATURE_COVERAGE_MIN:
-            row.update(status="BLOCKED",
-                       block_reason=f"coverage_{coverage:.2f}_below_{FEATURE_COVERAGE_MIN}")
+        cov = coverage(feats)
+        block = coverage_blocks(cov)
+        if block:
+            row.update(status="BLOCKED", block_reason=block)
             return row
 
         X = np.array([[feats.get(n, np.nan) for n in self.trainer.feature_names]],
                      dtype=float)
-        row["p_yrfi"] = float(self.trainer.predict_proba(X)[0])
+        p_cal = float(self.trainer.predict_proba(X)[0])
+        venue_rate = self.trainer.venue_yrfi_rates.get(str(game.get("venue_id")))
+        row["p_yrfi"] = shrink_to_venue(p_cal, venue_rate,
+                                        n_eff_for_game(feats, cov))
 
         # ---- market (stale/missing => DEGRADED, edge stays null)
         m = self.market_consensus(
             odds_by_matchup.get((game["home_team"], game["away_team"])), now_utc)
         row.update(books_n=m["books_n"], odds_age_sec=m["odds_age_sec"])
-        fresh = m["odds_age_sec"] is not None and m["odds_age_sec"] <= ODDS_MAX_AGE_SECONDS
-        if m["p_yrfi_market"] is None:
-            row.update(status="DEGRADED", block_reason="no_market_consensus")
-        elif not fresh:
-            row.update(status="DEGRADED",
-                       block_reason=f"odds_stale_{m['odds_age_sec']}s")
-        else:
+        usable, reason = market_usable(m["p_yrfi_market"], m["books_n"],
+                                       m["odds_age_sec"])
+        if usable:
             row["p_yrfi_market"] = m["p_yrfi_market"]
             row["edge"] = row["p_yrfi"] - m["p_yrfi_market"]  # diagnostic only
-
-        # ---- tier (unconfirmed lineup caps at MEDIUM)
-        if (row["status"] == "OK" and row["lineup_confirmed"]
-                and coverage >= HIGH_TIER_COVERAGE_MIN
-                and m["books_n"] >= MIN_BOOKS_FOR_MARKET):
-            row["tier"] = "HIGH"
-        elif row["status"] == "OK":
-            row["tier"] = "MEDIUM"
         else:
-            row["tier"] = "LOW"
+            row.update(status="DEGRADED", block_reason=reason)
+
+        row["tier"] = tier_for(row["status"], row["lineup_confirmed"], cov,
+                               m["books_n"])
         return row
 
     def run(self, target_date: Optional[str] = None) -> List[Dict]:
@@ -194,6 +182,7 @@ class NFRIDailyPredictor:
             logger.warning("no games scheduled")
             return []
         date_str = games[0]["game_date"]
+        self.builder.prepare(max_date=date_str)  # bulk pull once, leakage-safe
         odds_by_matchup = self.odds.get_nrfi_odds(date_str)
 
         rows = [self.score_game(g, odds_by_matchup, now_utc) for g in games]

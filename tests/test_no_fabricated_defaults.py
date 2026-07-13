@@ -34,8 +34,8 @@ def test_no_fabricated_defaults():
 
 
 def test_feature_missing_is_nan_not_default():
-    """features.py must define NaN as the missing value and never import
-    numpy-random."""
-    text = (PKG / "features.py").read_text()
+    """build_features.py must define NaN as the missing value and never
+    import numpy-random."""
+    text = (PKG / "build_features.py").read_text()
     assert 'NAN = float("nan")' in text
     assert "np.random" not in text

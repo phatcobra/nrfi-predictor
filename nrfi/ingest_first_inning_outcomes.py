@@ -14,8 +14,6 @@ import logging
 import time
 from datetime import date, datetime, timedelta
 
-import statsapi
-
 from nrfi.config import TZ_ET
 from nrfi.snowflake_loader import SnowflakeLoader
 
@@ -27,6 +25,7 @@ FINAL_STATUSES = {"Final", "Game Over", "Completed Early"}
 
 def fetch_day(d: date) -> list[dict]:
     """One row per FINAL game with a first-inning linescore."""
+    import statsapi  # lazy
     rows: list[dict] = []
     sched = statsapi.schedule(date=d.isoformat())
     for g in sched:

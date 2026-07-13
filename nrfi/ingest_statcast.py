@@ -12,7 +12,7 @@ import time
 from datetime import date, timedelta
 
 import pandas as pd
-from loguru import logger
+from nrfi._obs import logger
 from sqlalchemy import create_engine
 from tenacity import retry, stop_after_attempt, wait_exponential
 

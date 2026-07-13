@@ -14,7 +14,8 @@ jobs:
           python-version: "3.11"
       - name: Byte-compile package
         run: python -m py_compile nrfi/*.py scripts/*.py
-      - name: Fabrication + import integrity gates
+      - name: Full offline test suite (fabrication gates, leakage, ensemble,
+              game-day failure simulation)
         run: |
-          pip install pytest
+          pip install pytest numpy pandas scikit-learn lightgbm
           pytest tests/ -q
