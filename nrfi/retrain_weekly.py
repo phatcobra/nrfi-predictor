@@ -1,17 +1,15 @@
-"""Weekly retrain -> gate check -> PR for HUMAN MERGE (never self-deploys).
+"""Weekly retrain -> evidence gates -> candidate PR for human release.
 
-Gate pass: opens a PR containing the model bundle + gate report via the
-GitHub REST API (GH_TOKEN + GITHUB_REPO env). Gate fail: opens an Issue.
-No token configured => artifacts + report land locally/registry and the job
-logs exactly what a human must do. Nothing ever touches 'production' status
-without a human merging the PR and flipping MODEL_STATUS.
+The locked holdout is never included in weekly training. A failed candidate is
+registered as rejected but no loadable bundle is written, preventing serving
+from accidentally selecting a failed retrain as the latest model.
 """
 from __future__ import annotations
 
 import base64
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 
 from nrfi._obs import logger, sentry_sdk
 from nrfi.train import NFRIModelTrainer
@@ -22,112 +20,150 @@ GH_API = "https://api.github.com"
 class GitHubClient:
     def __init__(self) -> None:
         self.token = os.getenv("GH_TOKEN")
-        self.repo = os.getenv("GITHUB_REPO")  # e.g. phatcobra/nrfi-predictor
+        self.repo = os.getenv("GITHUB_REPO")
 
     @property
     def enabled(self) -> bool:
         return bool(self.token and self.repo)
 
-    def _req(self, method: str, path: str, **kw):
+    def _req(self, method: str, path: str, **kwargs):
         import requests
-        r = requests.request(
-            method, f"{GH_API}/repos/{self.repo}{path}",
-            headers={"Authorization": f"Bearer {self.token}",
-                     "Accept": "application/vnd.github+json"},
-            timeout=30, **kw)
-        r.raise_for_status()
-        return r.json()
+
+        response = requests.request(
+            method,
+            f"{GH_API}/repos/{self.repo}{path}",
+            headers={
+                "Authorization": f"Bearer {self.token}",
+                "Accept": "application/vnd.github+json",
+                "X-GitHub-Api-Version": "2022-11-28",
+            },
+            timeout=30,
+            **kwargs,
+        )
+        response.raise_for_status()
+        return response.json()
 
     def open_candidate_pr(self, version: str, files: dict[str, bytes],
                           report_md: str) -> str:
         main_sha = self._req("GET", "/git/ref/heads/main")["object"]["sha"]
         branch = f"retrain/{version}"
-        self._req("POST", "/git/refs",
-                  json={"ref": f"refs/heads/{branch}", "sha": main_sha})
+        self._req("POST", "/git/refs", json={
+            "ref": f"refs/heads/{branch}", "sha": main_sha})
         for path, content in files.items():
             self._req("PUT", f"/contents/{path}", json={
                 "message": f"retrain {version}: {path}",
                 "content": base64.b64encode(content).decode(),
                 "branch": branch,
             })
-        pr = self._req("POST", "/pulls", json={
+        pull_request = self._req("POST", "/pulls", json={
             "title": f"[retrain] candidate model {version} - HUMAN MERGE REQUIRED",
-            "head": branch, "base": "main", "body": report_md,
+            "head": branch,
+            "base": "main",
+            "body": report_md,
         })
-        return pr["html_url"]
+        return pull_request["html_url"]
 
     def open_issue(self, title: str, body: str) -> str:
-        return self._req("POST", "/issues",
-                         json={"title": title, "body": body,
-                               "labels": ["retrain-gate-failed"]})["html_url"]
+        return self._req("POST", "/issues", json={
+            "title": title,
+            "body": body,
+            "labels": ["retrain-gate-failed"],
+        })["html_url"]
 
 
 def gate_report_md(version: str, report: dict) -> str:
+    stack = report.get("stack", {})
+    baseline = report.get("baseline_constant", {})
     lines = [
         f"# Retrain candidate `{version}`",
         "",
-        "**Merge = deploy on next release. A human must review this gate "
-        "report before merging.** Paper-mode redlines apply: this model "
-        "emits probabilities and diagnostic edge only.",
+        "**Human release review required.** This artifact emits calibrated "
+        "probabilities and diagnostic market comparisons only.",
+        "",
+        "## Evidence boundaries",
+        f"- training_start: `{report.get('training_start')}`",
+        f"- training_end: `{report.get('training_end')}`",
+        f"- locked_holdout_start: `{report.get('holdout_start')}`",
+        f"- locked_holdout_end: `{report.get('holdout_end')}`",
         "",
         "## Gate results",
         f"- gates_passed: **{report.get('gates_passed')}**",
-        f"- stack OOF log loss: {report.get('stack', {}).get('logloss'):.5f} "
-        f"(constant baseline {report.get('baseline_constant', {}).get('logloss'):.5f})",
-        f"- stack OOF Brier: {report.get('stack', {}).get('brier'):.5f}",
+        f"- stack OOF log loss: {stack.get('logloss')}",
+        f"- constant baseline log loss: {baseline.get('logloss')}",
+        f"- stack OOF Brier: {stack.get('brier')}",
         "",
         "## Members",
     ]
-    for name, m in report.get("members", {}).items():
-        lines.append(f"- {name}: logloss {m['logloss']:.5f}, brier {m['brier']:.5f} "
-                     f"(n={m['n']})")
+    for name, metrics in report.get("members", {}).items():
+        lines.append(
+            f"- {name}: logloss {metrics['logloss']:.5f}, "
+            f"brier {metrics['brier']:.5f} (n={metrics['n']})")
     if report.get("ablation"):
         lines.append("\n## Ablation gate")
-        for name, a in report["ablation"].items():
-            verdict = "SHIPPED" if a["passes_gate"] else "rejected"
-            lines.append(f"- {name}: delta logloss {a['delta']:+.5f} -> {verdict}")
-    lines.append("\n## Not in this PR\n- 2025 holdout: run "
-                 "`python scripts/evaluate_holdout.py --version "
-                 f"{version}` ONCE at release.")
+        for name, ablation in report["ablation"].items():
+            verdict = "SHIPPED" if ablation["passes_gate"] else "rejected"
+            lines.append(
+                f"- {name}: delta logloss {ablation['delta']:+.5f} -> {verdict}")
+    lines.extend([
+        "",
+        "## Release holdout",
+        "Run the locked holdout evaluator once for this exact candidate before "
+        "changing its registry status to production.",
+    ])
     return "\n".join(lines)
 
 
 def main() -> None:
     trainer = NFRIModelTrainer()
-    games = trainer.load_training_data("2015-04-01",
-                                       datetime.now().strftime("%Y-%m-%d"))
+    games = trainer.load_training_data(
+        trainer.config.TRAIN_START_DATE, trainer.config.TRAIN_END_DATE)
     X, y, dates, kept = trainer.prepare_features(games)
     report = trainer.train(X, y, dates, kept)
-    version = trainer.save_model(trainer.config.MODEL_DIR, metrics=report)
-    trainer.register_model(version, report, status="candidate")
-    md = gate_report_md(version, report)
+    report.update({
+        "training_start": trainer.config.TRAIN_START_DATE,
+        "training_end": trainer.config.TRAIN_END_DATE,
+        "holdout_start": trainer.config.HOLDOUT_START_DATE,
+        "holdout_end": trainer.config.HOLDOUT_END_DATE,
+    })
+    version = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+    markdown = gate_report_md(version, report)
+    github = GitHubClient()
 
-    gh = GitHubClient()
     if not report.get("gates_passed"):
-        logger.error(f"gate FAILED for {version}; production model untouched")
-        if gh.enabled:
-            gh.open_issue(f"[retrain] gate failed for {version}", md)
+        trainer.register_model(version, report, status="rejected")
+        logger.error(f"gate FAILED for {version}; no model bundle was written")
+        if github.enabled:
+            github.open_issue(f"[retrain] gate failed for {version}", markdown)
+        else:
+            print(markdown)
         return
 
-    if gh.enabled:
+    trainer.save_model(trainer.config.MODEL_DIR, version=version, metrics=report)
+    trainer.register_model(version, report, status="candidate")
+
+    if github.enabled:
         model_dir = trainer.config.MODEL_DIR
-        files = {}
-        for name in (f"nrfi_bundle_{version}.joblib", f"nrfi_meta_{version}.json"):
-            with open(os.path.join(model_dir, name), "rb") as fh:
-                files[f"models/{name}"] = fh.read()
-        files[f"models/gate_report_{version}.md"] = md.encode()
+        files: dict[str, bytes] = {}
+        for name in (
+            f"nrfi_bundle_{version}.joblib",
+            f"nrfi_meta_{version}.json",
+        ):
+            with open(os.path.join(model_dir, name), "rb") as file_handle:
+                files[f"models/{name}"] = file_handle.read()
+        files[f"models/gate_report_{version}.md"] = markdown.encode()
         try:
-            url = gh.open_candidate_pr(version, files, md)
-            logger.info(f"candidate PR opened (human merge required): {url}")
-        except Exception as e:
-            sentry_sdk.capture_exception(e)
-            logger.error(f"PR creation failed: {e}; candidate stays local + registry")
+            url = github.open_candidate_pr(version, files, markdown)
+            logger.info(f"candidate PR opened: {url}")
+        except Exception as exc:
+            sentry_sdk.capture_exception(exc)
+            logger.error(
+                f"candidate PR creation failed: {exc}; artifact remains candidate")
     else:
         logger.warning(
-            "GH_TOKEN/GITHUB_REPO not set. Candidate saved locally + registered "
-            f"as 'candidate'. HUMAN: commit models/nrfi_bundle_{version}.joblib "
-            "+ meta + this gate report on a branch and open the PR yourself.")
-        print(md)
+            "GH_TOKEN/GITHUB_REPO not set. Candidate saved and registered, but "
+            "cannot be released until the bundle, metadata, and gate report are "
+            "reviewed and merged manually.")
+        print(markdown)
 
 
 if __name__ == "__main__":
