@@ -26,6 +26,8 @@ def odds_fresh(odds_age_sec: Optional[int]) -> bool:
 def market_usable(p_market: Optional[float], books_n: int,
                   odds_age_sec: Optional[int]) -> tuple[bool, Optional[str]]:
     """Return market usability and one stable machine-readable reason."""
+    if p_market is None and books_n == 0 and odds_age_sec is None:
+        return False, "no_market_consensus"
     if odds_age_sec is None:
         return False, "odds_age_unknown"
     if odds_age_sec < 0:
