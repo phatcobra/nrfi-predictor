@@ -1,13 +1,14 @@
 """Daily NRFI/YRFI scoring in paper mode with fail-closed behavior.
 
-Only the registry-approved production artifact may score games. Missing or
-stale market data hides market fields without inventing values; missing model
-inputs block the game entirely.
+Only the registry-approved production artifact may score games. Probable
+pitcher IDs are resolved from each MLB game feed. Market consensus includes
+only books whose own snapshot passes freshness and value validation.
 """
 from __future__ import annotations
 
 import json
 import logging
+import math
 import os
 import statistics
 from datetime import datetime, timezone
@@ -17,7 +18,12 @@ import numpy as np
 
 from nrfi._obs import sentry_sdk
 from nrfi.build_features import FeatureBuilder, coverage
-from nrfi.config import Config, MIN_BOOKS_FOR_MARKET, TZ_ET
+from nrfi.config import (
+    Config,
+    MIN_BOOKS_FOR_MARKET,
+    ODDS_MAX_AGE_SECONDS,
+    TZ_ET,
+)
 from nrfi.ensemble import n_eff_for_game, shrink_to_venue
 from nrfi.guards import coverage_blocks, market_usable, tier_for
 from nrfi.ingest_opticodds import OpticOddsIngester
@@ -50,6 +56,18 @@ def _as_utc(value: object) -> datetime:
     return parsed.astimezone(timezone.utc)
 
 
+def _person(probable: object) -> tuple[int | None, str | None]:
+    if not isinstance(probable, dict):
+        return None, None
+    identifier = probable.get("id")
+    try:
+        identifier = int(identifier) if identifier is not None else None
+    except (TypeError, ValueError):
+        identifier = None
+    name = probable.get("fullName") or probable.get("name")
+    return identifier, str(name) if name else None
+
+
 class NFRIDailyPredictor:
     def __init__(self, model_version: Optional[str] = None,
                  config: Optional[Config] = None):
@@ -65,31 +83,60 @@ class NFRIDailyPredictor:
         self.odds = OpticOddsIngester()
         self.trainer = NFRIModelTrainer()
         self.trainer.load_model(self.config.MODEL_DIR, self.model_version)
-        logger.info(f"loaded registry-approved production model {self.model_version}")
+        logger.info(
+            f"loaded registry-approved production model {self.model_version}")
 
     def get_todays_games(self, target_date: Optional[str] = None) -> List[Dict]:
-        """Read the target slate and probable pitchers from MLB Stats API."""
+        """Read the slate and probable pitcher identities from MLB game feeds."""
         import statsapi
 
         target_date = target_date or datetime.now(TZ_ET).strftime("%Y-%m-%d")
         schedule = statsapi.schedule(date=target_date)
         games = []
-        for game in schedule:
-            game_id = game.get("game_id")
+        for scheduled in schedule:
+            game_id = scheduled.get("game_id")
             if game_id is None:
                 continue
+            try:
+                feed = statsapi.get("game", {"gamePk": game_id})
+                game_data = feed.get("gameData", {})
+                probables = game_data.get("probablePitchers", {}) or {}
+                home_pitcher_id, home_pitcher_name = _person(
+                    probables.get("home"))
+                away_pitcher_id, away_pitcher_name = _person(
+                    probables.get("away"))
+                venue_value = (game_data.get("venue", {}) or {}).get("id")
+                try:
+                    venue_id = int(venue_value) if venue_value is not None else None
+                except (TypeError, ValueError):
+                    venue_id = None
+            except Exception as exc:
+                sentry_sdk.capture_exception(exc)
+                logger.error(
+                    f"game feed failed for {game_id}: {exc}; pitcher IDs unavailable")
+                home_pitcher_id = away_pitcher_id = venue_id = None
+                home_pitcher_name = away_pitcher_name = None
+
             games.append({
                 "game_id": str(game_id),
                 "game_date": target_date,
-                "home_team": game.get("home_name"),
-                "away_team": game.get("away_name"),
-                "home_pitcher_id": game.get("home_probable_pitcher_id") or None,
-                "away_pitcher_id": game.get("away_probable_pitcher_id") or None,
-                "home_pitcher_name": game.get("home_probable_pitcher") or None,
-                "away_pitcher_name": game.get("away_probable_pitcher") or None,
-                "venue_id": game.get("venue_id"),
-                "game_time": game.get("game_datetime"),
-                "is_doubleheader": game.get("doubleheader", "N") != "N",
+                "home_team": scheduled.get("home_name"),
+                "away_team": scheduled.get("away_name"),
+                "home_pitcher_id": home_pitcher_id,
+                "away_pitcher_id": away_pitcher_id,
+                "home_pitcher_name": (
+                    home_pitcher_name
+                    or scheduled.get("home_probable_pitcher")
+                    or None
+                ),
+                "away_pitcher_name": (
+                    away_pitcher_name
+                    or scheduled.get("away_probable_pitcher")
+                    or None
+                ),
+                "venue_id": venue_id,
+                "game_time": scheduled.get("game_datetime"),
+                "is_doubleheader": scheduled.get("doubleheader", "N") != "N",
                 "lineups": None,
                 "lineup_confirmed": False,
             })
@@ -98,7 +145,7 @@ class NFRIDailyPredictor:
 
     @staticmethod
     def market_consensus(entry: Optional[dict], now_utc: datetime) -> Dict:
-        """Median no-vig P(YRFI) across latest valid per-book snapshots."""
+        """Build consensus from independently fresh, valid per-book snapshots."""
         result = {
             "p_yrfi_market": None,
             "books_n": 0,
@@ -108,38 +155,51 @@ class NFRIDailyPredictor:
         if not entry or not entry.get("books"):
             return result
 
-        books = entry["books"]
-        result["books_n"] = len(books)
-        newest = entry.get("newest_captured_at")
-        if newest is not None:
-            try:
-                captured_at = _as_utc(newest)
-                result["odds_age_sec"] = int(
-                    (_as_utc(now_utc) - captured_at).total_seconds())
-            except (TypeError, ValueError, OverflowError):
-                result["odds_age_sec"] = None
+        now = _as_utc(now_utc)
+        valid_probabilities: list[float] = []
+        valid_nrfi_prices: list[float] = []
+        fresh_ages: list[int] = []
+        all_nonnegative_ages: list[int] = []
 
-        probabilities = []
-        for book in books.values():
+        for book in entry["books"].values():
+            try:
+                captured_at = _as_utc(book.get("captured_at"))
+                age_seconds = int((now - captured_at).total_seconds())
+            except (TypeError, ValueError, OverflowError):
+                continue
+            if age_seconds >= 0:
+                all_nonnegative_ages.append(age_seconds)
+            if age_seconds < 0 or age_seconds > ODDS_MAX_AGE_SECONDS:
+                continue
+
             try:
                 probability = float(book.get("yrfi_prob_novig"))
+                nrfi_price = float(book.get("nrfi_american"))
             except (TypeError, ValueError):
                 continue
-            if np.isfinite(probability) and 0.0 <= probability <= 1.0:
-                probabilities.append(probability)
-        if len(probabilities) >= MIN_BOOKS_FOR_MARKET:
-            result["p_yrfi_market"] = float(statistics.median(probabilities))
+            if (
+                not math.isfinite(probability)
+                or not 0.0 <= probability <= 1.0
+                or not math.isfinite(nrfi_price)
+                or nrfi_price == 0
+            ):
+                continue
+            valid_probabilities.append(probability)
+            valid_nrfi_prices.append(nrfi_price)
+            fresh_ages.append(age_seconds)
 
-        nrfi_prices = []
-        for book in books.values():
-            try:
-                price = float(book.get("nrfi_american"))
-            except (TypeError, ValueError):
-                continue
-            if np.isfinite(price) and price != 0:
-                nrfi_prices.append(price)
-        if nrfi_prices:
-            result["best_nrfi_american"] = max(nrfi_prices)
+        result["books_n"] = len(valid_probabilities)
+        if fresh_ages:
+            # Oldest included book controls the consensus freshness claim.
+            result["odds_age_sec"] = max(fresh_ages)
+        elif all_nonnegative_ages:
+            # Preserve a stale age so the guard reports staleness, not absence.
+            result["odds_age_sec"] = min(all_nonnegative_ages)
+
+        if len(valid_probabilities) >= MIN_BOOKS_FOR_MARKET:
+            result["p_yrfi_market"] = float(
+                statistics.median(valid_probabilities))
+            result["best_nrfi_american"] = max(valid_nrfi_prices)
         return result
 
     def score_game(self, game: Dict, odds_by_matchup: dict,
@@ -188,7 +248,10 @@ class NFRIDailyPredictor:
             features.get(name, np.nan) for name in self.trainer.feature_names
         ]], dtype=float)
         calibrated_probability = float(self.trainer.predict_proba(matrix)[0])
-        if not np.isfinite(calibrated_probability) or not 0.0 <= calibrated_probability <= 1.0:
+        if (
+            not np.isfinite(calibrated_probability)
+            or not 0.0 <= calibrated_probability <= 1.0
+        ):
             row.update(status="BLOCKED", block_reason="invalid_model_probability")
             return row
 
