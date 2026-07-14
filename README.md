@@ -121,6 +121,12 @@ Core test coverage includes:
 
 Offline tests prove code behavior, not model skill. Model skill is established only by the recorded OOF and locked-holdout evidence generated from the populated observed warehouse.
 
+## Repository governance
+
+[`AGENTS.md`](AGENTS.md) is the canonical operating standard for human- and agent-authored changes. It preserves the repository's fail-closed and temporal-validation controls and requires every adopted tool, service, framework, dependency, or automation to document its role, integration point, measurable benefit, failure modes, owner, validation method, exit path, and effect on analytical sophistication.
+
+The pull-request template turns those requirements into merge-review gates. A tool or dependency change without the required decision record is incomplete, and a change must not be merged when required validation, rollback behavior, or authoritative documentation is missing.
+
 ## Deployment
 
 `render.yaml` defines the FastAPI service and only the supported normalized cycles: finalized outcome ingestion, grading, readiness, scoring, odds refresh, and monthly audit. Automatic weekly retraining is intentionally disabled until a new post-2025 out-of-time evaluation protocol is defined.
