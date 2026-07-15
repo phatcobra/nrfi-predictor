@@ -1,13 +1,12 @@
 """Monthly audit: SHAP global importances + slice performance -> markdown.
 
-Writes NRFI_FEATURE_GAP_AUDIT.md and (with GH_TOKEN) opens a PR with it -
-never auto-merges. Slices: park, season phase, rest bucket, lineup status.
-SHAP is optional at runtime; absence is reported, not faked.
+Writes NRFI_FEATURE_GAP_AUDIT.md locally for human review. Slices: park,
+season phase, rest bucket, lineup status. SHAP is optional at runtime;
+absence is reported, not faked.
 """
 from __future__ import annotations
 
 import json
-import os
 from datetime import datetime
 
 import numpy as np
@@ -80,18 +79,6 @@ def main() -> None:
     with open("NRFI_FEATURE_GAP_AUDIT.md", "w") as fh:
         fh.write(out)
     logger.info("wrote NRFI_FEATURE_GAP_AUDIT.md")
-
-    token, repo = os.getenv("GH_TOKEN"), os.getenv("GITHUB_REPO")
-    if token and repo:
-        from nrfi.retrain_weekly import GitHubClient
-        try:
-            gh = GitHubClient()
-            stamp = datetime.now().strftime("%Y%m")
-            gh.open_candidate_pr(f"audit-{stamp}",
-                                 {"NRFI_FEATURE_GAP_AUDIT.md": out.encode()},
-                                 "Monthly automated audit - review and merge.")
-        except Exception as e:
-            logger.error(f"audit PR failed ({e}); file committed locally only")
 
 
 if __name__ == "__main__":

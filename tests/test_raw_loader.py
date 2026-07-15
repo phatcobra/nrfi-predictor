@@ -58,6 +58,7 @@ def test_null_key_is_rejected():
 
 def test_invalid_numeric_value_is_rejected():
     frame = _pitcher_innings()
+    frame["first_inning_runs"] = frame["first_inning_runs"].astype(object)
     frame.loc[0, "first_inning_runs"] = "not-a-number"
     with pytest.raises(ValueError):
         validate_frame(frame, "pitcher_innings", "source")
