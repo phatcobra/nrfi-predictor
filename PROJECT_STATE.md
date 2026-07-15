@@ -58,15 +58,14 @@ scope.
 | Complete local baseline in isolated Python 3.13 environment | `2 failed, 48 passed, 21 warnings in 22.48s`; stale import plus pandas 3 test-fixture incompatibility |
 | Targeted post-repair regressions | `9 passed in 1.36s`; static integrity and raw-loader validation |
 | Byte-compile and audit import smoke checks | Passed |
-| Complete local suite after repair | `50 passed, 21 warnings in 5.88s` |
-| Controlled-failure GitHub run and diagnostic artifact | Pending |
+| Complete local suite after repair | Passed twice: `50 passed, 21 warnings in 5.88s`; after probe removal, `50 passed, 21 warnings in 5.76s` |
+| Controlled-failure GitHub run `29437200500` | Failed correctly: `1 failed, 50 passed, 21 warnings in 2.56s`; `release-gate` failed with exit `1` |
+| Controlled-failure diagnostic artifact | Upload succeeded; artifact `8351893545`, digest `sha256:e9a8cdeda983c9a635d5129c3c56a4c64cd77cc30fd45769a0a69389e75dd500` |
 | Final passing GitHub run and diagnostic artifact | Pending |
 
 ## Exact next action
 
-Run targeted import, byte-compile, and complete offline-suite checks. Then add one
-temporary controlled failing test on the draft pull request, confirm the repaired
-release gate fails while uploading diagnostics, remove only that probe, and confirm
-the same gate passes with diagnostics preserved. After the signal is trustworthy,
-continue Phase 1 with the reproducible `uv`, `pyproject.toml`, and lockfile
-environment foundation.
+The controlled failure is proven, its temporary probe is removed, and the complete
+local suite passes. Verify that the next draft pull-request run passes with
+diagnostics preserved. After the signal is trustworthy, continue Phase 1 with the
+reproducible `uv`, `pyproject.toml`, and lockfile environment foundation.
