@@ -3,6 +3,7 @@
 Usage: python scripts/init_snowflake.py
 Requires SNOWFLAKE_* env vars (human-managed).
 """
+
 from __future__ import annotations
 
 import re

@@ -11,6 +11,7 @@ Usage:
     python scripts/load_raw_dataset.py --dataset statcast_pitcher_daily \
         --file exports/statcast_pitcher_daily.parquet --source mlb-model-statcast
 """
+
 from __future__ import annotations
 
 import argparse

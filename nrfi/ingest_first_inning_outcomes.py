@@ -5,6 +5,7 @@ from finalized box-score pitching stats, never scheduled probable pitchers.
 When the feed cannot prove the actual starter, the ID remains NULL and feature
 coverage gates decide whether the game is usable.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -31,10 +32,7 @@ def actual_starter_id(game_feed: dict[str, Any], side: str) -> int | None:
     if side not in {"away", "home"}:
         raise ValueError("side must be 'away' or 'home'")
     team = (
-        game_feed.get("liveData", {})
-        .get("boxscore", {})
-        .get("teams", {})
-        .get(side, {})
+        game_feed.get("liveData", {}).get("boxscore", {}).get("teams", {}).get(side, {})
     )
     candidates: list[int] = []
     for player in (team.get("players") or {}).values():
@@ -54,8 +52,10 @@ def actual_starter_id(game_feed: dict[str, Any], side: str) -> int | None:
     return unique[0] if len(unique) == 1 else None
 
 
-def _team_metadata(game_feed: dict[str, Any], side: str) -> tuple[str | None, int | None]:
-    team = (game_feed.get("gameData", {}).get("teams", {}).get(side, {}) or {})
+def _team_metadata(
+    game_feed: dict[str, Any], side: str
+) -> tuple[str | None, int | None]:
+    team = game_feed.get("gameData", {}).get("teams", {}).get(side, {}) or {}
     name = team.get("name")
     identifier = team.get("id")
     try:
@@ -88,17 +88,11 @@ def fetch_day(day: date) -> list[dict]:
         try:
             game_feed = statsapi.get("game", {"gamePk": game_pk})
         except Exception as exc:
-            logger.error(
-                f"final game feed failed for {game_pk}: {exc}; skipping")
+            logger.error(f"final game feed failed for {game_pk}: {exc}; skipping")
             continue
 
-        innings = (
-            game_feed.get("liveData", {})
-            .get("linescore", {})
-            .get("innings", [])
-        )
-        first = next(
-            (inning for inning in innings if inning.get("num") == 1), None)
+        innings = game_feed.get("liveData", {}).get("linescore", {}).get("innings", [])
+        first = next((inning for inning in innings if inning.get("num") == 1), None)
         if not first:
             logger.warning(f"game {game_pk} has no explicit first-inning linescore")
             continue
@@ -119,23 +113,25 @@ def fetch_day(day: date) -> list[dict]:
         away_name = away_name or scheduled_game.get("away_name")
         home_name = home_name or scheduled_game.get("home_name")
 
-        rows.append({
-            "game_id": str(game_pk),
-            "game_date": day.isoformat(),
-            "season": day.year,
-            "home_team": home_name,
-            "away_team": away_name,
-            "home_sp_id": actual_starter_id(game_feed, "home"),
-            "away_sp_id": actual_starter_id(game_feed, "away"),
-            "venue_id": _venue_id(game_feed),
-            "fi_runs_top": top_runs,
-            "fi_runs_bottom": bottom_runs,
-            "yrfi": bool(top_runs + bottom_runs > 0),
-            "is_doubleheader": scheduled_game.get("doubleheader", "N") != "N",
-            "game_number": int(scheduled_game.get("game_num", 1) or 1),
-            "source": "mlb_statsapi_final",
-            "ingested_at": datetime.now(TZ_ET).isoformat(),
-        })
+        rows.append(
+            {
+                "game_id": str(game_pk),
+                "game_date": day.isoformat(),
+                "season": day.year,
+                "home_team": home_name,
+                "away_team": away_name,
+                "home_sp_id": actual_starter_id(game_feed, "home"),
+                "away_sp_id": actual_starter_id(game_feed, "away"),
+                "venue_id": _venue_id(game_feed),
+                "fi_runs_top": top_runs,
+                "fi_runs_bottom": bottom_runs,
+                "yrfi": bool(top_runs + bottom_runs > 0),
+                "is_doubleheader": scheduled_game.get("doubleheader", "N") != "N",
+                "game_number": int(scheduled_game.get("game_num", 1) or 1),
+                "source": "mlb_statsapi_final",
+                "ingested_at": datetime.now(TZ_ET).isoformat(),
+            }
+        )
     return rows
 
 

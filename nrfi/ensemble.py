@@ -7,6 +7,7 @@ Evidence discipline:
   - The final gate report is recomputed after member selection and therefore
     describes the exact ensemble that is fitted and persisted.
 """
+
 from __future__ import annotations
 
 import numpy as np
@@ -46,8 +47,9 @@ LGB_PARAMS = {
 }
 
 
-def purged_walk_forward_folds(dates: pd.Series, n_folds: int, purge_days: int,
-                              min_train: int = 200):
+def purged_walk_forward_folds(
+    dates: pd.Series, n_folds: int, purge_days: int, min_train: int = 200
+):
     """Yield expanding train/validation indexes with a temporal purge gap."""
     if n_folds < 2:
         raise ValueError("n_folds must be at least 2")
@@ -71,15 +73,18 @@ def purged_walk_forward_folds(dates: pd.Series, n_folds: int, purge_days: int,
         yield train_idx, validation_idx
 
 
-def _fit_lgbm(X_train, y_train, X_validation=None, y_validation=None,
-              feature_names=None):
+def _fit_lgbm(
+    X_train, y_train, X_validation=None, y_validation=None, feature_names=None
+):
     import lightgbm as lgb
 
     train_data = lgb.Dataset(
-        X_train, label=y_train, feature_name=list(feature_names or []) or "auto")
+        X_train, label=y_train, feature_name=list(feature_names or []) or "auto"
+    )
     if X_validation is not None:
         validation_data = lgb.Dataset(
-            X_validation, label=y_validation, reference=train_data)
+            X_validation, label=y_validation, reference=train_data
+        )
         return lgb.train(
             LGB_PARAMS,
             train_data,
@@ -95,19 +100,24 @@ def _meta_model() -> LogisticRegression:
 
 
 def _enet_pipeline() -> Pipeline:
-    return Pipeline([
-        ("impute", SimpleImputer(strategy="median", add_indicator=True)),
-        ("scale", StandardScaler()),
-        ("clf", LogisticRegression(
-            penalty="elasticnet",
-            solver="saga",
-            l1_ratio=0.5,
-            C=1.0,
-            max_iter=4000,
-            random_state=RANDOM_SEED,
-            n_jobs=1,
-        )),
-    ])
+    return Pipeline(
+        [
+            ("impute", SimpleImputer(strategy="median", add_indicator=True)),
+            ("scale", StandardScaler()),
+            (
+                "clf",
+                LogisticRegression(
+                    penalty="elasticnet",
+                    solver="saga",
+                    l1_ratio=0.5,
+                    C=1.0,
+                    max_iter=4000,
+                    random_state=RANDOM_SEED,
+                    n_jobs=1,
+                ),
+            ),
+        ]
+    )
 
 
 class Member:
@@ -118,8 +128,7 @@ class Member:
         self.model = None
         self.best_iters: list[int] = []
 
-    def fit_fold(self, X_train, y_train, X_validation, y_validation,
-                 feature_names):
+    def fit_fold(self, X_train, y_train, X_validation, y_validation, feature_names):
         raise NotImplementedError
 
     def fit_full(self, X, y, feature_names):
@@ -133,10 +142,8 @@ class LGBMMember(Member):
     def __init__(self):
         super().__init__("lgbm")
 
-    def fit_fold(self, X_train, y_train, X_validation, y_validation,
-                 feature_names):
-        model = _fit_lgbm(
-            X_train, y_train, X_validation, y_validation, feature_names)
+    def fit_fold(self, X_train, y_train, X_validation, y_validation, feature_names):
+        model = _fit_lgbm(X_train, y_train, X_validation, y_validation, feature_names)
         self.best_iters.append(model.best_iteration or 200)
         return model.predict(X_validation, num_iteration=model.best_iteration)
 
@@ -160,8 +167,7 @@ class ENetMember(Member):
     def __init__(self):
         super().__init__("enet")
 
-    def fit_fold(self, X_train, y_train, X_validation, y_validation,
-                 feature_names):
+    def fit_fold(self, X_train, y_train, X_validation, y_validation, feature_names):
         pipeline = _enet_pipeline()
         pipeline.fit(X_train, y_train)
         return pipeline.predict_proba(X_validation)[:, 1]
@@ -185,8 +191,9 @@ def optional_members() -> list[Member]:
             def __init__(self):
                 super().__init__("xgb")
 
-            def fit_fold(self, X_train, y_train, X_validation, y_validation,
-                         feature_names):
+            def fit_fold(
+                self, X_train, y_train, X_validation, y_validation, feature_names
+            ):
                 model = xgb.XGBClassifier(
                     n_estimators=400,
                     max_depth=5,
@@ -198,8 +205,12 @@ def optional_members() -> list[Member]:
                     random_state=RANDOM_SEED,
                     n_jobs=1,
                 )
-                model.fit(X_train, y_train,
-                          eval_set=[(X_validation, y_validation)], verbose=False)
+                model.fit(
+                    X_train,
+                    y_train,
+                    eval_set=[(X_validation, y_validation)],
+                    verbose=False,
+                )
                 self.best_iters.append(model.best_iteration or 200)
                 return model.predict_proba(X_validation)[:, 1]
 
@@ -243,7 +254,8 @@ class StackedEnsemble:
         oof = np.full((len(X), len(members)), np.nan)
         fold_count = 0
         for train_idx, validation_idx in purged_walk_forward_folds(
-                dates, self.n_folds, self.purge_days):
+            dates, self.n_folds, self.purge_days
+        ):
             fold_count += 1
             if len(np.unique(y[train_idx])) < 2:
                 raise ValueError("walk-forward training fold contains one class")
@@ -251,8 +263,10 @@ class StackedEnsemble:
                 raise ValueError("walk-forward validation fold contains one class")
             for column, member in enumerate(members):
                 oof[validation_idx, column] = member.fit_fold(
-                    X[train_idx], y[train_idx],
-                    X[validation_idx], y[validation_idx],
+                    X[train_idx],
+                    y[train_idx],
+                    X[validation_idx],
+                    y[validation_idx],
                     self.feature_names,
                 )
         if fold_count == 0:
@@ -285,8 +299,9 @@ class StackedEnsemble:
             "n": int(mask.sum()),
         }
 
-    def fit(self, X: np.ndarray, y: np.ndarray, dates: pd.Series,
-            feature_names: list[str]) -> dict:
+    def fit(
+        self, X: np.ndarray, y: np.ndarray, dates: pd.Series, feature_names: list[str]
+    ) -> dict:
         X = np.asarray(X, dtype=float)
         y = np.asarray(y, dtype=int)
         dates = pd.Series(pd.to_datetime(dates, errors="raise")).reset_index(drop=True)
@@ -318,8 +333,9 @@ class StackedEnsemble:
             trial_mask = ~np.isnan(trial_oof).any(axis=1)
             trial_meta = _meta_model().fit(trial_oof[trial_mask], y[trial_mask])
             trial_stack = trial_meta.predict_proba(trial_oof[trial_mask])[:, 1]
-            trial_logloss = float(log_loss(
-                y[trial_mask], np.clip(trial_stack, 1e-6, 1 - 1e-6)))
+            trial_logloss = float(
+                log_loss(y[trial_mask], np.clip(trial_stack, 1e-6, 1 - 1e-6))
+            )
             improvement = base_logloss - trial_logloss
             passed = improvement >= GATE_LOGLOSS_MIN
             report["ablation"][candidate.name] = {
@@ -331,12 +347,14 @@ class StackedEnsemble:
             if not passed:
                 logger.info(
                     f"member {candidate.name} FAILED gate "
-                    f"(delta {improvement:.4f}) - not shipped")
+                    f"(delta {improvement:.4f}) - not shipped"
+                )
                 continue
 
             logger.info(
                 f"member {candidate.name} PASSED gate "
-                f"(delta {improvement:.4f}) - adding")
+                f"(delta {improvement:.4f}) - adding"
+            )
             self.members.append(candidate)
             oof = np.column_stack([oof, trial_oof[:, -1]])
             mask = ~np.isnan(oof).any(axis=1)
@@ -354,7 +372,8 @@ class StackedEnsemble:
         report["baseline_constant"] = self._baseline(y, mask)
         report["shipped_members"] = [member.name for member in self.members]
         report["gates_passed"] = bool(
-            report["stack"]["logloss"] < report["baseline_constant"]["logloss"])
+            report["stack"]["logloss"] < report["baseline_constant"]["logloss"]
+        )
 
         self._oof_scores = stack_oof
         self._oof_mask = mask
@@ -370,8 +389,9 @@ class StackedEnsemble:
         return self.meta.predict_proba(np.column_stack(columns))[:, 1]
 
 
-def shrink_to_venue(p_cal: float, venue_yrfi_rate: float | None,
-                    n_eff: float, k: float = SHRINKAGE_K) -> float:
+def shrink_to_venue(
+    p_cal: float, venue_yrfi_rate: float | None, n_eff: float, k: float = SHRINKAGE_K
+) -> float:
     """Bayesian pull toward venue YRFI base rate for cold matchups."""
     if venue_yrfi_rate is None or np.isnan(p_cal):
         return p_cal
@@ -386,9 +406,9 @@ def n_eff_for_game(features: dict, coverage_val: float) -> float:
         features.get("home_p_fi_games"),
     ]
     first_inning_games = [
-        value for value in first_inning_games
-        if value is not None
-        and not (isinstance(value, float) and np.isnan(value))
+        value
+        for value in first_inning_games
+        if value is not None and not (isinstance(value, float) and np.isnan(value))
     ]
     base = min(first_inning_games) if first_inning_games else 0.0
     return float(min(base, 60.0)) * float(coverage_val)

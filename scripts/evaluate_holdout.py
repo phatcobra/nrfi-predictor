@@ -4,6 +4,7 @@ The evaluator verifies that the model's recorded training end predates the
 holdout, compares against the predeclared training climatology baseline, and
 records an explicit pass/fail decision. Re-evaluation requires a burn override.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -76,7 +77,8 @@ def main() -> None:
     if previously_evaluated and not args.acknowledge_burn:
         raise SystemExit(
             "holdout already evaluated for this model. Re-running burns the "
-            "locked evidence; pass --acknowledge-burn to record the override.")
+            "locked evidence; pass --acknowledge-burn to record the override."
+        )
 
     metadata = _read_metadata(trainer.config.MODEL_DIR, args.version)
     training_metrics = metadata.get("metrics") or {}
@@ -84,10 +86,12 @@ def main() -> None:
     if not recorded_training_end:
         raise SystemExit("model metadata lacks a recorded training_end")
     if pd.Timestamp(recorded_training_end) >= pd.Timestamp(
-            trainer.config.HOLDOUT_START_DATE):
+        trainer.config.HOLDOUT_START_DATE
+    ):
         raise SystemExit(
             f"candidate training end {recorded_training_end} overlaps locked "
-            f"holdout beginning {trainer.config.HOLDOUT_START_DATE}")
+            f"holdout beginning {trainer.config.HOLDOUT_START_DATE}"
+        )
 
     baseline_rate = training_metrics.get("baseline_constant", {}).get("rate")
     try:
@@ -141,19 +145,25 @@ def main() -> None:
     gate_report = _existing_gate_report(existing.get("gate_report"))
     gate_report["locked_holdout"] = holdout_report
 
-    warehouse.merge_upsert("NRFI_DB.ML.MODEL_STATUS", [{
-        "model_version": args.version,
-        "holdout_logloss": model_logloss,
-        "holdout_brier": model_brier,
-        "holdout_baseline_logloss": baseline_logloss,
-        "holdout_baseline_brier": baseline_brier,
-        "holdout_n": int(len(y)),
-        "holdout_passed": bool(passed),
-        "holdout_evaluated_at": holdout_report["evaluated_at"],
-        "holdout_burned_rerun": holdout_report["burned_rerun"],
-        "gate_report": json.dumps(gate_report, default=float),
-        "status": "candidate" if passed else "rejected",
-    }], key_cols=["model_version"])
+    warehouse.merge_upsert(
+        "NRFI_DB.ML.MODEL_STATUS",
+        [
+            {
+                "model_version": args.version,
+                "holdout_logloss": model_logloss,
+                "holdout_brier": model_brier,
+                "holdout_baseline_logloss": baseline_logloss,
+                "holdout_baseline_brier": baseline_brier,
+                "holdout_n": int(len(y)),
+                "holdout_passed": bool(passed),
+                "holdout_evaluated_at": holdout_report["evaluated_at"],
+                "holdout_burned_rerun": holdout_report["burned_rerun"],
+                "gate_report": json.dumps(gate_report, default=float),
+                "status": "candidate" if passed else "rejected",
+            }
+        ],
+        key_cols=["model_version"],
+    )
 
     logger.info(json.dumps(holdout_report, indent=2))
     if not passed:

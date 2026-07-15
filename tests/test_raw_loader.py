@@ -1,4 +1,5 @@
 """Offline tests for raw dataset validation before Snowflake upsert."""
+
 from __future__ import annotations
 
 import pandas as pd
@@ -8,22 +9,25 @@ from nrfi.raw_loader import validate_frame
 
 
 def _pitcher_innings():
-    return pd.DataFrame({
-        "pitcher_id": [1, 2],
-        "game_id": ["g1", "g2"],
-        "game_date": ["2024-04-01", "2024-04-02"],
-        "inning": [1, 1],
-        "first_inning_runs": [0, 1],
-        "first_inning_hits": [1, 2],
-        "first_inning_walks": [0, 1],
-        "first_inning_strikeouts": [2, 1],
-        "first_inning_pa": [4, 6],
-    })
+    return pd.DataFrame(
+        {
+            "pitcher_id": [1, 2],
+            "game_id": ["g1", "g2"],
+            "game_date": ["2024-04-01", "2024-04-02"],
+            "inning": [1, 1],
+            "first_inning_runs": [0, 1],
+            "first_inning_hits": [1, 2],
+            "first_inning_walks": [0, 1],
+            "first_inning_strikeouts": [2, 1],
+            "first_inning_pa": [4, 6],
+        }
+    )
 
 
 def test_valid_frame_adds_provenance_without_imputing_stats():
     result = validate_frame(
-        _pitcher_innings(), "pitcher_innings", "observed-test-source")
+        _pitcher_innings(), "pitcher_innings", "observed-test-source"
+    )
     assert len(result) == 2
     assert set(result["source"]) == {"observed-test-source"}
     assert result["ingested_at"].notna().all()
@@ -43,8 +47,9 @@ def test_unknown_column_is_rejected():
 
 
 def test_duplicate_keys_are_rejected():
-    frame = pd.concat([_pitcher_innings(), _pitcher_innings().iloc[[0]]],
-                      ignore_index=True)
+    frame = pd.concat(
+        [_pitcher_innings(), _pitcher_innings().iloc[[0]]], ignore_index=True
+    )
     with pytest.raises(ValueError, match="duplicate dataset keys"):
         validate_frame(frame, "pitcher_innings", "source")
 

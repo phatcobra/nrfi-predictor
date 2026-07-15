@@ -1,4 +1,5 @@
 """Offline tests for authoritative first-inning label attribution."""
+
 from __future__ import annotations
 
 import pytest
@@ -44,10 +45,12 @@ def test_missing_actual_starter_returns_none_not_probable_fallback():
 
 
 def test_ambiguous_multiple_starters_returns_none():
-    feed = _feed(away_players={
-        "ID10": _player(10, 1),
-        "ID11": _player(11, 1),
-    })
+    feed = _feed(
+        away_players={
+            "ID10": _player(10, 1),
+            "ID11": _player(11, 1),
+        }
+    )
     assert actual_starter_id(feed, "away") is None
 
 

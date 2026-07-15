@@ -11,6 +11,7 @@ Straightforward per-point refit using sklearn IsotonicRegression. At NRFI
 scale (<=16 scoring calls/day; gate evaluation a few thousand points) this
 is fast enough; swap in the O(n log n) precomputed variant if it ever isn't.
 """
+
 from __future__ import annotations
 
 import numpy as np

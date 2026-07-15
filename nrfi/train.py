@@ -1,4 +1,5 @@
 """Train, calibrate, persist, and register a fail-closed NRFI candidate."""
+
 from __future__ import annotations
 
 import json
@@ -38,8 +39,9 @@ class NFRIModelTrainer:
         self.venue_yrfi_rates: Dict[str, float] = {}
         self.feature_names: List[str] = []
 
-    def load_training_data(self, start_date: str, end_date: str,
-                           allow_holdout: bool = False) -> pd.DataFrame:
+    def load_training_data(
+        self, start_date: str, end_date: str, allow_holdout: bool = False
+    ) -> pd.DataFrame:
         """Load labels while refusing holdout overlap unless explicitly evaluating it."""
         start = pd.Timestamp(start_date)
         end = pd.Timestamp(end_date)
@@ -48,7 +50,8 @@ class NFRIModelTrainer:
         if not allow_holdout and end > pd.Timestamp(self.config.TRAIN_END_DATE):
             raise ValueError(
                 f"training end {end.date()} crosses locked cutoff "
-                f"{self.config.TRAIN_END_DATE}")
+                f"{self.config.TRAIN_END_DATE}"
+            )
 
         query = """
         SELECT game_id, game_date, away_team, home_team,
@@ -64,8 +67,14 @@ class NFRIModelTrainer:
         if frame.empty:
             raise ValueError(f"no labeled games found for {start_date}..{end_date}")
         required = {
-            "game_id", "game_date", "away_team", "home_team",
-            "away_pitcher_id", "home_pitcher_id", "venue_id", "yrfi",
+            "game_id",
+            "game_date",
+            "away_team",
+            "home_team",
+            "away_pitcher_id",
+            "home_pitcher_id",
+            "venue_id",
+            "yrfi",
         }
         missing = required.difference(frame.columns)
         if missing:
@@ -73,8 +82,7 @@ class NFRIModelTrainer:
         frame["game_date"] = pd.to_datetime(frame["game_date"], errors="raise")
         duplicate_ids = frame["game_id"].astype(str).duplicated(keep=False)
         if duplicate_ids.any():
-            examples = frame.loc[
-                duplicate_ids, "game_id"].astype(str).head(5).tolist()
+            examples = frame.loc[duplicate_ids, "game_id"].astype(str).head(5).tolist()
             raise ValueError(f"duplicate game_id rows in labels: {examples}")
         frame = frame.sort_values(["game_date", "game_id"]).reset_index(drop=True)
         logger.info(f"loaded {len(frame)} labeled games {start_date}..{end_date}")
@@ -88,10 +96,8 @@ class NFRIModelTrainer:
         if games_df is None or games_df.empty:
             raise ValueError("cannot prepare features from an empty game set")
         games_df = games_df.copy()
-        games_df["game_date"] = pd.to_datetime(
-            games_df["game_date"], errors="raise")
-        games_df = games_df.sort_values(
-            ["game_date", "game_id"]).reset_index(drop=True)
+        games_df["game_date"] = pd.to_datetime(games_df["game_date"], errors="raise")
+        games_df = games_df.sort_values(["game_date", "game_id"]).reset_index(drop=True)
 
         builder = builder or FeatureBuilder(self.sf)
         builder.prepare(max_date=games_df["game_date"].max().date().isoformat())
@@ -114,7 +120,8 @@ class NFRIModelTrainer:
             label = int(game["yrfi"])
             if label not in (0, 1):
                 raise ValueError(
-                    f"invalid YRFI label {label} for game {game['game_id']}")
+                    f"invalid YRFI label {label} for game {game['game_id']}"
+                )
             feature_dicts.append(features)
             labels.append(label)
             dates.append(pd.Timestamp(game["game_date"]))
@@ -122,16 +129,21 @@ class NFRIModelTrainer:
 
         if not feature_dicts:
             raise ValueError(
-                "all games were dropped by feature construction/coverage gates")
-        self.feature_names = sorted({
-            name for values in feature_dicts for name in values})
+                "all games were dropped by feature construction/coverage gates"
+            )
+        self.feature_names = sorted(
+            {name for values in feature_dicts for name in values}
+        )
         if not self.feature_names:
             raise ValueError("feature builder returned no feature columns")
 
-        matrix = np.array([
-            [values.get(name, np.nan) for name in self.feature_names]
-            for values in feature_dicts
-        ], dtype=float)
+        matrix = np.array(
+            [
+                [values.get(name, np.nan) for name in self.feature_names]
+                for values in feature_dicts
+            ],
+            dtype=float,
+        )
         targets = np.asarray(labels, dtype=int)
         date_series = pd.Series(dates).reset_index(drop=True)
         kept = pd.DataFrame(kept_rows).reset_index(drop=True)
@@ -141,19 +153,21 @@ class NFRIModelTrainer:
             raise ValueError("prepared training dates are not chronological")
         logger.info(
             f"{matrix.shape[0]}x{matrix.shape[1]} "
-            f"(dropped {dropped} low-coverage); YRFI rate {targets.mean():.3f}")
+            f"(dropped {dropped} low-coverage); YRFI rate {targets.mean():.3f}"
+        )
         return matrix, targets, date_series, kept
 
-    def train(self, X: np.ndarray, y: np.ndarray, dates: pd.Series,
-              kept_games: pd.DataFrame) -> Dict:
-        dates = pd.Series(pd.to_datetime(
-            dates, errors="raise")).reset_index(drop=True)
+    def train(
+        self, X: np.ndarray, y: np.ndarray, dates: pd.Series, kept_games: pd.DataFrame
+    ) -> Dict:
+        dates = pd.Series(pd.to_datetime(dates, errors="raise")).reset_index(drop=True)
         if dates.empty:
             raise ValueError("training dates are empty")
         if dates.max() > pd.Timestamp(self.config.TRAIN_END_DATE):
             raise ValueError(
                 f"training data reaches {dates.max().date()}, beyond locked cutoff "
-                f"{self.config.TRAIN_END_DATE}")
+                f"{self.config.TRAIN_END_DATE}"
+            )
         if len(kept_games) != len(y):
             raise ValueError("kept_games and target row counts differ")
 
@@ -163,38 +177,44 @@ class NFRIModelTrainer:
         if mask.sum() < 50:
             raise ValueError("insufficient OOF rows for probability calibration")
         self.calibrator = VennAbersCalibrator().fit(
-            self.ensemble._oof_scores[mask], y[mask])
+            self.ensemble._oof_scores[mask], y[mask]
+        )
 
         venue_frame = kept_games.assign(yrfi=np.asarray(y, dtype=int))
-        venue_rates = venue_frame.groupby(
-            "venue_id", dropna=True)["yrfi"].agg(["mean", "count"])
+        venue_rates = venue_frame.groupby("venue_id", dropna=True)["yrfi"].agg(
+            ["mean", "count"]
+        )
         self.venue_yrfi_rates = {
             str(venue_id): float(values["mean"])
             for venue_id, values in venue_rates.iterrows()
             if int(values["count"]) >= 50
         }
-        report.update({
-            "n_training_rows": int(len(y)),
-            "training_start": dates.min().date().isoformat(),
-            "training_end": dates.max().date().isoformat(),
-            "locked_training_cutoff": self.config.TRAIN_END_DATE,
-            "n_venues_with_rates": len(self.venue_yrfi_rates),
-        })
+        report.update(
+            {
+                "n_training_rows": int(len(y)),
+                "training_start": dates.min().date().isoformat(),
+                "training_end": dates.max().date().isoformat(),
+                "locked_training_cutoff": self.config.TRAIN_END_DATE,
+                "n_venues_with_rates": len(self.venue_yrfi_rates),
+            }
+        )
         return report
 
     def predict_proba(self, X: np.ndarray) -> np.ndarray:
         if self.ensemble is None or self.calibrator is None:
             raise RuntimeError("model not loaded - refusing to guess")
         probabilities = np.asarray(
-            self.calibrator.predict(self.ensemble.raw_scores(X)), dtype=float)
+            self.calibrator.predict(self.ensemble.raw_scores(X)), dtype=float
+        )
         if np.any(~np.isfinite(probabilities)):
             raise ValueError("model emitted non-finite calibrated probabilities")
         if np.any((probabilities < 0.0) | (probabilities > 1.0)):
             raise ValueError("model emitted probabilities outside [0, 1]")
         return probabilities
 
-    def save_model(self, model_dir: str, version: str | None = None,
-                   metrics: Dict | None = None) -> str:
+    def save_model(
+        self, model_dir: str, version: str | None = None, metrics: Dict | None = None
+    ) -> str:
         if self.ensemble is None or self.calibrator is None:
             raise RuntimeError("cannot save an unfitted model")
         if metrics is not None and not metrics.get("gates_passed", False):
@@ -206,19 +226,27 @@ class NFRIModelTrainer:
         temporary_bundle = f"{bundle_path}.tmp"
         temporary_metadata = f"{metadata_path}.tmp"
 
-        joblib.dump({
-            "ensemble": self.ensemble,
-            "calibrator_arrays": self.calibrator.to_arrays(),
-            "venue_yrfi_rates": self.venue_yrfi_rates,
-            "feature_names": self.feature_names,
-        }, temporary_bundle)
-        with open(temporary_metadata, "w", encoding="utf-8") as file_handle:
-            json.dump({
-                "version": version,
+        joblib.dump(
+            {
+                "ensemble": self.ensemble,
+                "calibrator_arrays": self.calibrator.to_arrays(),
+                "venue_yrfi_rates": self.venue_yrfi_rates,
                 "feature_names": self.feature_names,
-                "metrics": metrics or {},
-                "created_at": datetime.now(timezone.utc).isoformat(),
-            }, file_handle, indent=2, default=float)
+            },
+            temporary_bundle,
+        )
+        with open(temporary_metadata, "w", encoding="utf-8") as file_handle:
+            json.dump(
+                {
+                    "version": version,
+                    "feature_names": self.feature_names,
+                    "metrics": metrics or {},
+                    "created_at": datetime.now(timezone.utc).isoformat(),
+                },
+                file_handle,
+                indent=2,
+                default=float,
+            )
         os.replace(temporary_bundle, bundle_path)
         os.replace(temporary_metadata, metadata_path)
         logger.info(f"saved model bundle {version}")
@@ -235,38 +263,49 @@ class NFRIModelTrainer:
             raise ValueError("model metadata version does not match requested version")
         bundle = joblib.load(bundle_path)
         required = {
-            "ensemble", "calibrator_arrays", "venue_yrfi_rates", "feature_names"}
+            "ensemble",
+            "calibrator_arrays",
+            "venue_yrfi_rates",
+            "feature_names",
+        }
         missing = required.difference(bundle)
         if missing:
             raise ValueError(f"model bundle missing keys: {sorted(missing)}")
         self.ensemble = bundle["ensemble"]
-        self.calibrator = VennAbersCalibrator.from_arrays(
-            bundle["calibrator_arrays"])
+        self.calibrator = VennAbersCalibrator.from_arrays(bundle["calibrator_arrays"])
         self.venue_yrfi_rates = dict(bundle["venue_yrfi_rates"])
         self.feature_names = list(bundle["feature_names"])
         if self.feature_names != list(metadata.get("feature_names", [])):
             raise ValueError("bundle and metadata feature contracts differ")
         logger.info(f"loaded model bundle {version}")
 
-    def register_model(self, version: str, metrics: Dict,
-                       status: str = "candidate") -> None:
+    def register_model(
+        self, version: str, metrics: Dict, status: str = "candidate"
+    ) -> None:
         training_start = metrics.get("training_start")
         training_end = metrics.get("training_end")
         train_range = (
             f"{training_start}..{training_end}"
-            if training_start and training_end else None
+            if training_start and training_end
+            else None
         )
-        self.sf.merge_upsert("NRFI_DB.ML.MODEL_STATUS", [{
-            "model_version": version,
-            "trained_at": datetime.now(timezone.utc).isoformat(),
-            "feature_version": "fv3.1",
-            "train_range": train_range,
-            "cv_logloss": metrics.get("stack", {}).get("logloss"),
-            "cv_brier": metrics.get("stack", {}).get("brier"),
-            "gates_passed": metrics.get("gates_passed"),
-            "gate_report": json.dumps(metrics, default=float),
-            "status": status,
-        }], key_cols=["model_version"])
+        self.sf.merge_upsert(
+            "NRFI_DB.ML.MODEL_STATUS",
+            [
+                {
+                    "model_version": version,
+                    "trained_at": datetime.now(timezone.utc).isoformat(),
+                    "feature_version": "fv3.1",
+                    "train_range": train_range,
+                    "cv_logloss": metrics.get("stack", {}).get("logloss"),
+                    "cv_brier": metrics.get("stack", {}).get("brier"),
+                    "gates_passed": metrics.get("gates_passed"),
+                    "gate_report": json.dumps(metrics, default=float),
+                    "status": status,
+                }
+            ],
+            key_cols=["model_version"],
+        )
 
 
 def main() -> None:
@@ -274,9 +313,11 @@ def main() -> None:
     readiness = require_warehouse_ready(trainer.sf)
     logger.info(
         f"warehouse ready for {readiness['training_window']['start']}.."
-        f"{readiness['training_window']['end']}")
+        f"{readiness['training_window']['end']}"
+    )
     games = trainer.load_training_data(
-        trainer.config.TRAIN_START_DATE, trainer.config.TRAIN_END_DATE)
+        trainer.config.TRAIN_START_DATE, trainer.config.TRAIN_END_DATE
+    )
     X, y, dates, kept = trainer.prepare_features(games)
     report = trainer.train(X, y, dates, kept)
     report["warehouse_readiness"] = readiness

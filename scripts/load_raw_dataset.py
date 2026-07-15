@@ -6,6 +6,7 @@ Example:
       --file exports/pitcher_fi.parquet \
       --source mlb-model-statcast
 """
+
 from __future__ import annotations
 
 import argparse
