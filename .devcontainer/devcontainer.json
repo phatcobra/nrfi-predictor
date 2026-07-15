@@ -2,7 +2,7 @@
   "name": "NRFI Phase 1 (Python 3.11)",
   "build": {
     "dockerfile": "Dockerfile",
-    "context": ".."
+    "context": "."
   },
   "remoteUser": "vscode",
   "updateRemoteUserUID": true,

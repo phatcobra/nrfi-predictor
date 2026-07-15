@@ -1,0 +1,6 @@
+# The Dev Container image copies no repository content. Keep the build context
+# fail-closed so private data, credentials, models, and local environments are
+# never sent to the Docker daemon.
+**
+!.devcontainer/
+!.devcontainer/Dockerfile
