@@ -4,9 +4,11 @@ Status date: 2026-07-15
 
 Phase 0: **PASS WITH DOCUMENTED EXCEPTIONS**
 
-Phase 1: **IN PROGRESS**
+Phase 1: **PASS WITH DOCUMENTED EXCEPTIONS**
 
-Current task: **repository and environment foundation**
+Phase 2: **IN PROGRESS**
+
+Current task: **data inventory and contracts from preserved Phase 0 evidence**
 
 Current branch: `chore/phase1-environment-foundation-20260715`
 
@@ -96,6 +98,8 @@ on the draft CI repair and intentionally unmerged.
 | Foundation GitHub run `29442936672` | Succeeded: 126-package lock verified, Ruff and format passed, Pyright reported zero diagnostics, import smoke passed, and `58 passed, 21 warnings in 4.45s` |
 | Foundation diagnostic artifact | Upload succeeded; artifact `8354201900`, digest `sha256:6e71d7978df80146a128e3e255de2e473d9cf62c636517d1c7a8ab55ebb6dae4` |
 | Action supply chain | Checkout, Python setup, uv setup, and artifact upload are pinned to the official tag targets' immutable commit SHAs |
+| Final pinned-action run `29444056728` | Succeeded at head `7a15878dbef41001cd4e3bcd31ccd48c9517fe3b`: lock, lint, format, Pyright, import smoke, compile, and `58 passed, 21 warnings in 4.12s` |
+| Final pinned-action diagnostic artifact | Upload succeeded; artifact `8354654348`, digest `sha256:501e0e07c39421510c9b11de401610e83a8ee012cadfae82468be1dbdf941e23` |
 
 The 21 test warnings are 20 upstream scikit-learn deprecations and one Sentry SDK
 deprecation. They are recorded maintenance debt, not suppressed release evidence.
@@ -107,8 +111,11 @@ remain reviewable hardening backlog items.
 
 ## Exact next action
 
-Push the minimal-context and immutable-action hardening to draft pull request
-`#6`, confirm its latest live GitHub Actions signal and diagnostic artifact, and
-keep both pull requests draft and unmerged. Then begin Phase 2 from the preserved
-Phase 0 manifests and reports without rescanning, acquiring data, inspecting the
-locked holdout, training, promoting, or deploying.
+Create a separate Phase 2 branch from the validated foundation and map the
+preserved Phase 0 manifest records to the required source, schema, key, timing,
+provenance, coverage, and classification contracts. Produce `DATA_CONTRACTS.md`,
+machine-readable contracts, coverage/schema/gap/reuse/rejected-assets reports,
+and a gap-limited acquisition plan. Mark unverified or quarantined attributes as
+unknown rather than rescanning, acquiring data, inspecting the locked holdout,
+training, promoting, or deploying. Keep draft pull requests `#5` and `#6`
+unmerged.
