@@ -4,6 +4,7 @@ All secrets come from environment variables. Missing credentials remain empty
 and consuming modules must fail closed. Temporal model boundaries are defined
 once here so training, retraining, and holdout evaluation cannot silently drift.
 """
+
 from __future__ import annotations
 
 import os
@@ -26,21 +27,21 @@ for _directory in (DATA_DIR, MODEL_DIR, LOGS_DIR):
 TZ_ET = ZoneInfo("America/New_York")
 
 # -- Local staging DB ---------------------------------------------------------
-DATABASE_URL: str = os.environ.get(
-    "DATABASE_URL", f"sqlite:///{DATA_DIR / 'nrfi.db'}")
+DATABASE_URL: str = os.environ.get("DATABASE_URL", f"sqlite:///{DATA_DIR / 'nrfi.db'}")
 
 # -- Snowflake ----------------------------------------------------------------
 SNOWFLAKE_ACCOUNT = os.environ.get("SNOWFLAKE_ACCOUNT", "")
 SNOWFLAKE_USER = os.environ.get("SNOWFLAKE_USER", "")
 SNOWFLAKE_PASSWORD = os.environ.get("SNOWFLAKE_PASSWORD", "")
-SNOWFLAKE_DATABASE = os.environ.get("SNOWFLAKE_DATABASE", "NRFI_DB")
-SNOWFLAKE_SCHEMA = os.environ.get("SNOWFLAKE_SCHEMA", "CORE")
-SNOWFLAKE_WAREHOUSE = os.environ.get("SNOWFLAKE_WAREHOUSE", "COMPUTE_WH")
-SNOWFLAKE_ROLE = os.environ.get("SNOWFLAKE_ROLE", "SYSADMIN")
+SNOWFLAKE_DATABASE = os.environ.get("SNOWFLAKE_DATABASE", "")
+SNOWFLAKE_SCHEMA = os.environ.get("SNOWFLAKE_SCHEMA", "")
+SNOWFLAKE_WAREHOUSE = os.environ.get("SNOWFLAKE_WAREHOUSE", "")
+SNOWFLAKE_ROLE = os.environ.get("SNOWFLAKE_ROLE", "")
 
 # -- SportsDataIO -------------------------------------------------------------
 SDIO_API_KEY: str = os.environ.get(
-    "SDIO_API_KEY", os.environ.get("SPORTSDATA_API_KEY", ""))
+    "SDIO_API_KEY", os.environ.get("SPORTSDATA_API_KEY", "")
+)
 SDIO_BASE_URL = "https://api.sportsdata.io/v3/mlb"
 SDIO_ENDPOINTS = {
     "games_by_date": "{base}/scores/json/GamesByDate/{date}",
@@ -64,22 +65,22 @@ SDIO_ENDPOINTS = {
 
 # -- OpticOdds ----------------------------------------------------------------
 OPTIC_API_KEY: str = os.environ.get(
-    "OPTIC_API_KEY", os.environ.get("OPTICODDS_API_KEY", ""))
-OPTIC_BASE_URL = os.environ.get(
-    "OPTIC_BASE_URL", "https://api.opticodds.com/api/v3")
-OPTIC_FI_TOTAL_MARKET_ID: str = os.environ.get(
-    "OPTIC_FI_TOTAL_MARKET_ID", "")
+    "OPTIC_API_KEY", os.environ.get("OPTICODDS_API_KEY", "")
+)
+OPTIC_BASE_URL = os.environ.get("OPTIC_BASE_URL", "https://api.opticodds.com/api/v3")
+OPTIC_FI_TOTAL_MARKET_ID: str = os.environ.get("OPTIC_FI_TOTAL_MARKET_ID", "")
 NRFI_SPORTSBOOKS = [
-    book.strip() for book in os.environ.get(
+    book.strip()
+    for book in os.environ.get(
         "NRFI_SPORTSBOOKS", "DraftKings,FanDuel,BetMGM,Caesars,Pinnacle"
-    ).split(",") if book.strip()
+    ).split(",")
+    if book.strip()
 ]
 
 # -- Fail-closed thresholds ---------------------------------------------------
 ODDS_MAX_AGE_SECONDS = int(os.environ.get("ODDS_MAX_AGE_SECONDS", "600"))
 FEATURE_COVERAGE_MIN = float(os.environ.get("FEATURE_COVERAGE_MIN", "0.85"))
-HIGH_TIER_COVERAGE_MIN = float(
-    os.environ.get("HIGH_TIER_COVERAGE_MIN", "0.95"))
+HIGH_TIER_COVERAGE_MIN = float(os.environ.get("HIGH_TIER_COVERAGE_MIN", "0.95"))
 MIN_BOOKS_FOR_MARKET = int(os.environ.get("MIN_BOOKS_FOR_MARKET", "2"))
 
 # -- Public baseball data -----------------------------------------------------
@@ -117,8 +118,9 @@ API_HOST = os.environ.get("API_HOST", "0.0.0.0")
 API_PORT = int(os.environ.get("API_PORT", "8000"))
 API_BEARER_TOKEN: str = os.environ.get("API_BEARER_TOKEN", "")
 ALLOWED_ORIGINS = [
-    origin.strip() for origin in os.environ.get(
-        "ALLOWED_ORIGINS", "").split(",") if origin.strip()
+    origin.strip()
+    for origin in os.environ.get("ALLOWED_ORIGINS", "").split(",")
+    if origin.strip()
 ]
 
 # -- Automation ---------------------------------------------------------------
