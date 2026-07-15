@@ -6,9 +6,9 @@ Phase 0: **PASS WITH DOCUMENTED EXCEPTIONS**
 
 Phase 1: **IN PROGRESS**
 
-Current task: **CI release-gate repair**
+Current task: **repository and environment foundation**
 
-Current branch: `fix/ci-release-gate-20260715`
+Current branch: `chore/phase1-environment-foundation-20260715`
 
 The Phase 0 asset inventory, per-file manifest, reconciliation, data-gap analysis,
 repository assessment, and risk register are complete. Their two deterministic
@@ -64,10 +64,43 @@ scope.
 | Controlled-failure diagnostic artifact | Upload succeeded; artifact `8351893545`, digest `sha256:e9a8cdeda983c9a635d5129c3c56a4c64cd77cc30fd45769a0a69389e75dd500` |
 | Passing GitHub run `29437410732` | Succeeded: `50 passed, 21 warnings in 1.87s`; `release-gate` succeeded |
 | Passing-run diagnostic artifact | Upload succeeded; artifact `8351977471`, digest `sha256:187f06eeb9b6ae01effbc712fcc1608fe4fd9e1766d9b2fca37659d551fcf851` |
+| Final CI-repair GitHub run `29440101407` | Succeeded at head `85f81a3083711c228a7feffda922bbf7827ebdde`; the monthly-audit import regression is fixed |
+| Final CI-repair diagnostic artifact | Upload succeeded; artifact `8353062469`, digest `sha256:09814a760becf820311fc3af51d71baab5aef96eb7c34cac83b7ff0452869ad4` |
+
+## Phase 1 environment-foundation evidence
+
+The foundation uses Python 3.11, `uv` 0.11.28, `pyproject.toml`, and the checked-in
+lockfile. `pyproject.toml` is the development and CI authority;
+`requirements.txt` remains the unchanged legacy deployment manifest until a
+separately reviewed deployment migration. DuckDB is development-only and does
+not expand the production dependency set.
+
+| Evidence | Result |
+|---|---|
+| Lock validation | `uv lock --check` resolved the recorded 126-package graph |
+| Frozen synchronization | `uv sync --frozen` checked 117 installed packages without changing the lock |
+| Ruff lint | Passed for the complete repository |
+| Ruff format | Passed; 34 Python files are in the recorded format |
+| Formatter semantic check | 27 tracked formatter-only Python files retained byte-independent AST equality; AST-changing paths are limited to the documented audit cleanup and Snowflake hardening |
+| Pyright | `0 errors, 0 warnings, 0 informations`; basic checking covers all unlisted files, with 12 dynamic legacy files recorded explicitly in `pyproject.toml` as adoption debt |
+| Byte compilation | `python -m compileall -q nrfi scripts tests` passed |
+| Snowflake fail-closed regression | `8 passed, 1 warning`; every account, identity, database, schema, warehouse, and role setting is required before engine creation |
+| Complete offline suite | `58 passed, 21 warnings in 21.76s`; no external data, warehouse, sportsbook, holdout, training, or model operation ran |
+| Pre-commit | Ruff lint, Ruff format, Pyright, and the complete offline pytest hook all passed |
+| Configuration syntax | Five JSON files, two YAML files, and `pyproject.toml` parsed successfully |
+| Privacy and secret review | Added-content scan found no private workstation paths, private keys, or provider-token patterns |
+
+The 21 test warnings are 20 upstream scikit-learn deprecations and one Sentry SDK
+deprecation. They are recorded maintenance debt, not suppressed release evidence.
+The Dev Container definition is syntax-validated but has not been built because
+doing so would pull external images. The explicit Pyright legacy baseline and
+moving-major GitHub Action references remain reviewable hardening backlog items.
 
 ## Exact next action
 
-The controlled failure and restored pass are proven on draft pull request `#5`,
-with diagnostics preserved in both runs. Keep that pull request draft and
-unmerged. Continue Phase 1 on a separate branch with the reproducible `uv`,
-`pyproject.toml`, and lockfile environment foundation.
+Commit the reviewed foundation in auditable slices, rebase it onto CI-repair head
+`85f81a3083711c228a7feffda922bbf7827ebdde`, push the separate branch, and open a
+stacked draft pull request against `fix/ci-release-gate-20260715`. Confirm its
+live GitHub Actions signal and diagnostic artifact. Keep both pull requests draft
+and unmerged; do not acquire data, inspect the locked holdout, train, promote, or
+deploy as part of this action.
