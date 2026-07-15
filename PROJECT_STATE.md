@@ -61,11 +61,12 @@ scope.
 | Complete local suite after repair | Passed twice: `50 passed, 21 warnings in 5.88s`; after probe removal, `50 passed, 21 warnings in 5.76s` |
 | Controlled-failure GitHub run `29437200500` | Failed correctly: `1 failed, 50 passed, 21 warnings in 2.56s`; `release-gate` failed with exit `1` |
 | Controlled-failure diagnostic artifact | Upload succeeded; artifact `8351893545`, digest `sha256:e9a8cdeda983c9a635d5129c3c56a4c64cd77cc30fd45769a0a69389e75dd500` |
-| Final passing GitHub run and diagnostic artifact | Pending |
+| Passing GitHub run `29437410732` | Succeeded: `50 passed, 21 warnings in 1.87s`; `release-gate` succeeded |
+| Passing-run diagnostic artifact | Upload succeeded; artifact `8351977471`, digest `sha256:187f06eeb9b6ae01effbc712fcc1608fe4fd9e1766d9b2fca37659d551fcf851` |
 
 ## Exact next action
 
-The controlled failure is proven, its temporary probe is removed, and the complete
-local suite passes. Verify that the next draft pull-request run passes with
-diagnostics preserved. After the signal is trustworthy, continue Phase 1 with the
-reproducible `uv`, `pyproject.toml`, and lockfile environment foundation.
+The controlled failure and restored pass are proven on draft pull request `#5`,
+with diagnostics preserved in both runs. Keep that pull request draft and
+unmerged. Continue Phase 1 on a separate branch with the reproducible `uv`,
+`pyproject.toml`, and lockfile environment foundation.
