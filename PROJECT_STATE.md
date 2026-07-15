@@ -75,6 +75,10 @@ lockfile. `pyproject.toml` is the development and CI authority;
 separately reviewed deployment migration. DuckDB is development-only and does
 not expand the production dependency set.
 
+Published foundation head `0aad0b0c9d1a172369c9d5065a687590299efbed` is on
+draft pull request <https://github.com/phatcobra/nrfi-predictor/pull/6>, stacked
+on the draft CI repair and intentionally unmerged.
+
 | Evidence | Result |
 |---|---|
 | Lock validation | `uv lock --check` resolved the recorded 126-package graph |
@@ -89,18 +93,22 @@ not expand the production dependency set.
 | Pre-commit | Ruff lint, Ruff format, Pyright, and the complete offline pytest hook all passed |
 | Configuration syntax | Five JSON files, two YAML files, and `pyproject.toml` parsed successfully |
 | Privacy and secret review | Added-content scan found no private workstation paths, private keys, or provider-token patterns |
+| Foundation GitHub run `29442936672` | Succeeded: 126-package lock verified, Ruff and format passed, Pyright reported zero diagnostics, import smoke passed, and `58 passed, 21 warnings in 4.45s` |
+| Foundation diagnostic artifact | Upload succeeded; artifact `8354201900`, digest `sha256:6e71d7978df80146a128e3e255de2e473d9cf62c636517d1c7a8ab55ebb6dae4` |
+| Action supply chain | Checkout, Python setup, uv setup, and artifact upload are pinned to the official tag targets' immutable commit SHAs |
 
 The 21 test warnings are 20 upstream scikit-learn deprecations and one Sentry SDK
 deprecation. They are recorded maintenance debt, not suppressed release evidence.
-The Dev Container definition is syntax-validated but has not been built because
-doing so would pull external images. The explicit Pyright legacy baseline and
-moving-major GitHub Action references remain reviewable hardening backlog items.
+The Dev Container definition is syntax-validated and uses a minimal
+`.devcontainer`-only build context. A local build attempt produced no image before
+the fixed ten-minute external-image-fetch timeout; no repository data entered the
+context. The explicit Pyright legacy baseline and the uncompleted image build
+remain reviewable hardening backlog items.
 
 ## Exact next action
 
-Commit the reviewed foundation in auditable slices, rebase it onto CI-repair head
-`85f81a3083711c228a7feffda922bbf7827ebdde`, push the separate branch, and open a
-stacked draft pull request against `fix/ci-release-gate-20260715`. Confirm its
-live GitHub Actions signal and diagnostic artifact. Keep both pull requests draft
-and unmerged; do not acquire data, inspect the locked holdout, train, promote, or
-deploy as part of this action.
+Push the minimal-context and immutable-action hardening to draft pull request
+`#6`, confirm its latest live GitHub Actions signal and diagnostic artifact, and
+keep both pull requests draft and unmerged. Then begin Phase 2 from the preserved
+Phase 0 manifests and reports without rescanning, acquiring data, inspecting the
+locked holdout, training, promoting, or deploying.
