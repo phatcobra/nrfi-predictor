@@ -1,0 +1,35 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "NRFI: Debug offline pytest",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "pytest",
+      "args": [
+        "tests/",
+        "-q"
+      ],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "justMyCode": false,
+      "env": {
+        "SNOWFLAKE_ACCOUNT": "",
+        "SNOWFLAKE_USER": "",
+        "SNOWFLAKE_PASSWORD": "",
+        "OPTIC_API_KEY": "",
+        "OPTICODDS_API_KEY": "",
+        "SDIO_API_KEY": "",
+        "SPORTSDATA_API_KEY": "",
+        "OWM_API_KEY": "",
+        "GH_TOKEN": "",
+        "GITHUB_TOKEN": "",
+        "SENTRY_DSN": "",
+        "SENTRY_AUTH_TOKEN": "",
+        "API_BEARER_TOKEN": "",
+        "ENV": "test",
+        "DATABASE_URL": "sqlite:///:memory:"
+      }
+    }
+  ]
+}

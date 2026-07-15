@@ -1,0 +1,43 @@
+{
+  "name": "NRFI Phase 1 (Python 3.11)",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "remoteUser": "vscode",
+  "updateRemoteUserUID": true,
+  "containerEnv": {
+    "SNOWFLAKE_ACCOUNT": "",
+    "SNOWFLAKE_USER": "",
+    "SNOWFLAKE_PASSWORD": "",
+    "OPTIC_API_KEY": "",
+    "OPTICODDS_API_KEY": "",
+    "SDIO_API_KEY": "",
+    "SPORTSDATA_API_KEY": "",
+    "OWM_API_KEY": "",
+    "GH_TOKEN": "",
+    "GITHUB_TOKEN": "",
+    "SENTRY_DSN": "",
+    "SENTRY_AUTH_TOKEN": "",
+    "API_BEARER_TOKEN": "",
+    "ENV": "test",
+    "DATABASE_URL": "sqlite:///:memory:"
+  },
+  "postCreateCommand": "uv sync --frozen",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "charliermarsh.ruff",
+        "eamodio.gitlens",
+        "evidence.sqltools-duckdb-driver",
+        "github.vscode-pull-request-github",
+        "ms-python.debugpy",
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-toolsai.jupyter",
+        "mtxr.sqltools",
+        "tamasfe.even-better-toml"
+      ]
+    }
+  }
+}

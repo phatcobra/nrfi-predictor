@@ -12,15 +12,33 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+      - name: Initialize test diagnostics
+        run: |
+          printf '%s\n' \
+            'Pytest did not run because an earlier release-gate step failed.' \
+            > pytest.log
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-          cache: pip
-      - name: Install declared dependencies
-        run: pip install --disable-pip-version-check -q -r requirements.txt
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: "0.11.28"
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+      - name: Verify locked dependency graph
+        run: uv lock --check
+      - name: Synchronize locked environment
+        run: uv sync --frozen
+      - name: Ruff lint gate
+        run: uv run --frozen ruff check .
+      - name: Ruff format gate
+        run: uv run --frozen ruff format --check .
+      - name: Pyright gate
+        run: uv run --frozen pyright
       - name: Import smoke gate
         run: |
-          python - <<'PY'
+          uv run --frozen python - <<'PY'
           import nrfi.api
           import nrfi.build_features
           import nrfi.ensemble
@@ -31,12 +49,12 @@ jobs:
           print("core imports passed")
           PY
       - name: Byte-compile package
-        run: python -m py_compile nrfi/*.py scripts/*.py
+        run: uv run --frozen python -m compileall -q nrfi scripts tests
       - name: Run complete offline release gate
         shell: bash
         run: |
           set -o pipefail
-          python -m pytest tests/ -q 2>&1 | tee pytest.log
+          uv run --frozen python -m pytest tests/ -q 2>&1 | tee pytest.log
       - name: Upload pytest diagnostics
         if: always()
         uses: actions/upload-artifact@v4

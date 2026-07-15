@@ -1,0 +1,24 @@
+minimum_pre_commit_version: "4.0.0"
+repos:
+  - repo: local
+    hooks:
+      - id: ruff-check
+        name: Ruff lint
+        entry: uv run --frozen ruff check .
+        language: system
+        pass_filenames: false
+      - id: ruff-format-check
+        name: Ruff format check
+        entry: uv run --frozen ruff format --check .
+        language: system
+        pass_filenames: false
+      - id: pyright
+        name: Pyright
+        entry: uv run --frozen pyright
+        language: system
+        pass_filenames: false
+      - id: pytest
+        name: Offline pytest suite
+        entry: uv run --frozen python -m pytest tests/ -q --basetemp=.pytest-tmp/pre-commit
+        language: system
+        pass_filenames: false
