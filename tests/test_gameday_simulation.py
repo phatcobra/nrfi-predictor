@@ -250,10 +250,9 @@ def test_one_book_is_not_a_consensus():
     assert row["block_reason"] == "no_market_consensus"
 
 
-def test_shrinkage_applied_toward_venue():
-    # stub predicts 0.61; venue rate 0.52 -> final must sit between them
+def test_daily_probability_is_exact_canonical_model_output():
     row = _predictor(RichBuilder()).score_game(_game(), _odds(), NOW)
-    assert 0.52 <= row["p_yrfi"] <= 0.61
+    assert row["p_yrfi"] == pytest.approx(0.61)
 
 
 # ------------------------------------------------------------ dashboard

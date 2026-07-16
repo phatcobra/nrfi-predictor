@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import logging
 import os
 from datetime import datetime, timezone
@@ -17,6 +18,13 @@ from nrfi.build_features import FeatureBuilder, coverage
 from nrfi.config import CV_PURGE_DAYS, Config
 from nrfi.data_readiness import require_warehouse_ready
 from nrfi.ensemble import StackedEnsemble
+from nrfi.probability import (
+    FINAL_PROBABILITY_PIPELINE_VERSION,
+    HOLDOUT_EVIDENCE_CONTRACT_VERSION,
+    OOF_EVIDENCE_CONTRACT_VERSION,
+    canonical_probability,
+    temporal_calibration_evidence,
+)
 from nrfi.snowflake_loader import SnowflakeLoader
 from nrfi.venn_abers import VennAbersCalibrator
 
@@ -38,6 +46,8 @@ class NFRIModelTrainer:
         self.calibrator: VennAbersCalibrator | None = None
         self.venue_yrfi_rates: Dict[str, float] = {}
         self.feature_names: List[str] = []
+        self._final_oof_scores = np.array([], dtype=float)
+        self._final_oof_mask = np.array([], dtype=bool)
 
     def load_training_data(
         self, start_date: str, end_date: str, allow_holdout: bool = False
@@ -131,11 +141,20 @@ class NFRIModelTrainer:
             raise ValueError(
                 "all games were dropped by feature construction/coverage gates"
             )
-        self.feature_names = sorted(
+        batch_feature_names = sorted(
             {name for values in feature_dicts for name in values}
         )
-        if not self.feature_names:
+        if not batch_feature_names:
             raise ValueError("feature builder returned no feature columns")
+        if self.feature_names and batch_feature_names != self.feature_names:
+            missing = sorted(set(self.feature_names).difference(batch_feature_names))
+            unexpected = sorted(set(batch_feature_names).difference(self.feature_names))
+            raise ValueError(
+                "evaluation feature contract differs from loaded model: "
+                f"missing={missing}, unexpected={unexpected}"
+            )
+        if not self.feature_names:
+            self.feature_names = batch_feature_names
 
         matrix = np.array(
             [
@@ -172,13 +191,39 @@ class NFRIModelTrainer:
             raise ValueError("kept_games and target row counts differ")
 
         self.ensemble = StackedEnsemble(purge_days=CV_PURGE_DAYS)
+        self.calibrator = None
         report = self.ensemble.fit(X, y, dates, self.feature_names)
         mask = self.ensemble._oof_mask
         if mask.sum() < 50:
             raise ValueError("insufficient OOF rows for probability calibration")
-        self.calibrator = VennAbersCalibrator().fit(
-            self.ensemble._oof_scores[mask], y[mask]
+        baseline_scores = getattr(self.ensemble, "_baseline_oof_scores", None)
+        if baseline_scores is None:
+            raise ValueError("ensemble omitted prior-only OOF baseline predictions")
+        raw_stack_gates_passed = bool(report.get("gates_passed"))
+        final_report, final_scores, final_mask = temporal_calibration_evidence(
+            self.ensemble._oof_scores,
+            baseline_scores,
+            y,
+            dates,
+            n_folds=self.ensemble.n_folds,
+            purge_days=self.ensemble.purge_days,
         )
+        final_report["raw_stack_gates_passed"] = raw_stack_gates_passed
+        final_report["gates_passed"] = bool(
+            raw_stack_gates_passed and final_report["gates_passed"]
+        )
+        report["raw_stack_gates_passed"] = raw_stack_gates_passed
+        report["final_probability_oof"] = final_report
+        report["probability_pipeline_version"] = FINAL_PROBABILITY_PIPELINE_VERSION
+        report["oof_evidence_contract_version"] = OOF_EVIDENCE_CONTRACT_VERSION
+        report["holdout_evidence_contract_version"] = HOLDOUT_EVIDENCE_CONTRACT_VERSION
+        report["gates_passed"] = final_report["gates_passed"]
+        self._final_oof_scores = final_scores
+        self._final_oof_mask = final_mask
+        if report["gates_passed"]:
+            self.calibrator = VennAbersCalibrator().fit(
+                self.ensemble._oof_scores[mask], y[mask]
+            )
 
         venue_frame = kept_games.assign(yrfi=np.asarray(y, dtype=int))
         venue_rates = venue_frame.groupby("venue_id", dropna=True)["yrfi"].agg(
@@ -203,14 +248,18 @@ class NFRIModelTrainer:
     def predict_proba(self, X: np.ndarray) -> np.ndarray:
         if self.ensemble is None or self.calibrator is None:
             raise RuntimeError("model not loaded - refusing to guess")
-        probabilities = np.asarray(
-            self.calibrator.predict(self.ensemble.raw_scores(X)), dtype=float
+        probabilities = canonical_probability(
+            self.calibrator.predict(self.ensemble.raw_scores(X))
         )
-        if np.any(~np.isfinite(probabilities)):
-            raise ValueError("model emitted non-finite calibrated probabilities")
-        if np.any((probabilities < 0.0) | (probabilities > 1.0)):
-            raise ValueError("model emitted probabilities outside [0, 1]")
         return probabilities
+
+    @staticmethod
+    def _sha256(path: str) -> str:
+        digest = hashlib.sha256()
+        with open(path, "rb") as file_handle:
+            for chunk in iter(lambda: file_handle.read(1024 * 1024), b""):
+                digest.update(chunk)
+        return digest.hexdigest()
 
     def save_model(
         self, model_dir: str, version: str | None = None, metrics: Dict | None = None
@@ -235,10 +284,17 @@ class NFRIModelTrainer:
             },
             temporary_bundle,
         )
+        artifact_sha256 = self._sha256(temporary_bundle)
+        if metrics is not None:
+            metrics["artifact_sha256"] = artifact_sha256
         with open(temporary_metadata, "w", encoding="utf-8") as file_handle:
             json.dump(
                 {
                     "version": version,
+                    "artifact_sha256": artifact_sha256,
+                    "probability_pipeline_version": FINAL_PROBABILITY_PIPELINE_VERSION,
+                    "oof_evidence_contract_version": OOF_EVIDENCE_CONTRACT_VERSION,
+                    "holdout_evidence_contract_version": HOLDOUT_EVIDENCE_CONTRACT_VERSION,
                     "feature_names": self.feature_names,
                     "metrics": metrics or {},
                     "created_at": datetime.now(timezone.utc).isoformat(),
@@ -252,7 +308,9 @@ class NFRIModelTrainer:
         logger.info(f"saved model bundle {version}")
         return version
 
-    def load_model(self, model_dir: str, version: str) -> None:
+    def load_model(
+        self, model_dir: str, version: str, expected_artifact_sha256: str | None = None
+    ) -> None:
         bundle_path = os.path.join(model_dir, f"nrfi_bundle_{version}.joblib")
         metadata_path = os.path.join(model_dir, f"nrfi_meta_{version}.json")
         if not os.path.exists(bundle_path) or not os.path.exists(metadata_path):
@@ -261,6 +319,30 @@ class NFRIModelTrainer:
             metadata = json.load(file_handle)
         if metadata.get("version") != version:
             raise ValueError("model metadata version does not match requested version")
+        if (
+            metadata.get("probability_pipeline_version")
+            != FINAL_PROBABILITY_PIPELINE_VERSION
+        ):
+            raise ValueError("model metadata probability pipeline is unsupported")
+        if (
+            metadata.get("oof_evidence_contract_version")
+            != OOF_EVIDENCE_CONTRACT_VERSION
+        ):
+            raise ValueError("model metadata OOF evidence contract is unsupported")
+        if (
+            metadata.get("holdout_evidence_contract_version")
+            != HOLDOUT_EVIDENCE_CONTRACT_VERSION
+        ):
+            raise ValueError("model metadata holdout evidence contract is unsupported")
+        recorded_digest = str(metadata.get("artifact_sha256") or "")
+        actual_digest = self._sha256(bundle_path)
+        if recorded_digest != actual_digest:
+            raise ValueError("model artifact SHA-256 does not match metadata")
+        if (
+            expected_artifact_sha256 is not None
+            and actual_digest != expected_artifact_sha256
+        ):
+            raise ValueError("model artifact SHA-256 does not match registry")
         bundle = joblib.load(bundle_path)
         required = {
             "ensemble",
@@ -289,6 +371,25 @@ class NFRIModelTrainer:
             if training_start and training_end
             else None
         )
+        final_oof = metrics.get("final_probability_oof", {})
+        artifact_sha256 = metrics.get("artifact_sha256")
+        if status == "candidate":
+            if (
+                metrics.get("probability_pipeline_version")
+                != FINAL_PROBABILITY_PIPELINE_VERSION
+                or metrics.get("oof_evidence_contract_version")
+                != OOF_EVIDENCE_CONTRACT_VERSION
+                or metrics.get("holdout_evidence_contract_version")
+                != HOLDOUT_EVIDENCE_CONTRACT_VERSION
+                or not isinstance(artifact_sha256, str)
+                or len(artifact_sha256) != 64
+                or any(
+                    character not in "0123456789abcdef" for character in artifact_sha256
+                )
+            ):
+                raise ValueError(
+                    "candidate lacks versioned probability artifact evidence"
+                )
         self.sf.merge_upsert(
             "NRFI_DB.ML.MODEL_STATUS",
             [
@@ -296,9 +397,19 @@ class NFRIModelTrainer:
                     "model_version": version,
                     "trained_at": datetime.now(timezone.utc).isoformat(),
                     "feature_version": "fv3.1",
+                    "probability_pipeline_version": metrics.get(
+                        "probability_pipeline_version"
+                    ),
+                    "oof_evidence_contract_version": metrics.get(
+                        "oof_evidence_contract_version"
+                    ),
+                    "holdout_evidence_contract_version": metrics.get(
+                        "holdout_evidence_contract_version"
+                    ),
+                    "artifact_sha256": artifact_sha256,
                     "train_range": train_range,
-                    "cv_logloss": metrics.get("stack", {}).get("logloss"),
-                    "cv_brier": metrics.get("stack", {}).get("brier"),
+                    "cv_logloss": final_oof.get("final_probability", {}).get("logloss"),
+                    "cv_brier": final_oof.get("final_probability", {}).get("brier"),
                     "gates_passed": metrics.get("gates_passed"),
                     "gate_report": json.dumps(metrics, default=float),
                     "status": status,

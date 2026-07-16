@@ -6,6 +6,11 @@ Fail-closed MLB first-inning probability system. It estimates `P(YRFI)` and `P(N
 
 The repository contains a tested model pipeline, warehouse schema, validation gates, API, and scheduled paper-mode jobs. A production model exists only after observed raw data is loaded and one candidate passes both the purged walk-forward gates and the locked 2025 holdout. The service refuses scoring when the registry has no approved production model.
 
+The sole deployable probability path is the temporally cross-fitted ensemble
+score, followed by Venn-Abers calibration and one final bounds clip. Venue
+shrinkage remains a quarantined research utility and is not applied in serving;
+it requires separately predeclared temporal evidence before reconsideration.
+
 Do not use the model artifact from PR #1. Its committed walk-forward report was worse than climatology in every reported season and failed the basic skill requirement.
 
 ## System flow

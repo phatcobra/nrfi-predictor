@@ -5,6 +5,10 @@ CREATE TABLE IF NOT EXISTS NRFI_DB.ML.MODEL_STATUS (
     model_version              VARCHAR NOT NULL,
     trained_at                 TIMESTAMP_TZ,
     feature_version            VARCHAR,
+    probability_pipeline_version VARCHAR,
+    oof_evidence_contract_version VARCHAR,
+    holdout_evidence_contract_version VARCHAR,
+    artifact_sha256             VARCHAR,
     train_range                VARCHAR,
     cv_logloss                 FLOAT,
     cv_brier                   FLOAT,
@@ -29,6 +33,10 @@ ALTER TABLE NRFI_DB.ML.MODEL_STATUS ADD COLUMN IF NOT EXISTS holdout_n INTEGER;
 ALTER TABLE NRFI_DB.ML.MODEL_STATUS ADD COLUMN IF NOT EXISTS holdout_passed BOOLEAN;
 ALTER TABLE NRFI_DB.ML.MODEL_STATUS ADD COLUMN IF NOT EXISTS holdout_evaluated_at TIMESTAMP_TZ;
 ALTER TABLE NRFI_DB.ML.MODEL_STATUS ADD COLUMN IF NOT EXISTS holdout_burned_rerun BOOLEAN;
+ALTER TABLE NRFI_DB.ML.MODEL_STATUS ADD COLUMN IF NOT EXISTS probability_pipeline_version VARCHAR;
+ALTER TABLE NRFI_DB.ML.MODEL_STATUS ADD COLUMN IF NOT EXISTS oof_evidence_contract_version VARCHAR;
+ALTER TABLE NRFI_DB.ML.MODEL_STATUS ADD COLUMN IF NOT EXISTS holdout_evidence_contract_version VARCHAR;
+ALTER TABLE NRFI_DB.ML.MODEL_STATUS ADD COLUMN IF NOT EXISTS artifact_sha256 VARCHAR;
 
 -- Paper-mode: probabilities + diagnostic edge. No action/staking column exists.
 CREATE TABLE IF NOT EXISTS NRFI_DB.ML.PREDICTIONS (

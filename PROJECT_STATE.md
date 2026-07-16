@@ -4,13 +4,13 @@ Status date: 2026-07-15
 
 Phase 0: **PASS WITH DOCUMENTED EXCEPTIONS**
 
-Phase 1: **PASS WITH DOCUMENTED EXCEPTIONS**
+Phase 1: **IN PROGRESS**
 
 Phase 2: **IN PROGRESS**
 
-Current task: **data inventory and contracts from preserved Phase 0 evidence**
+Current task: **model evidence integrity and canonical probability-path repair**
 
-Current branch: `chore/phase1-environment-foundation-20260715`
+Current branch: `fix/model-evidence-integrity-20260715`
 
 The Phase 0 asset inventory, per-file manifest, reconciliation, data-gap analysis,
 repository assessment, and risk register are complete. Their two deterministic
@@ -111,11 +111,19 @@ remain reviewable hardening backlog items.
 
 ## Exact next action
 
-Create a separate Phase 2 branch from the validated foundation and map the
-preserved Phase 0 manifest records to the required source, schema, key, timing,
-provenance, coverage, and classification contracts. Produce `DATA_CONTRACTS.md`,
-machine-readable contracts, coverage/schema/gap/reuse/rejected-assets reports,
-and a gap-limited acquisition plan. Mark unverified or quarantined attributes as
-unknown rather than rescanning, acquiring data, inspecting the locked holdout,
-training, promoting, or deploying. Keep draft pull requests `#5` and `#6`
+The current modeling repair is local-only and remains pre-publication: no real
+data, locked holdout, model artifact, or production system was accessed. The
+canonical path is now meta -> temporal Venn-Abers -> one final clip; venue
+shrinkage remains quarantined pending separate temporal evidence. Validation
+passed with `72 passed, 21 warnings`, repository-wide Ruff lint and formatting,
+byte compilation, Pyright (`0 errors, 0 warnings, 0 informations`), and
+`git diff --check`. SQL registry columns, evidence-contract preflight,
+fail-closed holdout burn recording, candidate-status enforcement, and
+stale-calibrator clearing were corrected locally. The branch is uncommitted and
+unpublished pending authenticated GitHub tooling.
+
+Resume validation of the existing `docs/phase2-data-contracts-20260715`
+worktree using only the preserved Phase 0 manifests. Do not rescan, acquire data,
+inspect the locked holdout, train, promote, or deploy. Keep draft pull requests
+`#5` and `#6`
 unmerged.

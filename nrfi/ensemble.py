@@ -1,11 +1,12 @@
-"""Gated ensemble: LightGBM + ElasticNet-logistic OOF stack -> Venn-ABERS.
+"""Gated ensemble: fixed LightGBM + ElasticNet temporal OOF stack.
 
 Evidence discipline:
   - Expanding walk-forward folds with a configurable purge gap.
-  - Members, meta-learner, and calibrator use out-of-fold evidence only.
-  - Optional members ship only after a pooled OOF log-loss ablation gate.
-  - The final gate report is recomputed after member selection and therefore
-    describes the exact ensemble that is fitted and persisted.
+  - Base members use fixed, predeclared training behavior in every outer fold.
+  - Each reported stack score comes from a fresh meta-learner fitted only on
+    earlier first-level OOF folds outside the purge gap.
+  - The shipped member architecture is fixed and cannot depend on ambient
+    optional packages.
 """
 
 from __future__ import annotations
@@ -18,12 +19,12 @@ from sklearn.metrics import brier_score_loss, log_loss
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
-from nrfi._obs import logger
-
 GATE_LOGLOSS_MIN = 0.005
 GATE_BRIER_MIN = 0.002
 SHRINKAGE_K = 20.0
 RANDOM_SEED = 42
+LGB_NUM_BOOST_ROUND = 200
+META_MIN_TRAIN = 50
 
 LGB_PARAMS = {
     "objective": "binary",
@@ -73,26 +74,18 @@ def purged_walk_forward_folds(
         yield train_idx, validation_idx
 
 
-def _fit_lgbm(
-    X_train, y_train, X_validation=None, y_validation=None, feature_names=None
-):
+def _fit_lgbm(X_train, y_train, feature_names=None):
     import lightgbm as lgb
 
-    train_data = lgb.Dataset(
-        X_train, label=y_train, feature_name=list(feature_names or []) or "auto"
+    return lgb.train(
+        LGB_PARAMS,
+        lgb.Dataset(
+            X_train,
+            label=y_train,
+            feature_name=list(feature_names or []) or "auto",
+        ),
+        num_boost_round=LGB_NUM_BOOST_ROUND,
     )
-    if X_validation is not None:
-        validation_data = lgb.Dataset(
-            X_validation, label=y_validation, reference=train_data
-        )
-        return lgb.train(
-            LGB_PARAMS,
-            train_data,
-            num_boost_round=1000,
-            valid_sets=[validation_data],
-            callbacks=[lgb.early_stopping(50, verbose=False)],
-        )
-    return lgb.train(LGB_PARAMS, train_data, num_boost_round=200)
 
 
 def _meta_model() -> LogisticRegression:
@@ -120,13 +113,28 @@ def _enet_pipeline() -> Pipeline:
     )
 
 
+def _probability_gate(stack: dict, baseline: dict) -> tuple[dict, bool]:
+    """Return exact baseline-minus-stack deltas and the predeclared decision."""
+    logloss_improvement = baseline["logloss"] - stack["logloss"]
+    brier_improvement = baseline["brier"] - stack["brier"]
+    improvements = {
+        "logloss": float(logloss_improvement),
+        "brier": float(brier_improvement),
+        "minimum_logloss": GATE_LOGLOSS_MIN,
+        "minimum_brier": GATE_BRIER_MIN,
+    }
+    passed = (
+        logloss_improvement >= GATE_LOGLOSS_MIN and brier_improvement >= GATE_BRIER_MIN
+    )
+    return improvements, bool(passed)
+
+
 class Member:
     """A gated ensemble member."""
 
     def __init__(self, name: str):
         self.name = name
         self.model = None
-        self.best_iters: list[int] = []
 
     def fit_fold(self, X_train, y_train, X_validation, y_validation, feature_names):
         raise NotImplementedError
@@ -143,19 +151,11 @@ class LGBMMember(Member):
         super().__init__("lgbm")
 
     def fit_fold(self, X_train, y_train, X_validation, y_validation, feature_names):
-        model = _fit_lgbm(X_train, y_train, X_validation, y_validation, feature_names)
-        self.best_iters.append(model.best_iteration or 200)
-        return model.predict(X_validation, num_iteration=model.best_iteration)
+        model = _fit_lgbm(X_train, y_train, feature_names)
+        return model.predict(X_validation)
 
     def fit_full(self, X, y, feature_names):
-        import lightgbm as lgb
-
-        rounds = int(np.median(self.best_iters)) if self.best_iters else 200
-        self.model = lgb.train(
-            LGB_PARAMS,
-            lgb.Dataset(X, label=y, feature_name=list(feature_names)),
-            num_boost_round=rounds,
-        )
+        self.model = _fit_lgbm(X, y, feature_names)
 
     def predict(self, X):
         if self.model is None:
@@ -181,65 +181,8 @@ class ENetMember(Member):
         return self.model.predict_proba(X)[:, 1]
 
 
-def optional_members() -> list[Member]:
-    """Return optional candidates only when their dependency is installed."""
-    candidates: list[Member] = []
-    try:
-        import xgboost as xgb
-
-        class XGBMember(Member):
-            def __init__(self):
-                super().__init__("xgb")
-
-            def fit_fold(
-                self, X_train, y_train, X_validation, y_validation, feature_names
-            ):
-                model = xgb.XGBClassifier(
-                    n_estimators=400,
-                    max_depth=5,
-                    learning_rate=0.05,
-                    subsample=0.8,
-                    colsample_bytree=0.8,
-                    eval_metric="logloss",
-                    early_stopping_rounds=50,
-                    random_state=RANDOM_SEED,
-                    n_jobs=1,
-                )
-                model.fit(
-                    X_train,
-                    y_train,
-                    eval_set=[(X_validation, y_validation)],
-                    verbose=False,
-                )
-                self.best_iters.append(model.best_iteration or 200)
-                return model.predict_proba(X_validation)[:, 1]
-
-            def fit_full(self, X, y, feature_names):
-                rounds = int(np.median(self.best_iters)) if self.best_iters else 200
-                self.model = xgb.XGBClassifier(
-                    n_estimators=rounds,
-                    max_depth=5,
-                    learning_rate=0.05,
-                    subsample=0.8,
-                    colsample_bytree=0.8,
-                    eval_metric="logloss",
-                    random_state=RANDOM_SEED,
-                    n_jobs=1,
-                ).fit(X, y)
-
-            def predict(self, X):
-                if self.model is None:
-                    raise RuntimeError("XGBoost member has not been fitted")
-                return self.model.predict_proba(X)[:, 1]
-
-        candidates.append(XGBMember())
-    except ImportError:
-        pass
-    return candidates
-
-
 class StackedEnsemble:
-    """Core LightGBM/ElasticNet stack with gated optional additions."""
+    """Fixed LightGBM/ElasticNet stack with temporal evidence separation."""
 
     def __init__(self, purge_days: int = 7, n_folds: int = 5):
         self.purge_days = purge_days
@@ -249,9 +192,13 @@ class StackedEnsemble:
         self.feature_names: list[str] = []
         self._oof_scores = np.array([], dtype=float)
         self._oof_mask = np.array([], dtype=bool)
+        self._baseline_oof_scores = np.array([], dtype=float)
+        self._first_level_fold_ids = np.array([], dtype=int)
+        self._meta_fold_audit: list[dict] = []
 
     def _oof_matrix(self, members, X, y, dates) -> np.ndarray:
         oof = np.full((len(X), len(members)), np.nan)
+        fold_ids = np.full(len(X), -1, dtype=int)
         fold_count = 0
         for train_idx, validation_idx in purged_walk_forward_folds(
             dates, self.n_folds, self.purge_days
@@ -269,9 +216,71 @@ class StackedEnsemble:
                     y[validation_idx],
                     self.feature_names,
                 )
+            fold_ids[validation_idx] = fold_count - 1
         if fold_count == 0:
             raise ValueError("no valid walk-forward folds were produced")
+        self._first_level_fold_ids = fold_ids
         return oof
+
+    def _crossfit_meta(
+        self,
+        oof: np.ndarray,
+        y: np.ndarray,
+        dates: pd.Series,
+    ) -> tuple[np.ndarray, np.ndarray]:
+        """Create temporal meta and prior-climatology scores on identical rows."""
+        complete = ~np.isnan(oof).any(axis=1)
+        stack_oof = np.full(len(y), np.nan)
+        baseline_oof = np.full(len(y), np.nan)
+        self._meta_fold_audit = []
+
+        available_folds = np.unique(self._first_level_fold_ids[complete])
+        available_folds = available_folds[available_folds >= 0]
+        for validation_fold in available_folds[1:]:
+            validation_idx = np.flatnonzero(
+                complete & (self._first_level_fold_ids == validation_fold)
+            )
+            if len(validation_idx) == 0:
+                continue
+            cutoff = dates.iloc[validation_idx[0]] - pd.Timedelta(days=self.purge_days)
+            earlier_complete = (
+                complete
+                & (self._first_level_fold_ids >= 0)
+                & (self._first_level_fold_ids < validation_fold)
+            )
+            train_idx = np.flatnonzero(
+                earlier_complete
+                & (dates.to_numpy(dtype="datetime64[ns]") <= np.datetime64(cutoff))
+            )
+            if len(train_idx) < META_MIN_TRAIN:
+                continue
+            if len(np.unique(y[train_idx])) < 2:
+                raise ValueError("meta training fold contains one class")
+            if len(np.unique(y[validation_idx])) < 2:
+                raise ValueError("meta validation fold contains one class")
+
+            fold_meta = _meta_model().fit(oof[train_idx], y[train_idx])
+            stack_oof[validation_idx] = fold_meta.predict_proba(oof[validation_idx])[
+                :, 1
+            ]
+            baseline_rate = float(np.clip(y[train_idx].mean(), 1e-6, 1 - 1e-6))
+            baseline_oof[validation_idx] = baseline_rate
+            self._meta_fold_audit.append(
+                {
+                    "validation_fold": int(validation_fold),
+                    "train_idx": train_idx.copy(),
+                    "validation_idx": validation_idx.copy(),
+                    "purge_cutoff": pd.Timestamp(cutoff),
+                    "baseline_rate": baseline_rate,
+                }
+            )
+
+        evidence_mask = ~np.isnan(stack_oof)
+        if evidence_mask.sum() < META_MIN_TRAIN:
+            raise ValueError("insufficient temporal meta OOF rows for stack evidence")
+        if not np.array_equal(evidence_mask, ~np.isnan(baseline_oof)):
+            raise RuntimeError("stack and baseline evidence rows differ")
+        return stack_oof, baseline_oof
 
     @staticmethod
     def _pooled(oof_col, y):
@@ -286,18 +295,15 @@ class StackedEnsemble:
         }
 
     @staticmethod
-    def _baseline(y, mask) -> dict:
-        observed = y[mask]
-        if len(observed) == 0 or len(np.unique(observed)) < 2:
-            raise ValueError("OOF baseline requires both target classes")
-        rate = float(np.clip(observed.mean(), 1e-6, 1 - 1e-6))
-        constant = np.full(mask.sum(), rate)
-        return {
-            "rate": rate,
-            "logloss": float(log_loss(observed, constant)),
-            "brier": float(brier_score_loss(observed, constant)),
-            "n": int(mask.sum()),
-        }
+    def _baseline(y, baseline_oof, deployment_rate) -> dict:
+        report = StackedEnsemble._pooled(baseline_oof, y)
+        report.update(
+            {
+                "deployment_rate": float(np.clip(deployment_rate, 1e-6, 1 - 1e-6)),
+                "method": "prior_fold_climatology",
+            }
+        )
+        return report
 
     def fit(
         self, X: np.ndarray, y: np.ndarray, dates: pd.Series, feature_names: list[str]
@@ -316,68 +322,32 @@ class StackedEnsemble:
         self.feature_names = list(feature_names)
 
         oof = self._oof_matrix(self.members, X, y, dates)
-        mask = ~np.isnan(oof).any(axis=1)
-        if mask.sum() < 50:
+        member_mask = ~np.isnan(oof).any(axis=1)
+        if member_mask.sum() < META_MIN_TRAIN:
             raise ValueError("insufficient pooled OOF rows for stack training")
 
-        self.meta = _meta_model().fit(oof[mask], y[mask])
-        stack_oof = np.full(len(X), np.nan)
-        stack_oof[mask] = self.meta.predict_proba(oof[mask])[:, 1]
-
+        stack_oof, baseline_oof = self._crossfit_meta(oof, y, dates)
+        evidence_mask = ~np.isnan(stack_oof)
         report = {"ablation": {}}
-        base_logloss = self._pooled(stack_oof, y)["logloss"]
-
-        for candidate in optional_members():
-            trial_members = [LGBMMember(), ENetMember(), candidate]
-            trial_oof = self._oof_matrix(trial_members, X, y, dates)
-            trial_mask = ~np.isnan(trial_oof).any(axis=1)
-            trial_meta = _meta_model().fit(trial_oof[trial_mask], y[trial_mask])
-            trial_stack = trial_meta.predict_proba(trial_oof[trial_mask])[:, 1]
-            trial_logloss = float(
-                log_loss(y[trial_mask], np.clip(trial_stack, 1e-6, 1 - 1e-6))
-            )
-            improvement = base_logloss - trial_logloss
-            passed = improvement >= GATE_LOGLOSS_MIN
-            report["ablation"][candidate.name] = {
-                "logloss_with": trial_logloss,
-                "logloss_without": base_logloss,
-                "delta": improvement,
-                "passes_gate": bool(passed),
-            }
-            if not passed:
-                logger.info(
-                    f"member {candidate.name} FAILED gate "
-                    f"(delta {improvement:.4f}) - not shipped"
-                )
-                continue
-
-            logger.info(
-                f"member {candidate.name} PASSED gate "
-                f"(delta {improvement:.4f}) - adding"
-            )
-            self.members.append(candidate)
-            oof = np.column_stack([oof, trial_oof[:, -1]])
-            mask = ~np.isnan(oof).any(axis=1)
-            self.meta = _meta_model().fit(oof[mask], y[mask])
-            stack_oof = np.full(len(X), np.nan)
-            stack_oof[mask] = self.meta.predict_proba(oof[mask])[:, 1]
-            base_logloss = self._pooled(stack_oof, y)["logloss"]
-
-        # Recompute every report field from the final selected OOF matrix.
         report["members"] = {
-            member.name: self._pooled(oof[:, column], y)
+            member.name: self._pooled(
+                np.where(evidence_mask, oof[:, column], np.nan), y
+            )
             for column, member in enumerate(self.members)
         }
         report["stack"] = self._pooled(stack_oof, y)
-        report["baseline_constant"] = self._baseline(y, mask)
+        report["baseline_constant"] = self._baseline(y, baseline_oof, y.mean())
         report["shipped_members"] = [member.name for member in self.members]
-        report["gates_passed"] = bool(
-            report["stack"]["logloss"] < report["baseline_constant"]["logloss"]
+        report["gate_improvements"], report["gates_passed"] = _probability_gate(
+            report["stack"], report["baseline_constant"]
         )
 
         self._oof_scores = stack_oof
-        self._oof_mask = mask
+        self._oof_mask = evidence_mask
+        self._baseline_oof_scores = baseline_oof
 
+        # Deployment fitting happens only after the temporal evidence is frozen.
+        self.meta = _meta_model().fit(oof[member_mask], y[member_mask])
         for member in self.members:
             member.fit_full(X, y, self.feature_names)
         return report

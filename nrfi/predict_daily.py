@@ -25,10 +25,9 @@ from nrfi.config import (
     ODDS_MAX_AGE_SECONDS,
     TZ_ET,
 )
-from nrfi.ensemble import n_eff_for_game, shrink_to_venue
 from nrfi.guards import coverage_blocks, market_usable, tier_for
 from nrfi.ingest_opticodds import OpticOddsIngester
-from nrfi.model_registry import production_model_version
+from nrfi.model_registry import production_model_record
 from nrfi.snowflake_loader import SnowflakeLoader
 from nrfi.train import NFRIModelTrainer
 
@@ -75,7 +74,8 @@ class NFRIDailyPredictor:
     ):
         self.config = config or Config()
         self.sf = SnowflakeLoader()
-        approved_version = production_model_version(self.sf)
+        approved_record = production_model_record(self.sf)
+        approved_version = str(approved_record["model_version"])
         if model_version is not None and model_version != approved_version:
             raise ValueError(
                 f"requested model {model_version} is not the approved production "
@@ -85,7 +85,11 @@ class NFRIDailyPredictor:
         self.builder = FeatureBuilder(self.sf)
         self.odds = OpticOddsIngester()
         self.trainer = NFRIModelTrainer()
-        self.trainer.load_model(self.config.MODEL_DIR, self.model_version)
+        self.trainer.load_model(
+            self.config.MODEL_DIR,
+            self.model_version,
+            expected_artifact_sha256=str(approved_record["artifact_sha256"]),
+        )
         logger.info(f"loaded registry-approved production model {self.model_version}")
 
     def get_todays_games(self, target_date: Optional[str] = None) -> List[Dict]:
@@ -249,22 +253,13 @@ class NFRIDailyPredictor:
             [[features.get(name, np.nan) for name in self.trainer.feature_names]],
             dtype=float,
         )
-        calibrated_probability = float(self.trainer.predict_proba(matrix)[0])
-        if (
-            not np.isfinite(calibrated_probability)
-            or not 0.0 <= calibrated_probability <= 1.0
-        ):
+        final_probability = float(self.trainer.predict_proba(matrix)[0])
+        if not np.isfinite(final_probability) or not 0.0 <= final_probability <= 1.0:
             row.update(status="BLOCKED", block_reason="invalid_model_probability")
             return row
-
-        venue_rate = self.trainer.venue_yrfi_rates.get(str(game.get("venue_id")))
-        row["p_yrfi"] = float(
-            shrink_to_venue(
-                calibrated_probability,
-                venue_rate,
-                n_eff_for_game(features, feature_coverage),
-            )
-        )
+        # Venue shrinkage is intentionally quarantined until its temporal
+        # semantics have predeclared, cross-fitted validation evidence.
+        row["p_yrfi"] = final_probability
 
         market = self.market_consensus(
             odds_by_matchup.get((game["home_team"], game["away_team"])),
