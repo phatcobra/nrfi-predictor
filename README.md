@@ -73,6 +73,9 @@ Observed sources
 | `nrfi/predict_daily.py` | Fail-closed daily scoring |
 | `nrfi/ingest_opticodds.py` | Exact-market, per-book no-vig odds snapshots |
 | `nrfi/grade_nightly.py` | Brier, log-loss, calibration, and market diagnostics |
+| `nrfi/lineage.py` | Immutable lineage envelopes, deterministic input manifests, and local append-only fallback |
+| `nrfi/lifecycle.py` | Fail-closed lifecycle envelope factories; metadata construction only |
+| `schemas/` | Versioned public lineage-envelope and input-manifest schemas |
 | `nrfi/api.py` | FastAPI paper-mode service |
 
 ## Offline developer setup

@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.nrfi.local/input-manifest-v1.schema.json",
+  "title": "NRFI deterministic input manifest v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract_id",
+    "entries",
+    "entry_count",
+    "manifest_id",
+    "manifest_version",
+    "schema_version",
+    "total_bytes"
+  ],
+  "properties": {
+    "contract_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+    },
+    "entries": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["bytes", "path", "role", "sha256"],
+        "properties": {
+          "bytes": {"type": "integer", "minimum": 0},
+          "path": {
+            "type": "string",
+            "pattern": "^artifacts/sha256/[0-9a-f]{2}/[0-9a-f]{64}/[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+          },
+          "role": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+          },
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+        }
+      }
+    },
+    "entry_count": {"type": "integer", "minimum": 1},
+    "manifest_id": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "manifest_version": {"const": "nrfi.input-manifest.v1"},
+    "schema_version": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+    },
+    "total_bytes": {"type": "integer", "minimum": 0}
+  }
+}

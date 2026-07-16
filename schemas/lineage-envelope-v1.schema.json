@@ -1,0 +1,194 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.nrfi.local/lineage-envelope-v1.schema.json",
+  "title": "NRFI storage-neutral lineage envelope v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "record_id",
+    "admission_status",
+    "artifact",
+    "contract_id",
+    "envelope_version",
+    "identity",
+    "links",
+    "provenance",
+    "provenance_gaps",
+    "record_type",
+    "schema_version",
+    "supersedes",
+    "time_gaps",
+    "times"
+  ],
+  "properties": {
+    "record_id": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "admission_status": {
+      "enum": ["quarantined", "rejected", "unadmitted"]
+    },
+    "artifact": {
+      "oneOf": [
+        {"type": "null"},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["bytes", "path", "sha256"],
+          "properties": {
+            "bytes": {"type": "integer", "minimum": 0},
+            "path": {
+              "type": "string",
+              "pattern": "^artifacts/sha256/[0-9a-f]{2}/[0-9a-f]{64}/[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+            },
+            "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+          }
+        }
+      ]
+    },
+    "contract_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+    },
+    "envelope_version": {"const": "nrfi.lineage.v1"},
+    "identity": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": {
+        "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+      },
+      "additionalProperties": {"type": "string", "minLength": 1}
+    },
+    "links": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["relation", "target_record_id"],
+        "properties": {
+          "relation": {
+            "enum": [
+              "affects_deployment",
+              "calibrates_model",
+              "consumes",
+              "deploys_calibrator",
+              "deploys_model",
+              "evaluated_by_fold",
+              "grades_prediction",
+              "part_of_experiment",
+              "produced_by_experiment",
+              "repairs_incident",
+              "responds_to_incident",
+              "rolls_back_deployment",
+              "uses_calibrator",
+              "uses_feature_version",
+              "uses_market_snapshot",
+              "uses_model",
+              "uses_prediction"
+            ]
+          },
+          "target_record_id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        }
+      }
+    },
+    "provenance": {
+      "$ref": "#/$defs/provenance"
+    },
+    "provenance_gaps": {
+      "type": "object",
+      "additionalProperties": {"$ref": "#/$defs/gapCode"}
+    },
+    "record_type": {
+      "enum": [
+        "calibrator",
+        "dataset",
+        "deployment",
+        "experiment",
+        "feature_version",
+        "fold",
+        "grade",
+        "incident",
+        "market_snapshot",
+        "model",
+        "prediction",
+        "repair",
+        "rollback",
+        "source_snapshot",
+        "wager_signal"
+      ]
+    },
+    "schema_version": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+    },
+    "supersedes": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+    },
+    "time_gaps": {
+      "type": "object",
+      "additionalProperties": {"$ref": "#/$defs/gapCode"}
+    },
+    "times": {
+      "$ref": "#/$defs/times"
+    }
+  },
+  "$defs": {
+    "gapCode": {
+      "type": "string",
+      "pattern": "^[A-Z0-9][A-Z0-9_-]{1,127}$"
+    },
+    "timestampOrNull": {
+      "type": ["string", "null"],
+      "format": "date-time"
+    },
+    "times": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "availability_time",
+        "computed_time",
+        "cutoff_time",
+        "event_time",
+        "finalized_time",
+        "ingestion_time",
+        "retrieval_time",
+        "source_time"
+      ],
+      "properties": {
+        "availability_time": {"$ref": "#/$defs/timestampOrNull"},
+        "computed_time": {"$ref": "#/$defs/timestampOrNull"},
+        "cutoff_time": {"$ref": "#/$defs/timestampOrNull"},
+        "event_time": {"$ref": "#/$defs/timestampOrNull"},
+        "finalized_time": {"$ref": "#/$defs/timestampOrNull"},
+        "ingestion_time": {"$ref": "#/$defs/timestampOrNull"},
+        "retrieval_time": {"$ref": "#/$defs/timestampOrNull"},
+        "source_time": {"$ref": "#/$defs/timestampOrNull"}
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "adapter_version",
+        "code_commit",
+        "input_manifest_id",
+        "record_checksum",
+        "source_id",
+        "source_record_id",
+        "validation_result"
+      ],
+      "properties": {
+        "adapter_version": {"type": ["string", "null"]},
+        "code_commit": {"type": ["string", "null"]},
+        "input_manifest_id": {"type": ["string", "null"]},
+        "record_checksum": {"type": ["string", "null"]},
+        "source_id": {"type": ["string", "null"]},
+        "source_record_id": {"type": ["string", "null"]},
+        "validation_result": {"type": ["string", "null"]}
+      }
+    }
+  }
+}
