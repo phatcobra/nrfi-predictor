@@ -1,0 +1,188 @@
+{
+  "asset_admission_policy": "none_admitted",
+  "asset_ids": [
+    "market-research-contracts",
+    "mlb-model-duckdb",
+    "nrfi-actions-artifacts",
+    "nrfi-pr1-processed-csvs",
+    "nrfi-pr1-rejected-model",
+    "pybaseball-cache-json",
+    "pybaseball-cache-root",
+    "pybaseball-canonical-scan",
+    "pybaseball-chadwick-parquet",
+    "pybaseball-corrupt-2015-05-21",
+    "pybaseball-duplicate-date-queries",
+    "pybaseball-statcast-parquet"
+  ],
+  "asset_records": [
+    {
+      "admission_status": "unadmitted",
+      "asset_id": "market-research-contracts",
+      "coverage": "contract_semantics_only_no_price_rows",
+      "evidence_ref": "docs/phase0/asset_manifest.json#/assets/10"
+    },
+    {
+      "admission_status": "quarantined",
+      "asset_id": "mlb-model-duckdb",
+      "byte_size": 3775672320,
+      "coverage": "unknown_database_unopened",
+      "evidence_ref": "docs/phase0/asset_manifest.json#/assets/7"
+    },
+    {
+      "admission_status": "unadmitted",
+      "artifact_count": 82,
+      "asset_id": "nrfi-actions-artifacts",
+      "byte_size": 349182,
+      "coverage": "remote_metadata_only_payloads_not_inspected",
+      "evidence_ref": "docs/phase0/asset_manifest.json#/assets/11"
+    },
+    {
+      "admission_status": "unadmitted",
+      "asset_id": "nrfi-pr1-processed-csvs",
+      "coverage": "filename_years_2018_through_2026_not_validated_as_season_coverage",
+      "game_csv_byte_size": 3512601,
+      "game_csv_count": 9,
+      "evidence_ref": "docs/phase0/asset_manifest.json#/assets/8"
+    },
+    {
+      "admission_status": "rejected",
+      "asset_id": "nrfi-pr1-rejected-model",
+      "coverage": "reported_training_dates_2018-03-29_through_2026-07-12_not_accepted_evaluation_evidence",
+      "reported_trainable_rows": 19319,
+      "evidence_ref": "docs/phase0/asset_manifest.json#/assets/9"
+    },
+    {
+      "admission_status": "quarantined",
+      "asset_id": "pybaseball-cache-json",
+      "byte_size": 1492497,
+      "coverage": "physical_file_scope",
+      "file_count": 4460,
+      "invalid_truncated_record_count": 2249,
+      "valid_object_count": 2211,
+      "evidence_ref": "docs/phase0/pybaseball_scan_summary.json#/physical_inventory"
+    },
+    {
+      "admission_status": "quarantined",
+      "asset_id": "pybaseball-cache-root",
+      "byte_size": 1455407592,
+      "coverage": "physical_file_scope",
+      "file_count": 6670,
+      "evidence_ref": "docs/phase0/pybaseball_scan_summary.json#/input"
+    },
+    {
+      "admission_status": "unadmitted",
+      "asset_id": "pybaseball-canonical-scan",
+      "canonical_readable_actual_date_count": 2172,
+      "canonical_readable_date_max": "2025-09-30",
+      "canonical_readable_date_min": "2015-04-05",
+      "canonical_readable_distinct_game_count": 26497,
+      "canonical_readable_first_inning_pitch_row_count": 896978,
+      "canonical_readable_pitch_row_count": 7735266,
+      "complete_source_coverage_proven": false,
+      "coverage": "canonical_readable_scope",
+      "evidence_ref": "docs/phase0/pybaseball_scan_summary.json#/payload_scan"
+    },
+    {
+      "admission_status": "quarantined",
+      "asset_id": "pybaseball-chadwick-parquet",
+      "byte_size": 984144,
+      "coverage": "footer_declared_scope",
+      "file_count": 1,
+      "footer_row_count": 26105,
+      "evidence_ref": "docs/phase0/asset_manifest.json#/assets/2"
+    },
+    {
+      "admission_status": "quarantined",
+      "asset_id": "pybaseball-corrupt-2015-05-21",
+      "byte_size": 569600,
+      "coverage": "footer_declared_only_payload_unreadable",
+      "footer_row_count": 3394,
+      "requested_date": "2015-05-21",
+      "evidence_ref": "docs/phase0/asset_manifest.json#/assets/4"
+    },
+    {
+      "admission_status": "unadmitted",
+      "asset_id": "pybaseball-duplicate-date-queries",
+      "byte_identical_group_count": 36,
+      "coverage": "physical_duplicate_scope_excluded_from_canonical",
+      "extra_physical_row_count": 145405,
+      "evidence_ref": "docs/phase0/asset_manifest.json#/assets/5"
+    },
+    {
+      "admission_status": "quarantined",
+      "asset_id": "pybaseball-statcast-parquet",
+      "byte_size": 1452930951,
+      "coverage": "physical_and_footer_declared_scope",
+      "file_count": 2209,
+      "footer_row_count": 7884065,
+      "requested_date_count": 2173,
+      "requested_date_max": "2025-09-30",
+      "requested_date_min": "2015-04-05",
+      "evidence_ref": "docs/phase0/asset_manifest.json#/assets/1"
+    }
+  ],
+  "contract_ids": [
+    "core.actual_starters.v1",
+    "core.first_inning_outcomes.v1",
+    "core.game_schedule.v1",
+    "core.market_prices.v1",
+    "core.probable_pitchers.v1",
+    "derived.bullpen_workload.v1",
+    "derived.travel_rest.v1",
+    "ml.grades.v1",
+    "ml.predictions.v1",
+    "raw.batter_game_logs.v1",
+    "raw.park_factors.v1",
+    "raw.pitcher_game_logs.v1",
+    "raw.pitcher_inning_logs.v1",
+    "raw.statcast_pitcher_daily.v1",
+    "raw.team_game_logs.v1",
+    "raw.team_inning_logs.v1",
+    "raw.umpire_assignments.v1",
+    "raw.weather_snapshots.v1",
+    "reference.teams.v1"
+  ],
+  "contract_records": [
+    {"admission_status":"unadmitted","contract_id":"core.actual_starters.v1","coverage_status":"implementation_declared_no_validated_materialization","evidence_asset_ids":[]},
+    {"admission_status":"unadmitted","contract_id":"core.first_inning_outcomes.v1","coverage_status":"candidate_raw_support_not_contract_rows","evidence_asset_ids":["pybaseball-canonical-scan"]},
+    {"admission_status":"unadmitted","contract_id":"core.game_schedule.v1","coverage_status":"candidate_game_identity_only_no_schedule_snapshots","evidence_asset_ids":["pybaseball-canonical-scan"]},
+    {"admission_status":"unadmitted","contract_id":"core.market_prices.v1","coverage_status":"semantics_only_no_price_rows","evidence_asset_ids":["market-research-contracts"]},
+    {"admission_status":"unadmitted","contract_id":"core.probable_pitchers.v1","coverage_status":"implementation_declared_no_timestamped_snapshots","evidence_asset_ids":[]},
+    {"admission_status":"unadmitted","contract_id":"derived.bullpen_workload.v1","coverage_status":"unknown_no_materialized_contract","evidence_asset_ids":[]},
+    {"admission_status":"unadmitted","contract_id":"derived.travel_rest.v1","coverage_status":"unknown_no_materialized_contract","evidence_asset_ids":[]},
+    {"admission_status":"unadmitted","contract_id":"ml.grades.v1","coverage_status":"declared_schema_only_current_writes_unsafe","evidence_asset_ids":[]},
+    {"admission_status":"unadmitted","contract_id":"ml.predictions.v1","coverage_status":"declared_schema_only_current_writes_unsafe","evidence_asset_ids":[]},
+    {"admission_status":"unadmitted","contract_id":"raw.batter_game_logs.v1","coverage_status":"candidate_derivation_not_materialized","evidence_asset_ids":["pybaseball-statcast-parquet"]},
+    {"admission_status":"unadmitted","contract_id":"raw.park_factors.v1","coverage_status":"historical_candidate_only_not_point_in_time","evidence_asset_ids":["nrfi-pr1-processed-csvs"]},
+    {"admission_status":"unadmitted","contract_id":"raw.pitcher_game_logs.v1","coverage_status":"candidate_derivation_not_materialized","evidence_asset_ids":["pybaseball-statcast-parquet"]},
+    {"admission_status":"unadmitted","contract_id":"raw.pitcher_inning_logs.v1","coverage_status":"candidate_derivation_not_materialized","evidence_asset_ids":["pybaseball-statcast-parquet"]},
+    {"admission_status":"unadmitted","contract_id":"raw.statcast_pitcher_daily.v1","coverage_status":"candidate_derivation_not_materialized","evidence_asset_ids":["pybaseball-statcast-parquet"]},
+    {"admission_status":"unadmitted","contract_id":"raw.team_game_logs.v1","coverage_status":"candidate_derivation_not_materialized","evidence_asset_ids":["pybaseball-statcast-parquet"]},
+    {"admission_status":"unadmitted","contract_id":"raw.team_inning_logs.v1","coverage_status":"candidate_derivation_not_materialized","evidence_asset_ids":["pybaseball-statcast-parquet"]},
+    {"admission_status":"unadmitted","contract_id":"raw.umpire_assignments.v1","coverage_status":"field_presence_only_no_point_in_time_contract","evidence_asset_ids":["pybaseball-statcast-parquet"]},
+    {"admission_status":"unadmitted","contract_id":"raw.weather_snapshots.v1","coverage_status":"historical_candidate_only_no_observation_time","evidence_asset_ids":["nrfi-pr1-processed-csvs"]},
+    {"admission_status":"unadmitted","contract_id":"reference.teams.v1","coverage_status":"field_presence_only_no_canonical_entity_map","evidence_asset_ids":["pybaseball-statcast-parquet"]}
+  ],
+  "generated_from": {
+    "canonical_selection_manifest_sha256": "b3e3f19c10e0e1504ecc31c2b46b71aa250d1b0f9a2078e0615c69e42579a9ac",
+    "checksum_sidecar_sha256": "bf9270797084ee58c2f46bf0d51ec2d8e49833f891dec84edd2930d893b2a496",
+    "content_tree_sha256": "40a53f6ec231c1a0a21f1c9ecfca5f606db7948e27636c205c0192d8a73ee6cb",
+    "file_manifest_ref": "docs/phase0/pybaseball_file_manifest.jsonl",
+    "file_manifest_sha256": "4ab2f5e74b61743a81152096416a09e8c0b13c121fe045174208af93cfa29fbc",
+    "generator_sha256": "b14387e57919b3b857e8a0b9105ca24f4860c2cca1a87ade63e903be73f8f4f6",
+    "observation_tree_sha256": "74feb2dae3e9549b8238f580bfcf34613b771ad06bc85ee6311574df7956eb07",
+    "parameter_sha256": "c52e984983c40edb5b6db8d256c86e8a111ee27e1ea88bba3ea81a784b276924",
+    "scan_id": "0f3f19aa1d72525577f460a2fcb9692f81c835ec110c3674a720096c6a23c111",
+    "scan_summary_ref": "docs/phase0/pybaseball_scan_summary.json",
+    "scan_summary_sha256": "6342b5503474a036ce1bab56b7ee1fb6dca3cb024a550ee5108e6f90d2c9d032",
+    "snapshot_date": "2026-07-14"
+  },
+  "report_id": "nrfi.phase2.coverage_report.v1",
+  "schema_version": "1.0",
+  "scope_definitions": {
+    "canonical_readable": "one deterministically selected readable partition per requested date",
+    "complete_source": "all requested source partitions including quarantined or unreadable material",
+    "footer_declared": "Parquet footer metadata only and not proof of readable payload rows",
+    "physical": "all observed files or rows including byte-identical duplicates"
+  }
+}

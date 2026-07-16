@@ -4,13 +4,13 @@ Status date: 2026-07-15
 
 Phase 0: **PASS WITH DOCUMENTED EXCEPTIONS**
 
-Phase 1: **IN PROGRESS**
+Phase 1: **PASS WITH DOCUMENTED EXCEPTIONS**
 
-Phase 2: **IN PROGRESS**
+Phase 2: **PASS WITH DOCUMENTED EXCEPTIONS**
 
-Current task: **model evidence integrity and canonical probability-path repair**
+Current task: **local consolidation of validated model evidence and Phase 2 contracts**
 
-Current branch: `fix/model-evidence-integrity-20260715`
+Current branch: `chore/phase1-environment-foundation-20260715`
 
 The Phase 0 asset inventory, per-file manifest, reconciliation, data-gap analysis,
 repository assessment, and risk register are complete. Their two deterministic
@@ -109,21 +109,43 @@ the fixed ten-minute external-image-fetch timeout; no repository data entered th
 context. The explicit Pyright legacy baseline and the uncompleted image build
 remain reviewable hardening backlog items.
 
+## Model-evidence integrity
+
+The canonical probability path is now meta -> temporal Venn-Abers -> one final
+clip; venue shrinkage remains quarantined pending separate temporal evidence.
+SQL registry columns, evidence-contract preflight, fail-closed holdout burn
+recording, candidate-status enforcement, and stale-calibrator clearing were
+corrected without reading real data, the locked holdout, a model artifact, or a
+production system.
+
+The isolated model-evidence branch passed `72 passed, 21 warnings`,
+repository-wide Ruff lint and formatting, byte compilation, Pyright (`0 errors,
+0 warnings, 0 informations`), and `git diff --check` before its atomic commit was
+integrated locally.
+
+## Phase 2 contract evidence
+
+The Phase 2 package is documentation and machine-readable policy only; it
+admits no real asset. It contains 12 asset records, 19 contracts, 25 required
+asset attributes, 18 open gaps, 2 resolved evidence gaps, and 7 acquisition
+proposals. All assets remain unadmitted, quarantined, or rejected, and every
+acquisition proposal remains unauthorized with network, credential, payment,
+and subscription actions prohibited.
+
+The catalog was reconciled to the preserved Phase 0 scan summary and checksum
+sidecar: scan ID, 6,670 files, 1,455,407,592 bytes, content and observation
+trees, parameters, generator, manifest, and summary identities all match. No
+asset scan, quarantined-database access, data acquisition, locked-holdout
+inspection, training, promotion, or deployment occurred. Validation passed:
+all seven JSON files parse; catalog/report IDs and provenance identities match;
+required attribute, time-role, gap, disposition, and acquisition invariants
+pass; public-path/secret checks pass; Ruff passes; Pyright reports `0 errors,
+0 warnings, 0 informations`; and the complete offline suite reports `63 passed,
+21 warnings`.
+
 ## Exact next action
 
-The current modeling repair is local-only and remains pre-publication: no real
-data, locked holdout, model artifact, or production system was accessed. The
-canonical path is now meta -> temporal Venn-Abers -> one final clip; venue
-shrinkage remains quarantined pending separate temporal evidence. Validation
-passed with `72 passed, 21 warnings`, repository-wide Ruff lint and formatting,
-byte compilation, Pyright (`0 errors, 0 warnings, 0 informations`), and
-`git diff --check`. SQL registry columns, evidence-contract preflight,
-fail-closed holdout burn recording, candidate-status enforcement, and
-stale-calibrator clearing were corrected locally. The branch is uncommitted and
-unpublished pending authenticated GitHub tooling.
-
-Resume validation of the existing `docs/phase2-data-contracts-20260715`
-worktree using only the preserved Phase 0 manifests. Do not rescan, acquire data,
-inspect the locked holdout, train, promote, or deploy. Keep draft pull requests
-`#5` and `#6`
-unmerged.
+Complete local consolidation of the validated storage-neutral lineage commits,
+then run the full locked-environment validation suite on this integration
+branch. Do not rescan, acquire data, inspect the locked holdout, train, promote,
+deploy, push, or mutate pull requests while GitHub authentication is invalid.
