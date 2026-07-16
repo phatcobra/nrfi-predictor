@@ -8,7 +8,7 @@ Phase 1: **PASS WITH DOCUMENTED EXCEPTIONS**
 
 Phase 2: **PASS WITH DOCUMENTED EXCEPTIONS**
 
-Current task: **local consolidation of validated model evidence and Phase 2 contracts**
+Current task: **authenticated publication boundary after validated local consolidation**
 
 Current branch: `chore/phase1-environment-foundation-20260715`
 
@@ -143,9 +143,39 @@ pass; public-path/secret checks pass; Ruff passes; Pyright reports `0 errors,
 0 warnings, 0 informations`; and the complete offline suite reports `63 passed,
 21 warnings`.
 
+## Local integration consolidation evidence
+
+The existing PR #6 integration branch now contains the locally committed
+model-evidence integrity, Phase 2 data-contract, and immutable-lineage
+foundation changes in that order. Their source commits were integrated as
+`0d59ef6`, `52b86b6`, and `ab50a07`. CI-repair head `85f81a3` remains an
+ancestor, proving that all PR #5 commits are retained.
+
+The optional synthetic market-decision audit remains isolated as local commit
+`577bbd9` and is not on the critical path. A read-only three-way merge preview
+identified overlaps in `PROJECT_STATE.md` and `README.md`, so the audit was not
+integrated under the no-conflict/no-delay condition. The later unvalidated
+observed-lifecycle additions remain uncommitted and preserved in their source
+worktree.
+
+The consolidated branch passed Ruff lint; Ruff format (`41 files already
+formatted`); Pyright (`0 errors, 0 warnings, 0 informations`); byte compilation;
+parsing of 14 tracked JSON files, four YAML files, `pyproject.toml`, and both
+public JSON schemas; and the complete offline suite (`100 passed, 1 skipped, 22
+warnings`). The skip is the documented unavailable Windows directory-symlink
+privilege. Warnings comprise 20 upstream scikit-learn deprecations, one Sentry
+SDK deprecation, and one denied pytest-cache write; the cache warning did not
+affect test collection or execution. No scan, acquisition, network request,
+quarantined-repository mutation, real-data access, locked-holdout access,
+training, promotion, deployment, push, or pull-request mutation occurred.
+
 ## Exact next action
 
-Complete local consolidation of the validated storage-neutral lineage commits,
-then run the full locked-environment validation suite on this integration
-branch. Do not rescan, acquire data, inspect the locked holdout, train, promote,
-deploy, push, or mutate pull requests while GitHub authentication is invalid.
+Authenticate GitHub CLI without changing repository content:
+
+```text
+gh auth login -h github.com
+gh auth status
+```
+
+Do not push or mutate pull requests until authentication succeeds.
