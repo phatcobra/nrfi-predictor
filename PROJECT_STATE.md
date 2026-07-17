@@ -42,6 +42,12 @@ Athena, a SageMaker candidate registry, least-privilege training roles, and an
 optional budget. Batch and budget creation default to disabled. The backend is
 partial and no state location or account identifier is committed.
 
+Foundation commit `168854e5d685e171f5529bbd6917ad0d07c73243` is published in
+draft PR #8, stacked narrowly on PR #6. Exact-head GitHub Actions run
+`29607773545` passed every fail-closed release-gate step, including diagnostic
+artifact upload. The PR remains draft and must not be merged or retargeted until
+its base and AWS gates are resolved.
+
 Terraform `1.12.2` was downloaded to a temporary directory and verified against
 HashiCorp's published SHA-256 checksum. With the backend disabled, provider
 `hashicorp/aws v5.100.0` was locked for Windows and Linux, recursive format checks
