@@ -1,42 +1,53 @@
 # AWS baseline foundation
 
-This directory defines the cost-conscious historical foundation for reproducing
-the frozen 2022-2024 NRFI/YRFI baseline in AWS. It is probability-only
-infrastructure. It does not create market, odds, wagering, bankroll, or betting
-resources.
+This directory defines the minimum cost-bounded historical foundation for
+reproducing the frozen 2022-2024 NRFI/YRFI baseline in AWS. It is
+probability-only infrastructure. It does not create market, odds, wagering,
+bankroll, or betting resources.
 
 ## Safety state
 
-The configuration has not been applied. AWS authentication, account inventory,
-network reuse, region approval, monthly budget, notification email, and access
-mode must be verified before a plan can authorize deployment.
+The configuration has not been applied. The approved deployment decisions are
+`us-east-2`, an account-wide `$30` monthly budget, the separately supplied
+sensitive notification address, and private networking. The account inventory
+found no reusable private subnet, customer-managed KMS key, ECR repository,
+Batch environment, budget, billing alarm, CloudTrail trail, or GitHub OIDC
+provider. The existing S3 bucket and Athena workgroup do not meet the required
+controls and are not reused.
 
 The S3 backend is intentionally partial. Supply its bucket, key, region,
 encryption, and lock-table settings at `terraform init` time from an approved
 bootstrap process. Never commit backend account details or a `.tfvars` file.
 
-`enable_batch` and `enable_budget` default to `false`. Enabling Batch requires
-explicitly approved existing private subnets and security groups. Enabling the
-budget requires a positive approved monthly limit and a valid notification
-email.
+`enable_batch` and `enable_budget` default to `false`. The first reviewed plan
+must enable both and supply the approved sensitive notification address without
+committing it. The private subnet CIDR and availability zone are explicit inputs
+whose defaults match the verified non-overlapping `us-east-2` account layout.
 
 ## Implemented boundary
 
-- KMS keys with rotation for platform data and the separately protected holdout.
+- One KMS key with rotation for admitted baseline data and evidence.
 - S3 buckets with versioning, KMS encryption, TLS-only policies, ownership
   enforcement, public-access blocking, lifecycle controls, and Object Lock for
   immutable raw data and evidence.
-- A separate locked-holdout bucket and KMS key. Batch and SageMaker training
-  roles have explicit deny policies and receive no ordinary holdout grants.
+- No holdout bucket or object. The locked 2025 holdout remains local, untouched,
+  and explicitly denied by the Batch job role.
 - An immutable, KMS-encrypted ECR repository with scan-on-push.
-- Optional AWS Batch on Fargate with a bounded vCPU ceiling and no public IP.
+- A single-AZ private subnet with no internet route, a free S3 gateway endpoint,
+  and exactly three paid interface endpoints: ECR API, ECR Docker, and
+  CloudWatch Logs. The verified interface-endpoint rate is `$0.01` per endpoint
+  hour, producing an approximate 730-hour floor of `$21.90` plus data processing.
+- Optional AWS Batch on Fargate with a two-vCPU default ceiling, no public IP,
+  one attempt, and a two-hour job timeout.
 - Least-privilege Batch job access to admitted raw, lake, model, prediction, and
   evidence locations only.
-- Glue Data Catalog and a scan-capped, KMS-encrypted Athena workgroup.
-- A SageMaker training role and candidate Model Package Group. Registration is
-  not approval and does not create an endpoint.
-- An optional tagged monthly AWS Budget with 50% forecast, 80% actual, and 100%
-  actual notifications.
+- An optional account-wide monthly AWS Budget with 50% forecast, 80% actual,
+  and 100% actual notifications.
+
+Glue, Athena, SageMaker, online inference, and a separately protected holdout
+bucket remain deferred until the preserved baseline is reproduced. This keeps
+the first deployment below the approved ceiling and prevents infrastructure
+expansion from replacing product evidence.
 
 No data, container, model, endpoint, API, browser application, or holdout object
 is created or uploaded by this configuration.
@@ -51,8 +62,9 @@ and Parquet for analytical datasets.
 | raw | `admitted/<source>/<snapshot>/...` |
 | lake | `normalized/`, `features/`, `models/`, `calibrators/`, `predictions/`, `manifests/`, `checksums/`, `rejected/`, `athena-results/` |
 | evidence | `evaluation/`, `replay/`, `prediction-audit/`, `release/` |
-| logs | operational logs that are not immutable evidence |
-| locked holdout | protected 2025 evidence only; unavailable to training and ordinary inference roles |
+
+Operational logs remain in the bounded CloudWatch log group. No locked-holdout
+storage is provisioned during the baseline replay.
 
 ## Local validation
 
@@ -77,8 +89,8 @@ Before the first plan, record and review:
 2. maximum monthly AWS budget;
 3. budget notification email;
 4. private or public application access;
-5. verified existing VPC, private subnets, security groups, CloudTrail, budgets,
-   billing alarms, quotas, and GitHub OIDC state;
+5. verified existing VPC, subnets, security groups, CloudTrail, budgets, billing
+   alarms, quotas, and GitHub OIDC state;
 6. immutable Git commit and container digest;
 7. manifest-approved data snapshot and the explicit exclusion of the locked
    2025 holdout.

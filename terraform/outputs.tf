@@ -4,8 +4,6 @@ output "storage" {
     raw      = aws_s3_bucket.raw.id
     lake     = aws_s3_bucket.lake.id
     evidence = aws_s3_bucket.evidence.id
-    logs     = aws_s3_bucket.logs.id
-    holdout  = aws_s3_bucket.holdout.id
   }
 }
 
@@ -23,16 +21,12 @@ output "batch" {
   } : null
 }
 
-output "analytics" {
-  description = "Historical catalog and query workgroup."
-  value = {
-    glue_database    = aws_glue_catalog_database.historical.name
-    athena_workgroup = aws_athena_workgroup.historical.name
-    model_group      = aws_sagemaker_model_package_group.candidates.model_package_group_name
-  }
-}
-
 output "locked_holdout_training_access" {
   description = "Fail-closed invariant for training and ordinary batch roles."
-  value       = "DENIED"
+  value       = "NOT_PROVISIONED_AND_DENIED"
+}
+
+output "private_network_monthly_floor_usd" {
+  description = "Approximate 730-hour floor for three interface endpoints at the verified us-east-2 price; excludes data processing."
+  value       = 21.90
 }

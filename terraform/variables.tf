@@ -36,16 +36,26 @@ variable "repository_slug" {
   default     = "phatcobra/nrfi-predictor"
 }
 
-variable "batch_subnet_ids" {
-  description = "Existing private subnet IDs approved for AWS Batch Fargate."
-  type        = list(string)
-  default     = []
+variable "private_subnet_cidr" {
+  description = "Approved non-overlapping CIDR for the single-AZ private Batch subnet."
+  type        = string
+  default     = "172.31.48.0/24"
+
+  validation {
+    condition     = can(cidrhost(var.private_subnet_cidr, 1))
+    error_message = "private_subnet_cidr must be a valid IPv4 CIDR."
+  }
 }
 
-variable "batch_security_group_ids" {
-  description = "Existing security group IDs approved for AWS Batch Fargate."
-  type        = list(string)
-  default     = []
+variable "private_subnet_availability_zone" {
+  description = "Approved availability zone for the cost-bounded private Batch subnet."
+  type        = string
+  default     = "us-east-2a"
+
+  validation {
+    condition     = startswith(var.private_subnet_availability_zone, var.aws_region)
+    error_message = "private_subnet_availability_zone must belong to aws_region."
+  }
 }
 
 variable "enable_batch" {
@@ -57,11 +67,11 @@ variable "enable_batch" {
 variable "batch_max_vcpus" {
   description = "Hard ceiling for the Batch Fargate compute environment."
   type        = number
-  default     = 4
+  default     = 2
 
   validation {
-    condition     = var.batch_max_vcpus >= 1 && var.batch_max_vcpus <= 16
-    error_message = "batch_max_vcpus must be between 1 and 16."
+    condition     = var.batch_max_vcpus >= 1 && var.batch_max_vcpus <= 4
+    error_message = "batch_max_vcpus must be between 1 and 4."
   }
 }
 

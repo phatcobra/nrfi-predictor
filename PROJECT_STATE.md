@@ -8,9 +8,9 @@ Phase 1: **PASS WITH DOCUMENTED EXCEPTIONS**
 
 Phase 2: **PASS WITH DOCUMENTED EXCEPTIONS**
 
-AWS platform: **STAGE 1 IN PROGRESS**
+AWS platform: **STAGE 2 IN PROGRESS**
 
-Current task: **safe AWS checkpoint and local Stage 2 foundation**
+Current task: **reproduce the frozen baseline in AWS**
 
 Current branch: `feat/aws-probability-platform-20260717`
 
@@ -26,21 +26,55 @@ The authoritative implementation base is PR #6 head
 succeeded. The AWS branch was created from that clean head in the existing
 worktree; no additional worktree was created.
 
-Read-only AWS CLI authentication is currently unavailable: the default token is
-invalid and neither of the two configured CLI profiles authenticates. No CLI
-region is configured. The supplied console link targets `us-east-2`, but that is
-not treated as deployment approval. The Computer runtime remains unavailable and
-the explicitly requested in-app Browser bridge is not exposed in this session.
-Consequently, account, IAM, CloudTrail, networking, resource, quota, OIDC,
-budget, billing-alarm, and reuse checks remain pending.
+AWS Console and CloudShell authentication is restored in approved region
+`us-east-2`. The account preflight found a root console identity with MFA and no
+root access keys, no CloudTrail, no budget or billing alarm, no GitHub OIDC, no
+private subnet, no NAT gateway or VPC endpoints, no customer-managed KMS key,
+no ECR repository, and no Batch environment. The existing three subnets assign
+public IPs. The existing S3 bucket and Athena workgroup do not satisfy the
+required controls and are not reused.
 
-The obsolete Terraform/Lambda deployment and interactive secret-creation script
-have been replaced locally with a fail-closed Stage 2 foundation. It defines
-encrypted and versioned storage, immutable evidence controls, a separately
-protected holdout boundary, immutable ECR, optional scale-to-zero Batch, Glue,
-Athena, a SageMaker candidate registry, least-privilege training roles, and an
-optional budget. Batch and budget creation default to disabled. The backend is
-partial and no state location or account identifier is committed.
+The approved monthly ceiling is `$30`, with a separately supplied sensitive
+notification address and private networking. AWS pricing verified a
+`$0.01`-per-interface-endpoint-hour rate in `us-east-2`. The cost-bounded design
+therefore uses one private subnet, a free S3 gateway endpoint, and exactly three
+single-AZ interface endpoints for ECR API, ECR Docker, and CloudWatch Logs. The
+approximate 730-hour endpoint floor is `$21.90`; one rotating KMS key adds about
+`$1` before storage, logs, data processing, and bounded Fargate runtime.
+
+The Terraform boundary was narrowed before deployment to three KMS-encrypted,
+versioned, public-blocked buckets; immutable ECR; private endpoint networking;
+least-privilege Batch roles; one bounded log group; and an account-wide budget.
+Glue, Athena, SageMaker, Lambda, API Gateway, public access, NAT, scheduled work,
+and a holdout bucket are deferred until a real AWS product milestone exists.
+The locked 2025 holdout was not opened, copied, uploaded, or provisioned.
+
+A private versioned audit bucket and multi-region CloudTrail were bootstrapped
+first and logging was verified active. A private versioned Terraform-state
+bucket uses the rotating project KMS key, enforces KMS-only writes, and uses an
+S3 lock file. GitHub Actions OIDC and a branch-scoped deployment role were
+created. Because AWS prohibits root from assuming roles, the initial apply used
+a no-console bootstrap user with one temporary access key held only in
+CloudShell memory; the key and user are scheduled for deletion immediately
+after the baseline replay, while future automation remains OIDC-only.
+
+The reviewed root-read-only plan was `49 to add, 0 to change, 0 to destroy` with
+Batch disabled. The first non-root apply stopped on an S3 read-permission gap
+after preserving 31 resources. The three newly created empty buckets were
+independently verified, safely untainted in state instead of replaced, and the
+scoped policy was corrected. A second apply completed bucket controls and
+stopped only on ECR's missing KMS grant permission. After adding the three
+required grant actions, the final saved plan added ECR and its lifecycle rule.
+The resulting Terraform plan reports: `No changes. Your infrastructure matches
+the configuration.`
+
+Independent post-apply checks show the account-wide `$30` monthly budget with
+50% forecast, 80% actual, and 100% actual thresholds and one subscriber each;
+all four VPC endpoints are available; the subnet is `172.31.48.0/24` in
+`us-east-2a`, does not assign public IPs, and has no internet or NAT route; Batch
+remains disabled; ECR is immutable and KMS-encrypted; KMS rotation is enabled;
+and all three data/evidence buckets are versioned, KMS-encrypted, and fully
+public-blocked.
 
 Foundation commit `168854e5d685e171f5529bbd6917ad0d07c73243` is published in
 draft PR #8, stacked narrowly on PR #6. Exact-head GitHub Actions run
@@ -58,16 +92,12 @@ lint and format checks passed, Pyright returned zero errors and warnings, core
 imports and byte compilation passed, the replacement deploy script passed Bash
 syntax validation, and diff, credential-pattern, account-number, and private-path
 checks passed.
-No Terraform plan or apply ran. No AWS resource, data object, container, model,
-secret, credential, endpoint, or budget was created or changed; observed AWS cost
-from this work is `$0.00`. No historical data was reacquired or scanned, the
-preserved 2022-2024 evidence is unchanged, and the locked 2025 holdout remains
-untouched and unavailable to the declared Batch and SageMaker roles.
-
-Before any cost-bearing action, record the approved region, maximum monthly AWS
-budget, notification email, and private/public access mode; restore AWS
-authentication; complete the redacted account preflight; and review an exact
-Terraform plan.
+No historical data was reacquired or scanned, no container or model has yet run,
+the preserved 2022-2024 evidence is unchanged, and the locked 2025 holdout
+remains untouched. The exact next action is to publish an immutable container,
+transfer only the committed manifest-approved 2021-2024 evidence, enable one
+bounded Batch replay at the image digest, and require analytical equivalence to
+the frozen baseline.
 
 The Phase 0 asset inventory, per-file manifest, reconciliation, data-gap analysis,
 repository assessment, and risk register are complete. Their two deterministic

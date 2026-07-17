@@ -23,6 +23,9 @@ provider "aws" {
 
 data "aws_caller_identity" "current" {}
 data "aws_partition" "current" {}
+data "aws_vpc" "default" {
+  default = true
+}
 
 locals {
   name_prefix = "${var.project_name}-${var.environment}"

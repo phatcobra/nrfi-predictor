@@ -4,14 +4,6 @@ locals {
     raw      = aws_s3_bucket.raw
     lake     = aws_s3_bucket.lake
     evidence = aws_s3_bucket.evidence
-    logs     = aws_s3_bucket.logs
-    holdout  = aws_s3_bucket.holdout
-  }
-  non_holdout_buckets = {
-    raw      = aws_s3_bucket.raw
-    lake     = aws_s3_bucket.lake
-    evidence = aws_s3_bucket.evidence
-    logs     = aws_s3_bucket.logs
   }
 }
 
@@ -24,17 +16,6 @@ resource "aws_kms_key" "platform" {
 resource "aws_kms_alias" "platform" {
   name          = "alias/${local.name_prefix}-platform"
   target_key_id = aws_kms_key.platform.key_id
-}
-
-resource "aws_kms_key" "holdout" {
-  description             = "Separately protected locked-holdout evidence"
-  enable_key_rotation     = true
-  deletion_window_in_days = 30
-}
-
-resource "aws_kms_alias" "holdout" {
-  name          = "alias/${local.name_prefix}-locked-holdout"
-  target_key_id = aws_kms_key.holdout.key_id
 }
 
 resource "aws_s3_bucket" "raw" {
@@ -54,17 +35,6 @@ resource "aws_s3_bucket" "evidence" {
   object_lock_enabled = true
 }
 
-resource "aws_s3_bucket" "logs" {
-  bucket        = "${local.bucket_prefix}-logs"
-  force_destroy = false
-}
-
-resource "aws_s3_bucket" "holdout" {
-  bucket              = "${local.bucket_prefix}-locked-holdout"
-  force_destroy       = false
-  object_lock_enabled = true
-}
-
 resource "aws_s3_bucket_versioning" "all" {
   for_each = local.buckets
   bucket   = each.value.id
@@ -80,7 +50,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "all" {
 
   rule {
     apply_server_side_encryption_by_default {
-      kms_master_key_id = each.key == "holdout" ? aws_kms_key.holdout.arn : aws_kms_key.platform.arn
+      kms_master_key_id = aws_kms_key.platform.arn
       sse_algorithm     = "aws:kms"
     }
     bucket_key_enabled = true
@@ -132,27 +102,9 @@ resource "aws_s3_bucket_object_lock_configuration" "evidence" {
   depends_on = [aws_s3_bucket_versioning.all]
 }
 
-resource "aws_s3_bucket_object_lock_configuration" "holdout" {
-  bucket = aws_s3_bucket.holdout.id
-
-  rule {
-    default_retention {
-      mode = "GOVERNANCE"
-      days = var.holdout_retention_days
-    }
-  }
-
-  depends_on = [aws_s3_bucket_versioning.all]
-}
-
-resource "aws_s3_bucket_lifecycle_configuration" "durable" {
-  for_each = {
-    raw      = aws_s3_bucket.raw
-    lake     = aws_s3_bucket.lake
-    evidence = aws_s3_bucket.evidence
-    holdout  = aws_s3_bucket.holdout
-  }
-  bucket = each.value.id
+resource "aws_s3_bucket_lifecycle_configuration" "all" {
+  for_each = local.buckets
+  bucket   = each.value.id
 
   rule {
     id     = "abort-incomplete-multipart-uploads"
@@ -168,33 +120,8 @@ resource "aws_s3_bucket_lifecycle_configuration" "durable" {
   depends_on = [aws_s3_bucket_versioning.all]
 }
 
-resource "aws_s3_bucket_lifecycle_configuration" "logs" {
-  bucket = aws_s3_bucket.logs.id
-
-  rule {
-    id     = "expire-operational-logs"
-    status = "Enabled"
-
-    filter {}
-
-    expiration {
-      days = var.operational_log_retention_days
-    }
-
-    noncurrent_version_expiration {
-      noncurrent_days = var.operational_log_retention_days
-    }
-
-    abort_incomplete_multipart_upload {
-      days_after_initiation = 7
-    }
-  }
-
-  depends_on = [aws_s3_bucket_versioning.all]
-}
-
 data "aws_iam_policy_document" "bucket_transport" {
-  for_each = local.non_holdout_buckets
+  for_each = local.buckets
 
   statement {
     sid     = "DenyInsecureTransport"
@@ -219,53 +146,7 @@ data "aws_iam_policy_document" "bucket_transport" {
 }
 
 resource "aws_s3_bucket_policy" "bucket_transport" {
-  for_each = local.non_holdout_buckets
+  for_each = local.buckets
   bucket   = each.value.id
   policy   = data.aws_iam_policy_document.bucket_transport[each.key].json
-}
-
-data "aws_iam_policy_document" "holdout" {
-  statement {
-    sid     = "DenyInsecureTransport"
-    effect  = "Deny"
-    actions = ["s3:*"]
-    resources = [
-      aws_s3_bucket.holdout.arn,
-      "${aws_s3_bucket.holdout.arn}/*",
-    ]
-
-    principals {
-      type        = "*"
-      identifiers = ["*"]
-    }
-
-    condition {
-      test     = "Bool"
-      variable = "aws:SecureTransport"
-      values   = ["false"]
-    }
-  }
-
-  statement {
-    sid     = "DenyTrainingAndInferenceRoles"
-    effect  = "Deny"
-    actions = ["s3:*"]
-    resources = [
-      aws_s3_bucket.holdout.arn,
-      "${aws_s3_bucket.holdout.arn}/*",
-    ]
-
-    principals {
-      type = "AWS"
-      identifiers = [
-        aws_iam_role.batch_job.arn,
-        aws_iam_role.sagemaker_training.arn,
-      ]
-    }
-  }
-}
-
-resource "aws_s3_bucket_policy" "holdout" {
-  bucket = aws_s3_bucket.holdout.id
-  policy = data.aws_iam_policy_document.holdout.json
 }

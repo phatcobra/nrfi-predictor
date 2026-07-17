@@ -33,6 +33,131 @@ resource "aws_ecr_lifecycle_policy" "pipeline" {
   })
 }
 
+locals {
+  private_interface_endpoint_services = toset([
+    "ecr.api",
+    "ecr.dkr",
+    "logs",
+  ])
+}
+
+resource "aws_subnet" "batch_private" {
+  vpc_id                  = data.aws_vpc.default.id
+  cidr_block              = var.private_subnet_cidr
+  availability_zone       = var.private_subnet_availability_zone
+  map_public_ip_on_launch = false
+
+  tags = {
+    Name = "${local.name_prefix}-batch-private"
+  }
+
+  lifecycle {
+    precondition {
+      condition     = data.aws_vpc.default.cidr_block == "172.31.0.0/16"
+      error_message = "The verified us-east-2 default VPC CIDR has changed; review the private subnet before deployment."
+    }
+  }
+}
+
+resource "aws_route_table" "batch_private" {
+  vpc_id = data.aws_vpc.default.id
+
+  tags = {
+    Name = "${local.name_prefix}-batch-private"
+  }
+}
+
+resource "aws_route_table_association" "batch_private" {
+  subnet_id      = aws_subnet.batch_private.id
+  route_table_id = aws_route_table.batch_private.id
+}
+
+resource "aws_security_group" "batch_tasks" {
+  name        = "${local.name_prefix}-batch-tasks"
+  description = "No-ingress security group for the private baseline replay task"
+  vpc_id      = data.aws_vpc.default.id
+
+  tags = {
+    Name = "${local.name_prefix}-batch-tasks"
+  }
+}
+
+resource "aws_security_group" "interface_endpoints" {
+  name        = "${local.name_prefix}-interface-endpoints"
+  description = "HTTPS from the private baseline replay task only"
+  vpc_id      = data.aws_vpc.default.id
+
+  tags = {
+    Name = "${local.name_prefix}-interface-endpoints"
+  }
+}
+
+resource "aws_vpc_security_group_ingress_rule" "interface_https" {
+  security_group_id            = aws_security_group.interface_endpoints.id
+  referenced_security_group_id = aws_security_group.batch_tasks.id
+  from_port                    = 443
+  ip_protocol                  = "tcp"
+  to_port                      = 443
+}
+
+resource "aws_vpc_security_group_egress_rule" "interface_https" {
+  security_group_id            = aws_security_group.batch_tasks.id
+  referenced_security_group_id = aws_security_group.interface_endpoints.id
+  from_port                    = 443
+  ip_protocol                  = "tcp"
+  to_port                      = 443
+}
+
+resource "aws_vpc_security_group_egress_rule" "dns_udp" {
+  security_group_id = aws_security_group.batch_tasks.id
+  cidr_ipv4         = data.aws_vpc.default.cidr_block
+  from_port         = 53
+  ip_protocol       = "udp"
+  to_port           = 53
+}
+
+resource "aws_vpc_security_group_egress_rule" "dns_tcp" {
+  security_group_id = aws_security_group.batch_tasks.id
+  cidr_ipv4         = data.aws_vpc.default.cidr_block
+  from_port         = 53
+  ip_protocol       = "tcp"
+  to_port           = 53
+}
+
+resource "aws_vpc_endpoint" "s3" {
+  vpc_id            = data.aws_vpc.default.id
+  service_name      = "com.amazonaws.${var.aws_region}.s3"
+  vpc_endpoint_type = "Gateway"
+  route_table_ids   = [aws_route_table.batch_private.id]
+
+  tags = {
+    Name = "${local.name_prefix}-s3"
+  }
+}
+
+resource "aws_vpc_security_group_egress_rule" "s3_https" {
+  security_group_id = aws_security_group.batch_tasks.id
+  prefix_list_id    = aws_vpc_endpoint.s3.prefix_list_id
+  from_port         = 443
+  ip_protocol       = "tcp"
+  to_port           = 443
+}
+
+resource "aws_vpc_endpoint" "private_interface" {
+  for_each = local.private_interface_endpoint_services
+
+  vpc_id              = data.aws_vpc.default.id
+  service_name        = "com.amazonaws.${var.aws_region}.${each.value}"
+  vpc_endpoint_type   = "Interface"
+  private_dns_enabled = true
+  subnet_ids          = [aws_subnet.batch_private.id]
+  security_group_ids  = [aws_security_group.interface_endpoints.id]
+
+  tags = {
+    Name = "${local.name_prefix}-${replace(each.value, ".", "-")}"
+  }
+}
+
 data "aws_iam_policy_document" "batch_service_assume" {
   statement {
     actions = ["sts:AssumeRole"]
@@ -128,10 +253,26 @@ data "aws_iam_policy_document" "batch_job" {
   }
 
   statement {
-    sid       = "DenyLockedHoldout"
+    sid     = "DenyLockedHoldoutStorage"
+    effect  = "Deny"
+    actions = ["s3:*"]
+    resources = [
+      "arn:${data.aws_partition.current.partition}:s3:::*locked-holdout*",
+      "arn:${data.aws_partition.current.partition}:s3:::*locked-holdout*/*",
+    ]
+  }
+
+  statement {
+    sid       = "DenyLockedHoldoutKeys"
     effect    = "Deny"
-    actions   = ["s3:*", "kms:Decrypt", "kms:GenerateDataKey"]
-    resources = [aws_s3_bucket.holdout.arn, "${aws_s3_bucket.holdout.arn}/*", aws_kms_key.holdout.arn]
+    actions   = ["kms:Decrypt", "kms:GenerateDataKey*"]
+    resources = ["*"]
+
+    condition {
+      test     = "ForAnyValue:StringLike"
+      variable = "kms:ResourceAliases"
+      values   = ["alias/*locked-holdout*"]
+    }
   }
 }
 
@@ -156,16 +297,9 @@ resource "aws_batch_compute_environment" "baseline" {
 
   compute_resources {
     max_vcpus          = var.batch_max_vcpus
-    security_group_ids = var.batch_security_group_ids
-    subnets            = var.batch_subnet_ids
+    security_group_ids = [aws_security_group.batch_tasks.id]
+    subnets            = [aws_subnet.batch_private.id]
     type               = "FARGATE"
-  }
-
-  lifecycle {
-    precondition {
-      condition     = length(var.batch_subnet_ids) > 0 && length(var.batch_security_group_ids) > 0
-      error_message = "Batch requires explicitly approved existing subnets and security groups."
-    }
   }
 
   depends_on = [aws_iam_role_policy_attachment.batch_service]
@@ -245,6 +379,6 @@ resource "aws_batch_job_definition" "baseline" {
   }
 
   timeout {
-    attempt_duration_seconds = 21600
+    attempt_duration_seconds = 7200
   }
 }
