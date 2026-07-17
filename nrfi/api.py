@@ -18,7 +18,7 @@ import os
 import time
 from datetime import datetime
 
-from nrfi._obs import sentry_sdk
+from nrfi._obs import posthog_client, sentry_sdk
 from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -131,13 +131,35 @@ async def predictions_by_date(date: str):
     except Exception as e:
         sentry_sdk.capture_exception(e)
         logger.error(f"predictions query failed: {e}")
+        posthog_client.capture(
+            "api_error_occurred",
+            distinct_id="api",
+            properties={
+                "endpoint": "/predictions/date/{date}",
+                "error_type": type(e).__name__,
+                "$process_person_profile": False,
+            },
+        )
         raise HTTPException(status_code=500, detail="internal error")
+    posthog_client.capture(
+        "predictions_queried",
+        distinct_id="api",
+        properties={
+            "game_count": len(rows),
+            "$process_person_profile": False,
+        },
+    )
     return {"date": date, "count": len(rows), "predictions": rows,
             "disclaimer": "paper-mode diagnostics; not betting advice"}
 
 
 @app.get("/predictions/today")
 async def predictions_today():
+    posthog_client.capture(
+        "predictions_today_queried",
+        distinct_id="api",
+        properties={"$process_person_profile": False},
+    )
     return await predictions_by_date(datetime.now(TZ_ET).strftime("%Y-%m-%d"))
 
 
@@ -156,9 +178,23 @@ async def prediction_by_game(game_id: str):
         rows = cached(f"game:{game_id}", q)
     except Exception as e:
         sentry_sdk.capture_exception(e)
+        posthog_client.capture(
+            "api_error_occurred",
+            distinct_id="api",
+            properties={
+                "endpoint": "/predictions/game/{game_id}",
+                "error_type": type(e).__name__,
+                "$process_person_profile": False,
+            },
+        )
         raise HTTPException(status_code=500, detail="internal error")
     if not rows:
         raise HTTPException(status_code=404, detail="no prediction for this game")
+    posthog_client.capture(
+        "prediction_by_game_queried",
+        distinct_id="api",
+        properties={"$process_person_profile": False},
+    )
     return rows[0]
 
 
@@ -179,7 +215,21 @@ async def metrics_summary(window_days: int = Query(30, ge=1, le=365)):
         rows = cached(f"metrics:{window_days}", q)
     except Exception as e:
         sentry_sdk.capture_exception(e)
+        posthog_client.capture(
+            "api_error_occurred",
+            distinct_id="api",
+            properties={
+                "endpoint": "/metrics/summary",
+                "error_type": type(e).__name__,
+                "$process_person_profile": False,
+            },
+        )
         raise HTTPException(status_code=500, detail="internal error")
+    posthog_client.capture(
+        "metrics_summary_queried",
+        distinct_id="api",
+        properties={"window_days": window_days, "$process_person_profile": False},
+    )
     return {"window_days": window_days, "stats": rows[0] if rows else {}}
 
 
@@ -193,7 +243,21 @@ async def trigger_predict(date: str | None = Query(None)):
     except Exception as e:
         sentry_sdk.capture_exception(e)
         logger.error(f"predict job failed: {e}")
+        posthog_client.capture(
+            "api_error_occurred",
+            distinct_id="api",
+            properties={
+                "endpoint": "/jobs/predict",
+                "error_type": type(e).__name__,
+                "$process_person_profile": False,
+            },
+        )
         raise HTTPException(status_code=500, detail="job failed")
+    posthog_client.capture(
+        "predict_job_triggered",
+        distinct_id="api",
+        properties={"scored_count": len(rows), "$process_person_profile": False},
+    )
     return {"status": "done", "scored": len(rows),
             "timestamp": datetime.now(TZ_ET).isoformat()}
 
@@ -222,6 +286,15 @@ async def v3_predictions(date: str | None = Query(None)):
         rows = cached(f"v3:{date}", q)
     except Exception as e:
         sentry_sdk.capture_exception(e)
+        posthog_client.capture(
+            "api_error_occurred",
+            distinct_id="api",
+            properties={
+                "endpoint": "/v3/predictions",
+                "error_type": type(e).__name__,
+                "$process_person_profile": False,
+            },
+        )
         raise HTTPException(status_code=500, detail="internal error")
     games = []
     for r in rows:
@@ -236,9 +309,18 @@ async def v3_predictions(date: str | None = Query(None)):
             "model_version": r["model_version"],
             "generated_at": str(r["predicted_at"]),
         })
+    health = data_health(rows)
+    posthog_client.capture(
+        "v3_predictions_queried",
+        distinct_id="api",
+        properties={
+            "game_count": len(games),
+            "data_health": health,
+            "$process_person_profile": False,
+        },
+    )
     return {"date": date, "count": len(games), "games": games,
-            "meta": {"data_health": data_health(rows),
-                     "mode": "paper", "display_only": True}}
+            "meta": {"data_health": health, "mode": "paper", "display_only": True}}
 
 
 @app.get("/v3/metrics/calibration")
@@ -255,9 +337,24 @@ async def v3_calibration(window_days: int = Query(30, ge=1, le=365)):
         """, [window_days])
 
     try:
-        return {"window_days": window_days, "deciles": cached(f"cal:{window_days}", q)}
+        deciles = cached(f"cal:{window_days}", q)
+        posthog_client.capture(
+            "v3_calibration_queried",
+            distinct_id="api",
+            properties={"window_days": window_days, "$process_person_profile": False},
+        )
+        return {"window_days": window_days, "deciles": deciles}
     except Exception as e:
         sentry_sdk.capture_exception(e)
+        posthog_client.capture(
+            "api_error_occurred",
+            distinct_id="api",
+            properties={
+                "endpoint": "/v3/metrics/calibration",
+                "error_type": type(e).__name__,
+                "$process_person_profile": False,
+            },
+        )
         raise HTTPException(status_code=500, detail="internal error")
 
 
@@ -274,6 +371,11 @@ async def v3_summary(window_days: int = Query(30, ge=1, le=365)):
     except Exception as e:
         sentry_sdk.capture_exception(e)
         base["evidence_readiness"] = {"error": "unavailable"}
+    posthog_client.capture(
+        "v3_summary_queried",
+        distinct_id="api",
+        properties={"window_days": window_days, "$process_person_profile": False},
+    )
     return base
 
 
@@ -311,21 +413,59 @@ async def v3_jobs(job: str, date: str | None = Query(None)):
     try:
         if job == "predict":
             from nrfi.predict_daily import NFRIDailyPredictor
-            return {"job": job, "scored": len(NFRIDailyPredictor().run(date))}
+            result = NFRIDailyPredictor().run(date)
+            posthog_client.capture(
+                "v3_job_triggered",
+                distinct_id="api",
+                properties={
+                    "job_name": job,
+                    "scored_count": len(result),
+                    "$process_person_profile": False,
+                },
+            )
+            return {"job": job, "scored": len(result)}
         if job == "grade":
             from nrfi.grade_nightly import grade_date
             d = date or datetime.now(TZ_ET).strftime("%Y-%m-%d")
-            return {"job": job, "graded": grade_date(sf(), d)}
+            graded = grade_date(sf(), d)
+            posthog_client.capture(
+                "v3_job_triggered",
+                distinct_id="api",
+                properties={
+                    "job_name": job,
+                    "graded_count": graded,
+                    "$process_person_profile": False,
+                },
+            )
+            return {"job": job, "graded": graded}
         if job == "ingest_odds":
             from nrfi.ingest_opticodds import ingest_date
             from datetime import date as _date
-            return {"job": job,
-                    "snapshots": ingest_date(_date.fromisoformat(date) if date else None)}
+            snapshots = ingest_date(_date.fromisoformat(date) if date else None)
+            posthog_client.capture(
+                "v3_job_triggered",
+                distinct_id="api",
+                properties={
+                    "job_name": job,
+                    "snapshot_count": snapshots,
+                    "$process_person_profile": False,
+                },
+            )
+            return {"job": job, "snapshots": snapshots}
     except HTTPException:
         raise
     except Exception as e:
         sentry_sdk.capture_exception(e)
         logger.error(f"job {job} failed: {e}")
+        posthog_client.capture(
+            "api_error_occurred",
+            distinct_id="api",
+            properties={
+                "endpoint": f"/v3/jobs/{job}",
+                "error_type": type(e).__name__,
+                "$process_person_profile": False,
+            },
+        )
         raise HTTPException(status_code=500, detail="job failed")
     raise HTTPException(status_code=404, detail="unknown job")
 
