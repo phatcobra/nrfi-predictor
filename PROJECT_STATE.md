@@ -296,9 +296,35 @@ records the source schedule-row count, and rejects any remaining conflict. The
 zero-game March checkpoint and conflicting April checkpoint remain preserved
 under normalization v1; corrected acquisition uses a separate v2 cache path.
 
+Normalization v2 completed all 36 monthly partitions for the 2021 through 2024
+regular seasons. The cache contains 9,778 normalized partition observations;
+62 gamePks occur in two calendar-month partitions because StatsAPI exposes the
+same postponed or resumed identity in both schedule windows. Their analytical
+records are identical, so the aggregate retains one record per gamePk and now
+emits 62 explicit reconciliation records. Four other games fail closed: two
+have no first-inning linescore and two have missing team or venue identity.
+The resulting unique accepted set contains 9,716 finalized games with 100%
+two-starter coverage and 9,559 strict-prior feature-eligible games.
+
+One otherwise feature-eligible suspended-game record, gamePk `716404`, remains
+evaluation-ineligible because its recorded final label availability precedes
+the source's current October 2 scheduled datetime for a September 28 official
+game. No original prediction cutoff is invented. The renewable chronological
+ledger therefore contains 7,287 predictions and separate grades across the
+2022, 2023, and 2024 folds.
+
+The first complete deterministic package replay passed and produced the
+conservative primary conclusion `PREDICTIVE SKILL NOT ESTABLISHED`. Pooled log
+loss is `0.693204` versus `0.693270` for expanding overall climatology; pooled
+Brier score is `0.250029` versus `0.250062`. The official-date clustered 95%
+intervals include zero for both improvements, and the candidate degrades in the
+2024 fold. Pooled calibration slope is `0.437071`, intercept is `-0.064094`, and
+ECE is `0.015694`. These results prohibit any predictive-edge, market, wager,
+promotion, or production claim.
+
 Focused contract, slice, reconciliation, replay, ledger-separation, holdout,
-baseline, and uncertainty validation reports `19 passed`. The complete offline
-suite reports `118 passed, 1 skipped, 21 warnings`; the skip and dependency
+baseline, and uncertainty validation reports `20 passed`. The complete offline
+suite reports `119 passed, 1 skipped, 21 warnings`; the skip and dependency
 warnings are the existing documented environment baseline. Ruff lint passed, Ruff formatting
 reports `46 files already formatted`, byte compilation passed, and Pyright
 reports `0 errors, 0 warnings, 0 informations`. The first full-suite attempt
@@ -308,8 +334,8 @@ that gate, and the final suite passed.
 
 ## Exact next action
 
-Acquire and checkpoint normalized official StatsAPI records for each calendar
-month of the complete 2021 through 2024 regular seasons, then generate the
-expanding-window chronological prediction and grade ledgers from the committed
-engine identity. Keep 2025, optional data domains, markets, wagering, cloud, and
-production deployment out of scope.
+Commit the explicit cross-partition reconciliation and evaluation-exclusion
+reporting, rebuild the complete package offline from the verified normalization
+v2 cache under that producing commit, and independently verify its analytical
+and byte manifests. Keep 2025, optional data domains, markets, wagering, cloud,
+and production deployment out of scope.

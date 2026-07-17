@@ -260,7 +260,12 @@ def acquire_development_games(
     seasons: Sequence[int],
     max_workers: int,
     allow_network: bool,
-) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]]]:
+) -> tuple[
+    list[dict[str, Any]],
+    list[dict[str, Any]],
+    list[dict[str, Any]],
+    list[dict[str, Any]],
+]:
     requested = tuple(sorted(set(seasons)))
     if len(requested) < 2:
         raise VerticalSliceError(
@@ -273,6 +278,7 @@ def acquire_development_games(
     rejection_keys: set[tuple[object, object]] = set()
     rejections: list[dict[str, Any]] = []
     provenance_by_id: dict[str, dict[str, Any]] = {}
+    source_partitions_by_pk: dict[int, list[str]] = defaultdict(list)
     for season in requested:
         for month in range(3, 12):
             games, month_rejections, provenance = acquire_month_partition(
@@ -284,6 +290,7 @@ def acquire_development_games(
             )
             for game in games:
                 game_pk = int(game["game_pk"])
+                source_partitions_by_pk[game_pk].append(f"{season}-{month:02d}")
                 existing = games_by_pk.get(game_pk)
                 if existing is not None and analytical_game_record(existing) != (
                     analytical_game_record(game)
@@ -313,7 +320,21 @@ def acquire_development_games(
             str(row["provenance_id"]),
         ),
     )
-    return games, rejections, provenance
+    reconciliations = [
+        {
+            "schema_version": "reconciliation.v1",
+            "game_pk": game_pk,
+            "reason": "cross_partition_duplicate_reconciled",
+            "source_partitions": partitions,
+            "duplicate_rows_removed": len(partitions) - 1,
+            "analytical_game_identity": _identity(
+                analytical_game_record(games_by_pk[game_pk])
+            ),
+        }
+        for game_pk, partitions in sorted(source_partitions_by_pk.items())
+        if len(partitions) > 1
+    ]
+    return games, rejections, provenance, reconciliations
 
 
 def _feature_identity(row: Mapping[str, Any]) -> dict[str, Any]:
@@ -330,6 +351,7 @@ def _feature_identity(row: Mapping[str, Any]) -> dict[str, Any]:
         "feature_values": row["feature_values"],
         "feature_eligible": row["feature_eligible"],
         "evaluation_eligible": row["evaluation_eligible"],
+        "evaluation_ineligibility_reason": row["evaluation_ineligibility_reason"],
         "pitcher_features_used": row["pitcher_features_used"],
         "schema_version": row["schema_version"],
         "feature_version": FEATURE_VERSION,
@@ -343,11 +365,16 @@ def materialize_features(games: Sequence[Mapping[str, Any]]) -> list[dict[str, A
         row = dict(raw)
         row["schema_version"] = "feature.v1"
         row["feature_version"] = FEATURE_VERSION
-        row["evaluation_eligible"] = bool(
-            row["feature_eligible"]
-            and isinstance(row.get("label_available_at"), str)
-            and str(row["label_available_at"]) > str(row["prediction_cutoff"])
-        )
+        if not row["feature_eligible"]:
+            ineligibility_reason = "insufficient_prior_history"
+        elif not isinstance(row.get("label_available_at"), str):
+            ineligibility_reason = "missing_label_availability"
+        elif str(row["label_available_at"]) <= str(row["prediction_cutoff"]):
+            ineligibility_reason = "label_availability_not_after_cutoff"
+        else:
+            ineligibility_reason = None
+        row["evaluation_ineligibility_reason"] = ineligibility_reason
+        row["evaluation_eligible"] = ineligibility_reason is None
         row["feature_hash"] = _identity(_feature_identity(row))
         materialized.append(row)
     return materialized
@@ -618,6 +645,7 @@ def _flatten_entities(
 def derive_multiseason_evidence(
     games: Sequence[Mapping[str, Any]],
     rejections: Sequence[Mapping[str, Any]],
+    reconciliations: Sequence[Mapping[str, Any]],
     provenance: Sequence[Mapping[str, Any]],
     seasons: Sequence[int],
     code_commit: str,
@@ -920,6 +948,9 @@ def derive_multiseason_evidence(
             row for row in features if _season(row["official_date"]) == season
         ]
         eligible_count = sum(bool(row["feature_eligible"]) for row in season_features)
+        evaluation_eligible_count = sum(
+            bool(row["evaluation_eligible"]) for row in season_features
+        )
         predicted_count = sum(
             1 for row in predictions if _season(row["prediction_cutoff"]) == season
         )
@@ -929,6 +960,8 @@ def derive_multiseason_evidence(
                 "accepted_games": len(season_games),
                 "feature_eligible_games": eligible_count,
                 "feature_coverage": eligible_count / len(season_features),
+                "evaluation_eligible_games": evaluation_eligible_count,
+                "evaluation_coverage": evaluation_eligible_count / len(season_features),
                 "chronological_predictions": predicted_count,
             }
         )
@@ -936,6 +969,14 @@ def derive_multiseason_evidence(
         game["actual_starters"]["away"] is not None
         and game["actual_starters"]["home"] is not None
         for game in games
+    )
+    evaluation_ineligibility_reasons: dict[str, int] = defaultdict(int)
+    for row in features:
+        reason = row["evaluation_ineligibility_reason"]
+        if reason is not None:
+            evaluation_ineligibility_reasons[str(reason)] += 1
+    duplicate_rows_removed = sum(
+        int(row["duplicate_rows_removed"]) for row in reconciliations
     )
     coverage = {
         "schema_version": "coverage.v1",
@@ -951,7 +992,18 @@ def derive_multiseason_evidence(
         ),
         "feature_coverage": sum(bool(row["feature_eligible"]) for row in features)
         / len(features),
+        "evaluation_eligible_games": sum(
+            bool(row["evaluation_eligible"]) for row in features
+        ),
+        "evaluation_coverage": sum(bool(row["evaluation_eligible"]) for row in features)
+        / len(features),
+        "evaluation_ineligibility_reasons": dict(
+            sorted(evaluation_ineligibility_reasons.items())
+        ),
         "chronological_predictions": len(predictions),
+        "cross_partition_duplicate_game_pks": len(reconciliations),
+        "cross_partition_duplicate_rows_removed": duplicate_rows_removed,
+        "normalized_partition_observations": len(games) + duplicate_rows_removed,
         "pitcher_feature_coverage": 0.0,
         "lineup_feature_coverage": 0.0,
         "raw_payloads_persisted": False,
@@ -1034,6 +1086,7 @@ def derive_multiseason_evidence(
             [int(game["game_pk"]) for game in games]
         ),
         "rejected_records_identity": _identity(rejection_output),
+        "reconciliation_identity": _identity(list(reconciliations)),
         "numerical_tolerance": NUMERICAL_TOLERANCE,
         "execution_timestamps_excluded_from_analytical_identities": True,
         "locked_holdout_used": False,
@@ -1046,6 +1099,7 @@ def derive_multiseason_evidence(
         "first_inning_outcomes": outcomes,
         "provenance": provenance_output,
         "rejections": rejection_output,
+        "reconciliations": list(reconciliations),
         "features": features,
         "predictions": predictions,
         "grades": grades,
@@ -1070,7 +1124,7 @@ def build_multiseason_package(
     if not dependency_lock_path.is_file():
         raise VerticalSliceError(f"dependency lock is missing: {dependency_lock_path}")
     dependency_lock_sha256 = _sha256(dependency_lock_path.read_bytes())
-    games, rejections, provenance = acquire_development_games(
+    games, rejections, provenance, reconciliations = acquire_development_games(
         cache_dir,
         seasons,
         max_workers,
@@ -1080,6 +1134,7 @@ def build_multiseason_package(
     first = derive_multiseason_evidence(
         games,
         rejections,
+        reconciliations,
         provenance,
         seasons,
         code_commit,
@@ -1090,6 +1145,7 @@ def build_multiseason_package(
     replay = derive_multiseason_evidence(
         games,
         rejections,
+        reconciliations,
         provenance,
         seasons,
         code_commit,
@@ -1108,6 +1164,7 @@ def build_multiseason_package(
         "first_inning_outcomes",
         "provenance",
         "rejections",
+        "reconciliations",
         "features",
         "predictions",
         "grades",

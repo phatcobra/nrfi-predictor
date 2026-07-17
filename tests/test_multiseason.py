@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import copy
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -104,6 +105,7 @@ def derived_evidence() -> dict:
     return derive_multiseason_evidence(
         games,
         [],
+        [],
         provenance,
         seasons,
         "code-commit",
@@ -119,6 +121,7 @@ def test_identical_frozen_inputs_replay_to_identical_analytical_manifest():
     first = derive_multiseason_evidence(
         games,
         [],
+        [],
         provenance,
         seasons,
         "code-commit",
@@ -128,6 +131,7 @@ def test_identical_frozen_inputs_replay_to_identical_analytical_manifest():
     )
     replay = derive_multiseason_evidence(
         games,
+        [],
         [],
         provenance,
         seasons,
@@ -201,6 +205,42 @@ def test_locked_holdout_is_rejected_before_cache_or_network_access(tmp_path: Pat
             max_workers=1,
             allow_network=False,
         )
+
+
+def test_identical_cross_partition_games_are_reconciled_and_counted(
+    monkeypatch, tmp_path: Path
+):
+    original = _game(2021, 1)
+    later_observation = copy.deepcopy(original)
+    later_observation["time_semantics"]["retrieval_time"] = "2026-07-17T00:00:00Z"
+    later_observation["time_semantics"]["normalization_time"] = "2026-07-17T00:00:01Z"
+
+    def fake_partition(cache_dir, season, month, max_workers, allow_network):
+        del cache_dir, max_workers, allow_network
+        if (season, month) == (2021, 3):
+            return [original], [], []
+        if (season, month) == (2021, 4):
+            return [later_observation], [], []
+        return [], [], []
+
+    monkeypatch.setattr("nrfi.multiseason.acquire_month_partition", fake_partition)
+    games, rejections, provenance, reconciliations = acquire_development_games(
+        tmp_path,
+        (2021, 2022),
+        max_workers=1,
+        allow_network=False,
+    )
+    assert len(games) == 1
+    assert rejections == []
+    assert provenance == []
+    assert len(reconciliations) == 1
+    reconciliation = reconciliations[0]
+    assert reconciliation["schema_version"] == "reconciliation.v1"
+    assert reconciliation["game_pk"] == original["game_pk"]
+    assert reconciliation["reason"] == "cross_partition_duplicate_reconciled"
+    assert reconciliation["source_partitions"] == ["2021-03", "2021-04"]
+    assert reconciliation["duplicate_rows_removed"] == 1
+    assert len(reconciliation["analytical_game_identity"]) == 64
 
 
 def test_pooled_evidence_includes_frozen_baselines_and_uncertainty(
