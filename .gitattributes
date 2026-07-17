@@ -2,3 +2,5 @@ docs/vertical_slice/*.json -text
 docs/vertical_slice/*.jsonl -text
 docs/multiseason/*.json -text
 docs/multiseason/*.jsonl -text
+docs/model_comparison/*.json -text
+docs/model_comparison/*.jsonl -text

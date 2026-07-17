@@ -8,7 +8,7 @@ Phase 1: **PASS WITH DOCUMENTED EXCEPTIONS**
 
 Phase 2: **PASS WITH DOCUMENTED EXCEPTIONS**
 
-Current task: **deterministic candidate comparison and prior-fold calibration**
+Current task: **publish deterministic candidate-comparison evidence**
 
 Current branch: `chore/phase1-environment-foundation-20260715`
 
@@ -378,12 +378,69 @@ byte compilation, JSON/JSONL parsing, privacy/secret scanning, and
 `git diff --check` all pass. The skip and warnings remain the documented
 environment/dependency baseline.
 
+## Candidate comparison final evidence
+
+The exact committed comparison code produced a final two-pass package using 32
+model-uncertainty and 2,000 official-date score-bootstrap replicates. Each of the
+four variants has 7,287 chronological predictions and separate grades on the
+same immutable 2022-through-2024 folds. The package contains 58,311 JSONL rows
+across seven manifested artifacts totaling 55,154,142 bytes. No outcome appears
+in a prediction record, all prediction IDs link one-to-one to grades, the
+locked 2025 holdout remains unused, every market snapshot is null, and no raw or
+private workstation data is present.
+
+The final pooled evidence is unchanged from the validated point estimates:
+
+- logistic raw: log loss `0.693204`, Brier `0.250029`, ECE `0.015694`;
+- logistic prior-fold sigmoid: `0.693847`, `0.250345`, `0.003856`;
+- LightGBM raw: `0.697654`, `0.252208`, `0.032467`;
+- LightGBM prior-fold sigmoid: `0.695999`, `0.251390`, `0.014366`.
+
+Raw logistic improvement over overall climatology is only `0.000066` log-loss
+and `0.000033` Brier points; the final 95% intervals are
+`[-0.000898, 0.000962]` and `[-0.000411, 0.000512]`. Both LightGBM variants are
+materially worse than overall climatology. Logistic calibration remains
+rejected. LightGBM calibration is accepted only relative to raw LightGBM and
+does not make that family competitive. Every variant decision and the sole
+primary decision are `PREDICTIVE SKILL NOT ESTABLISHED`.
+
+Each temporal calibrator now records its target fold, model family, prior-fold
+training count, training-prediction identity, and its own content identity. A
+second clean offline package run exactly matched configuration, fold membership,
+metrics, model and calibrator artifacts, every prediction byte, and all 29,148
+grade identities. No network client exists in the comparison module and both
+runs read only committed local 2021-through-2024 evidence.
+
+Deterministic replay passed with zero logistic probability delta. Producing code
+commit `a3e86f52e62bd8fcfbd47c579822ab5303a29082` generated model-artifact identity
+`fbcebb2ffc4e8f76a81b6b5562820196f50c386854a2a9b39a6bf1ec7fb50540`,
+prediction identity
+`2518ceafbd3eecfc1b27a60b9733b55fe21cb98a4a1b12d90922f6de9fa51a02`,
+grade identity
+`8acc412ff7aad193d66b133508b793e1e6b9037b85be31988d50154e5d1c23a2`,
+and evaluation identity
+`23428a3f7257f434a6394a8f8a117ae0df3004cade8b8fa47771cb8ba072bfc7`.
+
+Independent committed-artifact validation reports `5 passed` and verifies all
+seven manifest hashes and row counts, chronological fold definitions, 29,148
+one-to-one prediction/grade links, outcome separation, probability complements,
+model and calibrator identities, target-fold/model-family provenance, 62
+cross-partition reconciliations, four explicit source rejections, and 158
+evaluation exclusions. The complete repository suite reports
+`133 passed, 1 skipped, 21 warnings`; the skip and warnings remain the existing
+documented environment/dependency baseline. Ruff lint passed, Ruff formatting
+reports `50 files already formatted`, Pyright reports `0 errors, 0 warnings, 0
+informations`, and byte compilation passed. Parsing passed for 51 JSON/JSONL
+files containing 136,656 JSONL rows, four YAML files, and one TOML file. The 15
+publication files contain no recognized secret or private workstation path, and
+`git diff --check` passes.
+
 ## Exact next action
 
-Commit this validated comparison code, then generate the final deterministic
-comparison package from that exact code commit using the predetermined 32
-model-uncertainty and 2,000 score-bootstrap replicates. Independently verify its
-hashes, ledgers, fold membership, model artifacts, calibration provenance,
-metrics, replay equality, and 2025/market exclusion. Preserve the negative skill
-decision unless every predetermined stability and uncertainty gate passes; do
-not begin market, wager, cloud, or production work.
+After committing and publishing this evidence on the existing integration
+branch, use the authoritative inventory without rescanning to identify a lawful
+controlled source of timestamped historical probable-starter identities for
+pre-2025 development games. Admit identities only when pregame availability can
+be proven, quantify coverage and rejection reasons, and otherwise fail closed.
+Do not substitute actual starters, inspect 2025, or begin market, wager, cloud,
+promotion, or production work.

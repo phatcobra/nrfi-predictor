@@ -130,6 +130,17 @@ separate immutable grades, stable analytical identities, and a byte manifest in
 `docs/multiseason/`. It does not use market data, wagering logic, optional data
 domains, quarantined assets, or the locked holdout.
 
+The fixed logistic/LightGBM and prior-fold sigmoid comparison can be replayed
+without network access from that committed evidence:
+
+```powershell
+.\.venv\Scripts\python.exe -m nrfi.model_comparison --evidence docs\multiseason --output docs\model_comparison --code-commit a3e86f52e62bd8fcfbd47c579822ab5303a29082 --uncertainty-replicates 32 --bootstrap-replicates 2000
+```
+
+The comparison retains model artifacts, uncertainty, separate prediction and
+grade ledgers, and exact replay identities. Its conclusion is
+`PREDICTIVE SKILL NOT ESTABLISHED`; it does not authorize market or wager work.
+
 ## Operator activation
 
 Warehouse initialization, source loading, training, locked-holdout evaluation,
