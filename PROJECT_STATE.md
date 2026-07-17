@@ -8,7 +8,7 @@ Phase 1: **PASS WITH DOCUMENTED EXCEPTIONS**
 
 Phase 2: **PASS WITH DOCUMENTED EXCEPTIONS**
 
-Current task: **bounded real-data vertical slice**
+Current task: **real historical prediction API and browser display**
 
 Current branch: `chore/phase1-environment-foundation-20260715`
 
@@ -188,9 +188,40 @@ market data, wagering, weather, umpire, lineup, and injury inputs remain
 prohibited. Quarantined pybaseball and MLB-model assets remain closed, and the
 locked 2025 holdout remains inaccessible.
 
+## Real-data vertical-slice evidence
+
+Official MLB StatsAPI data for 2024-04-01 through 2024-05-31 was retrieved with
+unauthenticated read-only GET requests. Raw responses remained in memory and
+were not stored or redistributed. The normalized derived package in
+`docs/vertical_slice/` contains 826 finalized regular-season games, 30 teams,
+31 venues, 1,652 postgame actual-starter records, 826 finalized first-inning
+outcomes, 827 request-provenance records, 826 feature rows, and 219 real
+out-of-sample predictions. All 826 scheduled games were accepted; two-starter
+and label coverage are 100%.
+
+Strict-prior team and league features are eligible for 671 games (81.23%).
+Pitcher pregame feature coverage is explicitly 0% and actual starters are not
+backfilled. The chronological split uses MLB official date: 452 eligible games
+before 2024-05-16 train the simple logistic baseline and 219 games from
+2024-05-16 through 2024-05-31 form the renewable out-of-sample period.
+
+Out-of-sample log loss is `0.682488` versus `0.683897` for frozen training
+climatology; Brier score is `0.244692` versus `0.245386`; expected calibration
+error is `0.014686`. The differences are development evidence only and do not
+qualify a production model, market edge, or wager.
+
+Independent verification passed every artifact checksum and row count,
+official-date split membership, probability-complement invariant, strict
+StatsAPI endpoint restriction, provenance reference, locked-holdout exclusion,
+and private-path scan. Repository validation passed Ruff lint and formatting
+(`43 files`), byte compilation, Pyright (`0 errors, 0 warnings, 0
+informations`), and the complete offline suite (`105 passed, 1 skipped, 22
+warnings`). The existing Windows symlink skip and dependency/cache warnings are
+unchanged.
+
 ## Exact next action
 
-Retrieve the authorized fixed StatsAPI sample, retain normalized derived records
-only, and produce real rolling team/league features plus chronological
-out-of-sample probabilities. Actual starters are postgame attribution only and
-must not be backfilled into pregame features.
+Expose one committed real historical prediction through a read-only API route
+that does not require Snowflake, and display the same response in a minimal
+browser page. Keep market, wagering, deployment, and additional data domains
+out of scope.
