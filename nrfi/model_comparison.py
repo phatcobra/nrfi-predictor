@@ -183,28 +183,33 @@ def _fit_temporal_sigmoid(
     probabilities: Sequence[float],
     actuals: Sequence[int],
     prediction_ids: Sequence[str],
+    target_fold_id: str,
+    model_family: str,
 ) -> dict[str, Any]:
+    common = {
+        "schema_version": "calibrator.v1",
+        "target_fold_id": target_fold_id,
+        "model_family": model_family,
+        "training_count": len(probabilities),
+        "training_prediction_identity": _identity(list(prediction_ids)),
+    }
     if len(probabilities) < 1000:
-        return {
-            "schema_version": "calibrator.v1",
+        artifact = {
+            **common,
             "method": "none_insufficient_prior_oof",
-            "calibrator_identity": CALIBRATOR_VERSION,
-            "training_count": len(probabilities),
             "intercept": 0.0,
             "slope": 1.0,
-            "training_prediction_identity": _identity(list(prediction_ids)),
         }
+        return {"calibrator_identity": _identity(artifact), **artifact}
     intercept, slope = _calibration_slope_intercept(
         np.asarray(actuals, dtype=float),
         np.asarray(probabilities, dtype=float),
     )
     artifact = {
-        "schema_version": "calibrator.v1",
+        **common,
         "method": "prior-fold-sigmoid-v1",
-        "training_count": len(probabilities),
         "intercept": intercept,
         "slope": slope,
-        "training_prediction_identity": _identity(list(prediction_ids)),
     }
     return {"calibrator_identity": _identity(artifact), **artifact}
 
@@ -451,11 +456,15 @@ def derive_model_comparison(
             prior_probabilities["logistic"],
             prior_actuals["logistic"],
             prior_prediction_ids["logistic"],
+            fold_id,
+            "regularized_logistic_regression",
         )
         tree_calibrator = _fit_temporal_sigmoid(
             prior_probabilities["lightgbm"],
             prior_actuals["lightgbm"],
             prior_prediction_ids["lightgbm"],
+            fold_id,
+            "lightgbm_gradient_boosted_trees",
         )
         artifacts.extend((logistic_calibrator, tree_calibrator))
         calibrated_logistic = _apply_sigmoid(logistic_probability, logistic_calibrator)

@@ -9,6 +9,7 @@ from pathlib import Path
 import pytest
 
 from nrfi.model_comparison import VARIANTS, build_model_comparison
+from nrfi.multiseason import _identity
 
 EVIDENCE = Path(__file__).resolve().parents[1] / "docs" / "multiseason"
 
@@ -65,6 +66,17 @@ def test_prior_fold_calibration_never_uses_current_test_labels(comparison):
         row["method"] == "none_insufficient_prior_oof" for row in calibrators[:2]
     )
     assert all(row["method"] == "prior-fold-sigmoid-v1" for row in calibrators[2:])
+    assert [row["model_family"] for row in calibrators] == [
+        "regularized_logistic_regression",
+        "lightgbm_gradient_boosted_trees",
+    ] * 3
+    assert all(
+        row["calibrator_identity"]
+        == _identity(
+            {key: value for key, value in row.items() if key != "calibrator_identity"}
+        )
+        for row in calibrators
+    )
 
 
 def test_candidate_predictions_are_outcome_free_and_grades_are_separate(comparison):
