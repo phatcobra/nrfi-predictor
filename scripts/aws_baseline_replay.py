@@ -106,6 +106,53 @@ def _variant_metrics(evaluation: dict[str, Any]) -> dict[str, dict[str, Any]]:
     }
 
 
+def _assert_json_close(
+    expected: Any,
+    generated: Any,
+    tolerance: float,
+    path: str = "$",
+) -> float:
+    if isinstance(expected, dict) and isinstance(generated, dict):
+        if expected.keys() != generated.keys():
+            raise ReplayVerificationError(f"JSON object keys differ at {path}")
+        return max(
+            (
+                _assert_json_close(
+                    expected[key], generated[key], tolerance, f"{path}.{key}"
+                )
+                for key in expected
+            ),
+            default=0.0,
+        )
+    if isinstance(expected, list) and isinstance(generated, list):
+        if len(expected) != len(generated):
+            raise ReplayVerificationError(f"JSON array length differs at {path}")
+        return max(
+            (
+                _assert_json_close(left, right, tolerance, f"{path}[{index}]")
+                for index, (left, right) in enumerate(
+                    zip(expected, generated, strict=True)
+                )
+            ),
+            default=0.0,
+        )
+    if (
+        isinstance(expected, (int, float))
+        and not isinstance(expected, bool)
+        and isinstance(generated, (int, float))
+        and not isinstance(generated, bool)
+    ):
+        delta = abs(float(expected) - float(generated))
+        if delta > tolerance:
+            raise ReplayVerificationError(
+                f"numeric value differs at {path}: delta={delta:.17g}"
+            )
+        return delta
+    if expected != generated:
+        raise ReplayVerificationError(f"JSON value differs at {path}")
+    return 0.0
+
+
 def main() -> None:
     source_rows = _verify_artifact_manifest(SOURCE_EVIDENCE)
     expected_rows = _verify_artifact_manifest(EXPECTED_EVIDENCE)
@@ -137,12 +184,11 @@ def main() -> None:
     if max(expected_delta, generated_delta) > numerical_tolerance:
         raise ReplayVerificationError("logistic replay exceeds numerical tolerance")
 
-    comparable_expected_evaluation = dict(expected_evaluation)
-    comparable_generated_evaluation = dict(generated_evaluation)
-    comparable_expected_evaluation["max_logistic_replay_delta"] = 0.0
-    comparable_generated_evaluation["max_logistic_replay_delta"] = 0.0
-    if comparable_generated_evaluation != comparable_expected_evaluation:
-        raise ReplayVerificationError("AWS evaluation differs from frozen evidence")
+    max_evaluation_delta = _assert_json_close(
+        expected_evaluation,
+        generated_evaluation,
+        numerical_tolerance,
+    )
 
     comparable_expected_manifest = dict(expected_manifest)
     comparable_generated_manifest = dict(generated_manifest)
@@ -184,6 +230,7 @@ def main() -> None:
         "deterministic_replay": result["artifact_manifest"]["deterministic_replay"],
         "numerical_tolerance": numerical_tolerance,
         "max_logistic_replay_delta": generated_delta,
+        "max_frozen_evaluation_delta": max_evaluation_delta,
         "analytical_match_within_tolerance": True,
         "configuration_identity": generated_manifest["configuration_identity"],
         "model_artifact_identity": generated_manifest["model_artifact_identity"],
