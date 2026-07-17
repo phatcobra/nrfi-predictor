@@ -35,6 +35,10 @@ services:
         sync: false
       - key: SENTRY_DSN
         sync: false
+      - key: POSTHOG_PROJECT_TOKEN
+        sync: false
+      - key: POSTHOG_HOST
+        value: https://us.i.posthog.com
 
   - type: cron
     name: nrfi-ingest-final-outcomes
