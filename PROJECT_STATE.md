@@ -8,7 +8,7 @@ Phase 1: **PASS WITH DOCUMENTED EXCEPTIONS**
 
 Phase 2: **PASS WITH DOCUMENTED EXCEPTIONS**
 
-Current task: **multi-season candidate comparison and temporal calibration**
+Current task: **deterministic candidate comparison and prior-fold calibration**
 
 Current branch: `chore/phase1-environment-foundation-20260715`
 
@@ -347,12 +347,43 @@ correctly rejected the bootstrap's `np.random` spelling under the repository's
 anti-fabrication gate; the deterministic sampler was replaced without weakening
 that gate, and the final suite passed.
 
+## Candidate comparison code checkpoint
+
+The candidate-comparison implementation now reuses only the committed
+2021-through-2024 evidence and identical immutable folds. It compares the fixed
+regularized logistic model with a deterministic fixed-parameter LightGBM model,
+both raw and with sigmoid calibration trained exclusively on completed prior
+fold out-of-sample predictions. The first test fold is intentionally uncalibrated
+because no prior out-of-fold evidence exists. It retains model text and hashes,
+separate candidate prediction and grade ledgers, model-bootstrap probability
+uncertainty clustered by official game date, score-bootstrap intervals, and two
+complete deterministic derivations. It performs no acquisition, tuning,
+feature selection, locked-holdout access, or market evaluation.
+
+The validated low-replicate real-data check preserves the primary decision
+`PREDICTIVE SKILL NOT ESTABLISHED` and reproduces the logistic probabilities
+with maximum absolute delta `0`. Pooled log loss / Brier / ECE are:
+
+- logistic raw: `0.693204` / `0.250029` / `0.015694`;
+- logistic prior-fold sigmoid: `0.693847` / `0.250345` / `0.003856`;
+- LightGBM raw: `0.697654` / `0.252208` / `0.032467`;
+- LightGBM prior-fold sigmoid: `0.695999` / `0.251390` / `0.014366`.
+
+Logistic calibration is rejected because its ECE improvement comes with worse
+pooled log loss and Brier score. LightGBM calibration is accepted only relative
+to the materially worse raw LightGBM candidate; neither LightGBM variant nor
+either logistic variant establishes skill. The complete offline code gate
+reports `128 passed, 1 skipped, 21 warnings`; Ruff lint and format, Pyright,
+byte compilation, JSON/JSONL parsing, privacy/secret scanning, and
+`git diff --check` all pass. The skip and warnings remain the documented
+environment/dependency baseline.
+
 ## Exact next action
 
-Using the same admitted real normalized snapshot and immutable season folds,
-compare a deterministic gradient-boosted candidate with the logistic model and
-frozen baselines, then evaluate no calibration versus prior-fold sigmoid
-calibration without tuning on the test season. Preserve the negative skill
-decision unless every predetermined stability and uncertainty gate passes. Keep
-2025, optional data domains, markets, wagering, cloud, and production
-deployment out of scope.
+Commit this validated comparison code, then generate the final deterministic
+comparison package from that exact code commit using the predetermined 32
+model-uncertainty and 2,000 score-bootstrap replicates. Independently verify its
+hashes, ledgers, fold membership, model artifacts, calibration provenance,
+metrics, replay equality, and 2025/market exclusion. Preserve the negative skill
+decision unless every predetermined stability and uncertainty gate passes; do
+not begin market, wager, cloud, or production work.
