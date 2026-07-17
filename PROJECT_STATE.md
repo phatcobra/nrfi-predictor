@@ -8,7 +8,7 @@ Phase 1: **PASS WITH DOCUMENTED EXCEPTIONS**
 
 Phase 2: **PASS WITH DOCUMENTED EXCEPTIONS**
 
-Current task: **real historical prediction API and browser display**
+Current task: **bounded real-data vertical slice published and validated**
 
 Current branch: `chore/phase1-environment-foundation-20260715`
 
@@ -26,6 +26,7 @@ uploaded local assets, or inspected locked evaluation evidence.
 | Browser and Computer bridges are unavailable | Operational limitation; signed-in account inspection remains unavailable |
 | GitHub protection, billing, benefits, and zero-overage settings are unverified | Operational risk; no paid, cloud, subscription, or permission-changing action is authorized |
 | GitHub authentication and SSH connectivity | Restored for account `phatcobra`; remote mutation remains limited to the existing PR #6 branch and pull request |
+| GitHub-hosted action Node.js 20 runtimes | Nonblocking deprecation warning on the successful release gate; update pinned actions separately before GitHub ends forced Node.js 24 compatibility |
 | Some quarantined files remain incompletely inspected | They remain unadmitted and cannot be used for training, evaluation, or production |
 
 These exceptions do not weaken the fail-closed, locked-holdout,
@@ -171,11 +172,15 @@ training, promotion, deployment, push, or pull-request mutation occurred.
 
 ## Published integration evidence
 
-Draft pull request <https://github.com/phatcobra/nrfi-predictor/pull/6> now targets
-`main` at head `e628f5fd521e2e778c6245ee8b47e5f38f231cf6`. It contains every
-PR #5 commit and changed path. PRs #1, #3, and #5 are closed with their remote
-branches preserved. GitHub Actions run `29544833916` completed successfully and
-the `release-gate` check reported `SUCCESS`.
+Draft pull request <https://github.com/phatcobra/nrfi-predictor/pull/6> targets
+`main`. Its validated real-data engineering head is
+`295aae96454c198c3e0abaf44019c1eb1ec3ab18`; the ordered slice commits are
+`ede5afd` (authorization), `a95230d` (real MLB slice), and `295aae9` (real
+prediction API and page). It contains every PR #5 commit and changed path. PRs
+#1, #3, and #5 are closed with their remote branches preserved. GitHub Actions
+run `29548242775` completed successfully on that head, and every `release-gate`
+step executed, including the complete offline suite and diagnostic artifact
+upload.
 
 ## Bounded real-data slice authorization
 
@@ -248,5 +253,8 @@ recognized secret pattern, and `git diff --check` passes.
 
 ## Exact next action
 
-Push the existing PR #6 integration branch and verify its release-gate run.
-Keep market, wagering, deployment, and additional data domains out of scope.
+Keep PR #6 as the sole draft implementation pull request for review, and repeat
+interactive visual inspection of `/vertical-slice` when the in-app browser
+bridge is restored. Any follow-on real-data feature domain requires a separate
+bounded authorization decision. Keep market, wagering, deployment, and
+additional data domains out of scope.
