@@ -188,10 +188,60 @@ download, or entitlement activation is approved. A proposal can advance only
 after reuse is exhausted and source authority, terms, point-in-time lineage,
 zero-overage status, and a storage/provenance design are approved.
 
+## Authorized bounded development vertical slice
+
+One development-only carve-out is authorized for the fixed 2024-04-01 through
+2024-05-31 MLB sample. It may use read-only controlled repository assets and
+unauthenticated HTTP GET requests to official MLB StatsAPI endpoints. It may
+store normalized derived records, source references, request parameters,
+retrieval and normalization timestamps, and checksums. Raw StatsAPI payloads
+must not be committed or redistributed.
+
+The slice is limited to game, team, venue, actual-starter, finalized
+first-inning-outcome, provenance, rolling team/league feature, chronological
+baseline, prediction, coverage, and evaluation records. Park identity may be
+used, but unverified historical park-factor values may not. Weather, umpire,
+lineup, injury, market-price, wagering, paid API, credentialed provider, AWS,
+subscription, and production-deployment work remain unauthorized. Pybaseball
+and the dirty MLB-model repository remain quarantined and must not be opened.
+
+For this slice, MLB `gamePk` is the primary game identity. Official date, home
+team, away team, doubleheader indicator, and game number are reconciliation
+attributes; team and date alone never identify a game. Cancelled games are
+excluded. Postponed games receive no outcome until played under an official
+game identity. Suspended or resumed games retain their original identity and
+scheduled-first-pitch context, use only the finalized official first-inning
+result for grading, and are rejected when first-inning chronology is unclear.
+
+`YRFI = 1` only when the finalized official record contains at least one run in
+inning 1. `YRFI = 0` and `NRFI = 1` only when inning 1 is complete and both teams
+have zero runs. Missing, incomplete, ambiguous, or non-final linescores are
+rejected; NRFI is never inferred from missing data. Official corrections must
+regrade or invalidate affected records.
+
+Probable starter, probable-starter announcement time, prediction cutoff, actual
+starter, and actual-starter confirmation time remain distinct. Actual starters
+are postgame attribution only and cannot become pregame features unless a
+separate recorded probable-starter snapshot proves availability before cutoff.
+This initial slice omits pitcher-specific pregame features and reports that
+coverage rather than backfilling actual starters.
+
+Event, source update when supplied, retrieval, normalization, and correction
+times are recorded separately. Missing publication times remain missing.
+Postgame facts enter historical features only after finalized availability.
+Unreadable, corrupt, duplicate, or irreconcilable records are rejected with a
+reason and coverage loss; no value is fabricated. The known corrupt pybaseball
+partition is outside this slice. The locked 2025 holdout remains inaccessible.
+
+This authorization is internal technical approval, not a legal opinion. Stop if
+an applicable source term explicitly prohibits the intended internal use. The
+authorization does not change any other asset admission or acquisition status.
+
 ## Unresolved semantic stop boundaries
 
-Do not materialize, normalize, train, evaluate, or score the affected real-data
-domain until its applicable decision is resolved:
+Except for the bounded slice above, do not materialize, normalize, train,
+evaluate, or score an affected real-data domain until its applicable decision
+is resolved:
 
 - finalized first-inning label, correction, suspended-game, and resumed-game
   rules;

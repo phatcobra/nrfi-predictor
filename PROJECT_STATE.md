@@ -1,6 +1,6 @@
 # NRFI Autopilot Project State
 
-Status date: 2026-07-15
+Status date: 2026-07-16
 
 Phase 0: **PASS WITH DOCUMENTED EXCEPTIONS**
 
@@ -8,7 +8,7 @@ Phase 1: **PASS WITH DOCUMENTED EXCEPTIONS**
 
 Phase 2: **PASS WITH DOCUMENTED EXCEPTIONS**
 
-Current task: **authenticated publication boundary after validated local consolidation**
+Current task: **bounded real-data vertical slice**
 
 Current branch: `chore/phase1-environment-foundation-20260715`
 
@@ -25,7 +25,7 @@ uploaded local assets, or inspected locked evaluation evidence.
 | `${MLB_MODEL_REPO}` has 34 modified and 7 untracked paths | Read-only quarantine; do not reset, clean, stash, commit, overwrite, train from, or otherwise alter it |
 | Browser and Computer bridges are unavailable | Operational limitation; signed-in account inspection remains unavailable |
 | GitHub protection, billing, benefits, and zero-overage settings are unverified | Operational risk; no paid, cloud, subscription, or permission-changing action is authorized |
-| GitHub CLI authentication is currently invalid | Use the authenticated GitHub connector only for the explicitly requested branch and draft pull request |
+| GitHub authentication and SSH connectivity | Restored for account `phatcobra`; remote mutation remains limited to the existing PR #6 branch and pull request |
 | Some quarantined files remain incompletely inspected | They remain unadmitted and cannot be used for training, evaluation, or production |
 
 These exceptions do not weaken the fail-closed, locked-holdout,
@@ -169,13 +169,28 @@ affect test collection or execution. No scan, acquisition, network request,
 quarantined-repository mutation, real-data access, locked-holdout access,
 training, promotion, deployment, push, or pull-request mutation occurred.
 
+## Published integration evidence
+
+Draft pull request <https://github.com/phatcobra/nrfi-predictor/pull/6> now targets
+`main` at head `e628f5fd521e2e778c6245ee8b47e5f38f231cf6`. It contains every
+PR #5 commit and changed path. PRs #1, #3, and #5 are closed with their remote
+branches preserved. GitHub Actions run `29544833916` completed successfully and
+the `release-gate` check reported `SUCCESS`.
+
+## Bounded real-data slice authorization
+
+The semantic boundary is resolved only for an internal, development-only MLB
+StatsAPI slice covering 2024-04-01 through 2024-05-31. Unauthenticated official
+StatsAPI GET requests and storage of normalized derived records, checksums,
+source references, and timestamps are authorized. Raw-payload redistribution,
+paid or credentialed providers, AWS, production deployment, sportsbook and
+market data, wagering, weather, umpire, lineup, and injury inputs remain
+prohibited. Quarantined pybaseball and MLB-model assets remain closed, and the
+locked 2025 holdout remains inaccessible.
+
 ## Exact next action
 
-Authenticate GitHub CLI without changing repository content:
-
-```text
-gh auth login -h github.com
-gh auth status
-```
-
-Do not push or mutate pull requests until authentication succeeds.
+Retrieve the authorized fixed StatsAPI sample, retain normalized derived records
+only, and produce real rolling team/league features plus chronological
+out-of-sample probabilities. Actual starters are postgame attribution only and
+must not be backfilled into pregame features.

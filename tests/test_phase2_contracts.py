@@ -77,7 +77,7 @@ def test_contract_time_roles_assets_and_gaps_fail_closed():
             assert (column is None) == has_gap, (contract["id"], role)
 
 
-def test_no_asset_is_admitted_and_acquisition_is_unauthorized():
+def test_no_asset_is_admitted_and_only_bounded_slice_is_authorized():
     catalog = _load("data_contracts")
     statuses = Counter(asset["admission_status"] for asset in catalog["assets"])
     assert statuses == {"unadmitted": 5, "quarantined": 6, "rejected": 1}
@@ -87,6 +87,43 @@ def test_no_asset_is_admitted_and_acquisition_is_unauthorized():
 
     plan = _load("acquisition_plan")
     assert plan["authorized"] is False
+    vertical_slice = plan["bounded_development_vertical_slice"]
+    assert vertical_slice == {
+        "authorized": True,
+        "authorization_scope": (
+            "internal_development_normalization_testing_and_"
+            "chronological_evaluation_only"
+        ),
+        "credential_action": "prohibited",
+        "end_date": "2024-05-31",
+        "locked_holdout_access": "prohibited",
+        "network_action": "unauthenticated_http_get_official_mlb_statsapi_only",
+        "no_cost_gate": "passed_no_paid_service_authorized",
+        "no_raw_payload_redistribution": True,
+        "output_policy": (
+            "normalized_derived_records_checksums_source_references_and_timestamps_only"
+        ),
+        "payment_action": "prohibited",
+        "pitcher_feature_policy": (
+            "actual_starters_postgame_attribution_only_no_pregame_backfill"
+        ),
+        "prohibited_domains": [
+            "aws",
+            "injuries",
+            "lineups",
+            "market_prices",
+            "production_deployment",
+            "sportsbook_connections",
+            "umpires",
+            "wagering",
+            "weather",
+        ],
+        "quarantined_asset_access": "prohibited",
+        "source": "https://statsapi.mlb.com",
+        "start_date": "2024-04-01",
+        "subscription_action": "prohibited",
+        "vertical_slice_id": "nrfi.real_vertical_slice.2024-04-01_2024-05-31.v1",
+    }
     assert len(plan["proposals"]) == 7
     for proposal in plan["proposals"]:
         assert proposal["authorized"] is False
