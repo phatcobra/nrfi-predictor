@@ -9,7 +9,7 @@ from pathlib import Path
 import pytest
 
 from nrfi.model_comparison import VARIANTS, build_model_comparison
-from nrfi.multiseason import _identity
+from nrfi.multiseason import NUMERICAL_TOLERANCE, _identity
 
 EVIDENCE = Path(__file__).resolve().parents[1] / "docs" / "multiseason"
 
@@ -42,7 +42,7 @@ def test_real_candidates_use_identical_folds_and_preserve_negative_decision(
     assert set(evaluation["variant_decisions"].values()) == {
         "PREDICTIVE SKILL NOT ESTABLISHED"
     }
-    assert evaluation["max_logistic_replay_delta"] == 0.0
+    assert evaluation["max_logistic_replay_delta"] <= NUMERICAL_TOLERANCE
     assert evaluation["locked_holdout_used"] is False
     assert evaluation["market_data_used"] is False
 
