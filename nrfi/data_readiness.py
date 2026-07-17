@@ -5,6 +5,7 @@ that every table and column consumed by the feature builder exists, contains a
 minimum viable number of observed rows, and covers the declared training
 window. Callers fail closed when any requirement is unmet.
 """
+
 from __future__ import annotations
 
 import json
@@ -28,47 +29,92 @@ class DatasetContract:
 CONTRACTS: tuple[DatasetContract, ...] = (
     DatasetContract(
         "NRFI_DB.CORE.FIRST_INNING_OUTCOMES",
-        frozenset({
-            "game_id", "game_date", "away_team", "home_team", "away_sp_id",
-            "home_sp_id", "venue_id", "fi_runs_top", "fi_runs_bottom", "yrfi",
-        }),
+        frozenset(
+            {
+                "game_id",
+                "game_date",
+                "away_team",
+                "home_team",
+                "away_sp_id",
+                "home_sp_id",
+                "venue_id",
+                "fi_runs_top",
+                "fi_runs_bottom",
+                "yrfi",
+            }
+        ),
         "game_date",
         5_000,
     ),
     DatasetContract(
         "NRFI_DB.RAW.PITCHER_GAME_LOGS",
-        frozenset({
-            "pitcher_id", "game_id", "game_date", "opponent_team", "earned_runs",
-            "runs_allowed", "hits", "walks", "strikeouts", "innings_pitched",
-        }),
+        frozenset(
+            {
+                "pitcher_id",
+                "game_id",
+                "game_date",
+                "opponent_team",
+                "earned_runs",
+                "runs_allowed",
+                "hits",
+                "walks",
+                "strikeouts",
+                "innings_pitched",
+            }
+        ),
         "game_date",
         10_000,
     ),
     DatasetContract(
         "NRFI_DB.RAW.PITCHER_INNING_LOGS",
-        frozenset({
-            "pitcher_id", "game_id", "game_date", "inning", "first_inning_runs",
-            "first_inning_hits", "first_inning_walks",
-        }),
+        frozenset(
+            {
+                "pitcher_id",
+                "game_id",
+                "game_date",
+                "inning",
+                "first_inning_runs",
+                "first_inning_hits",
+                "first_inning_walks",
+            }
+        ),
         "game_date",
         10_000,
     ),
     DatasetContract(
         "NRFI_DB.RAW.STATCAST_PITCHER_DAILY",
-        frozenset({
-            "pitcher_id", "game_date", "exit_velocity_sum", "barrels", "hard_hits",
-            "whiffs", "swings", "batted_balls",
-        }),
+        frozenset(
+            {
+                "pitcher_id",
+                "game_date",
+                "exit_velocity_sum",
+                "barrels",
+                "hard_hits",
+                "whiffs",
+                "swings",
+                "batted_balls",
+            }
+        ),
         "game_date",
         10_000,
     ),
     DatasetContract(
         "NRFI_DB.RAW.TEAM_GAME_LOGS",
-        frozenset({
-            "team", "game_id", "game_date", "runs", "hits", "at_bats",
-            "total_bases", "times_on_base", "plate_appearances", "woba_num",
-            "woba_den",
-        }),
+        frozenset(
+            {
+                "team",
+                "game_id",
+                "game_date",
+                "runs",
+                "hits",
+                "at_bats",
+                "total_bases",
+                "times_on_base",
+                "plate_appearances",
+                "woba_num",
+                "woba_den",
+            }
+        ),
         "game_date",
         10_000,
     ),
@@ -80,19 +126,32 @@ CONTRACTS: tuple[DatasetContract, ...] = (
     ),
     DatasetContract(
         "NRFI_DB.RAW.BATTER_GAME_LOGS",
-        frozenset({
-            "batter_id", "game_id", "game_date", "woba_num", "woba_den",
-            "times_on_base", "plate_appearances",
-        }),
+        frozenset(
+            {
+                "batter_id",
+                "game_id",
+                "game_date",
+                "woba_num",
+                "woba_den",
+                "times_on_base",
+                "plate_appearances",
+            }
+        ),
         "game_date",
         50_000,
     ),
     DatasetContract(
         "NRFI_DB.RAW.PARK_FACTORS",
-        frozenset({
-            "venue_id", "runs_factor", "hr_factor", "hits_factor",
-            "calculated_through", "source",
-        }),
+        frozenset(
+            {
+                "venue_id",
+                "runs_factor",
+                "hr_factor",
+                "hits_factor",
+                "calculated_through",
+                "source",
+            }
+        ),
         "calculated_through",
         20,
         require_full_training_window=False,
@@ -143,8 +202,7 @@ def evaluate_snapshot(
         except (TypeError, ValueError):
             row_count = 0
         if row_count < contract.minimum_rows:
-            item_errors.append(
-                f"row_count_{row_count}_below_{contract.minimum_rows}")
+            item_errors.append(f"row_count_{row_count}_below_{contract.minimum_rows}")
 
         minimum_date = _as_date(observed.get("minimum_date"))
         maximum_date = _as_date(observed.get("maximum_date"))
@@ -154,13 +212,16 @@ def evaluate_snapshot(
             elif contract.require_full_training_window:
                 if minimum_date > start:
                     item_errors.append(
-                        f"starts_{minimum_date.isoformat()}_after_{start.isoformat()}")
+                        f"starts_{minimum_date.isoformat()}_after_{start.isoformat()}"
+                    )
                 if maximum_date < end:
                     item_errors.append(
-                        f"ends_{maximum_date.isoformat()}_before_{end.isoformat()}")
+                        f"ends_{maximum_date.isoformat()}_before_{end.isoformat()}"
+                    )
             elif contract.table.endswith("PARK_FACTORS") and maximum_date >= holdout:
                 item_errors.append(
-                    f"park_factors_use_locked_or_future_data_through_{maximum_date.isoformat()}")
+                    f"park_factors_use_locked_or_future_data_through_{maximum_date.isoformat()}"
+                )
 
         datasets[contract.table] = {
             "ready": not item_errors,
@@ -199,8 +260,10 @@ def inspect_warehouse(loader: SnowflakeLoader | None = None) -> dict[str, Any]:
         )
         if not columns:
             snapshot[contract.table] = {
-                "columns": [], "row_count": 0,
-                "minimum_date": None, "maximum_date": None,
+                "columns": [],
+                "row_count": 0,
+                "minimum_date": None,
+                "maximum_date": None,
             }
             continue
 

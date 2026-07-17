@@ -1,4 +1,5 @@
 """Central fail-closed status and display rules."""
+
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -17,14 +18,12 @@ PREDICTION_STALE_AFTER_S = 6 * 3600
 
 
 def odds_fresh(odds_age_sec: Optional[int]) -> bool:
-    return (
-        odds_age_sec is not None
-        and 0 <= odds_age_sec <= ODDS_MAX_AGE_SECONDS
-    )
+    return odds_age_sec is not None and 0 <= odds_age_sec <= ODDS_MAX_AGE_SECONDS
 
 
-def market_usable(p_market: Optional[float], books_n: int,
-                  odds_age_sec: Optional[int]) -> tuple[bool, Optional[str]]:
+def market_usable(
+    p_market: Optional[float], books_n: int, odds_age_sec: Optional[int]
+) -> tuple[bool, Optional[str]]:
     """Return market usability and one stable machine-readable reason."""
     if p_market is None and books_n == 0 and odds_age_sec is None:
         return False, "no_market_consensus"
@@ -41,13 +40,13 @@ def market_usable(p_market: Optional[float], books_n: int,
 
 def coverage_blocks(coverage_value: float) -> Optional[str]:
     if coverage_value < FEATURE_COVERAGE_MIN:
-        return (
-            f"coverage_{coverage_value:.2f}_below_{FEATURE_COVERAGE_MIN}")
+        return f"coverage_{coverage_value:.2f}_below_{FEATURE_COVERAGE_MIN}"
     return None
 
 
-def tier_for(status: str, lineup_confirmed: bool, coverage_value: float,
-             books_n: int) -> str:
+def tier_for(
+    status: str, lineup_confirmed: bool, coverage_value: float, books_n: int
+) -> str:
     """Unconfirmed lineups cap the tier at medium."""
     if status != OK:
         return "LOW"
@@ -77,9 +76,9 @@ def data_health(rows: list[dict], now_utc: Optional[datetime] = None) -> str:
             continue
         try:
             parsed = (
-                timestamp if isinstance(timestamp, datetime)
-                else datetime.fromisoformat(
-                    str(timestamp).replace("Z", "+00:00"))
+                timestamp
+                if isinstance(timestamp, datetime)
+                else datetime.fromisoformat(str(timestamp).replace("Z", "+00:00"))
             )
         except (TypeError, ValueError):
             continue
@@ -89,10 +88,7 @@ def data_health(rows: list[dict], now_utc: Optional[datetime] = None) -> str:
             parsed = parsed.astimezone(timezone.utc)
         newest = parsed if newest is None or parsed > newest else newest
 
-    if (
-        newest is None
-        or (now_utc - newest).total_seconds() > PREDICTION_STALE_AFTER_S
-    ):
+    if newest is None or (now_utc - newest).total_seconds() > PREDICTION_STALE_AFTER_S:
         return RED
     if any(row.get("status") != OK for row in rows):
         return AMBER
@@ -105,11 +101,13 @@ def display_fields(row: dict) -> dict:
     market_probability = row.get("p_yrfi_market")
     output = {
         "nrfi_pct": (
-            None if model_probability is None
+            None
+            if model_probability is None
             else round(100 * (1 - model_probability), 1)
         ),
         "market_nrfi_pct": (
-            None if market_probability is None
+            None
+            if market_probability is None
             else round(100 * (1 - market_probability), 1)
         ),
         "edge_pct": None,

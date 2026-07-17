@@ -5,6 +5,7 @@ The pre-Phase-1 tree shipped imports of names that did not exist anywhere
 OPTIC_API_KEY, SNOWFLAKE_*). This test makes that class of breakage
 impossible to merge again, without needing heavy runtime deps in CI.
 """
+
 from __future__ import annotations
 
 import ast
@@ -65,12 +66,14 @@ def test_intra_package_imports_resolve():
                 if alias.name != "*" and alias.name not in exported[target]:
                     problems.append(
                         f"{mod_name}.py: 'from nrfi.{target} import {alias.name}' "
-                        f"- name not defined in nrfi/{target}.py")
+                        f"- name not defined in nrfi/{target}.py"
+                    )
     assert not problems, "unresolved imports:\n" + "\n".join(problems)
 
 
 def test_no_src_style_imports_remain():
     for p in PKG.glob("*.py"):
         text = p.read_text()
-        assert "from src." not in text and "import src." not in text, \
+        assert "from src." not in text and "import src." not in text, (
             f"{p.name} still uses the old src.* import root"
+        )

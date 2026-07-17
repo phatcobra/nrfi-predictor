@@ -1,0 +1,965 @@
+{
+  "admission_policy": {
+    "default": "unadmitted",
+    "fail_closed_on_unknown": [
+      "availability_time_coverage",
+      "checksum",
+      "corruption_status",
+      "key_columns",
+      "license_terms",
+      "producing_code",
+      "schema",
+      "source_authority"
+    ],
+    "locked_evaluation_access_authorized": false,
+    "new_data_acquisition_authorized": false,
+    "private_data_publication_authorized": false
+  },
+  "asset_ids": [
+    "market-research-contracts",
+    "mlb-model-duckdb",
+    "nrfi-actions-artifacts",
+    "nrfi-pr1-processed-csvs",
+    "nrfi-pr1-rejected-model",
+    "pybaseball-cache-json",
+    "pybaseball-cache-root",
+    "pybaseball-canonical-scan",
+    "pybaseball-chadwick-parquet",
+    "pybaseball-corrupt-2015-05-21",
+    "pybaseball-duplicate-date-queries",
+    "pybaseball-statcast-parquet"
+  ],
+  "assets": [
+    {
+      "admission_status": "unadmitted",
+      "asset_id": "market-research-contracts",
+      "evidence_refs": ["phase0.asset_manifest#/assets/market-research-contracts"],
+      "known": {
+        "branch": {"evidence_ref": "phase0.asset_manifest", "scope": "observed_git_ref", "value": "observed-head:7e5c97e"},
+        "classification": {"evidence_ref": "phase0.asset_manifest", "scope": "asset", "value": "derived"},
+        "format": {"evidence_ref": "phase0.asset_manifest", "scope": "repository_records", "value": ["markdown", "python"]},
+        "path": {"evidence_ref": "phase0.asset_manifest", "scope": "public_alias", "value": "repo-alias:market-research/contracts"},
+        "producing_code": {"evidence_ref": "phase0.asset_manifest", "scope": "semantics_only", "value": "market-research repository contracts and audit tests"},
+        "rebuildability": {"evidence_ref": "phase0.asset_manifest", "scope": "contract_records_only", "value": "reproducible from recorded Git ref"},
+        "repository": {"evidence_ref": "phase0.asset_manifest", "scope": "asset", "value": "phatcobra/mlb-price-aware-betting-research"},
+        "schema": {"evidence_ref": "phase0.asset_manifest", "scope": "semantics_only", "value": "NRFI/YRFI market rules, no-price behavior, and no-wagering controls"},
+        "source": {"evidence_ref": "phase0.asset_manifest", "scope": "asset", "value": "Git repository records"},
+        "source_authority": {"evidence_ref": "phase0.asset_manifest", "scope": "stated_market_semantics_only", "value": "authoritative_for_semantics_not_prices"},
+        "storage_state": {"evidence_ref": "phase0.asset_manifest", "scope": "asset", "value": "remote_git"}
+      },
+      "not_applicable": [
+        {"attributes": ["availability_time_coverage", "corruption_status", "date_coverage", "duplicate_rate", "entity_coverage", "event_time_coverage", "key_columns", "missingness", "row_count", "season_coverage", "source_time_coverage"], "reason": "No market-price observations are present in this semantics-only asset."}
+      ],
+      "unknown": [
+        {"admission_consequence": "No price data may be used or acquired.", "attributes": ["byte_size", "checksum", "license_terms"], "reason": "A complete content digest, size, and price-source entitlement were not established by preserved evidence."}
+      ]
+    },
+    {
+      "admission_status": "quarantined",
+      "asset_id": "mlb-model-duckdb",
+      "evidence_refs": ["phase0.asset_manifest#/assets/mlb-model-duckdb"],
+      "known": {
+        "byte_size": {"evidence_ref": "phase0.asset_manifest", "scope": "physical_file", "value": 3775672320},
+        "classification": {"evidence_ref": "phase0.asset_manifest", "scope": "asset", "value": "cache"},
+        "format": {"evidence_ref": "phase0.asset_manifest", "scope": "asset", "value": "duckdb"},
+        "path": {"evidence_ref": "phase0.asset_manifest", "scope": "public_alias", "value": "local-alias:mlb-model/mlb.duckdb"},
+        "repository": {"evidence_ref": "phase0.asset_manifest", "scope": "governing_repository", "value": "phatcobra/mlb-model"},
+        "source": {"evidence_ref": "phase0.asset_manifest", "scope": "asset", "value": "local database in quarantined repository"},
+        "storage_state": {"evidence_ref": "phase0.asset_manifest", "scope": "asset", "value": "local_only_read_only_quarantine"}
+      },
+      "not_applicable": [],
+      "unknown": [
+        {"admission_consequence": "The database must not be opened, modified, trained from, or used as evidence.", "attributes": ["availability_time_coverage", "branch", "checksum", "corruption_status", "date_coverage", "duplicate_rate", "entity_coverage", "event_time_coverage", "key_columns", "license_terms", "missingness", "producing_code", "rebuildability", "row_count", "schema", "season_coverage", "source_authority", "source_time_coverage"], "reason": "The governing worktree is dirty and explicitly read-only quarantined; payload inspection was not authorized."}
+      ]
+    },
+    {
+      "admission_status": "unadmitted",
+      "asset_id": "nrfi-actions-artifacts",
+      "evidence_refs": ["phase0.asset_manifest#/assets/nrfi-actions-artifacts"],
+      "known": {
+        "byte_size": {"evidence_ref": "phase0.asset_manifest", "scope": "82_retained_artifacts", "value": 349182},
+        "classification": {"evidence_ref": "phase0.asset_manifest", "scope": "asset", "value": "cache"},
+        "format": {"evidence_ref": "phase0.asset_manifest", "scope": "asset", "value": ["workflow_archive", "log"]},
+        "path": {"evidence_ref": "phase0.asset_manifest", "scope": "public_alias", "value": "github-actions:phatcobra/nrfi-predictor/artifacts"},
+        "producing_code": {"evidence_ref": "phase0.asset_manifest", "scope": "workflow_diagnostics", "value": ".github/workflows"},
+        "repository": {"evidence_ref": "phase0.asset_manifest", "scope": "asset", "value": "phatcobra/nrfi-predictor"},
+        "row_count": {"evidence_ref": "phase0.asset_manifest", "scope": "artifact_count_not_data_rows", "value": 82},
+        "source": {"evidence_ref": "phase0.asset_manifest", "scope": "asset", "value": "GitHub Actions retained artifacts"},
+        "source_authority": {"evidence_ref": "phase0.asset_manifest", "scope": "workflow_diagnostics_only", "value": "diagnostic_not_release_or_data_authority"},
+        "storage_state": {"evidence_ref": "phase0.asset_manifest", "scope": "asset", "value": "remote_ephemeral_artifacts"}
+      },
+      "not_applicable": [
+        {"attributes": ["branch", "event_time_coverage", "license_terms", "season_coverage"], "reason": "The grouped diagnostics span runs and contain no source-data observations."}
+      ],
+      "unknown": [
+        {"admission_consequence": "Artifacts remain diagnostics only.", "attributes": ["availability_time_coverage", "checksum", "corruption_status", "date_coverage", "duplicate_rate", "entity_coverage", "key_columns", "missingness", "rebuildability", "schema", "source_time_coverage"], "reason": "Artifact payloads were not downloaded or inspected in Phase 0 or Phase 2."}
+      ]
+    },
+    {
+      "admission_status": "unadmitted",
+      "asset_id": "nrfi-pr1-processed-csvs",
+      "evidence_refs": ["phase0.asset_manifest#/assets/nrfi-pr1-processed-csvs"],
+      "known": {
+        "branch": {"evidence_ref": "phase0.asset_manifest", "scope": "observed_git_ref", "value": "git-commit:af627a1194d5ee70bdde639af08ccdbfab4dae46"},
+        "byte_size": {"evidence_ref": "phase0.asset_manifest", "scope": "listed_csv_components", "value": {"game_csvs": 3512601, "venues_csv": 55273, "weather_csv": 356730}},
+        "classification": {"evidence_ref": "phase0.asset_manifest", "scope": "asset", "value": "unknown"},
+        "date_coverage": {"evidence_ref": "phase0.asset_manifest", "scope": "filename_declared_not_row_validated", "value": "2018-2026"},
+        "format": {"evidence_ref": "phase0.asset_manifest", "scope": "asset", "value": "csv"},
+        "path": {"evidence_ref": "phase0.asset_manifest", "scope": "public_alias", "value": "git-ref:pr1/processed-csvs"},
+        "repository": {"evidence_ref": "phase0.asset_manifest", "scope": "asset", "value": "phatcobra/nrfi-predictor"},
+        "source": {"evidence_ref": "phase0.asset_manifest", "scope": "asset", "value": "historical pull-request artifacts"},
+        "storage_state": {"evidence_ref": "phase0.asset_manifest", "scope": "asset", "value": "remote_git_unmerged"}
+      },
+      "not_applicable": [],
+      "unknown": [
+        {"admission_consequence": "The CSVs cannot be reused as data until every gap is closed.", "attributes": ["availability_time_coverage", "checksum", "corruption_status", "duplicate_rate", "entity_coverage", "event_time_coverage", "key_columns", "license_terms", "missingness", "producing_code", "rebuildability", "row_count", "schema", "season_coverage", "source_authority", "source_time_coverage"], "reason": "Preserved Git metadata does not prove row-level schema, lineage, timing, quality, authority, or terms."}
+      ]
+    },
+    {
+      "admission_status": "rejected",
+      "asset_id": "nrfi-pr1-rejected-model",
+      "evidence_refs": ["phase0.asset_manifest#/assets/nrfi-pr1-rejected-model"],
+      "known": {
+        "branch": {"evidence_ref": "phase0.asset_manifest", "scope": "observed_git_ref", "value": "git-commit:af627a1194d5ee70bdde639af08ccdbfab4dae46"},
+        "byte_size": {"evidence_ref": "phase0.asset_manifest", "scope": "model_artifact", "value": 54438},
+        "checksum": {"evidence_ref": "phase0.asset_manifest", "scope": "git_identity_not_sha256", "value": "git-object:bf57b1d9e971a47e2f0d0d98fb719cb9db33ac56"},
+        "classification": {"evidence_ref": "phase0.asset_manifest", "scope": "asset", "value": "rejected"},
+        "format": {"evidence_ref": "phase0.asset_manifest", "scope": "asset", "value": "serialized_model"},
+        "path": {"evidence_ref": "phase0.asset_manifest", "scope": "public_alias", "value": "git-ref:pr1/rejected-model"},
+        "repository": {"evidence_ref": "phase0.asset_manifest", "scope": "asset", "value": "phatcobra/nrfi-predictor"},
+        "source": {"evidence_ref": "phase0.asset_manifest", "scope": "asset", "value": "historical pull-request model artifact"},
+        "storage_state": {"evidence_ref": "phase0.asset_manifest", "scope": "asset", "value": "remote_git_rejected"}
+      },
+      "not_applicable": [
+        {"attributes": ["availability_time_coverage", "date_coverage", "duplicate_rate", "entity_coverage", "event_time_coverage", "key_columns", "missingness", "row_count", "schema", "season_coverage", "source_authority", "source_time_coverage"], "reason": "These are source-dataset attributes; this asset is a rejected model artifact."}
+      ],
+      "unknown": [
+        {"admission_consequence": "The artifact remains rejected and can never serve as champion or release evidence.", "attributes": ["corruption_status", "license_terms", "producing_code", "rebuildability"], "reason": "Artifact lineage and reproducibility were not established; rejection metrics are sufficient to prohibit reuse."}
+      ]
+    },
+    {
+      "admission_status": "quarantined",
+      "asset_id": "pybaseball-cache-json",
+      "evidence_refs": ["phase0.pybaseball_scan_summary#/physical_inventory"],
+      "known": {
+        "byte_size": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "physical_inventory", "value": 1492497},
+        "checksum": {"evidence_ref": "phase0.pybaseball_file_manifest", "scope": "per_file_sha256", "value": "recorded_for_all_4460_files"},
+        "classification": {"evidence_ref": "phase0.asset_manifest", "scope": "asset", "value": "cache"},
+        "corruption_status": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "physical_inventory", "value": {"invalid_or_truncated": 2249, "valid_chadwick": 1, "valid_statcast": 2209, "valid_unclassified": 1}},
+        "format": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "asset", "value": "json"},
+        "path": {"evidence_ref": "phase0.asset_manifest", "scope": "public_alias", "value": "local-alias:pybaseball-cache/json"},
+        "row_count": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "file_count_not_data_rows", "value": 4460},
+        "schema": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "physical_inventory", "value": "heterogeneous cache metadata with explicit validity classification"},
+        "source": {"evidence_ref": "phase0.asset_manifest", "scope": "asset", "value": "pybaseball cache metadata"},
+        "storage_state": {"evidence_ref": "phase0.asset_manifest", "scope": "asset", "value": "local_only_outside_git"}
+      },
+      "not_applicable": [
+        {"attributes": ["branch", "repository"], "reason": "The cache is a local filesystem asset rather than a Git worktree."}
+      ],
+      "unknown": [
+        {"admission_consequence": "Metadata cannot establish zero-result dates or point-in-time data admission.", "attributes": ["availability_time_coverage", "date_coverage", "duplicate_rate", "entity_coverage", "event_time_coverage", "key_columns", "license_terms", "missingness", "producing_code", "rebuildability", "season_coverage", "source_authority", "source_time_coverage"], "reason": "Truncated metadata and absent source lineage prevent semantic interpretation."}
+      ]
+    },
+    {
+      "admission_status": "quarantined",
+      "asset_id": "pybaseball-cache-root",
+      "evidence_refs": ["phase0.pybaseball_scan_summary", "phase0.pybaseball_file_manifest"],
+      "known": {
+        "byte_size": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "physical_inventory", "value": 1455407592},
+        "checksum": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "physical_inventory", "value": {"algorithm": "sha256", "content_tree": "40a53f6ec231c1a0a21f1c9ecfca5f606db7948e27636c205c0192d8a73ee6cb"}},
+        "classification": {"evidence_ref": "phase0.asset_manifest", "scope": "asset", "value": "cache"},
+        "corruption_status": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "physical_inventory", "value": {"invalid_or_truncated_json": 2249, "unreadable_parquet_partitions": 1}},
+        "date_coverage": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "canonical_readable_subset", "value": {"end": "2025-09-30", "start": "2015-04-05"}},
+        "entity_coverage": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "canonical_readable_subset", "value": {"distinct_games": 26497}},
+        "event_time_coverage": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "canonical_readable_subset", "value": {"actual_game_date_end": "2025-09-30", "actual_game_date_start": "2015-04-05", "distinct_dates": 2172}},
+        "format": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "physical_inventory", "value": ["parquet", "json"]},
+        "key_columns": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "readable_statcast_subset_only", "value": ["game_pk", "at_bat_number", "pitch_number"]},
+        "missingness": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "eight_audited_fields_in_readable_subset", "value": {"invalid": 0, "null": 0}},
+        "path": {"evidence_ref": "phase0.asset_manifest", "scope": "public_alias", "value": "local-alias:pybaseball-cache-root"},
+        "schema": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "all_parquet_footers", "value": {"distinct_field_names": 127, "logical_variants": 76}},
+        "season_coverage": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "canonical_readable_subset", "value": "2015-2025_observed_not_completeness_proof"},
+        "source": {"evidence_ref": "phase0.asset_manifest", "scope": "asset", "value": "local pybaseball cache"},
+        "storage_state": {"evidence_ref": "phase0.asset_manifest", "scope": "asset", "value": "local_only_outside_git"}
+      },
+      "not_applicable": [
+        {"attributes": ["branch", "repository"], "reason": "The cache is a local filesystem asset rather than a Git worktree."}
+      ],
+      "unknown": [
+        {"admission_consequence": "The cache remains unadmitted and complete-source quality cannot be claimed.", "attributes": ["availability_time_coverage", "duplicate_rate", "license_terms", "producing_code", "rebuildability", "row_count", "source_authority", "source_time_coverage"], "reason": "Mixed formats, one unreadable partition, incomplete metadata, and absent upstream timing/terms prevent a complete-source claim."}
+      ]
+    },
+    {
+      "admission_status": "unadmitted",
+      "asset_id": "pybaseball-canonical-scan",
+      "evidence_refs": ["phase0.pybaseball_scan_summary#/reproducibility"],
+      "known": {
+        "branch": {"evidence_ref": "phase0.current_state", "scope": "evidence_copy", "value": "docs/phase0-nrfi-autopilot-20260714"},
+        "checksum": {"evidence_ref": "phase0.pybaseball_evidence", "scope": "evidence_outputs", "value": {"canonical_selection_sha256": "b3e3f19c10e0e1504ecc31c2b46b71aa250d1b0f9a2078e0615c69e42579a9ac", "manifest_sha256": "4ab2f5e74b61743a81152096416a09e8c0b13c121fe045174208af93cfa29fbc", "summary_sha256": "6342b5503474a036ce1bab56b7ee1fb6dca3cb024a550ee5108e6f90d2c9d032"}},
+        "classification": {"evidence_ref": "phase0.asset_manifest", "scope": "asset", "value": "derived"},
+        "corruption_status": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "evidence_outputs", "value": "outputs_parse_and_reconcile; source_corruption_recorded_not_removed"},
+        "date_coverage": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "canonical_readable_subset", "value": {"end": "2025-09-30", "start": "2015-04-05"}},
+        "duplicate_rate": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "requested_date_reconciliation", "value": {"byte_identical_pairs": 36, "excluded_physical_rows": 145405}},
+        "entity_coverage": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "canonical_readable_subset", "value": {"distinct_games": 26497}},
+        "event_time_coverage": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "canonical_readable_subset", "value": {"distinct_actual_dates": 2172, "end": "2025-09-30", "start": "2015-04-05"}},
+        "format": {"evidence_ref": "phase0.current_state", "scope": "evidence_outputs", "value": ["json", "jsonl", "sha256", "python"]},
+        "key_columns": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "canonical_selection", "value": ["cache_relative_path"]},
+        "missingness": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "eight_audited_fields_in_readable_subset", "value": {"invalid": 0, "null": 0}},
+        "path": {"evidence_ref": "phase0.current_state", "scope": "logical_repository_paths", "value": ["docs/phase0/pybaseball_scan_summary.json", "docs/phase0/pybaseball_file_manifest.jsonl", "docs/phase0/pybaseball_evidence.sha256"]},
+        "producing_code": {"evidence_ref": "phase0.pybaseball_evidence", "scope": "evidence_outputs", "value": {"path": "docs/phase0/inventory_pybaseball_cache.py", "sha256": "b14387e57919b3b857e8a0b9105ca24f4860c2cca1a87ade63e903be73f8f4f6"}},
+        "rebuildability": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "evidence_outputs", "value": "two executions produced three byte-identical outputs"},
+        "repository": {"evidence_ref": "phase0.current_state", "scope": "evidence_copy", "value": "phatcobra/nrfi-predictor"},
+        "row_count": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "canonical_selection_count", "value": 2173},
+        "schema": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "metadata_catalog", "value": "deterministic inventory and schema catalog"},
+        "season_coverage": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "canonical_readable_subset", "value": "2015-2025_observed_not_completeness_proof"},
+        "source": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "asset", "value": "derived inventory metadata"},
+        "source_authority": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "inventory_facts_only", "value": "authoritative_for_recorded_scan_not_underlying_data"},
+        "storage_state": {"evidence_ref": "phase0.current_state", "scope": "asset", "value": "local_branch_publication_pending"}
+      },
+      "not_applicable": [
+        {"attributes": ["availability_time_coverage", "license_terms", "source_time_coverage"], "reason": "Inventory evidence records observations but cannot license or establish point-in-time availability for underlying rows."}
+      ],
+      "unknown": [
+        {"admission_consequence": "No aggregate evidence-package size is claimed.", "attributes": ["byte_size"], "reason": "Only component sizes are recorded; aggregation would mix different logical artifacts."}
+      ]
+    },
+    {
+      "admission_status": "quarantined",
+      "asset_id": "pybaseball-chadwick-parquet",
+      "evidence_refs": ["phase0.pybaseball_scan_summary#/physical_inventory"],
+      "known": {
+        "byte_size": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "physical_file", "value": 984144},
+        "checksum": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "physical_file", "value": {"algorithm": "sha256", "value": "87f0cb5da9735b66b3cc88c41c6381f55cd0967b458087408bae2fe90999371e"}},
+        "classification": {"evidence_ref": "phase0.asset_manifest", "scope": "asset", "value": "cache"},
+        "corruption_status": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "physical_file", "value": "readable_parquet"},
+        "format": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "asset", "value": "parquet"},
+        "path": {"evidence_ref": "phase0.asset_manifest", "scope": "public_alias", "value": "local-alias:pybaseball-cache/chadwick"},
+        "row_count": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "footer_declared", "value": 26105},
+        "schema": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "parquet_footer", "value": {"column_count": 8, "logical_variants": 1}},
+        "source": {"evidence_ref": "phase0.asset_manifest", "scope": "asset", "value": "pybaseball Chadwick lookup cache"},
+        "storage_state": {"evidence_ref": "phase0.asset_manifest", "scope": "asset", "value": "local_only_outside_git"}
+      },
+      "not_applicable": [
+        {"attributes": ["availability_time_coverage", "branch", "date_coverage", "event_time_coverage", "repository", "season_coverage", "source_time_coverage"], "reason": "This is a local reference lookup without recorded temporal versioning."}
+      ],
+      "unknown": [
+        {"admission_consequence": "The lookup remains unadmitted for entity resolution.", "attributes": ["duplicate_rate", "entity_coverage", "key_columns", "license_terms", "missingness", "producing_code", "rebuildability", "source_authority"], "reason": "Reference-key semantics, completeness, terms, and producer lineage were not established."}
+      ]
+    },
+    {
+      "admission_status": "quarantined",
+      "asset_id": "pybaseball-corrupt-2015-05-21",
+      "evidence_refs": ["phase0.pybaseball_scan_summary#/admission/quarantined_partitions"],
+      "known": {
+        "byte_size": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "physical_file", "value": 569600},
+        "checksum": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "physical_file", "value": {"algorithm": "sha256", "value": "37ef060f776ce1d8e6d14182b0362263a2590c0a2f478b14e88e49013f4d08bb"}},
+        "classification": {"evidence_ref": "phase0.asset_manifest", "scope": "asset", "value": "rejected"},
+        "corruption_status": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "physical_file", "value": "parquet_footer_readable_data_page_unreadable"},
+        "date_coverage": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "requested_query_metadata_not_event_time", "value": "2015-05-21"},
+        "format": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "asset", "value": "parquet"},
+        "path": {"evidence_ref": "phase0.asset_manifest", "scope": "public_alias", "value": "local-alias:pybaseball-cache/quarantine/corrupt-partition"},
+        "row_count": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "footer_declared_not_readable", "value": 3394},
+        "source": {"evidence_ref": "phase0.asset_manifest", "scope": "asset", "value": "pybaseball Statcast cache partition"},
+        "storage_state": {"evidence_ref": "phase0.asset_manifest", "scope": "asset", "value": "local_only_read_only_quarantine"}
+      },
+      "not_applicable": [
+        {"attributes": ["branch", "repository"], "reason": "The partition is a local filesystem asset rather than a Git worktree."}
+      ],
+      "unknown": [
+        {"admission_consequence": "The partition is excluded from all data use and complete-source claims.", "attributes": ["availability_time_coverage", "duplicate_rate", "entity_coverage", "event_time_coverage", "key_columns", "license_terms", "missingness", "producing_code", "rebuildability", "schema", "season_coverage", "source_authority", "source_time_coverage"], "reason": "The payload is unreadable and no replacement, omission, authority, timing, or terms decision is approved."}
+      ]
+    },
+    {
+      "admission_status": "unadmitted",
+      "asset_id": "pybaseball-duplicate-date-queries",
+      "evidence_refs": ["phase0.pybaseball_scan_summary#/statcast_partitioning"],
+      "known": {
+        "checksum": {"evidence_ref": "phase0.pybaseball_file_manifest", "scope": "paired_physical_files", "value": "each of 36 pairs has byte-identical per-file SHA-256"},
+        "classification": {"evidence_ref": "phase0.asset_manifest", "scope": "asset", "value": "derived"},
+        "duplicate_rate": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "requested_date_groups", "value": {"byte_identical_pairs": 36, "duplicate_physical_rows_excluded": 145405}},
+        "format": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "reconciliation_record", "value": "metadata_mapping"},
+        "key_columns": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "requested_date_reconciliation", "value": ["requested_start_date", "requested_end_date"]},
+        "path": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "logical_evidence_pointer", "value": "phase0.pybaseball_scan_summary#/statcast_partitioning"},
+        "producing_code": {"evidence_ref": "phase0.pybaseball_evidence", "scope": "evidence_record", "value": "docs/phase0/inventory_pybaseball_cache.py"},
+        "rebuildability": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "reconciliation_metadata", "value": "deterministic canonical selection"},
+        "row_count": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "duplicate_physical_rows_excluded", "value": 145405},
+        "source": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "asset", "value": "derived duplicate-partition reconciliation"},
+        "storage_state": {"evidence_ref": "phase0.asset_manifest", "scope": "asset", "value": "derived_metadata_only"}
+      },
+      "not_applicable": [
+        {"attributes": ["branch", "repository"], "reason": "This logical group describes local cache duplicates rather than a Git asset."}
+      ],
+      "unknown": [
+        {"admission_consequence": "The mapping may deduplicate only the proven byte-identical pairs; it cannot establish source authority.", "attributes": ["availability_time_coverage", "byte_size", "corruption_status", "date_coverage", "entity_coverage", "event_time_coverage", "license_terms", "missingness", "schema", "season_coverage", "source_authority", "source_time_coverage"], "reason": "Only pair identity and excluded row counts were recorded for this logical group."}
+      ]
+    },
+    {
+      "admission_status": "quarantined",
+      "asset_id": "pybaseball-statcast-parquet",
+      "evidence_refs": ["phase0.pybaseball_scan_summary#/physical_inventory/statcast"],
+      "known": {
+        "byte_size": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "2209_physical_files", "value": 1452930951},
+        "checksum": {"evidence_ref": "phase0.pybaseball_file_manifest", "scope": "per_file_sha256", "value": "recorded_for_all_2209_files"},
+        "classification": {"evidence_ref": "phase0.asset_manifest", "scope": "asset", "value": "cache"},
+        "corruption_status": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "physical_inventory", "value": {"readable_partitions": 2208, "unreadable_partitions": 1}},
+        "date_coverage": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "canonical_readable_subset", "value": {"end": "2025-09-30", "start": "2015-04-05"}},
+        "duplicate_rate": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "readable_pitch_identity_and_requested_date_groups", "value": {"duplicate_pitch_key_groups": 0, "duplicate_requested_date_pairs": 36, "excluded_physical_rows": 145405}},
+        "entity_coverage": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "canonical_readable_subset", "value": {"distinct_games": 26497, "games_with_first_inning_evidence": 26497}},
+        "event_time_coverage": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "canonical_readable_subset", "value": {"actual_game_date_end": "2025-09-30", "actual_game_date_start": "2015-04-05", "distinct_dates": 2172}},
+        "format": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "asset", "value": "parquet"},
+        "key_columns": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "readable_statcast_subset", "value": ["game_pk", "at_bat_number", "pitch_number"]},
+        "missingness": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "eight_audited_fields_in_readable_subset", "value": {"invalid": 0, "null": 0}},
+        "path": {"evidence_ref": "phase0.asset_manifest", "scope": "public_alias", "value": "local-alias:pybaseball-cache/statcast-parquet"},
+        "row_count": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "footer_declared", "value": 7884065},
+        "schema": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "statcast_parquet_footers", "value": {"column_count": 119, "logical_variants": 75, "type_drift_fields": ["batter_days_since_prev_game", "batter_days_until_next_game", "pitcher_days_since_prev_game", "pitcher_days_until_next_game", "release_spin_rate", "spin_axis", "sv_id", "zone"]}},
+        "season_coverage": {"evidence_ref": "phase0.pybaseball_scan_summary", "scope": "canonical_readable_subset", "value": "2015-2025_observed_not_completeness_proof"},
+        "source": {"evidence_ref": "phase0.asset_manifest", "scope": "asset", "value": "pybaseball Statcast cache"},
+        "storage_state": {"evidence_ref": "phase0.asset_manifest", "scope": "asset", "value": "local_only_outside_git"}
+      },
+      "not_applicable": [
+        {"attributes": ["branch", "repository"], "reason": "The cache is a local filesystem asset rather than a Git worktree."}
+      ],
+      "unknown": [
+        {"admission_consequence": "No Statcast row may enter normalized, feature, training, evaluation, or production storage.", "attributes": ["availability_time_coverage", "license_terms", "producing_code", "rebuildability", "source_authority", "source_time_coverage"], "reason": "Upstream authority, terms, producer version, reconstruction path, and point-in-time lineage are unproved."}
+      ]
+    }
+  ],
+  "catalog_id": "nrfi.phase2.data_contracts.v1",
+  "column_sets": {
+    "derived_lineage_v1": [
+      {"names": ["code_commit", "definition_version", "input_manifest_id", "record_checksum", "validation_result"], "nullable": false, "type": "string"},
+      {"names": ["computed_at", "ingested_at"], "nullable": false, "type": "timestamp"}
+    ],
+    "grade_lineage_v1": [
+      {"names": ["code_commit", "input_manifest_id", "record_checksum", "source", "source_record_id", "validation_result"], "nullable": false, "type": "string"},
+      {"names": ["graded_at", "ingested_at", "outcome_availability_time", "outcome_finalized_at", "outcome_retrieval_time", "outcome_source_time"], "nullable": false, "type": "timestamp"}
+    ],
+    "observed_lineage_v1": [
+      {"names": ["adapter_version", "code_commit", "input_manifest_id", "record_checksum", "source", "source_record_id", "validation_result"], "nullable": false, "type": "string"},
+      {"names": ["availability_time", "ingested_at", "retrieval_time", "source_time"], "nullable": false, "type": "timestamp"}
+    ],
+    "prediction_lineage_v1": [
+      {"names": ["code_commit", "feature_version", "input_manifest_id", "model_checksum", "model_version", "record_checksum", "validation_result"], "nullable": false, "type": "string"},
+      {"names": ["ingested_at", "predicted_at"], "nullable": false, "type": "timestamp"}
+    ]
+  },
+  "contract_ids": [
+    "core.actual_starters.v1",
+    "core.first_inning_outcomes.v1",
+    "core.game_schedule.v1",
+    "core.market_prices.v1",
+    "core.probable_pitchers.v1",
+    "derived.bullpen_workload.v1",
+    "derived.travel_rest.v1",
+    "ml.grades.v1",
+    "ml.predictions.v1",
+    "raw.batter_game_logs.v1",
+    "raw.park_factors.v1",
+    "raw.pitcher_game_logs.v1",
+    "raw.pitcher_inning_logs.v1",
+    "raw.statcast_pitcher_daily.v1",
+    "raw.team_game_logs.v1",
+    "raw.team_inning_logs.v1",
+    "raw.umpire_assignments.v1",
+    "raw.weather_snapshots.v1",
+    "reference.teams.v1"
+  ],
+  "contracts": [
+    {
+      "adapters": [{"current_key": ["game_id"], "kind": "embedded_outcome_projection", "ref": "nrfi/ingest_first_inning_outcomes.py", "state": "unsafe_partial"}],
+      "admission_status": "unadmitted",
+      "candidate_asset_ids": ["nrfi-pr1-processed-csvs", "pybaseball-statcast-parquet"],
+      "classification": "unknown",
+      "column_groups": [
+        {"names": ["game_id", "outcome_version", "side"], "nullable": false, "type": "string"},
+        {"names": ["pitcher_id"], "nullable": false, "type": "integer"},
+        {"names": ["finalized_at", "scheduled_start_at"], "nullable": false, "type": "timestamp"}
+      ],
+      "column_set_refs": ["observed_lineage_v1"],
+      "domain": "actual starters",
+      "entity_key": ["game_id", "side"],
+      "gap_ids": ["CONTRACT-MATERIALIZATION", "DATA-AVAILABILITY-TIME", "ENTITY-MAPPINGS", "STARTERS-LINEUPS-WEATHER-MARKET"],
+      "id": "core.actual_starters.v1",
+      "implementation_state": "unsafe_partial",
+      "license_status": {"gap_id": "DATA-LICENSE", "status": "unknown"},
+      "primary_key": ["game_id", "side", "outcome_version"],
+      "producer_code": ["nrfi/ingest_first_inning_outcomes.py"],
+      "provenance_fields": {"adapter_version": "adapter_version", "code_commit": "code_commit", "input_manifest_id": "input_manifest_id", "record_checksum": "record_checksum", "source_id": "source", "source_record_id": "source_record_id", "validation_result": "validation_result"},
+      "provenance_gap_codes": {},
+      "readiness": {"current_gate": "embedded_in_outcome_rows_only", "minimum_rows": null, "status": "not_materialized"},
+      "rules": ["side must be away or home", "starter identity changes append a new outcome_version", "availability_time must not be inferred from finalized_at"],
+      "source_authority": {"gap_id": "DATA-SOURCE-RETRIEVAL-LINEAGE", "status": "unknown"},
+      "time_fields": {"availability_time": "availability_time", "computed_time": null, "cutoff_time": null, "event_time": "scheduled_start_at", "finalized_time": "finalized_at", "ingestion_time": "ingested_at", "retrieval_time": "retrieval_time", "source_time": "source_time"},
+      "time_gap_codes": {"computed_time": "NOT_APPLICABLE_OBSERVED_RECORD", "cutoff_time": "STARTER_CUTOFF_SEMANTICS_UNRESOLVED"},
+      "version": 1
+    },
+    {
+      "adapters": [{"current_key": ["game_id"], "kind": "readiness_table", "ref": "nrfi/data_readiness.py", "state": "unsafe_partial", "table": "NRFI_DB.CORE.FIRST_INNING_OUTCOMES"}],
+      "admission_status": "unadmitted",
+      "candidate_asset_ids": ["nrfi-pr1-processed-csvs", "pybaseball-statcast-parquet"],
+      "classification": "unknown",
+      "column_groups": [
+        {"names": ["away_team", "game_id", "home_team", "outcome_version"], "nullable": false, "type": "string"},
+        {"names": ["away_sp_id", "fi_runs_bottom", "fi_runs_top", "home_sp_id", "venue_id"], "nullable": false, "type": "integer"},
+        {"names": ["yrfi"], "nullable": false, "type": "boolean"},
+        {"names": ["game_date"], "nullable": false, "type": "date"},
+        {"names": ["finalized_at", "scheduled_start_at"], "nullable": false, "type": "timestamp"}
+      ],
+      "column_set_refs": ["observed_lineage_v1"],
+      "domain": "first-inning outcomes",
+      "entity_key": ["game_id"],
+      "gap_ids": ["CACHE-CORRUPTION-DISPOSITION", "CONTRACT-MATERIALIZATION", "DATA-SOURCE-RETRIEVAL-LINEAGE", "DATE-CONTINUITY-SEASON-COMPLETENESS", "TRAINING-LABEL-CONTRACT"],
+      "id": "core.first_inning_outcomes.v1",
+      "implementation_state": "unsafe_partial",
+      "license_status": {"gap_id": "DATA-LICENSE", "status": "unknown"},
+      "primary_key": ["game_id", "outcome_version"],
+      "producer_code": ["nrfi/ingest_first_inning_outcomes.py", "sql/001_core.sql"],
+      "provenance_fields": {"adapter_version": "adapter_version", "code_commit": "code_commit", "input_manifest_id": "input_manifest_id", "record_checksum": "record_checksum", "source_id": "source", "source_record_id": "source_record_id", "validation_result": "validation_result"},
+      "provenance_gap_codes": {},
+      "readiness": {"current_gate": "columns_rows_and_coarse_dates_only", "minimum_rows": 5000, "status": "declared_not_observed"},
+      "rules": ["yrfi equals fi_runs_top plus fi_runs_bottom greater than zero", "outcome corrections append outcome_version", "finalized_at must precede grading"],
+      "source_authority": {"gap_id": "TRAINING-LABEL-CONTRACT", "status": "unknown"},
+      "time_fields": {"availability_time": "availability_time", "computed_time": null, "cutoff_time": null, "event_time": "scheduled_start_at", "finalized_time": "finalized_at", "ingestion_time": "ingested_at", "retrieval_time": "retrieval_time", "source_time": "source_time"},
+      "time_gap_codes": {"computed_time": "NOT_APPLICABLE_OBSERVED_RECORD", "cutoff_time": "NOT_APPLICABLE_POSTGAME_LABEL"},
+      "version": 1
+    },
+    {
+      "adapters": [{"current_key": ["game_id"], "kind": "ephemeral_statsapi", "ref": "nrfi/predict_daily.py", "state": "ephemeral_only"}],
+      "admission_status": "unadmitted",
+      "candidate_asset_ids": ["nrfi-pr1-processed-csvs", "pybaseball-statcast-parquet"],
+      "classification": "unknown",
+      "column_groups": [
+        {"names": ["away_team_id", "game_id", "home_team_id", "schedule_status"], "nullable": false, "type": "string"},
+        {"names": ["scheduled_start_at"], "nullable": false, "type": "timestamp"}
+      ],
+      "column_set_refs": ["observed_lineage_v1"],
+      "domain": "game schedule",
+      "entity_key": ["game_id"],
+      "gap_ids": ["CONTRACT-MATERIALIZATION", "DATA-AVAILABILITY-TIME", "DATE-CONTINUITY-SEASON-COMPLETENESS", "ENTITY-MAPPINGS"],
+      "id": "core.game_schedule.v1",
+      "implementation_state": "ephemeral_only",
+      "license_status": {"gap_id": "DATA-LICENSE", "status": "unknown"},
+      "primary_key": ["game_id", "retrieval_time"],
+      "producer_code": ["nrfi/predict_daily.py"],
+      "provenance_fields": {"adapter_version": "adapter_version", "code_commit": "code_commit", "input_manifest_id": "input_manifest_id", "record_checksum": "record_checksum", "source_id": "source", "source_record_id": "source_record_id", "validation_result": "validation_result"},
+      "provenance_gap_codes": {},
+      "readiness": {"current_gate": null, "minimum_rows": null, "status": "missing_persisted_contract"},
+      "rules": ["game_id must be doubleheader safe", "schedule changes append retrieval snapshots", "scheduled_start_at is not availability_time"],
+      "source_authority": {"gap_id": "ENTITY-MAPPINGS", "status": "unknown"},
+      "time_fields": {"availability_time": "availability_time", "computed_time": null, "cutoff_time": null, "event_time": "scheduled_start_at", "finalized_time": null, "ingestion_time": "ingested_at", "retrieval_time": "retrieval_time", "source_time": "source_time"},
+      "time_gap_codes": {"computed_time": "NOT_APPLICABLE_OBSERVED_RECORD", "cutoff_time": "NOT_APPLICABLE_SCHEDULE_SNAPSHOT", "finalized_time": "NOT_APPLICABLE_SCHEDULE_SNAPSHOT"},
+      "version": 1
+    },
+    {
+      "adapters": [{"current_key": ["snapshot_id"], "kind": "sql_table", "ref": "sql/001_core.sql", "state": "unsafe_partial", "table": "NRFI_DB.CORE.ODDS_SNAPSHOTS"}],
+      "admission_status": "unadmitted",
+      "candidate_asset_ids": ["market-research-contracts"],
+      "classification": "unknown",
+      "column_groups": [
+        {"names": ["book_id", "fixture_id", "market_id", "selection", "snapshot_id"], "nullable": false, "type": "string"},
+        {"names": ["line", "price"], "nullable": false, "type": "number"},
+        {"names": ["captured_at", "start_time"], "nullable": false, "type": "timestamp"}
+      ],
+      "column_set_refs": ["observed_lineage_v1"],
+      "domain": "market prices",
+      "entity_key": ["fixture_id", "market_id", "book_id", "selection"],
+      "gap_ids": ["CONTRACT-MATERIALIZATION", "DATA-AVAILABILITY-TIME", "DATA-LICENSE", "MARKET-ENTITLEMENT", "STARTERS-LINEUPS-WEATHER-MARKET"],
+      "id": "core.market_prices.v1",
+      "implementation_state": "unsafe_partial",
+      "license_status": {"gap_id": "MARKET-ENTITLEMENT", "status": "unknown"},
+      "primary_key": ["snapshot_id"],
+      "producer_code": ["nrfi/predict_daily.py", "sql/001_core.sql"],
+      "provenance_fields": {"adapter_version": "adapter_version", "code_commit": "code_commit", "input_manifest_id": "input_manifest_id", "record_checksum": "record_checksum", "source_id": "source", "source_record_id": "source_record_id", "validation_result": "validation_result"},
+      "provenance_gap_codes": {},
+      "readiness": {"current_gate": null, "minimum_rows": null, "status": "no_admitted_prices"},
+      "rules": ["market line must equal 0.5", "price must be finite and nonzero", "captured_at must precede prediction cutoff and start_time", "missing verified prices remain null"],
+      "source_authority": {"gap_id": "MARKET-ENTITLEMENT", "status": "unknown"},
+      "time_fields": {"availability_time": "availability_time", "computed_time": null, "cutoff_time": "captured_at", "event_time": "start_time", "finalized_time": null, "ingestion_time": "ingested_at", "retrieval_time": "retrieval_time", "source_time": "source_time"},
+      "time_gap_codes": {"computed_time": "NOT_APPLICABLE_OBSERVED_RECORD", "finalized_time": "NOT_APPLICABLE_MARKET_SNAPSHOT"},
+      "version": 1
+    },
+    {
+      "adapters": [{"current_key": ["game_id", "side"], "kind": "ephemeral_statsapi", "ref": "nrfi/predict_daily.py", "state": "ephemeral_only"}],
+      "admission_status": "unadmitted",
+      "candidate_asset_ids": ["nrfi-pr1-processed-csvs"],
+      "classification": "unknown",
+      "column_groups": [
+        {"names": ["game_id", "side"], "nullable": false, "type": "string"},
+        {"names": ["pitcher_id"], "nullable": false, "type": "integer"},
+        {"names": ["scheduled_start_at"], "nullable": false, "type": "timestamp"}
+      ],
+      "column_set_refs": ["observed_lineage_v1"],
+      "domain": "probable pitchers",
+      "entity_key": ["game_id", "side"],
+      "gap_ids": ["CONTRACT-MATERIALIZATION", "DATA-AVAILABILITY-TIME", "ENTITY-MAPPINGS", "PROBABLE-PITCHER-SNAPSHOT", "STARTERS-LINEUPS-WEATHER-MARKET"],
+      "id": "core.probable_pitchers.v1",
+      "implementation_state": "ephemeral_only",
+      "license_status": {"gap_id": "DATA-LICENSE", "status": "unknown"},
+      "primary_key": ["game_id", "side", "retrieval_time"],
+      "producer_code": ["nrfi/predict_daily.py"],
+      "provenance_fields": {"adapter_version": "adapter_version", "code_commit": "code_commit", "input_manifest_id": "input_manifest_id", "record_checksum": "record_checksum", "source_id": "source", "source_record_id": "source_record_id", "validation_result": "validation_result"},
+      "provenance_gap_codes": {},
+      "readiness": {"current_gate": null, "minimum_rows": null, "status": "missing_snapshot_history"},
+      "rules": ["side must be away or home", "each revision appends a retrieval snapshot", "probable status must never be relabeled actual"],
+      "source_authority": {"gap_id": "PROBABLE-PITCHER-SNAPSHOT", "status": "unknown"},
+      "time_fields": {"availability_time": "availability_time", "computed_time": null, "cutoff_time": null, "event_time": "scheduled_start_at", "finalized_time": null, "ingestion_time": "ingested_at", "retrieval_time": "retrieval_time", "source_time": "source_time"},
+      "time_gap_codes": {"computed_time": "NOT_APPLICABLE_OBSERVED_RECORD", "cutoff_time": "STARTER_CUTOFF_SEMANTICS_UNRESOLVED", "finalized_time": "NOT_APPLICABLE_PROBABLE_SNAPSHOT"},
+      "version": 1
+    },
+    {
+      "adapters": [],
+      "admission_status": "unadmitted",
+      "candidate_asset_ids": ["mlb-model-duckdb", "pybaseball-statcast-parquet"],
+      "classification": "derived",
+      "column_groups": [
+        {"names": ["definition_version", "game_id", "team_id"], "nullable": false, "type": "string"},
+        {"names": ["bullpen_batters_faced", "bullpen_pitches", "bullpen_rest_hours"], "nullable": false, "type": "number"},
+        {"names": ["as_of", "scheduled_start_at"], "nullable": false, "type": "timestamp"}
+      ],
+      "column_set_refs": ["derived_lineage_v1"],
+      "domain": "bullpen workload",
+      "entity_key": ["team_id"],
+      "gap_ids": ["BULLPEN-WORKLOAD-CONTRACT", "CONTRACT-MATERIALIZATION"],
+      "id": "derived.bullpen_workload.v1",
+      "implementation_state": "missing",
+      "license_status": {"gap_id": "DATA-LICENSE", "status": "unknown_inputs"},
+      "primary_key": ["game_id", "team_id", "as_of", "definition_version"],
+      "producer_code": [],
+      "provenance_fields": {"adapter_version": null, "code_commit": "code_commit", "input_manifest_id": "input_manifest_id", "record_checksum": "record_checksum", "source_id": null, "source_record_id": null, "validation_result": "validation_result"},
+      "provenance_gap_codes": {"adapter_version": "NOT_APPLICABLE_DERIVED_RECORD", "source_id": "NOT_APPLICABLE_DERIVED_RECORD", "source_record_id": "NOT_APPLICABLE_DERIVED_RECORD"},
+      "readiness": {"current_gate": null, "minimum_rows": null, "status": "missing"},
+      "rules": ["as_of must precede scheduled_start_at", "all inputs must have availability_time at or before as_of", "definition_version is immutable"],
+      "source_authority": {"gap_id": "BULLPEN-WORKLOAD-CONTRACT", "status": "missing"},
+      "time_fields": {"availability_time": null, "computed_time": "computed_at", "cutoff_time": "as_of", "event_time": "scheduled_start_at", "finalized_time": null, "ingestion_time": "ingested_at", "retrieval_time": null, "source_time": null},
+      "time_gap_codes": {"availability_time": "DERIVED_FROM_INPUT_MANIFEST", "finalized_time": "NOT_APPLICABLE_PREGAME_DERIVATION", "retrieval_time": "NOT_APPLICABLE_DERIVED_RECORD", "source_time": "NOT_APPLICABLE_DERIVED_RECORD"},
+      "version": 1
+    },
+    {
+      "adapters": [{"current_key": ["game_id", "pitcher_id"], "kind": "partial_feature_derivation", "ref": "nrfi/build_features.py", "state": "unsafe_partial"}],
+      "admission_status": "unadmitted",
+      "candidate_asset_ids": ["nrfi-pr1-processed-csvs", "pybaseball-statcast-parquet"],
+      "classification": "derived",
+      "column_groups": [
+        {"names": ["definition_version", "entity_id", "entity_type", "game_id"], "nullable": false, "type": "string"},
+        {"names": ["distance_traveled", "rest_hours"], "nullable": false, "type": "number"},
+        {"names": ["as_of", "scheduled_start_at"], "nullable": false, "type": "timestamp"}
+      ],
+      "column_set_refs": ["derived_lineage_v1"],
+      "domain": "travel and rest",
+      "entity_key": ["entity_type", "entity_id"],
+      "gap_ids": ["CONTRACT-MATERIALIZATION", "TRAVEL-REST-CONTRACT"],
+      "id": "derived.travel_rest.v1",
+      "implementation_state": "unsafe_partial",
+      "license_status": {"gap_id": "DATA-LICENSE", "status": "unknown_inputs"},
+      "primary_key": ["game_id", "entity_type", "entity_id", "as_of", "definition_version"],
+      "producer_code": ["nrfi/build_features.py"],
+      "provenance_fields": {"adapter_version": null, "code_commit": "code_commit", "input_manifest_id": "input_manifest_id", "record_checksum": "record_checksum", "source_id": null, "source_record_id": null, "validation_result": "validation_result"},
+      "provenance_gap_codes": {"adapter_version": "NOT_APPLICABLE_DERIVED_RECORD", "source_id": "NOT_APPLICABLE_DERIVED_RECORD", "source_record_id": "NOT_APPLICABLE_DERIVED_RECORD"},
+      "readiness": {"current_gate": null, "minimum_rows": null, "status": "pitcher_rest_logic_only"},
+      "rules": ["as_of must precede scheduled_start_at", "all inputs must have availability_time at or before as_of", "distance and rest definitions require explicit units"],
+      "source_authority": {"gap_id": "TRAVEL-REST-CONTRACT", "status": "partial"},
+      "time_fields": {"availability_time": null, "computed_time": "computed_at", "cutoff_time": "as_of", "event_time": "scheduled_start_at", "finalized_time": null, "ingestion_time": "ingested_at", "retrieval_time": null, "source_time": null},
+      "time_gap_codes": {"availability_time": "DERIVED_FROM_INPUT_MANIFEST", "finalized_time": "NOT_APPLICABLE_PREGAME_DERIVATION", "retrieval_time": "NOT_APPLICABLE_DERIVED_RECORD", "source_time": "NOT_APPLICABLE_DERIVED_RECORD"},
+      "version": 1
+    },
+    {
+      "adapters": [{"current_key": ["game_id"], "kind": "sql_table", "ref": "sql/003_ml.sql", "state": "unsafe_partial", "table": "NRFI_DB.ML.PREDICTION_GRADES"}],
+      "admission_status": "unadmitted",
+      "candidate_asset_ids": [],
+      "classification": "derived",
+      "column_groups": [
+        {"names": ["game_id", "grade_version", "outcome_version", "predicted_at"], "nullable": false, "type": "string"},
+        {"names": ["brier_score", "log_loss", "p_yrfi"], "nullable": false, "type": "number"},
+        {"names": ["actual_yrfi"], "nullable": false, "type": "boolean"},
+        {"names": ["scheduled_start_at"], "nullable": false, "type": "timestamp"}
+      ],
+      "column_set_refs": ["grade_lineage_v1"],
+      "domain": "grades",
+      "entity_key": ["game_id", "predicted_at"],
+      "gap_ids": ["CONTRACT-MATERIALIZATION", "LOCKED-EVALUATION-MANIFEST"],
+      "id": "ml.grades.v1",
+      "implementation_state": "unsafe_partial",
+      "license_status": {"gap_id": "DATA-LICENSE", "status": "unknown_inputs"},
+      "primary_key": ["game_id", "predicted_at", "grade_version"],
+      "producer_code": ["nrfi/grade_nightly.py", "sql/003_ml.sql"],
+      "provenance_fields": {"adapter_version": null, "code_commit": "code_commit", "input_manifest_id": "input_manifest_id", "record_checksum": "record_checksum", "source_id": "source", "source_record_id": "source_record_id", "validation_result": "validation_result"},
+      "provenance_gap_codes": {"adapter_version": "NOT_APPLICABLE_GRADE_RECORD"},
+      "readiness": {"current_gate": null, "minimum_rows": null, "status": "mutable_current_table"},
+      "rules": ["prediction identity is immutable", "grade occurs only after outcome_finalized_at", "probability is between zero and one", "corrections append grade_version"],
+      "source_authority": {"gap_id": "TRAINING-LABEL-CONTRACT", "status": "unknown_outcome_authority"},
+      "time_fields": {"availability_time": "outcome_availability_time", "computed_time": "graded_at", "cutoff_time": null, "event_time": "scheduled_start_at", "finalized_time": "outcome_finalized_at", "ingestion_time": "ingested_at", "retrieval_time": "outcome_retrieval_time", "source_time": "outcome_source_time"},
+      "time_gap_codes": {"cutoff_time": "NOT_APPLICABLE_POSTGAME_GRADE"},
+      "version": 1
+    },
+    {
+      "adapters": [{"current_key": ["game_id", "predicted_at"], "kind": "sql_table", "ref": "sql/003_ml.sql", "state": "unsafe_partial", "table": "NRFI_DB.ML.PREDICTIONS"}],
+      "admission_status": "unadmitted",
+      "candidate_asset_ids": [],
+      "classification": "derived",
+      "column_groups": [
+        {"names": ["game_id"], "nullable": false, "type": "string"},
+        {"names": ["p_nrfi", "p_yrfi"], "nullable": false, "type": "number"},
+        {"names": ["availability_cutoff", "data_cutoff", "prediction_cutoff", "scheduled_start_at"], "nullable": false, "type": "timestamp"}
+      ],
+      "column_set_refs": ["prediction_lineage_v1"],
+      "domain": "predictions",
+      "entity_key": ["game_id"],
+      "gap_ids": ["CONTRACT-MATERIALIZATION", "LOCKED-EVALUATION-MANIFEST"],
+      "id": "ml.predictions.v1",
+      "implementation_state": "unsafe_partial",
+      "license_status": {"gap_id": "DATA-LICENSE", "status": "unknown_inputs"},
+      "primary_key": ["game_id", "predicted_at"],
+      "producer_code": ["nrfi/predict_daily.py", "sql/003_ml.sql"],
+      "provenance_fields": {"adapter_version": null, "code_commit": "code_commit", "input_manifest_id": "input_manifest_id", "record_checksum": "record_checksum", "source_id": null, "source_record_id": null, "validation_result": "validation_result"},
+      "provenance_gap_codes": {"adapter_version": "NOT_APPLICABLE_DERIVED_RECORD", "source_id": "NOT_APPLICABLE_DERIVED_RECORD", "source_record_id": "NOT_APPLICABLE_DERIVED_RECORD"},
+      "readiness": {"current_gate": "warehouse_readiness_only", "minimum_rows": null, "status": "lineage_incomplete"},
+      "rules": ["p_nrfi plus p_yrfi equals one within deterministic tolerance", "probabilities are between zero and one", "availability_cutoff is at or before prediction_cutoff", "predicted_at and prediction_cutoff precede scheduled_start_at"],
+      "source_authority": {"gap_id": "CONTRACT-MATERIALIZATION", "status": "derived_from_unadmitted_inputs"},
+      "time_fields": {"availability_time": "availability_cutoff", "computed_time": "predicted_at", "cutoff_time": "prediction_cutoff", "event_time": "scheduled_start_at", "finalized_time": null, "ingestion_time": "ingested_at", "retrieval_time": null, "source_time": null},
+      "time_gap_codes": {"finalized_time": "NOT_APPLICABLE_PREDICTION", "retrieval_time": "DERIVED_FROM_INPUT_MANIFEST", "source_time": "DERIVED_FROM_INPUT_MANIFEST"},
+      "version": 1
+    },
+    {
+      "adapters": [{"alias": "batter_games", "current_key": ["batter_id", "game_id"], "kind": "raw_loader", "ref": "nrfi/raw_loader.py", "state": "declared_not_admitted", "table": "NRFI_DB.RAW.BATTER_GAME_LOGS"}],
+      "admission_status": "unadmitted",
+      "candidate_asset_ids": ["mlb-model-duckdb", "nrfi-pr1-processed-csvs", "pybaseball-statcast-parquet"],
+      "classification": "unknown",
+      "column_groups": [
+        {"names": ["game_id"], "nullable": false, "type": "string"},
+        {"names": ["batter_id", "plate_appearances", "times_on_base"], "nullable": false, "type": "integer"},
+        {"names": ["woba_den", "woba_num"], "nullable": false, "type": "number"},
+        {"names": ["game_date"], "nullable": false, "type": "date"}
+      ],
+      "column_set_refs": ["observed_lineage_v1"],
+      "domain": "batter game logs",
+      "entity_key": ["batter_id"],
+      "gap_ids": ["CACHE-CORRUPTION-DISPOSITION", "CACHE-SCHEMA-CONTRACT", "CONTRACT-MATERIALIZATION", "DATA-SOURCE-RETRIEVAL-LINEAGE"],
+      "id": "raw.batter_game_logs.v1",
+      "implementation_state": "declared_not_materialized",
+      "license_status": {"gap_id": "DATA-LICENSE", "status": "unknown"},
+      "primary_key": ["batter_id", "game_id"],
+      "producer_code": ["nrfi/raw_loader.py", "sql/000_raw.sql"],
+      "provenance_fields": {"adapter_version": "adapter_version", "code_commit": "code_commit", "input_manifest_id": "input_manifest_id", "record_checksum": "record_checksum", "source_id": "source", "source_record_id": "source_record_id", "validation_result": "validation_result"},
+      "provenance_gap_codes": {},
+      "readiness": {"current_gate": "columns_rows_and_coarse_dates_only", "minimum_rows": 50000, "status": "declared_not_observed"},
+      "rules": ["primary key is unique and non-null", "availability_time must not exceed any consuming cutoff", "unknown columns fail validation"],
+      "source_authority": {"gap_id": "DATA-SOURCE-RETRIEVAL-LINEAGE", "status": "unknown"},
+      "time_fields": {"availability_time": "availability_time", "computed_time": null, "cutoff_time": null, "event_time": "game_date", "finalized_time": null, "ingestion_time": "ingested_at", "retrieval_time": "retrieval_time", "source_time": "source_time"},
+      "time_gap_codes": {"computed_time": "NOT_APPLICABLE_OBSERVED_RECORD", "cutoff_time": "CONSUMER_DEFINED", "finalized_time": "SOURCE_FINALIZATION_NOT_RECORDED"},
+      "version": 1
+    },
+    {
+      "adapters": [{"alias": "park_factors", "current_key": ["venue_id"], "kind": "raw_loader", "ref": "nrfi/raw_loader.py", "state": "unsafe_partial", "table": "NRFI_DB.RAW.PARK_FACTORS"}],
+      "admission_status": "unadmitted",
+      "candidate_asset_ids": ["nrfi-pr1-processed-csvs"],
+      "classification": "unknown",
+      "column_groups": [
+        {"names": ["venue_id"], "nullable": false, "type": "integer"},
+        {"names": ["hits_factor", "hr_factor", "runs_factor"], "nullable": false, "type": "number"},
+        {"names": ["calculated_through"], "nullable": false, "type": "date"}
+      ],
+      "column_set_refs": ["observed_lineage_v1"],
+      "domain": "park factors",
+      "entity_key": ["venue_id"],
+      "gap_ids": ["CONTRACT-MATERIALIZATION", "DATA-LICENSE", "ENTITY-MAPPINGS", "SOURCE-PRODUCER-VERSION"],
+      "id": "raw.park_factors.v1",
+      "implementation_state": "unsafe_partial",
+      "license_status": {"gap_id": "DATA-LICENSE", "status": "unknown"},
+      "primary_key": ["venue_id", "calculated_through", "source"],
+      "producer_code": ["nrfi/raw_loader.py", "sql/000_raw.sql"],
+      "provenance_fields": {"adapter_version": "adapter_version", "code_commit": "code_commit", "input_manifest_id": "input_manifest_id", "record_checksum": "record_checksum", "source_id": "source", "source_record_id": "source_record_id", "validation_result": "validation_result"},
+      "provenance_gap_codes": {},
+      "readiness": {"current_gate": "venue_key_and_coarse_date_only", "minimum_rows": 20, "status": "point_in_time_key_missing"},
+      "rules": ["calculated_through must be earlier than consuming as_of", "factor version is immutable", "current venue_id-only merge key is prohibited"],
+      "source_authority": {"gap_id": "DATA-LICENSE", "status": "unknown"},
+      "time_fields": {"availability_time": "availability_time", "computed_time": null, "cutoff_time": "calculated_through", "event_time": "calculated_through", "finalized_time": null, "ingestion_time": "ingested_at", "retrieval_time": "retrieval_time", "source_time": "source_time"},
+      "time_gap_codes": {"computed_time": "PRODUCER_SEMANTICS_UNRESOLVED", "finalized_time": "NOT_APPLICABLE_FACTOR_VERSION"},
+      "version": 1
+    },
+    {
+      "adapters": [{"alias": "pitcher_games", "current_key": ["pitcher_id", "game_id"], "kind": "raw_loader", "ref": "nrfi/raw_loader.py", "state": "declared_not_admitted", "table": "NRFI_DB.RAW.PITCHER_GAME_LOGS"}],
+      "admission_status": "unadmitted",
+      "candidate_asset_ids": ["mlb-model-duckdb", "nrfi-pr1-processed-csvs", "pybaseball-statcast-parquet"],
+      "classification": "unknown",
+      "column_groups": [
+        {"names": ["game_id", "opponent_team"], "nullable": false, "type": "string"},
+        {"names": ["earned_runs", "hits", "pitcher_id", "runs_allowed", "strikeouts", "walks"], "nullable": false, "type": "integer"},
+        {"names": ["innings_pitched"], "nullable": false, "type": "number"},
+        {"names": ["game_date"], "nullable": false, "type": "date"}
+      ],
+      "column_set_refs": ["observed_lineage_v1"],
+      "domain": "pitcher game logs",
+      "entity_key": ["pitcher_id"],
+      "gap_ids": ["CACHE-CORRUPTION-DISPOSITION", "CACHE-SCHEMA-CONTRACT", "CONTRACT-MATERIALIZATION", "DATA-SOURCE-RETRIEVAL-LINEAGE"],
+      "id": "raw.pitcher_game_logs.v1",
+      "implementation_state": "declared_not_materialized",
+      "license_status": {"gap_id": "DATA-LICENSE", "status": "unknown"},
+      "primary_key": ["pitcher_id", "game_id"],
+      "producer_code": ["nrfi/raw_loader.py", "sql/000_raw.sql"],
+      "provenance_fields": {"adapter_version": "adapter_version", "code_commit": "code_commit", "input_manifest_id": "input_manifest_id", "record_checksum": "record_checksum", "source_id": "source", "source_record_id": "source_record_id", "validation_result": "validation_result"},
+      "provenance_gap_codes": {},
+      "readiness": {"current_gate": "columns_rows_and_coarse_dates_only", "minimum_rows": 10000, "status": "declared_not_observed"},
+      "rules": ["primary key is unique and non-null", "availability_time must not exceed any consuming cutoff", "unknown columns fail validation"],
+      "source_authority": {"gap_id": "DATA-SOURCE-RETRIEVAL-LINEAGE", "status": "unknown"},
+      "time_fields": {"availability_time": "availability_time", "computed_time": null, "cutoff_time": null, "event_time": "game_date", "finalized_time": null, "ingestion_time": "ingested_at", "retrieval_time": "retrieval_time", "source_time": "source_time"},
+      "time_gap_codes": {"computed_time": "NOT_APPLICABLE_OBSERVED_RECORD", "cutoff_time": "CONSUMER_DEFINED", "finalized_time": "SOURCE_FINALIZATION_NOT_RECORDED"},
+      "version": 1
+    },
+    {
+      "adapters": [{"alias": "pitcher_innings", "current_key": ["pitcher_id", "game_id", "inning"], "kind": "raw_loader", "ref": "nrfi/raw_loader.py", "state": "declared_not_admitted", "table": "NRFI_DB.RAW.PITCHER_INNING_LOGS"}],
+      "admission_status": "unadmitted",
+      "candidate_asset_ids": ["mlb-model-duckdb", "nrfi-pr1-processed-csvs", "pybaseball-statcast-parquet"],
+      "classification": "unknown",
+      "column_groups": [
+        {"names": ["game_id"], "nullable": false, "type": "string"},
+        {"names": ["first_inning_hits", "first_inning_runs", "first_inning_walks", "inning", "pitcher_id"], "nullable": false, "type": "integer"},
+        {"names": ["game_date"], "nullable": false, "type": "date"}
+      ],
+      "column_set_refs": ["observed_lineage_v1"],
+      "domain": "pitcher inning logs",
+      "entity_key": ["pitcher_id"],
+      "gap_ids": ["CACHE-CORRUPTION-DISPOSITION", "CACHE-SCHEMA-CONTRACT", "CONTRACT-MATERIALIZATION", "DATA-SOURCE-RETRIEVAL-LINEAGE"],
+      "id": "raw.pitcher_inning_logs.v1",
+      "implementation_state": "declared_not_materialized",
+      "license_status": {"gap_id": "DATA-LICENSE", "status": "unknown"},
+      "primary_key": ["pitcher_id", "game_id", "inning"],
+      "producer_code": ["nrfi/raw_loader.py", "sql/000_raw.sql"],
+      "provenance_fields": {"adapter_version": "adapter_version", "code_commit": "code_commit", "input_manifest_id": "input_manifest_id", "record_checksum": "record_checksum", "source_id": "source", "source_record_id": "source_record_id", "validation_result": "validation_result"},
+      "provenance_gap_codes": {},
+      "readiness": {"current_gate": "columns_rows_and_coarse_dates_only", "minimum_rows": 10000, "status": "declared_not_observed"},
+      "rules": ["primary key is unique and non-null", "inning must equal one for first-inning fields", "unknown columns fail validation"],
+      "source_authority": {"gap_id": "DATA-SOURCE-RETRIEVAL-LINEAGE", "status": "unknown"},
+      "time_fields": {"availability_time": "availability_time", "computed_time": null, "cutoff_time": null, "event_time": "game_date", "finalized_time": null, "ingestion_time": "ingested_at", "retrieval_time": "retrieval_time", "source_time": "source_time"},
+      "time_gap_codes": {"computed_time": "NOT_APPLICABLE_OBSERVED_RECORD", "cutoff_time": "CONSUMER_DEFINED", "finalized_time": "SOURCE_FINALIZATION_NOT_RECORDED"},
+      "version": 1
+    },
+    {
+      "adapters": [{"alias": "statcast_pitcher_daily", "current_key": ["pitcher_id", "game_date"], "kind": "raw_loader", "ref": "nrfi/raw_loader.py", "state": "declared_not_admitted", "table": "NRFI_DB.RAW.STATCAST_PITCHER_DAILY"}],
+      "admission_status": "unadmitted",
+      "candidate_asset_ids": ["mlb-model-duckdb", "pybaseball-statcast-parquet"],
+      "classification": "unknown",
+      "column_groups": [
+        {"names": ["barrels", "batted_balls", "hard_hits", "pitcher_id", "swings", "whiffs"], "nullable": false, "type": "integer"},
+        {"names": ["exit_velocity_sum"], "nullable": false, "type": "number"},
+        {"names": ["game_date"], "nullable": false, "type": "date"}
+      ],
+      "column_set_refs": ["observed_lineage_v1"],
+      "domain": "Statcast pitcher daily",
+      "entity_key": ["pitcher_id"],
+      "gap_ids": ["CACHE-CORRUPTION-DISPOSITION", "CACHE-SCHEMA-CONTRACT", "CONTRACT-MATERIALIZATION", "DATA-SOURCE-RETRIEVAL-LINEAGE"],
+      "id": "raw.statcast_pitcher_daily.v1",
+      "implementation_state": "declared_not_materialized",
+      "license_status": {"gap_id": "DATA-LICENSE", "status": "unknown"},
+      "primary_key": ["pitcher_id", "game_date"],
+      "producer_code": ["nrfi/raw_loader.py", "sql/000_raw.sql"],
+      "provenance_fields": {"adapter_version": "adapter_version", "code_commit": "code_commit", "input_manifest_id": "input_manifest_id", "record_checksum": "record_checksum", "source_id": "source", "source_record_id": "source_record_id", "validation_result": "validation_result"},
+      "provenance_gap_codes": {},
+      "readiness": {"current_gate": "columns_rows_and_coarse_dates_only", "minimum_rows": 10000, "status": "declared_not_observed"},
+      "rules": ["primary key is unique and non-null", "daily aggregation manifest is immutable", "leakage-sensitive raw fields are excluded"],
+      "source_authority": {"gap_id": "DATA-SOURCE-RETRIEVAL-LINEAGE", "status": "unknown"},
+      "time_fields": {"availability_time": "availability_time", "computed_time": null, "cutoff_time": null, "event_time": "game_date", "finalized_time": null, "ingestion_time": "ingested_at", "retrieval_time": "retrieval_time", "source_time": "source_time"},
+      "time_gap_codes": {"computed_time": "AGGREGATION_TIME_NOT_RECORDED", "cutoff_time": "CONSUMER_DEFINED", "finalized_time": "SOURCE_FINALIZATION_NOT_RECORDED"},
+      "version": 1
+    },
+    {
+      "adapters": [{"alias": "team_games", "current_key": ["team", "game_id"], "kind": "raw_loader", "ref": "nrfi/raw_loader.py", "state": "declared_not_admitted", "table": "NRFI_DB.RAW.TEAM_GAME_LOGS"}],
+      "admission_status": "unadmitted",
+      "candidate_asset_ids": ["mlb-model-duckdb", "nrfi-pr1-processed-csvs", "pybaseball-statcast-parquet"],
+      "classification": "unknown",
+      "column_groups": [
+        {"names": ["game_id", "team"], "nullable": false, "type": "string"},
+        {"names": ["at_bats", "hits", "plate_appearances", "runs", "times_on_base", "total_bases"], "nullable": false, "type": "integer"},
+        {"names": ["woba_den", "woba_num"], "nullable": false, "type": "number"},
+        {"names": ["game_date"], "nullable": false, "type": "date"}
+      ],
+      "column_set_refs": ["observed_lineage_v1"],
+      "domain": "team game logs",
+      "entity_key": ["team"],
+      "gap_ids": ["CACHE-CORRUPTION-DISPOSITION", "CACHE-SCHEMA-CONTRACT", "CONTRACT-MATERIALIZATION", "DATA-SOURCE-RETRIEVAL-LINEAGE", "ENTITY-MAPPINGS"],
+      "id": "raw.team_game_logs.v1",
+      "implementation_state": "declared_not_materialized",
+      "license_status": {"gap_id": "DATA-LICENSE", "status": "unknown"},
+      "primary_key": ["team", "game_id"],
+      "producer_code": ["nrfi/raw_loader.py", "sql/000_raw.sql"],
+      "provenance_fields": {"adapter_version": "adapter_version", "code_commit": "code_commit", "input_manifest_id": "input_manifest_id", "record_checksum": "record_checksum", "source_id": "source", "source_record_id": "source_record_id", "validation_result": "validation_result"},
+      "provenance_gap_codes": {},
+      "readiness": {"current_gate": "columns_rows_and_coarse_dates_only", "minimum_rows": 10000, "status": "declared_not_observed"},
+      "rules": ["primary key is unique and non-null", "team must map to an effective-dated team_id", "unknown columns fail validation"],
+      "source_authority": {"gap_id": "DATA-SOURCE-RETRIEVAL-LINEAGE", "status": "unknown"},
+      "time_fields": {"availability_time": "availability_time", "computed_time": null, "cutoff_time": null, "event_time": "game_date", "finalized_time": null, "ingestion_time": "ingested_at", "retrieval_time": "retrieval_time", "source_time": "source_time"},
+      "time_gap_codes": {"computed_time": "NOT_APPLICABLE_OBSERVED_RECORD", "cutoff_time": "CONSUMER_DEFINED", "finalized_time": "SOURCE_FINALIZATION_NOT_RECORDED"},
+      "version": 1
+    },
+    {
+      "adapters": [{"alias": "team_innings", "current_key": ["team", "game_id", "inning"], "kind": "raw_loader", "ref": "nrfi/raw_loader.py", "state": "declared_not_admitted", "table": "NRFI_DB.RAW.TEAM_INNING_LOGS"}],
+      "admission_status": "unadmitted",
+      "candidate_asset_ids": ["mlb-model-duckdb", "nrfi-pr1-processed-csvs", "pybaseball-statcast-parquet"],
+      "classification": "unknown",
+      "column_groups": [
+        {"names": ["game_id", "team"], "nullable": false, "type": "string"},
+        {"names": ["first_inning_runs", "inning"], "nullable": false, "type": "integer"},
+        {"names": ["game_date"], "nullable": false, "type": "date"}
+      ],
+      "column_set_refs": ["observed_lineage_v1"],
+      "domain": "team inning logs",
+      "entity_key": ["team"],
+      "gap_ids": ["CACHE-CORRUPTION-DISPOSITION", "CACHE-SCHEMA-CONTRACT", "CONTRACT-MATERIALIZATION", "DATA-SOURCE-RETRIEVAL-LINEAGE", "ENTITY-MAPPINGS"],
+      "id": "raw.team_inning_logs.v1",
+      "implementation_state": "declared_not_materialized",
+      "license_status": {"gap_id": "DATA-LICENSE", "status": "unknown"},
+      "primary_key": ["team", "game_id", "inning"],
+      "producer_code": ["nrfi/raw_loader.py", "sql/000_raw.sql"],
+      "provenance_fields": {"adapter_version": "adapter_version", "code_commit": "code_commit", "input_manifest_id": "input_manifest_id", "record_checksum": "record_checksum", "source_id": "source", "source_record_id": "source_record_id", "validation_result": "validation_result"},
+      "provenance_gap_codes": {},
+      "readiness": {"current_gate": "columns_rows_and_coarse_dates_only", "minimum_rows": 10000, "status": "declared_not_observed"},
+      "rules": ["primary key is unique and non-null", "inning must equal one for first-inning fields", "team must map to an effective-dated team_id"],
+      "source_authority": {"gap_id": "DATA-SOURCE-RETRIEVAL-LINEAGE", "status": "unknown"},
+      "time_fields": {"availability_time": "availability_time", "computed_time": null, "cutoff_time": null, "event_time": "game_date", "finalized_time": null, "ingestion_time": "ingested_at", "retrieval_time": "retrieval_time", "source_time": "source_time"},
+      "time_gap_codes": {"computed_time": "NOT_APPLICABLE_OBSERVED_RECORD", "cutoff_time": "CONSUMER_DEFINED", "finalized_time": "SOURCE_FINALIZATION_NOT_RECORDED"},
+      "version": 1
+    },
+    {
+      "adapters": [],
+      "admission_status": "unadmitted",
+      "candidate_asset_ids": ["pybaseball-statcast-parquet"],
+      "classification": "unknown",
+      "column_groups": [
+        {"names": ["assignment_id", "game_id", "role", "umpire_id"], "nullable": false, "type": "string"},
+        {"names": ["scheduled_start_at"], "nullable": false, "type": "timestamp"}
+      ],
+      "column_set_refs": ["observed_lineage_v1"],
+      "domain": "point-in-time umpire assignments",
+      "entity_key": ["umpire_id"],
+      "gap_ids": ["CONTRACT-MATERIALIZATION", "DATA-AVAILABILITY-TIME", "ENTITY-MAPPINGS", "UMPIRE-POINT-IN-TIME"],
+      "id": "raw.umpire_assignments.v1",
+      "implementation_state": "missing",
+      "license_status": {"gap_id": "DATA-LICENSE", "status": "unknown"},
+      "primary_key": ["game_id", "role", "source_time", "source"],
+      "producer_code": [],
+      "provenance_fields": {"adapter_version": "adapter_version", "code_commit": "code_commit", "input_manifest_id": "input_manifest_id", "record_checksum": "record_checksum", "source_id": "source", "source_record_id": "source_record_id", "validation_result": "validation_result"},
+      "provenance_gap_codes": {},
+      "readiness": {"current_gate": null, "minimum_rows": null, "status": "missing"},
+      "rules": ["role is explicit", "assignment revisions append source_time", "availability_time precedes any prediction cutoff"],
+      "source_authority": {"gap_id": "UMPIRE-POINT-IN-TIME", "status": "unknown"},
+      "time_fields": {"availability_time": "availability_time", "computed_time": null, "cutoff_time": null, "event_time": "scheduled_start_at", "finalized_time": null, "ingestion_time": "ingested_at", "retrieval_time": "retrieval_time", "source_time": "source_time"},
+      "time_gap_codes": {"computed_time": "NOT_APPLICABLE_OBSERVED_RECORD", "cutoff_time": "CONSUMER_DEFINED", "finalized_time": "NOT_APPLICABLE_ASSIGNMENT_SNAPSHOT"},
+      "version": 1
+    },
+    {
+      "adapters": [{"current_key": ["game_id"], "kind": "consumer_only", "ref": "nrfi/predict_daily.py", "state": "missing_producer"}],
+      "admission_status": "unadmitted",
+      "candidate_asset_ids": ["nrfi-pr1-processed-csvs"],
+      "classification": "unknown",
+      "column_groups": [
+        {"names": ["game_id", "weather_condition"], "nullable": false, "type": "string"},
+        {"names": ["humidity_pct", "precip_probability", "temperature_c", "wind_speed_mps"], "nullable": false, "type": "number"},
+        {"names": ["forecast_for"], "nullable": false, "type": "timestamp"}
+      ],
+      "column_set_refs": ["observed_lineage_v1"],
+      "domain": "weather snapshots",
+      "entity_key": ["game_id"],
+      "gap_ids": ["CONTRACT-MATERIALIZATION", "DATA-AVAILABILITY-TIME", "DATA-LICENSE", "ENTITY-MAPPINGS", "SOURCE-PRODUCER-VERSION", "STARTERS-LINEUPS-WEATHER-MARKET"],
+      "id": "raw.weather_snapshots.v1",
+      "implementation_state": "consumer_only",
+      "license_status": {"gap_id": "DATA-LICENSE", "status": "unknown"},
+      "primary_key": ["game_id", "forecast_for", "source_time", "source"],
+      "producer_code": ["nrfi/predict_daily.py"],
+      "provenance_fields": {"adapter_version": "adapter_version", "code_commit": "code_commit", "input_manifest_id": "input_manifest_id", "record_checksum": "record_checksum", "source_id": "source", "source_record_id": "source_record_id", "validation_result": "validation_result"},
+      "provenance_gap_codes": {},
+      "readiness": {"current_gate": null, "minimum_rows": null, "status": "missing_producer_and_store"},
+      "rules": ["source_time is the forecast issue time", "availability_time precedes consuming cutoff", "forecast_for matches the scheduled event"],
+      "source_authority": {"gap_id": "DATA-LICENSE", "status": "unknown"},
+      "time_fields": {"availability_time": "availability_time", "computed_time": null, "cutoff_time": null, "event_time": "forecast_for", "finalized_time": null, "ingestion_time": "ingested_at", "retrieval_time": "retrieval_time", "source_time": "source_time"},
+      "time_gap_codes": {"computed_time": "NOT_APPLICABLE_OBSERVED_RECORD", "cutoff_time": "CONSUMER_DEFINED", "finalized_time": "NOT_APPLICABLE_FORECAST_SNAPSHOT"},
+      "version": 1
+    },
+    {
+      "adapters": [],
+      "admission_status": "unadmitted",
+      "candidate_asset_ids": ["nrfi-pr1-processed-csvs", "pybaseball-chadwick-parquet", "pybaseball-statcast-parquet"],
+      "classification": "unknown",
+      "column_groups": [
+        {"names": ["abbreviation", "league_id", "name", "team_id"], "nullable": false, "type": "string"},
+        {"names": ["valid_from"], "nullable": false, "type": "date"},
+        {"names": ["valid_to"], "nullable": true, "type": "date"}
+      ],
+      "column_set_refs": ["observed_lineage_v1"],
+      "domain": "teams",
+      "entity_key": ["team_id"],
+      "gap_ids": ["CONTRACT-MATERIALIZATION", "ENTITY-MAPPINGS"],
+      "id": "reference.teams.v1",
+      "implementation_state": "missing",
+      "license_status": {"gap_id": "DATA-LICENSE", "status": "unknown"},
+      "primary_key": ["team_id", "valid_from"],
+      "producer_code": [],
+      "provenance_fields": {"adapter_version": "adapter_version", "code_commit": "code_commit", "input_manifest_id": "input_manifest_id", "record_checksum": "record_checksum", "source_id": "source", "source_record_id": "source_record_id", "validation_result": "validation_result"},
+      "provenance_gap_codes": {},
+      "readiness": {"current_gate": null, "minimum_rows": null, "status": "missing_effective_dated_map"},
+      "rules": ["team_id is stable", "effective-date ranges do not overlap", "names are attributes not identities"],
+      "source_authority": {"gap_id": "ENTITY-MAPPINGS", "status": "unknown"},
+      "time_fields": {"availability_time": "availability_time", "computed_time": null, "cutoff_time": null, "event_time": "valid_from", "finalized_time": null, "ingestion_time": "ingested_at", "retrieval_time": "retrieval_time", "source_time": "source_time"},
+      "time_gap_codes": {"computed_time": "NOT_APPLICABLE_OBSERVED_RECORD", "cutoff_time": "CONSUMER_DEFINED", "finalized_time": "NOT_APPLICABLE_REFERENCE_RECORD"},
+      "version": 1
+    }
+  ],
+  "generated_from": {
+    "canonical_selection_manifest_sha256": "b3e3f19c10e0e1504ecc31c2b46b71aa250d1b0f9a2078e0615c69e42579a9ac",
+    "checksum_sidecar_sha256": "bf9270797084ee58c2f46bf0d51ec2d8e49833f891dec84edd2930d893b2a496",
+    "content_tree_sha256": "40a53f6ec231c1a0a21f1c9ecfca5f606db7948e27636c205c0192d8a73ee6cb",
+    "file_manifest_ref": "docs/phase0/pybaseball_file_manifest.jsonl",
+    "file_manifest_sha256": "4ab2f5e74b61743a81152096416a09e8c0b13c121fe045174208af93cfa29fbc",
+    "generator_sha256": "b14387e57919b3b857e8a0b9105ca24f4860c2cca1a87ade63e903be73f8f4f6",
+    "observation_tree_sha256": "74feb2dae3e9549b8238f580bfcf34613b771ad06bc85ee6311574df7956eb07",
+    "parameter_sha256": "c52e984983c40edb5b6db8d256c86e8a111ee27e1ea88bba3ea81a784b276924",
+    "scan_id": "0f3f19aa1d72525577f460a2fcb9692f81c835ec110c3674a720096c6a23c111",
+    "scan_summary_ref": "docs/phase0/pybaseball_scan_summary.json",
+    "scan_summary_sha256": "6342b5503474a036ce1bab56b7ee1fb6dca3cb024a550ee5108e6f90d2c9d032",
+    "snapshot_date": "2026-07-14"
+  },
+  "provenance_roles": [
+    "adapter_version",
+    "code_commit",
+    "input_manifest_id",
+    "record_checksum",
+    "source_id",
+    "source_record_id",
+    "validation_result"
+  ],
+  "required_asset_attributes": [
+    "source",
+    "source_authority",
+    "path",
+    "repository",
+    "branch",
+    "format",
+    "byte_size",
+    "row_count",
+    "schema",
+    "key_columns",
+    "date_coverage",
+    "event_time_coverage",
+    "source_time_coverage",
+    "availability_time_coverage",
+    "entity_coverage",
+    "season_coverage",
+    "duplicate_rate",
+    "missingness",
+    "corruption_status",
+    "checksum",
+    "producing_code",
+    "license_terms",
+    "classification",
+    "storage_state",
+    "rebuildability"
+  ],
+  "schema_version": "1.0",
+  "time_roles": [
+    "availability_time",
+    "computed_time",
+    "cutoff_time",
+    "event_time",
+    "finalized_time",
+    "ingestion_time",
+    "retrieval_time",
+    "source_time"
+  ]
+}

@@ -4,6 +4,7 @@ Every source table is loaded once. Per-game windows use only rows strictly befor
 ``game_date``. Missing observations remain missing; they are never converted into
 zero-valued outcomes or included in rate denominators.
 """
+
 from __future__ import annotations
 
 import json
@@ -23,9 +24,7 @@ FEATURE_VERSION = "fv3.1"
 PITCHER_DAY_WINDOWS = [7, 14, 30, 90, 365]
 TEAM_DAY_WINDOWS = [7, 14, 30]
 PITCHER_GS_WINDOW = 30
-WEATHER_KEYS = frozenset(
-    {"temp_f", "wind_speed", "humidity", "wind_out_component"}
-)
+WEATHER_KEYS = frozenset({"temp_f", "wind_speed", "humidity", "wind_out_component"})
 
 
 def _missing(value: object) -> bool:
@@ -38,8 +37,7 @@ def coverage(features: Dict[str, float]) -> float:
     values = [
         value
         for name, value in features.items()
-        if not name.endswith("_missing")
-        and not (dome and name in WEATHER_KEYS)
+        if not name.endswith("_missing") and not (dome and name in WEATHER_KEYS)
     ]
     if not values:
         return 0.0
@@ -107,9 +105,7 @@ class _Cum:
         }
         result["_rows"] = float(high - low)
         for column in self.sum_cols:
-            result[f"_n_{column}"] = float(
-                counts[column][high] - counts[column][low]
-            )
+            result[f"_n_{column}"] = float(counts[column][high] - counts[column][low])
         return result
 
 
@@ -168,7 +164,9 @@ class FeatureBuilder:
 
     def _bulk(self, query: str, params: list) -> pd.DataFrame:
         if self.sf is None:
-            raise RuntimeError("Snowflake loader is required when raw_frames are absent")
+            raise RuntimeError(
+                "Snowflake loader is required when raw_frames are absent"
+            )
         return pd.DataFrame(self.sf.execute_query(query, params))
 
     def prepare(self, max_date: str) -> None:
@@ -236,7 +234,14 @@ class FeatureBuilder:
             frames.get("pitcher_games"),
             "pitcher_id",
             "game_date",
-            ["earned_runs", "runs_allowed", "hits", "walks", "strikeouts", "innings_pitched"],
+            [
+                "earned_runs",
+                "runs_allowed",
+                "hits",
+                "walks",
+                "strikeouts",
+                "innings_pitched",
+            ],
         )
         self.pfi = _Cum(
             frames.get("pitcher_fi"),
@@ -252,25 +257,37 @@ class FeatureBuilder:
             pitcher_fi["fi_zero"] = np.where(
                 runs.isna(), np.nan, (runs == 0).astype(float)
             )
-            self.pfi_nrfi = _Cum(
-                pitcher_fi, "pitcher_id", "game_date", ["fi_zero"]
-            )
+            self.pfi_nrfi = _Cum(pitcher_fi, "pitcher_id", "game_date", ["fi_zero"])
         else:
-            self.pfi_nrfi = _Cum(
-                pd.DataFrame(), "pitcher_id", "game_date", ["fi_zero"]
-            )
+            self.pfi_nrfi = _Cum(pd.DataFrame(), "pitcher_id", "game_date", ["fi_zero"])
 
         self.scp = _Cum(
             frames.get("statcast_pitcher"),
             "pitcher_id",
             "game_date",
-            ["exit_velocity_sum", "barrels", "hard_hits", "whiffs", "swings", "batted_balls"],
+            [
+                "exit_velocity_sum",
+                "barrels",
+                "hard_hits",
+                "whiffs",
+                "swings",
+                "batted_balls",
+            ],
         )
         self.tg = _Cum(
             frames.get("team_games"),
             "team",
             "game_date",
-            ["runs", "hits", "at_bats", "total_bases", "times_on_base", "plate_appearances", "woba_num", "woba_den"],
+            [
+                "runs",
+                "hits",
+                "at_bats",
+                "total_bases",
+                "times_on_base",
+                "plate_appearances",
+                "woba_num",
+                "woba_den",
+            ],
         )
 
         team_fi = frames.get("team_fi")
@@ -325,33 +342,52 @@ class FeatureBuilder:
     def build_games(self, games: List[Dict]) -> Dict[str, Dict[str, float]]:
         return {str(game["game_id"]): self.build_game(game) for game in games}
 
-    def _pitcher(self, pitcher_id: object, side: str, as_of: np.datetime64) -> Dict[str, float]:
+    def _pitcher(
+        self, pitcher_id: object, side: str, as_of: np.datetime64
+    ) -> Dict[str, float]:
         features: Dict[str, float] = {}
         if _missing(pitcher_id):
             features[f"{side}_p_missing"] = 1.0
             return features
 
         career = self.pg.window(pitcher_id, as_of)
-        features[f"{side}_p_career_era"] = _ratio(career, "earned_runs", "innings_pitched", 9.0)
+        features[f"{side}_p_career_era"] = _ratio(
+            career, "earned_runs", "innings_pitched", 9.0
+        )
         features[f"{side}_p_career_whip"] = (
             NAN
             if career is None
             else _ratio(
-                {"hw": career["hits"] + career["walks"], "ip": career["innings_pitched"]},
+                {
+                    "hw": career["hits"] + career["walks"],
+                    "ip": career["innings_pitched"],
+                },
                 "hw",
                 "ip",
             )
         )
-        features[f"{side}_p_career_k9"] = _ratio(career, "strikeouts", "innings_pitched", 9.0)
-        features[f"{side}_p_career_bb9"] = _ratio(career, "walks", "innings_pitched", 9.0)
-        features[f"{side}_p_career_ip"] = NAN if career is None else float(career["innings_pitched"])
+        features[f"{side}_p_career_k9"] = _ratio(
+            career, "strikeouts", "innings_pitched", 9.0
+        )
+        features[f"{side}_p_career_bb9"] = _ratio(
+            career, "walks", "innings_pitched", 9.0
+        )
+        features[f"{side}_p_career_ip"] = (
+            NAN if career is None else float(career["innings_pitched"])
+        )
 
         recent_starts = self.pg.window(pitcher_id, as_of, last_n=PITCHER_GS_WINDOW)
-        features[f"{side}_p_30gs_era"] = _ratio(recent_starts, "earned_runs", "innings_pitched", 9.0)
-        features[f"{side}_p_30gs_k9"] = _ratio(recent_starts, "strikeouts", "innings_pitched", 9.0)
+        features[f"{side}_p_30gs_era"] = _ratio(
+            recent_starts, "earned_runs", "innings_pitched", 9.0
+        )
+        features[f"{side}_p_30gs_k9"] = _ratio(
+            recent_starts, "strikeouts", "innings_pitched", 9.0
+        )
 
         first_inning = self.pfi.window(pitcher_id, as_of)
-        features[f"{side}_p_fi_ra9"] = _per_observation(first_inning, "first_inning_runs") * 9.0
+        features[f"{side}_p_fi_ra9"] = (
+            _per_observation(first_inning, "first_inning_runs") * 9.0
+        )
         features[f"{side}_p_fi_whip"] = (
             NAN
             if first_inning is None
@@ -365,19 +401,28 @@ class FeatureBuilder:
                 )
             )
         )
-        features[f"{side}_p_fi_runs_rate"] = _per_observation(first_inning, "first_inning_runs")
+        features[f"{side}_p_fi_runs_rate"] = _per_observation(
+            first_inning, "first_inning_runs"
+        )
         first_inning_nrfi = self.pfi_nrfi.window(pitcher_id, as_of)
-        features[f"{side}_p_fi_nrfi_rate"] = _per_observation(first_inning_nrfi, "fi_zero")
+        features[f"{side}_p_fi_nrfi_rate"] = _per_observation(
+            first_inning_nrfi, "fi_zero"
+        )
         features[f"{side}_p_fi_games"] = _count(first_inning, "first_inning_runs")
 
         for days in PITCHER_DAY_WINDOWS:
             window = self.pg.window(pitcher_id, as_of, days=days)
-            features[f"{side}_p_{days}d_era"] = _ratio(window, "earned_runs", "innings_pitched", 9.0)
+            features[f"{side}_p_{days}d_era"] = _ratio(
+                window, "earned_runs", "innings_pitched", 9.0
+            )
             features[f"{side}_p_{days}d_whip"] = (
                 NAN
                 if window is None
                 else _ratio(
-                    {"hw": window["hits"] + window["walks"], "ip": window["innings_pitched"]},
+                    {
+                        "hw": window["hits"] + window["walks"],
+                        "ip": window["innings_pitched"],
+                    },
                     "hw",
                     "ip",
                 )
@@ -397,9 +442,15 @@ class FeatureBuilder:
             )
 
         statcast = self.scp.window(pitcher_id, as_of, days=30)
-        features[f"{side}_p_avg_exit_velo"] = _ratio(statcast, "exit_velocity_sum", "batted_balls")
-        features[f"{side}_p_barrel_pct"] = _ratio(statcast, "barrels", "batted_balls", 100.0)
-        features[f"{side}_p_hard_hit_pct"] = _ratio(statcast, "hard_hits", "batted_balls", 100.0)
+        features[f"{side}_p_avg_exit_velo"] = _ratio(
+            statcast, "exit_velocity_sum", "batted_balls"
+        )
+        features[f"{side}_p_barrel_pct"] = _ratio(
+            statcast, "barrels", "batted_balls", 100.0
+        )
+        features[f"{side}_p_hard_hit_pct"] = _ratio(
+            statcast, "hard_hits", "batted_balls", 100.0
+        )
         features[f"{side}_p_whiff_pct"] = _ratio(statcast, "whiffs", "swings", 100.0)
         features[f"{side}_p_missing"] = _family_missing(features, f"{side}_p_")
         return features
@@ -412,14 +463,20 @@ class FeatureBuilder:
 
         season = self.tg.window(team, as_of, days=365)
         features[f"{side}_t_season_avg"] = _ratio(season, "hits", "at_bats")
-        features[f"{side}_t_season_obp"] = _ratio(season, "times_on_base", "plate_appearances")
+        features[f"{side}_t_season_obp"] = _ratio(
+            season, "times_on_base", "plate_appearances"
+        )
         features[f"{side}_t_season_slg"] = _ratio(season, "total_bases", "at_bats")
         features[f"{side}_t_season_woba"] = _ratio(season, "woba_num", "woba_den")
         features[f"{side}_t_season_rpg"] = _per_observation(season, "runs")
 
         first_inning = self.tfi.window(team, as_of, days=365)
-        features[f"{side}_t_fi_rpg"] = _per_observation(first_inning, "first_inning_runs")
-        features[f"{side}_t_fi_scoring_pct"] = _per_observation(first_inning, "fi_scored")
+        features[f"{side}_t_fi_rpg"] = _per_observation(
+            first_inning, "first_inning_runs"
+        )
+        features[f"{side}_t_fi_scoring_pct"] = _per_observation(
+            first_inning, "fi_scored"
+        )
 
         for days in TEAM_DAY_WINDOWS:
             window = self.tg.window(team, as_of, days=days)
@@ -431,9 +488,13 @@ class FeatureBuilder:
     def _park(self, venue_id: object) -> Dict[str, float]:
         row = None if _missing(venue_id) else self.parks.get(venue_id)
         features = {
-            "park_runs_factor": NAN if row is None else float(row.get("runs_factor", NAN)),
+            "park_runs_factor": NAN
+            if row is None
+            else float(row.get("runs_factor", NAN)),
             "park_hr_factor": NAN if row is None else float(row.get("hr_factor", NAN)),
-            "park_hits_factor": NAN if row is None else float(row.get("hits_factor", NAN)),
+            "park_hits_factor": NAN
+            if row is None
+            else float(row.get("hits_factor", NAN)),
         }
         features["park_missing"] = _family_missing(features, "park_")
         return features
@@ -493,7 +554,9 @@ class FeatureBuilder:
                 and len(obps) == 3
                 and not any(_missing(value) for value in wobas + obps)
             )
-            features[f"{side}_lineup_top3_woba"] = float(np.mean(wobas)) if valid else NAN
+            features[f"{side}_lineup_top3_woba"] = (
+                float(np.mean(wobas)) if valid else NAN
+            )
             features[f"{side}_lineup_top3_obp"] = float(np.mean(obps)) if valid else NAN
             features[f"{side}_lineup_missing"] = 0.0 if valid else 1.0
         return features
@@ -517,7 +580,9 @@ class FeatureBuilder:
                     "game_id": str(game["game_id"]),
                     "feature_version": feature_version,
                     "computed_at": computed_at,
-                    "as_of": pd.to_datetime(game["game_date"], errors="raise").isoformat(),
+                    "as_of": pd.to_datetime(
+                        game["game_date"], errors="raise"
+                    ).isoformat(),
                     "f": json.dumps(serializable),
                     "missing_ct": sum(value is None for value in serializable.values()),
                     "coverage": coverage(features),

@@ -8,6 +8,7 @@ Rules:
   - Provider timestamps are normalized to timezone-aware UTC.
   - Missing market id or API key => the job raises. Nothing is guessed.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -69,19 +70,23 @@ def _require_config() -> None:
 def _get(endpoint: str, params: list[tuple[str, str]]) -> dict:
     from tenacity import retry, stop_after_attempt, wait_exponential
 
-    @retry(stop=stop_after_attempt(4), wait=wait_exponential(min=2, max=20),
-           reraise=True)
+    @retry(
+        stop=stop_after_attempt(4), wait=wait_exponential(min=2, max=20), reraise=True
+    )
     def _go():
         return _do_get(endpoint, params)
+
     return _go()
 
 
 def _do_get(endpoint: str, params: list[tuple[str, str]]) -> dict:
     import requests
+
     url = f"{OPTIC_BASE_URL}/{endpoint}"
     with sentry_sdk.start_span(op="http", description=f"OpticOdds {endpoint}"):
-        resp = requests.get(url, headers={"x-api-key": OPTIC_API_KEY},
-                            params=params, timeout=30)
+        resp = requests.get(
+            url, headers={"x-api-key": OPTIC_API_KEY}, params=params, timeout=30
+        )
         resp.raise_for_status()
         payload = resp.json()
         if not isinstance(payload, dict):
@@ -91,9 +96,14 @@ def _do_get(endpoint: str, params: list[tuple[str, str]]) -> dict:
 
 def fetch_mlb_fixtures(target_date: date | None = None) -> list[dict]:
     target_date = target_date or datetime.now(timezone.utc).date()
-    data = _get("fixtures", [("sport", "baseball_mlb"),
-                             ("date", target_date.isoformat()),
-                             ("status", "scheduled")])
+    data = _get(
+        "fixtures",
+        [
+            ("sport", "baseball_mlb"),
+            ("date", target_date.isoformat()),
+            ("status", "scheduled"),
+        ],
+    )
     fixtures = data.get("data", [])
     if not isinstance(fixtures, list):
         raise ValueError("OpticOdds fixtures payload missing list data")
@@ -113,7 +123,10 @@ def fetch_fi_total_odds(fixture_id: str) -> list[dict]:
         if not book:
             continue
         for market in book_data.get("markets", []):
-            if str(market.get("id", market.get("market_id", ""))) != OPTIC_FI_TOTAL_MARKET_ID:
+            if (
+                str(market.get("id", market.get("market_id", "")))
+                != OPTIC_FI_TOTAL_MARKET_ID
+            ):
                 continue
             try:
                 line = float(market.get("line"))
@@ -134,7 +147,9 @@ def fetch_fi_total_odds(fixture_id: str) -> list[dict]:
 
             captured = market.get("timestamp") or book_data.get("timestamp")
             if captured is None:
-                logger.warning(f"skipping {fixture_id}/{book}: provider timestamp missing")
+                logger.warning(
+                    f"skipping {fixture_id}/{book}: provider timestamp missing"
+                )
                 continue
             try:
                 captured_at = _as_utc(captured)
@@ -150,20 +165,22 @@ def fetch_fi_total_odds(fixture_id: str) -> list[dict]:
             snapshot_id = hashlib.sha1(
                 f"{fixture_id}|{book}|{captured_at.isoformat()}".encode()
             ).hexdigest()
-            rows.append({
-                "snapshot_id": snapshot_id,
-                "fixture_id": fixture_id,
-                "sportsbook": str(book),
-                "market_id": OPTIC_FI_TOTAL_MARKET_ID,
-                "line": 0.5,
-                "yrfi_american": yrfi_price_f,
-                "nrfi_american": nrfi_price_f,
-                "yrfi_prob_raw": p_yrfi_raw,
-                "nrfi_prob_raw": p_nrfi_raw,
-                "yrfi_prob_novig": p_yrfi_nv,
-                "nrfi_prob_novig": p_nrfi_nv,
-                "captured_at": captured_at.isoformat(),
-            })
+            rows.append(
+                {
+                    "snapshot_id": snapshot_id,
+                    "fixture_id": fixture_id,
+                    "sportsbook": str(book),
+                    "market_id": OPTIC_FI_TOTAL_MARKET_ID,
+                    "line": 0.5,
+                    "yrfi_american": yrfi_price_f,
+                    "nrfi_american": nrfi_price_f,
+                    "yrfi_prob_raw": p_yrfi_raw,
+                    "nrfi_prob_raw": p_nrfi_raw,
+                    "yrfi_prob_novig": p_yrfi_nv,
+                    "nrfi_prob_novig": p_nrfi_nv,
+                    "captured_at": captured_at.isoformat(),
+                }
+            )
             break
     return rows
 
@@ -182,12 +199,14 @@ def ingest_date(target_date: date | None = None) -> int:
                 continue
             rows = fetch_fi_total_odds(fixture_id)
             for row in rows:
-                row.update({
-                    "game_date": fixture.get("start_date"),
-                    "home_team": fixture.get("home_team"),
-                    "away_team": fixture.get("away_team"),
-                    "start_time": fixture.get("start_time"),
-                })
+                row.update(
+                    {
+                        "game_date": fixture.get("start_date"),
+                        "home_team": fixture.get("home_team"),
+                        "away_team": fixture.get("away_team"),
+                        "start_time": fixture.get("start_time"),
+                    }
+                )
             if rows:
                 sf.merge_upsert(ODDS_TABLE, rows, key_cols=["snapshot_id"])
                 total += len(rows)
@@ -224,7 +243,9 @@ class OpticOddsIngester:
             try:
                 captured_at = _as_utc(row.get("captured_at"))
             except (TypeError, ValueError, OverflowError):
-                logger.warning(f"invalid stored captured_at for {key}/{row.get('sportsbook')}")
+                logger.warning(
+                    f"invalid stored captured_at for {key}/{row.get('sportsbook')}"
+                )
                 continue
             newest = entry["newest_captured_at"]
             if newest is None or captured_at > newest:
@@ -234,6 +255,7 @@ class OpticOddsIngester:
 
 if __name__ == "__main__":
     import argparse
+
     parser = argparse.ArgumentParser()
     parser.add_argument("--date", help="YYYY-MM-DD (default today UTC)")
     args = parser.parse_args()

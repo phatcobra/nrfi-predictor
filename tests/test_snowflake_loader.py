@@ -1,6 +1,10 @@
 """Offline tests for Snowflake query dispatch without live credentials."""
+
 from __future__ import annotations
 
+import pytest
+
+import nrfi.snowflake_loader as snowflake_loader
 from nrfi.snowflake_loader import execute_query_df
 
 
@@ -39,6 +43,37 @@ class FakeEngine:
 
     def raw_connection(self):
         return self.raw
+
+
+@pytest.mark.parametrize(
+    "missing_name",
+    [
+        "SNOWFLAKE_ACCOUNT",
+        "SNOWFLAKE_USER",
+        "SNOWFLAKE_PASSWORD",
+        "SNOWFLAKE_DATABASE",
+        "SNOWFLAKE_SCHEMA",
+        "SNOWFLAKE_WAREHOUSE",
+        "SNOWFLAKE_ROLE",
+    ],
+)
+def test_engine_requires_every_explicit_snowflake_setting(monkeypatch, missing_name):
+    configured = {
+        "SNOWFLAKE_ACCOUNT": "account",
+        "SNOWFLAKE_USER": "user",
+        "SNOWFLAKE_PASSWORD": "password",
+        "SNOWFLAKE_DATABASE": "database",
+        "SNOWFLAKE_SCHEMA": "schema",
+        "SNOWFLAKE_WAREHOUSE": "warehouse",
+        "SNOWFLAKE_ROLE": "role",
+    }
+    for name, value in configured.items():
+        monkeypatch.setattr(snowflake_loader, name, value)
+    monkeypatch.setattr(snowflake_loader, missing_name, "")
+    monkeypatch.setattr(snowflake_loader, "_ENGINE", None)
+
+    with pytest.raises(RuntimeError, match=missing_name):
+        snowflake_loader.get_snowflake_engine()
 
 
 def test_positional_percent_s_query_uses_dbapi_cursor():

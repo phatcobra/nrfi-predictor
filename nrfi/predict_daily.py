@@ -4,6 +4,7 @@ Only the registry-approved production artifact may score games. Probable
 pitcher IDs are resolved from each MLB game feed. Market consensus includes
 only books whose own snapshot passes freshness and value validation.
 """
+
 from __future__ import annotations
 
 import json
@@ -24,10 +25,9 @@ from nrfi.config import (
     ODDS_MAX_AGE_SECONDS,
     TZ_ET,
 )
-from nrfi.ensemble import n_eff_for_game, shrink_to_venue
 from nrfi.guards import coverage_blocks, market_usable, tier_for
 from nrfi.ingest_opticodds import OpticOddsIngester
-from nrfi.model_registry import production_model_version
+from nrfi.model_registry import production_model_record
 from nrfi.snowflake_loader import SnowflakeLoader
 from nrfi.train import NFRIModelTrainer
 
@@ -69,22 +69,28 @@ def _person(probable: object) -> tuple[int | None, str | None]:
 
 
 class NFRIDailyPredictor:
-    def __init__(self, model_version: Optional[str] = None,
-                 config: Optional[Config] = None):
+    def __init__(
+        self, model_version: Optional[str] = None, config: Optional[Config] = None
+    ):
         self.config = config or Config()
         self.sf = SnowflakeLoader()
-        approved_version = production_model_version(self.sf)
+        approved_record = production_model_record(self.sf)
+        approved_version = str(approved_record["model_version"])
         if model_version is not None and model_version != approved_version:
             raise ValueError(
                 f"requested model {model_version} is not the approved production "
-                f"version {approved_version}")
+                f"version {approved_version}"
+            )
         self.model_version = approved_version
         self.builder = FeatureBuilder(self.sf)
         self.odds = OpticOddsIngester()
         self.trainer = NFRIModelTrainer()
-        self.trainer.load_model(self.config.MODEL_DIR, self.model_version)
-        logger.info(
-            f"loaded registry-approved production model {self.model_version}")
+        self.trainer.load_model(
+            self.config.MODEL_DIR,
+            self.model_version,
+            expected_artifact_sha256=str(approved_record["artifact_sha256"]),
+        )
+        logger.info(f"loaded registry-approved production model {self.model_version}")
 
     def get_todays_games(self, target_date: Optional[str] = None) -> List[Dict]:
         """Read the slate and probable pitcher identities from MLB game feeds."""
@@ -101,10 +107,8 @@ class NFRIDailyPredictor:
                 feed = statsapi.get("game", {"gamePk": game_id})
                 game_data = feed.get("gameData", {})
                 probables = game_data.get("probablePitchers", {}) or {}
-                home_pitcher_id, home_pitcher_name = _person(
-                    probables.get("home"))
-                away_pitcher_id, away_pitcher_name = _person(
-                    probables.get("away"))
+                home_pitcher_id, home_pitcher_name = _person(probables.get("home"))
+                away_pitcher_id, away_pitcher_name = _person(probables.get("away"))
                 venue_value = (game_data.get("venue", {}) or {}).get("id")
                 try:
                     venue_id = int(venue_value) if venue_value is not None else None
@@ -113,33 +117,36 @@ class NFRIDailyPredictor:
             except Exception as exc:
                 sentry_sdk.capture_exception(exc)
                 logger.error(
-                    f"game feed failed for {game_id}: {exc}; pitcher IDs unavailable")
+                    f"game feed failed for {game_id}: {exc}; pitcher IDs unavailable"
+                )
                 home_pitcher_id = away_pitcher_id = venue_id = None
                 home_pitcher_name = away_pitcher_name = None
 
-            games.append({
-                "game_id": str(game_id),
-                "game_date": target_date,
-                "home_team": scheduled.get("home_name"),
-                "away_team": scheduled.get("away_name"),
-                "home_pitcher_id": home_pitcher_id,
-                "away_pitcher_id": away_pitcher_id,
-                "home_pitcher_name": (
-                    home_pitcher_name
-                    or scheduled.get("home_probable_pitcher")
-                    or None
-                ),
-                "away_pitcher_name": (
-                    away_pitcher_name
-                    or scheduled.get("away_probable_pitcher")
-                    or None
-                ),
-                "venue_id": venue_id,
-                "game_time": scheduled.get("game_datetime"),
-                "is_doubleheader": scheduled.get("doubleheader", "N") != "N",
-                "lineups": None,
-                "lineup_confirmed": False,
-            })
+            games.append(
+                {
+                    "game_id": str(game_id),
+                    "game_date": target_date,
+                    "home_team": scheduled.get("home_name"),
+                    "away_team": scheduled.get("away_name"),
+                    "home_pitcher_id": home_pitcher_id,
+                    "away_pitcher_id": away_pitcher_id,
+                    "home_pitcher_name": (
+                        home_pitcher_name
+                        or scheduled.get("home_probable_pitcher")
+                        or None
+                    ),
+                    "away_pitcher_name": (
+                        away_pitcher_name
+                        or scheduled.get("away_probable_pitcher")
+                        or None
+                    ),
+                    "venue_id": venue_id,
+                    "game_time": scheduled.get("game_datetime"),
+                    "is_doubleheader": scheduled.get("doubleheader", "N") != "N",
+                    "lineups": None,
+                    "lineup_confirmed": False,
+                }
+            )
         logger.info(f"{len(games)} games scheduled on {target_date}")
         return games
 
@@ -197,13 +204,11 @@ class NFRIDailyPredictor:
             result["odds_age_sec"] = min(all_nonnegative_ages)
 
         if len(valid_probabilities) >= MIN_BOOKS_FOR_MARKET:
-            result["p_yrfi_market"] = float(
-                statistics.median(valid_probabilities))
+            result["p_yrfi_market"] = float(statistics.median(valid_probabilities))
             result["best_nrfi_american"] = max(valid_nrfi_prices)
         return result
 
-    def score_game(self, game: Dict, odds_by_matchup: dict,
-                   now_utc: datetime) -> Dict:
+    def score_game(self, game: Dict, odds_by_matchup: dict, now_utc: datetime) -> Dict:
         now_utc = _as_utc(now_utc)
         row = {
             "game_id": game["game_id"],
@@ -234,8 +239,8 @@ class NFRIDailyPredictor:
         except Exception as exc:
             sentry_sdk.capture_exception(exc)
             row.update(
-                status="BLOCKED",
-                block_reason=f"feature_error:{type(exc).__name__}")
+                status="BLOCKED", block_reason=f"feature_error:{type(exc).__name__}"
+            )
             return row
 
         feature_coverage = coverage(features)
@@ -244,23 +249,17 @@ class NFRIDailyPredictor:
             row.update(status="BLOCKED", block_reason=block_reason)
             return row
 
-        matrix = np.array([[
-            features.get(name, np.nan) for name in self.trainer.feature_names
-        ]], dtype=float)
-        calibrated_probability = float(self.trainer.predict_proba(matrix)[0])
-        if (
-            not np.isfinite(calibrated_probability)
-            or not 0.0 <= calibrated_probability <= 1.0
-        ):
+        matrix = np.array(
+            [[features.get(name, np.nan) for name in self.trainer.feature_names]],
+            dtype=float,
+        )
+        final_probability = float(self.trainer.predict_proba(matrix)[0])
+        if not np.isfinite(final_probability) or not 0.0 <= final_probability <= 1.0:
             row.update(status="BLOCKED", block_reason="invalid_model_probability")
             return row
-
-        venue_rate = self.trainer.venue_yrfi_rates.get(str(game.get("venue_id")))
-        row["p_yrfi"] = float(shrink_to_venue(
-            calibrated_probability,
-            venue_rate,
-            n_eff_for_game(features, feature_coverage),
-        ))
+        # Venue shrinkage is intentionally quarantined until its temporal
+        # semantics have predeclared, cross-fitted validation evidence.
+        row["p_yrfi"] = final_probability
 
         market = self.market_consensus(
             odds_by_matchup.get((game["home_team"], game["away_team"])),
@@ -299,10 +298,7 @@ class NFRIDailyPredictor:
         date_string = games[0]["game_date"]
         self.builder.prepare(max_date=date_string)
         odds_by_matchup = self.odds.get_nrfi_odds(date_string)
-        rows = [
-            self.score_game(game, odds_by_matchup, now_utc)
-            for game in games
-        ]
+        rows = [self.score_game(game, odds_by_matchup, now_utc) for game in games]
         self.sf.bulk_insert(PREDICTIONS_TABLE, rows)
 
         ok_count = sum(1 for row in rows if row["status"] == "OK")
@@ -310,7 +306,8 @@ class NFRIDailyPredictor:
         blocked_count = sum(1 for row in rows if row["status"] == "BLOCKED")
         logger.info(
             f"scored {len(rows)} games: {ok_count} OK, "
-            f"{degraded_count} DEGRADED, {blocked_count} BLOCKED")
+            f"{degraded_count} DEGRADED, {blocked_count} BLOCKED"
+        )
         return rows
 
 

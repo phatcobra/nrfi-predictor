@@ -1,0 +1,15 @@
+{
+  "recommendations": [
+    "charliermarsh.ruff",
+    "eamodio.gitlens",
+    "evidence.sqltools-duckdb-driver",
+    "github.vscode-pull-request-github",
+    "ms-python.debugpy",
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "ms-toolsai.jupyter",
+    "ms-vscode-remote.remote-containers",
+    "mtxr.sqltools",
+    "tamasfe.even-better-toml"
+  ]
+}

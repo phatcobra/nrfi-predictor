@@ -1,4 +1,5 @@
 """Snowflake warehouse connector with fail-closed query semantics."""
+
 from __future__ import annotations
 
 from collections.abc import Sequence
@@ -24,19 +25,25 @@ def get_snowflake_engine():
     """Create the lazy singleton SQLAlchemy engine after validating credentials."""
     global _ENGINE
     if _ENGINE is None:
-        from sqlalchemy import create_engine
-        from snowflake.sqlalchemy import URL
-
         missing = [
-            name for name, value in (
+            name
+            for name, value in (
                 ("SNOWFLAKE_ACCOUNT", SNOWFLAKE_ACCOUNT),
                 ("SNOWFLAKE_USER", SNOWFLAKE_USER),
                 ("SNOWFLAKE_PASSWORD", SNOWFLAKE_PASSWORD),
-            ) if not value
+                ("SNOWFLAKE_DATABASE", SNOWFLAKE_DATABASE),
+                ("SNOWFLAKE_SCHEMA", SNOWFLAKE_SCHEMA),
+                ("SNOWFLAKE_WAREHOUSE", SNOWFLAKE_WAREHOUSE),
+                ("SNOWFLAKE_ROLE", SNOWFLAKE_ROLE),
+            )
+            if not value
         ]
         if missing:
-            raise RuntimeError(
-                f"Snowflake credentials missing: {', '.join(missing)}")
+            raise RuntimeError(f"Snowflake configuration missing: {', '.join(missing)}")
+
+        from sqlalchemy import create_engine
+        from snowflake.sqlalchemy import URL
+
         _ENGINE = create_engine(
             URL(
                 account=SNOWFLAKE_ACCOUNT,
@@ -49,8 +56,7 @@ def get_snowflake_engine():
             ),
             pool_pre_ping=True,
         )
-        logger.info(
-            f"Snowflake engine ready: {SNOWFLAKE_DATABASE}.{SNOWFLAKE_SCHEMA}")
+        logger.info(f"Snowflake engine ready: {SNOWFLAKE_DATABASE}.{SNOWFLAKE_SCHEMA}")
     return _ENGINE
 
 
@@ -133,7 +139,8 @@ class SnowflakeLoader:
         name = parts[-1]
         schema = ".".join(parts[:-1]) if len(parts) > 1 else None
         with sentry_sdk.start_span(
-                op="db.bulk_insert", description=f"{table}: {len(frame)} rows"):
+            op="db.bulk_insert", description=f"{table}: {len(frame)} rows"
+        ):
             frame.to_sql(
                 name,
                 self.engine,
@@ -180,7 +187,8 @@ class SnowflakeLoader:
             matched_clause = ""
             if update_columns:
                 assignments = ", ".join(
-                    f"t.{column} = s.{column}" for column in update_columns)
+                    f"t.{column} = s.{column}" for column in update_columns
+                )
                 matched_clause = f"WHEN MATCHED THEN UPDATE SET {assignments}"
             merge_sql = f"""
                 MERGE INTO {table} t
@@ -193,12 +201,10 @@ class SnowflakeLoader:
                 connection.execute(text(merge_sql))
             finally:
                 connection.execute(text(f"DROP TABLE IF EXISTS {temporary}"))
-        logger.info(
-            f"merged {len(frame)} rows into {table} on ({', '.join(key_cols)})")
+        logger.info(f"merged {len(frame)} rows into {table} on ({', '.join(key_cols)})")
 
 
-def load_from_s3(s3_path: str, table: str,
-                 file_format: str = "PARQUET") -> None:
+def load_from_s3(s3_path: str, table: str, file_format: str = "PARQUET") -> None:
     """Load an explicitly configured S3 object; any row error aborts."""
     allowed_formats = {"CSV", "JSON", "PARQUET"}
     normalized_format = file_format.upper()

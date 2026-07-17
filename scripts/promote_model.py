@@ -1,9 +1,9 @@
 """Promote one proven candidate to production after human review."""
+
 from __future__ import annotations
 
 import argparse
 import json
-import os
 import sys
 from pathlib import Path
 
@@ -27,8 +27,7 @@ def main() -> None:
     bundle = MODEL_DIR / f"nrfi_bundle_{args.version}.joblib"
     metadata = MODEL_DIR / f"nrfi_meta_{args.version}.json"
     if not bundle.exists() or not metadata.exists():
-        raise SystemExit(
-            "candidate artifact is not present locally; promotion refused")
+        raise SystemExit("candidate artifact is not present locally; promotion refused")
     with metadata.open(encoding="utf-8") as file_handle:
         meta = json.load(file_handle)
     if meta.get("version") != args.version:

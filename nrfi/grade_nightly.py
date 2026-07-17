@@ -1,4 +1,5 @@
 """Nightly grading: outcomes, proper scores, market movement, and drift."""
+
 from __future__ import annotations
 
 import json
@@ -38,13 +39,13 @@ def _github_issue(title: str, body: str) -> None:
         logger.info(f"opened GitHub issue: {title}")
     except Exception as exc:
         sentry_sdk.capture_exception(exc)
-        logger.error(
-            f"issue creation failed ({exc}); alert logged instead: {title}")
+        logger.error(f"issue creation failed ({exc}); alert logged instead: {title}")
 
 
 def grade_date(warehouse: SnowflakeLoader, date_string: str) -> int:
     """Grade the latest pre-game probability for every finalized game."""
-    rows = warehouse.execute_query("""
+    rows = warehouse.execute_query(
+        """
         WITH latest_pred AS (
             SELECT *
             FROM NRFI_DB.ML.PREDICTIONS
@@ -75,14 +76,18 @@ def grade_date(warehouse: SnowflakeLoader, date_string: str) -> int:
         LEFT JOIN closing c
           ON c.home_team = p.home_team AND c.away_team = p.away_team
         WHERE o.yrfi IS NOT NULL
-    """, [date_string, date_string])
+    """,
+        [date_string, date_string],
+    )
 
     grades = []
     graded_at = datetime.now(timezone.utc).isoformat()
     for row in rows:
         probability = float(row["p_yrfi"])
         if not math.isfinite(probability) or not 0.0 <= probability <= 1.0:
-            logger.error(f"invalid stored probability for game {row['game_id']}; skipped")
+            logger.error(
+                f"invalid stored probability for game {row['game_id']}; skipped"
+            )
             continue
         actual = 1.0 if row["yrfi_actual"] else 0.0
         clipped = min(max(probability, 1e-6), 1 - 1e-6)
@@ -93,25 +98,26 @@ def grade_date(warehouse: SnowflakeLoader, date_string: str) -> int:
             and row.get("p_yrfi_market") is not None
         ):
             direction = 1.0 if float(row["edge"]) >= 0 else -1.0
-            clv = direction * (
-                float(row["p_close"]) - float(row["p_yrfi_market"]))
-        grades.append({
-            "game_id": row["game_id"],
-            "model_version": row["model_version"],
-            "p_yrfi": probability,
-            "yrfi_actual": bool(row["yrfi_actual"]),
-            "brier": (probability - actual) ** 2,
-            "logloss": -(
-                actual * math.log(clipped)
-                + (1 - actual) * math.log(1 - clipped)
-            ),
-            "closing_p_yrfi_market": row.get("p_close"),
-            "clv": clv,
-            "graded_at": graded_at,
-        })
+            clv = direction * (float(row["p_close"]) - float(row["p_yrfi_market"]))
+        grades.append(
+            {
+                "game_id": row["game_id"],
+                "model_version": row["model_version"],
+                "p_yrfi": probability,
+                "yrfi_actual": bool(row["yrfi_actual"]),
+                "brier": (probability - actual) ** 2,
+                "logloss": -(
+                    actual * math.log(clipped) + (1 - actual) * math.log(1 - clipped)
+                ),
+                "closing_p_yrfi_market": row.get("p_close"),
+                "clv": clv,
+                "graded_at": graded_at,
+            }
+        )
     if grades:
         warehouse.merge_upsert(
-            "NRFI_DB.ML.PREDICTION_GRADES", grades, key_cols=["game_id"])
+            "NRFI_DB.ML.PREDICTION_GRADES", grades, key_cols=["game_id"]
+        )
     logger.info(f"graded {len(grades)} games for {date_string}")
     return len(grades)
 
@@ -125,24 +131,19 @@ def check_drift(warehouse: SnowflakeLoader) -> list[str]:
         LIMIT {TRAILING}
     """)
     if len(recent) >= 5 * DRIFT_MIN_N:
-        probabilities = np.array(
-            [row["p_yrfi"] for row in recent], dtype=float)
-        actuals = np.array([
-            1.0 if row["yrfi_actual"] else 0.0 for row in recent])
+        probabilities = np.array([row["p_yrfi"] for row in recent], dtype=float)
+        actuals = np.array([1.0 if row["yrfi_actual"] else 0.0 for row in recent])
         for lower in np.arange(0.0, 1.0, 0.1):
-            mask = (
-                (probabilities >= lower)
-                & (probabilities < lower + 0.1)
-            )
+            mask = (probabilities >= lower) & (probabilities < lower + 0.1)
             if (
                 mask.sum() >= DRIFT_MIN_N
-                and abs(probabilities[mask].mean() - actuals[mask].mean())
-                > DRIFT_GAP
+                and abs(probabilities[mask].mean() - actuals[mask].mean()) > DRIFT_GAP
             ):
                 alerts.append(
                     f"calibration drift in decile [{lower:.1f},{lower + 0.1:.1f}): "
                     f"pred {probabilities[mask].mean():.3f} vs actual "
-                    f"{actuals[mask].mean():.3f} (n={int(mask.sum())})")
+                    f"{actuals[mask].mean():.3f} (n={int(mask.sum())})"
+                )
 
     clv_rows = warehouse.execute_query("""
         SELECT AVG(clv) AS clv_mean, COUNT(clv) AS n
@@ -157,7 +158,8 @@ def check_drift(warehouse: SnowflakeLoader) -> list[str]:
     ):
         alerts.append(
             f"30-day mean CLV negative: {clv_rows[0]['clv_mean']:.4f} "
-            f"(n={clv_rows[0]['n']})")
+            f"(n={clv_rows[0]['n']})"
+        )
     for alert in alerts:
         _github_issue(f"[nrfi] drift alert: {alert.split(':')[0]}", alert)
     return alerts
@@ -171,12 +173,12 @@ def evidence_readiness(warehouse: SnowflakeLoader) -> dict:
                AVG(clv) AS clv_mean
         FROM NRFI_DB.ML.PREDICTION_GRADES
     """)
-    stats = rows[0] if rows else {
-        "n_graded": 0, "first_graded": None, "clv_mean": None}
+    stats = rows[0] if rows else {"n_graded": 0, "first_graded": None, "clv_mean": None}
     days = 0.0
     if stats.get("first_graded"):
         first = datetime.fromisoformat(
-            str(stats["first_graded"]).replace("Z", "+00:00"))
+            str(stats["first_graded"]).replace("Z", "+00:00")
+        )
         if first.tzinfo is None:
             first = first.replace(tzinfo=timezone.utc)
         days = (datetime.now(timezone.utc) - first).total_seconds() / 86400
@@ -187,7 +189,8 @@ def evidence_readiness(warehouse: SnowflakeLoader) -> dict:
         "clv_mean": stats.get("clv_mean"),
         "drift_alerts": drift,
         "evidence_period_met": bool(
-            days >= 30 and (stats.get("clv_mean") or 0) > 0 and not drift),
+            days >= 30 and (stats.get("clv_mean") or 0) > 0 and not drift
+        ),
         "note": "prospective evidence requires human review",
     }
 
@@ -197,8 +200,7 @@ def main() -> None:
     yesterday = (datetime.now(TZ_ET) - timedelta(days=1)).date()
     backfill(yesterday, yesterday, sleep_s=0.1)
     grade_date(warehouse, yesterday.isoformat())
-    logger.info(json.dumps(
-        evidence_readiness(warehouse), indent=2, default=str))
+    logger.info(json.dumps(evidence_readiness(warehouse), indent=2, default=str))
 
 
 if __name__ == "__main__":

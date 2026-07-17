@@ -1,4 +1,5 @@
 """Offline tests for the normalized warehouse readiness gate."""
+
 from __future__ import annotations
 
 from nrfi.data_readiness import CONTRACTS, evaluate_snapshot
@@ -11,12 +12,10 @@ def _ready_snapshot():
             "columns": sorted(contract.required_columns),
             "row_count": contract.minimum_rows,
             "minimum_date": (
-                "2015-04-01" if contract.require_full_training_window
-                else "2024-10-01"
+                "2015-04-01" if contract.require_full_training_window else "2024-10-01"
             ),
             "maximum_date": (
-                "2024-11-30" if contract.require_full_training_window
-                else "2024-11-30"
+                "2024-11-30" if contract.require_full_training_window else "2024-11-30"
             ),
         }
     return snapshot
@@ -35,8 +34,9 @@ def test_missing_table_fails_closed():
     del snapshot[missing_table]
     report = evaluate_snapshot(snapshot)
     assert report["ready"] is False
-    assert any(error.startswith(f"{missing_table}:table_missing")
-               for error in report["errors"])
+    assert any(
+        error.startswith(f"{missing_table}:table_missing") for error in report["errors"]
+    )
 
 
 def test_missing_required_column_is_reported():
@@ -54,8 +54,10 @@ def test_insufficient_rows_are_rejected():
     snapshot[contract.table]["row_count"] = contract.minimum_rows - 1
     report = evaluate_snapshot(snapshot)
     assert report["ready"] is False
-    assert any(error.startswith("row_count_")
-               for error in report["datasets"][contract.table]["errors"])
+    assert any(
+        error.startswith("row_count_")
+        for error in report["datasets"][contract.table]["errors"]
+    )
 
 
 def test_incomplete_training_date_coverage_is_rejected():
@@ -76,5 +78,7 @@ def test_park_factors_cannot_use_locked_holdout_data():
     snapshot[contract.table]["maximum_date"] = "2025-06-01"
     report = evaluate_snapshot(snapshot)
     assert report["ready"] is False
-    assert any(error.startswith("park_factors_use_locked_or_future_data")
-               for error in report["datasets"][contract.table]["errors"])
+    assert any(
+        error.startswith("park_factors_use_locked_or_future_data")
+        for error in report["datasets"][contract.table]["errors"]
+    )

@@ -49,6 +49,7 @@ coverage.xml
 *.py.cover
 .hypothesis/
 .pytest_cache/
+.pytest-tmp/
 cover/
 
 # Translations
@@ -195,9 +196,9 @@ cython_debug/
 .abstra/
 
 # Visual Studio Code
-#   Visual Studio Code specific template is maintained in a separate VisualStudioCode.gitignore 
+#   Visual Studio Code specific template is maintained in a separate VisualStudioCode.gitignore
 #   that can be found at https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore
-#   and can be added to the global gitignore or merged into this file. However, if you prefer, 
+#   and can be added to the global gitignore or merged into this file. However, if you prefer,
 #   you could uncomment the following to ignore the entire vscode folder
 # .vscode/
 # Temporary file for partial code execution
@@ -205,6 +206,12 @@ tempCodeRunnerFile.py
 
 # Ruff stuff:
 .ruff_cache/
+
+# uv validation cache
+.uv-cache/
+
+# pre-commit validation cache
+.pre-commit-cache/
 
 # PyPI configuration file
 .pypirc
@@ -216,3 +223,70 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# NRFI local secrets and credentials
+.env.*
+*.env
+.secrets/
+secrets/
+credentials/
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+credentials*.json
+service-account*.json
+
+# Private MLB data, local databases, and generated exports
+/data/
+/exports/
+/private/
+/local/
+*.csv
+*.tsv
+*.parquet
+*.arrow
+*.feather
+*.duckdb
+*.duckdb.*
+*.db
+*.db-*
+*.sqlite
+*.sqlite3
+
+# Generated model, evaluation, and operational artifacts
+/models/
+/artifacts/
+/logs/
+*.joblib
+*.pkl
+*.pickle
+*.onnx
+*.ubj
+pytest.log
+
+# Terraform local state and credentials
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfplan
+*.tfvars
+*.tfvars.json
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+
+# Reproducibility metadata and reviewed, sanitized fixtures stay versioned.
+!.env.example
+!.python-version
+!uv.lock
+!.vscode/
+!.vscode/**
+!tests/fixtures/
+!tests/fixtures/**
