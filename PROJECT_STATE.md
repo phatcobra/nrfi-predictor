@@ -1,6 +1,6 @@
 # NRFI Autopilot Project State
 
-Status date: 2026-07-16
+Status date: 2026-07-17
 
 Phase 0: **PASS WITH DOCUMENTED EXCEPTIONS**
 
@@ -8,9 +8,60 @@ Phase 1: **PASS WITH DOCUMENTED EXCEPTIONS**
 
 Phase 2: **PASS WITH DOCUMENTED EXCEPTIONS**
 
-Current task: **publish deterministic candidate-comparison evidence**
+AWS platform: **STAGE 1 IN PROGRESS**
 
-Current branch: `chore/phase1-environment-foundation-20260715`
+Current task: **safe AWS checkpoint and local Stage 2 foundation**
+
+Current branch: `feat/aws-probability-platform-20260717`
+
+## AWS probability-platform checkpoint
+
+The probability-only AWS directive supersedes the earlier prohibition on AWS
+planning and deployment, but it does not authorize unbudgeted provisioning,
+market or wagering features, private-data upload, or locked-holdout access.
+
+The authoritative implementation base is PR #6 head
+`468b5363ff3b6aa460c82d6395faa2bdbf065b4d`. PR #6 remains an open draft against
+`main`, is mergeable, and its exact-head GitHub release gate run `29562168414`
+succeeded. The AWS branch was created from that clean head in the existing
+worktree; no additional worktree was created.
+
+Read-only AWS CLI authentication is currently unavailable: the default token is
+invalid and neither of the two configured CLI profiles authenticates. No CLI
+region is configured. The supplied console link targets `us-east-2`, but that is
+not treated as deployment approval. The Computer runtime remains unavailable and
+the explicitly requested in-app Browser bridge is not exposed in this session.
+Consequently, account, IAM, CloudTrail, networking, resource, quota, OIDC,
+budget, billing-alarm, and reuse checks remain pending.
+
+The obsolete Terraform/Lambda deployment and interactive secret-creation script
+have been replaced locally with a fail-closed Stage 2 foundation. It defines
+encrypted and versioned storage, immutable evidence controls, a separately
+protected holdout boundary, immutable ECR, optional scale-to-zero Batch, Glue,
+Athena, a SageMaker candidate registry, least-privilege training roles, and an
+optional budget. Batch and budget creation default to disabled. The backend is
+partial and no state location or account identifier is committed.
+
+Terraform `1.12.2` was downloaded to a temporary directory and verified against
+HashiCorp's published SHA-256 checksum. With the backend disabled, provider
+`hashicorp/aws v5.100.0` was locked for Windows and Linux, recursive format checks
+passed, and `terraform validate` returned `Success! The configuration is valid.`
+The complete offline repository suite returned `133 passed, 1 skipped, 22
+warnings`; the skip is the environment-specific directory-symlink test. Ruff
+lint and format checks passed, Pyright returned zero errors and warnings, core
+imports and byte compilation passed, the replacement deploy script passed Bash
+syntax validation, and diff, credential-pattern, account-number, and private-path
+checks passed.
+No Terraform plan or apply ran. No AWS resource, data object, container, model,
+secret, credential, endpoint, or budget was created or changed; observed AWS cost
+from this work is `$0.00`. No historical data was reacquired or scanned, the
+preserved 2022-2024 evidence is unchanged, and the locked 2025 holdout remains
+untouched and unavailable to the declared Batch and SageMaker roles.
+
+Before any cost-bearing action, record the approved region, maximum monthly AWS
+budget, notification email, and private/public access mode; restore AWS
+authentication; complete the redacted account preflight; and review an exact
+Terraform plan.
 
 The Phase 0 asset inventory, per-file manifest, reconciliation, data-gap analysis,
 repository assessment, and risk register are complete. Their two deterministic

@@ -4,3 +4,6 @@ docs/multiseason/*.json -text
 docs/multiseason/*.jsonl -text
 docs/model_comparison/*.json -text
 docs/model_comparison/*.jsonl -text
+*.sh text eol=lf
+*.tf text eol=lf
+.terraform.lock.hcl text eol=lf
