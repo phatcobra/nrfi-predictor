@@ -42,6 +42,7 @@ def _feed(away_runs=0, home_runs=0, source_time="20240401_203000"):
     return {
         "metaData": {"timeStamp": source_time},
         "gameData": {
+            "game": {"doubleHeader": "N", "gameNumber": 1},
             "datetime": {
                 "dateTime": "2024-04-01T17:00:00Z",
                 "officialDate": "2024-04-01",
@@ -208,6 +209,42 @@ def test_reduced_feed_projection_retains_required_normalization_fields(monkeypat
     assert len(provenance) == 2
     feed_request = next(record for record in requests if "/feed/live" in record[0])
     assert feed_request[1] == {"fields": GAME_FEED_FIELDS}
+
+
+def test_duplicate_schedule_rows_use_authoritative_feed_game_identity(monkeypatch):
+    requests = []
+    duplicate = _scheduled(634595)
+    duplicate["doubleHeader"] = "Y"
+    duplicate["gameNumber"] = 2
+    feed = _feed()
+    feed["gameData"]["game"] = {"doubleHeader": "Y", "gameNumber": 2}
+
+    def fake_request(path, parameters=None):
+        requests.append((path, parameters))
+        request = {
+            "endpoint": f"https://statsapi.mlb.com{path}",
+            "request_parameters": parameters or {},
+            "retrieved_at": "2026-07-16T00:00:00Z",
+            "response_bytes": 1,
+            "response_sha256": "a" * 64,
+        }
+        if path == "/api/v1/schedule":
+            return {"dates": [{"games": [_scheduled(634595), duplicate]}]}, request
+        return feed, request
+
+    monkeypatch.setattr("nrfi.real_vertical_slice._request_json", fake_request)
+    games, rejections, provenance = retrieve_normalized_games(
+        date(2021, 4, 1), date(2021, 4, 30), max_workers=1
+    )
+    assert rejections == []
+    assert len(games) == 1
+    assert games[0]["game_pk"] == 634595
+    assert games[0]["doubleheader"] is True
+    assert games[0]["doubleheader_code"] == "Y"
+    assert games[0]["game_number"] == 2
+    assert games[0]["provenance"]["schedule_row_count"] == 2
+    assert len(provenance) == 2
+    assert sum("/feed/live" in path for path, _ in requests) == 1
 
 
 def test_chronological_split_uses_official_date_not_utc_calendar_date():

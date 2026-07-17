@@ -286,10 +286,20 @@ payload was written. The optimized strict-prior feature computation replays the
 committed 826-game feature table byte-for-byte at SHA-256
 `80c1f00c7410537903985d9509267ec24e8150b8f68bb8f91dcc4fd85a3ac40e`.
 
-Focused contract, slice, replay, ledger-separation, holdout, baseline, and
-uncertainty validation reports `18 passed`. The complete offline suite reports
-`117 passed, 1 skipped, 21 warnings`; the skip and dependency warnings are the
-existing documented environment baseline. Ruff lint passed, Ruff formatting
+The first 2021 acquisition attempt then failed closed on a real StatsAPI
+reconciliation defect before training: gamePk `634595` appeared twice in the
+April schedule with conflicting doubleheader and game-number attributes. A
+targeted official feed check identifies it authoritatively as doubleheader game
+2. Normalization now prefers the feed's game metadata, fetches each gamePk once,
+deduplicates schedule rows only when their normalized records are identical,
+records the source schedule-row count, and rejects any remaining conflict. The
+zero-game March checkpoint and conflicting April checkpoint remain preserved
+under normalization v1; corrected acquisition uses a separate v2 cache path.
+
+Focused contract, slice, reconciliation, replay, ledger-separation, holdout,
+baseline, and uncertainty validation reports `19 passed`. The complete offline
+suite reports `118 passed, 1 skipped, 21 warnings`; the skip and dependency
+warnings are the existing documented environment baseline. Ruff lint passed, Ruff formatting
 reports `46 files already formatted`, byte compilation passed, and Pyright
 reports `0 errors, 0 warnings, 0 informations`. The first full-suite attempt
 correctly rejected the bootstrap's `np.random` spelling under the repository's

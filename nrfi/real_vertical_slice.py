@@ -42,6 +42,9 @@ GAME_FEED_FIELDS = ",".join(
         "metaData",
         "timeStamp",
         "gameData",
+        "game",
+        "doubleHeader",
+        "gameNumber",
         "datetime",
         "dateTime",
         "officialDate",
@@ -216,6 +219,13 @@ def normalize_game(
     source_update_time = _source_timestamp(
         (feed.get("metaData", {}) or {}).get("timeStamp")
     )
+    feed_game = game_data.get("game", {}) or {}
+    doubleheader_code = feed_game.get(
+        "doubleHeader", scheduled.get("doubleHeader", "N")
+    )
+    game_number = _as_int(feed_game.get("gameNumber")) or _as_int(
+        scheduled.get("gameNumber")
+    )
     away_starter = _actual_starter(feed, "away")
     home_starter = _actual_starter(feed, "home")
     official_date = game_data.get("datetime", {}).get("officialDate")
@@ -228,9 +238,9 @@ def normalize_game(
         "scheduled_start_at": scheduled_start,
         "game_type": "R",
         "status": status.get("detailedState"),
-        "doubleheader": scheduled.get("doubleHeader", "N") != "N",
-        "doubleheader_code": scheduled.get("doubleHeader", "N"),
-        "game_number": _as_int(scheduled.get("gameNumber")) or 1,
+        "doubleheader": doubleheader_code != "N",
+        "doubleheader_code": doubleheader_code,
+        "game_number": game_number or 1,
         "away_team": {
             "team_id": away_team_id,
             "name": away_team.get("name"),
@@ -326,12 +336,15 @@ def retrieve_normalized_games(
         )
         return game_pk, payload, _provenance_record("game_feed", request, source_update)
 
-    with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        futures = {
-            executor.submit(fetch, int(game["gamePk"])): int(game["gamePk"])
+    game_pks = sorted(
+        {
+            int(game["gamePk"])
             for game in scheduled_games
             if game.get("gamePk") is not None
         }
+    )
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = {executor.submit(fetch, game_pk): game_pk for game_pk in game_pks}
         for future in as_completed(futures):
             game_pk, payload, provenance = future.result()
             feeds[game_pk] = (payload, provenance)
@@ -340,25 +353,49 @@ def retrieve_normalized_games(
     games: list[dict[str, Any]] = []
     rejections: list[dict[str, Any]] = []
     provenance_records = [schedule_provenance]
+    scheduled_by_pk: dict[int, list[Mapping[str, Any]]] = {}
     for scheduled in scheduled_games:
         game_pk = _as_int(scheduled.get("gamePk"))
+        if game_pk is not None:
+            scheduled_by_pk.setdefault(game_pk, []).append(scheduled)
+    for game_pk in sorted(scheduled_by_pk):
         if game_pk is None or game_pk not in feeds:
             rejections.append({"game_pk": game_pk, "reason": "feed_unavailable"})
             continue
         feed, feed_provenance = feeds[game_pk]
         provenance_records.append(feed_provenance)
-        game, reason = normalize_game(
-            scheduled,
-            feed,
-            str(schedule_provenance["provenance_id"]),
-            str(feed_provenance["provenance_id"]),
-            str(feed_provenance["retrieved_at"]),
-            normalized_at,
-        )
-        if game is None:
-            rejections.append({"game_pk": game_pk, "reason": reason})
-        else:
-            games.append(game)
+        candidates: list[dict[str, Any]] = []
+        reasons: list[str | None] = []
+        for scheduled in scheduled_by_pk[game_pk]:
+            game, reason = normalize_game(
+                scheduled,
+                feed,
+                str(schedule_provenance["provenance_id"]),
+                str(feed_provenance["provenance_id"]),
+                str(feed_provenance["retrieved_at"]),
+                normalized_at,
+            )
+            reasons.append(reason)
+            if game is not None:
+                candidates.append(game)
+        if not candidates:
+            rejections.append(
+                {
+                    "game_pk": game_pk,
+                    "reason": next((reason for reason in reasons if reason), "unknown"),
+                }
+            )
+            continue
+        first = candidates[0]
+        if len(candidates) != len(scheduled_by_pk[game_pk]) or any(
+            candidate != first for candidate in candidates[1:]
+        ):
+            rejections.append(
+                {"game_pk": game_pk, "reason": "conflicting_schedule_rows"}
+            )
+            continue
+        first["provenance"]["schedule_row_count"] = len(scheduled_by_pk[game_pk])
+        games.append(first)
     return games, rejections, provenance_records
 
 

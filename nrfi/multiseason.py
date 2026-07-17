@@ -45,6 +45,7 @@ MODEL_PARAMETERS: dict[str, object] = {
 }
 DEFAULT_BOOTSTRAP_REPLICATES = 2000
 NUMERICAL_TOLERANCE = 1e-12
+NORMALIZATION_VERSION = "statsapi-normalized-v2"
 
 
 def _now_utc() -> str:
@@ -157,7 +158,12 @@ def _month_bounds(season: int, month: int) -> tuple[date, date]:
 
 
 def _partition_directory(cache_dir: Path, season: int, month: int) -> Path:
-    return cache_dir / f"season={season}" / f"month={month:02d}"
+    return (
+        cache_dir
+        / f"normalization={NORMALIZATION_VERSION}"
+        / f"season={season}"
+        / f"month={month:02d}"
+    )
 
 
 def _load_cached_partition(
@@ -169,6 +175,8 @@ def _load_cached_partition(
     manifest = _read_json(manifest_path)
     if manifest.get("season") != season or manifest.get("month") != month:
         raise VerticalSliceError(f"cached partition identity changed: {directory}")
+    if manifest.get("normalization_version") != NORMALIZATION_VERSION:
+        raise VerticalSliceError(f"cached normalization version changed: {directory}")
     _verify_entries(directory, manifest["entries"])
     return (
         _read_jsonl(directory / "normalized_games.jsonl"),
@@ -221,6 +229,7 @@ def acquire_month_partition(
     ]
     manifest = {
         "schema_version": "1.0",
+        "normalization_version": NORMALIZATION_VERSION,
         "season": season,
         "month": month,
         "start_date": start.isoformat(),
@@ -998,6 +1007,7 @@ def derive_multiseason_evidence(
         "dependency_lock_sha256": dependency_lock_sha256,
         "configuration_identity": configuration_identity,
         "source_manifest_identity": source_manifest_identity,
+        "normalization_version": NORMALIZATION_VERSION,
         "normalized_partition_identity": normalized_identity,
         "feature_partition_identity": feature_partition_identity,
         "fold_membership_identity": _identity(
