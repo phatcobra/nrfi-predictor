@@ -2,14 +2,18 @@
 
 from __future__ import annotations
 
+import json
 from datetime import date
+from pathlib import Path
 
 import pytest
 
 from nrfi.real_vertical_slice import (
     FEATURE_NAMES,
+    GAME_FEED_FIELDS,
     VerticalSliceError,
     build_features,
+    canonical_json_bytes,
     normalize_game,
     retrieve_normalized_games,
     train_and_evaluate,
@@ -161,9 +165,49 @@ def test_features_use_only_labels_available_before_cutoff():
     assert row["feature_values"]["home_team_yrfi_rate_20"] == 0.5
 
 
+def test_optimized_features_replay_committed_slice_byte_identically():
+    artifact_dir = Path(__file__).resolve().parents[1] / "docs" / "vertical_slice"
+    games = [
+        json.loads(line)
+        for line in (artifact_dir / "normalized_games.jsonl")
+        .read_text(encoding="utf-8")
+        .splitlines()
+        if line
+    ]
+    replay = b"".join(canonical_json_bytes(row) for row in build_features(games))
+    assert replay == (artifact_dir / "features.jsonl").read_bytes()
+
+
 def test_locked_holdout_date_is_rejected_before_network_access():
     with pytest.raises(VerticalSliceError, match="locked 2025 holdout"):
         retrieve_normalized_games(date(2025, 4, 1), date(2025, 4, 2))
+
+
+def test_reduced_feed_projection_retains_required_normalization_fields(monkeypatch):
+    requests = []
+
+    def fake_request(path, parameters=None):
+        requests.append((path, parameters))
+        request = {
+            "endpoint": f"https://statsapi.mlb.com{path}",
+            "request_parameters": parameters or {},
+            "retrieved_at": "2026-07-16T00:00:00Z",
+            "response_bytes": 1,
+            "response_sha256": "a" * 64,
+        }
+        if path == "/api/v1/schedule":
+            return {"dates": [{"games": [_scheduled()]}]}, request
+        return _feed(), request
+
+    monkeypatch.setattr("nrfi.real_vertical_slice._request_json", fake_request)
+    games, rejections, provenance = retrieve_normalized_games(
+        date(2024, 4, 1), date(2024, 4, 1), max_workers=1
+    )
+    assert len(games) == 1
+    assert rejections == []
+    assert len(provenance) == 2
+    feed_request = next(record for record in requests if "/feed/live" in record[0])
+    assert feed_request[1] == {"fields": GAME_FEED_FIELDS}
 
 
 def test_chronological_split_uses_official_date_not_utc_calendar_date():

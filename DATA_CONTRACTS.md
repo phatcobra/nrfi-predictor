@@ -188,7 +188,7 @@ download, or entitlement activation is approved. A proposal can advance only
 after reuse is exhausted and source authority, terms, point-in-time lineage,
 zero-overage status, and a storage/provenance design are approved.
 
-## Authorized bounded development vertical slice
+## Authorized development StatsAPI scopes
 
 One development-only carve-out is authorized for the fixed 2024-04-01 through
 2024-05-31 MLB sample. It may use read-only controlled repository assets and
@@ -237,11 +237,35 @@ This authorization is internal technical approval, not a legal opinion. Stop if
 an applicable source term explicitly prohibits the intended internal use. The
 authorization does not change any other asset admission or acquisition status.
 
+The maximum-strength execution directive additionally authorizes expansion of
+the same official-StatsAPI-only, internal-development scope across the complete
+2021 through 2024 regular seasons. This expansion is limited to normalized game,
+team, venue, finalized first-inning outcome, postgame actual-starter,
+provenance, strict-prior team/league feature, chronological prediction, grade,
+coverage, calibration, and evaluation records. It must use expanding-window
+season folds and keep prediction-time records separate from postgame grades.
+
+The expansion must record stable analytical identities separately from
+retrieval, normalization, grading, and run timestamps. An identical normalized
+source snapshot, code commit, dependency lock, configuration, feature
+definition, fold definition, model parameters, and calibration parameters must
+replay to the same accepted/rejected sets, feature identities, fold membership,
+model identities, predictions within the declared numerical tolerance, and
+evaluation identities. Raw StatsAPI payloads remain in memory and may not be
+committed or redistributed.
+
+This expansion does not authorize the locked 2025 holdout, probable-starter
+backfill, pitcher features without historical availability, lineups, Statcast,
+weather, umpires, injuries, market prices, sportsbook connections, wagering,
+AWS, paid services, subscriptions, or production deployment. Those domains
+remain fail-closed until separately admitted. The global acquisition gate also
+remains closed outside these two explicit StatsAPI development carve-outs.
+
 ## Unresolved semantic stop boundaries
 
-Except for the bounded slice above, do not materialize, normalize, train,
-evaluate, or score an affected real-data domain until its applicable decision
-is resolved:
+Except for the two authorized StatsAPI development scopes above, do not
+materialize, normalize, train, evaluate, or score an affected real-data domain
+until its applicable decision is resolved:
 
 - finalized first-inning label, correction, suspended-game, and resumed-game
   rules;

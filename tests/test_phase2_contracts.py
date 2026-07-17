@@ -77,7 +77,7 @@ def test_contract_time_roles_assets_and_gaps_fail_closed():
             assert (column is None) == has_gap, (contract["id"], role)
 
 
-def test_no_asset_is_admitted_and_only_bounded_slice_is_authorized():
+def test_no_asset_is_admitted_and_only_statsapi_development_is_authorized():
     catalog = _load("data_contracts")
     statuses = Counter(asset["admission_status"] for asset in catalog["assets"])
     assert statuses == {"unadmitted": 5, "quarantined": 6, "rejected": 1}
@@ -124,6 +124,21 @@ def test_no_asset_is_admitted_and_only_bounded_slice_is_authorized():
         "subscription_action": "prohibited",
         "vertical_slice_id": "nrfi.real_vertical_slice.2024-04-01_2024-05-31.v1",
     }
+    multi_season = plan["multi_season_development_engine"]
+    assert multi_season["authorized"] is True
+    assert multi_season["development_seasons"] == [2021, 2022, 2023, 2024]
+    assert multi_season["source"] == "https://statsapi.mlb.com"
+    assert multi_season["network_action"] == (
+        "unauthenticated_http_get_official_mlb_statsapi_only"
+    )
+    assert multi_season["deterministic_replay_required"] is True
+    assert multi_season["locked_holdout_access"] == "prohibited"
+    assert multi_season["quarantined_asset_access"] == "prohibited"
+    assert multi_season["credential_action"] == "prohibited"
+    assert multi_season["payment_action"] == "prohibited"
+    assert multi_season["subscription_action"] == "prohibited"
+    assert "market_prices" in multi_season["prohibited_domains"]
+    assert "wagering" in multi_season["prohibited_domains"]
     assert len(plan["proposals"]) == 7
     for proposal in plan["proposals"]:
         assert proposal["authorized"] is False

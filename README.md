@@ -108,6 +108,28 @@ uv run --frozen python -m pytest tests/ -q
 See [`COMMANDS.md`](COMMANDS.md) for the full local command reference and
 [`CONTRIBUTING.md`](CONTRIBUTING.md) for change and evidence requirements.
 
+## Multi-season development engine
+
+The authorized development engine uses unauthenticated read-only official MLB
+StatsAPI requests for the complete 2021 through 2024 regular seasons. It writes
+only normalized derived records, maintains a resumable ignored local cache,
+keeps prediction-time records separate from postgame grades, and rejects any
+request that includes the locked 2025 season.
+
+After committing the engine code, build and deterministically replay the package
+with that producing commit identity:
+
+```powershell
+$commit = git rev-parse HEAD
+.\.venv\Scripts\python.exe -m nrfi.multiseason --seasons 2021,2022,2023,2024 --code-commit $commit --workers 8
+```
+
+The command emits expanding-window chronological predictions, frozen baseline
+comparisons, calibration and subgroup evidence, clustered bootstrap intervals,
+separate immutable grades, stable analytical identities, and a byte manifest in
+`docs/multiseason/`. It does not use market data, wagering logic, optional data
+domains, quarantined assets, or the locked holdout.
+
 ## Operator activation
 
 Warehouse initialization, source loading, training, locked-holdout evaluation,

@@ -44,6 +44,37 @@
     "subscription_action": "prohibited",
     "vertical_slice_id": "nrfi.real_vertical_slice.2024-04-01_2024-05-31.v1"
   },
+  "multi_season_development_engine": {
+    "analytical_identity_policy": "exclude_execution_timestamps_from_analytical_hashes",
+    "authorized": true,
+    "authorization_scope": "internal_development_normalization_replay_and_chronological_evaluation_only",
+    "credential_action": "prohibited",
+    "deterministic_replay_required": true,
+    "development_seasons": [2021, 2022, 2023, 2024],
+    "locked_holdout_access": "prohibited",
+    "network_action": "unauthenticated_http_get_official_mlb_statsapi_only",
+    "no_cost_gate": "passed_no_paid_service_authorized",
+    "no_raw_payload_redistribution": true,
+    "output_policy": "normalized_derived_records_checksums_source_references_predictions_grades_and_evaluation_only",
+    "payment_action": "prohibited",
+    "pitcher_feature_policy": "actual_starters_postgame_attribution_only_no_pregame_backfill",
+    "prediction_grade_policy": "immutable_prediction_time_record_separate_from_postgame_grade",
+    "prohibited_domains": [
+      "aws",
+      "injuries",
+      "lineups",
+      "market_prices",
+      "production_deployment",
+      "sportsbook_connections",
+      "statcast",
+      "umpires",
+      "wagering",
+      "weather"
+    ],
+    "quarantined_asset_access": "prohibited",
+    "source": "https://statsapi.mlb.com",
+    "subscription_action": "prohibited"
+  },
   "contract_ids": [
     "core.actual_starters.v1",
     "core.first_inning_outcomes.v1",

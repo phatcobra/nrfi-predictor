@@ -8,7 +8,7 @@ Phase 1: **PASS WITH DOCUMENTED EXCEPTIONS**
 
 Phase 2: **PASS WITH DOCUMENTED EXCEPTIONS**
 
-Current task: **bounded real-data vertical slice published and validated**
+Current task: **multi-season official data acquisition and chronological validation**
 
 Current branch: `chore/phase1-environment-foundation-20260715`
 
@@ -251,10 +251,55 @@ slice artifact hashes and row counts were independently verified. The 22 files
 changed from the published PR head contain no private workstation path or
 recognized secret pattern, and `git diff --check` passes.
 
+## Multi-season probability-engine foundation
+
+The authorized development boundary now covers the complete 2021 through 2024
+regular seasons using only unauthenticated read-only official MLB StatsAPI GET
+requests and normalized derived outputs. The locked 2025 holdout, quarantined
+assets, probable-starter backfill, pitcher features without historical
+availability, lineups, Statcast, weather, umpires, injuries, markets, wagering,
+paid services, cloud resources, and production deployment remain closed.
+
+A verified deterministic-replay defect existed in the bounded generator:
+retrieval and normalization timestamps participated in byte manifests, and
+historical prediction rows contained postgame outcomes. The multi-season engine
+now separates execution metadata from stable analytical identities and writes
+prediction-time records independently from immutable postgame grade records.
+It records source, normalized partition, feature, fold, model, calibrator,
+prediction, grade, evaluation, configuration, dependency-lock, and code
+identities. Two derivations from the same frozen normalized records must produce
+identical analytical manifests and predictions; grade execution time is excluded
+from analytical identity.
+
+The engine defines expanding 2021-to-2024 season folds, strict-prior
+team/league features, a fixed regularized logistic candidate, frozen overall,
+prior-season, and rolling-200 league climatology baselines, calibration slope
+and intercept, reliability bins, Brier skill, official-date clustered bootstrap
+intervals, probability uncertainty, and season/month/team/venue/probability
+subgroups. It issues only one conservative predictive-skill conclusion. Market
+and decision work remains prohibited until this evidence exists and qualifies.
+
+One non-persisted probe of already-known gamePk `745907` verified that the
+official feed fields projection retains the source timestamp, nine innings, and
+both 26-player boxscore maps while reducing the response to 20,133 bytes. No raw
+payload was written. The optimized strict-prior feature computation replays the
+committed 826-game feature table byte-for-byte at SHA-256
+`80c1f00c7410537903985d9509267ec24e8150b8f68bb8f91dcc4fd85a3ac40e`.
+
+Focused contract, slice, replay, ledger-separation, holdout, baseline, and
+uncertainty validation reports `18 passed`. The complete offline suite reports
+`117 passed, 1 skipped, 21 warnings`; the skip and dependency warnings are the
+existing documented environment baseline. Ruff lint passed, Ruff formatting
+reports `46 files already formatted`, byte compilation passed, and Pyright
+reports `0 errors, 0 warnings, 0 informations`. The first full-suite attempt
+correctly rejected the bootstrap's `np.random` spelling under the repository's
+anti-fabrication gate; the deterministic sampler was replaced without weakening
+that gate, and the final suite passed.
+
 ## Exact next action
 
-Keep PR #6 as the sole draft implementation pull request for review, and repeat
-interactive visual inspection of `/vertical-slice` when the in-app browser
-bridge is restored. Any follow-on real-data feature domain requires a separate
-bounded authorization decision. Keep market, wagering, deployment, and
-additional data domains out of scope.
+Acquire and checkpoint normalized official StatsAPI records for each calendar
+month of the complete 2021 through 2024 regular seasons, then generate the
+expanding-window chronological prediction and grade ledgers from the committed
+engine identity. Keep 2025, optional data domains, markets, wagering, cloud, and
+production deployment out of scope.

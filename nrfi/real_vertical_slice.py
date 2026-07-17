@@ -37,6 +37,38 @@ FEATURE_NAMES = (
     "home_team_allowed_rate_20",
     "away_team_allowed_rate_20",
 )
+GAME_FEED_FIELDS = ",".join(
+    (
+        "metaData",
+        "timeStamp",
+        "gameData",
+        "datetime",
+        "dateTime",
+        "officialDate",
+        "status",
+        "abstractGameState",
+        "detailedState",
+        "teams",
+        "away",
+        "home",
+        "id",
+        "name",
+        "abbreviation",
+        "venue",
+        "liveData",
+        "linescore",
+        "innings",
+        "num",
+        "runs",
+        "boxscore",
+        "players",
+        "person",
+        "fullName",
+        "stats",
+        "pitching",
+        "gamesStarted",
+    )
+)
 
 
 class VerticalSliceError(RuntimeError):
@@ -285,7 +317,10 @@ def retrieve_normalized_games(
     feeds: dict[int, tuple[dict[str, Any], dict[str, Any]]] = {}
 
     def fetch(game_pk: int):
-        payload, request = _request_json(f"/api/v1.1/game/{game_pk}/feed/live")
+        payload, request = _request_json(
+            f"/api/v1.1/game/{game_pk}/feed/live",
+            {"fields": GAME_FEED_FIELDS},
+        )
         source_update = _source_timestamp(
             (payload.get("metaData", {}) or {}).get("timeStamp")
         )
@@ -346,38 +381,43 @@ def build_features(games: Sequence[Mapping[str, Any]]) -> list[dict[str, Any]]:
     """Build deterministic features using only labels available before cutoff."""
     ordered = sorted(games, key=lambda row: (row["scheduled_start_at"], row["game_pk"]))
     features: list[dict[str, Any]] = []
-    for target in ordered:
+    for target_index, target in enumerate(ordered):
         cutoff = _parse_time(target.get("scheduled_start_at"))
         if cutoff is None:
             continue
-        past: list[Mapping[str, Any]] = []
-        for candidate in ordered:
+        home_id = int(target["home_team"]["team_id"])
+        away_id = int(target["away_team"]["team_id"])
+        home_history: list[Mapping[str, Any]] = []
+        away_history: list[Mapping[str, Any]] = []
+        league_history: list[Mapping[str, Any]] = []
+        for candidate in reversed(ordered[:target_index]):
             event_time = _parse_time(candidate.get("scheduled_start_at"))
             available_at = _parse_time(
                 (candidate.get("time_semantics") or {}).get("label_available_at")
             )
             if (
-                event_time is not None
-                and available_at is not None
-                and event_time < cutoff
-                and available_at < cutoff
+                event_time is None
+                or available_at is None
+                or event_time >= cutoff
+                or available_at >= cutoff
             ):
-                past.append(candidate)
-
-        home_id = int(target["home_team"]["team_id"])
-        away_id = int(target["away_team"]["team_id"])
-
-        def team_history(team_id: int) -> list[Mapping[str, Any]]:
-            rows = [
-                row
-                for row in past
-                if team_id
-                in {
-                    int(row["home_team"]["team_id"]),
-                    int(row["away_team"]["team_id"]),
-                }
-            ]
-            return rows[-20:]
+                continue
+            if len(league_history) < 200:
+                league_history.append(candidate)
+            candidate_teams = {
+                int(candidate["home_team"]["team_id"]),
+                int(candidate["away_team"]["team_id"]),
+            }
+            if home_id in candidate_teams and len(home_history) < 20:
+                home_history.append(candidate)
+            if away_id in candidate_teams and len(away_history) < 20:
+                away_history.append(candidate)
+            if (
+                len(league_history) == 200
+                and len(home_history) == 20
+                and len(away_history) == 20
+            ):
+                break
 
         def scored_allowed(row: Mapping[str, Any], team_id: int) -> tuple[int, int]:
             outcome = row["first_inning"]
@@ -385,9 +425,6 @@ def build_features(games: Sequence[Mapping[str, Any]]) -> list[dict[str, Any]]:
                 return int(outcome["home_runs"] > 0), int(outcome["away_runs"] > 0)
             return int(outcome["away_runs"] > 0), int(outcome["home_runs"] > 0)
 
-        home_history = team_history(home_id)
-        away_history = team_history(away_id)
-        league_history = past[-200:]
         home_scored_allowed = [scored_allowed(row, home_id) for row in home_history]
         away_scored_allowed = [scored_allowed(row, away_id) for row in away_history]
         values = {
