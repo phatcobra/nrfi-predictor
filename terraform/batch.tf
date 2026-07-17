@@ -327,7 +327,7 @@ resource "aws_batch_job_definition" "baseline" {
   propagate_tags        = true
 
   container_properties = jsonencode({
-    image            = "${aws_ecr_repository.pipeline.repository_url}:${var.batch_image_tag}"
+    image            = "${aws_ecr_repository.pipeline.repository_url}@${var.batch_image_digest}"
     executionRoleArn = aws_iam_role.batch_execution.arn
     jobRoleArn       = aws_iam_role.batch_job.arn
     fargatePlatformConfiguration = {

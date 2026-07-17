@@ -1,6 +1,21 @@
-# The Dev Container image copies no repository content. Keep the build context
-# fail-closed so private data, credentials, models, and local environments are
-# never sent to the Docker daemon.
+# Keep every Docker build context fail-closed. The AWS baseline image admits
+# only committed source, the dependency lock, and the frozen 2021-2024
+# analytical evidence required for the offline replay.
 **
 !.devcontainer/
 !.devcontainer/Dockerfile
+!Dockerfile.aws
+!pyproject.toml
+!uv.lock
+!nrfi/
+!nrfi/**
+!scripts/
+!scripts/aws_baseline_replay.py
+!docs/
+!docs/multiseason/
+!docs/multiseason/**
+!docs/model_comparison/
+!docs/model_comparison/**
+**/__pycache__/
+**/__pycache__/**
+**/*.pyc

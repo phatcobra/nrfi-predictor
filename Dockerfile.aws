@@ -1,0 +1,33 @@
+ARG UV_IMAGE="ghcr.io/astral-sh/uv@sha256:0f36cb9361a3346885ca3677e3767016687b5a170c1a6b88465ec14aefec90aa"
+ARG PYTHON_IMAGE="python@sha256:b18992999dbe963a45a8a4da40ac2b1975be1a776d939d098c647482bcad5cba"
+
+FROM ${UV_IMAGE} AS uv
+FROM ${PYTHON_IMAGE}
+
+ARG SOURCE_COMMIT
+
+LABEL org.opencontainers.image.source="https://github.com/phatcobra/nrfi-predictor"
+LABEL org.opencontainers.image.revision="${SOURCE_COMMIT}"
+
+ENV HOME=/tmp \
+    PATH="/opt/venv/bin:${PATH}" \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    UV_COMPILE_BYTECODE=1 \
+    UV_PROJECT_ENVIRONMENT=/opt/venv \
+    UV_PYTHON_DOWNLOADS=never
+
+COPY --from=uv /uv /usr/local/bin/uv
+
+WORKDIR /app
+COPY pyproject.toml uv.lock ./
+RUN uv sync --frozen --no-dev --no-install-project
+
+COPY nrfi/ nrfi/
+COPY scripts/aws_baseline_replay.py scripts/aws_baseline_replay.py
+COPY docs/multiseason/ docs/multiseason/
+COPY docs/model_comparison/ docs/model_comparison/
+
+USER 65532:65532
+
+ENTRYPOINT ["python", "scripts/aws_baseline_replay.py"]

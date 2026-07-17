@@ -75,10 +75,15 @@ variable "batch_max_vcpus" {
   }
 }
 
-variable "batch_image_tag" {
-  description = "Immutable release tag for the deterministic Python 3.11 container."
+variable "batch_image_digest" {
+  description = "Immutable sha256 ECR image digest for the deterministic Python 3.11 container."
   type        = string
-  default     = "baseline-not-published"
+  default     = "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+
+  validation {
+    condition     = can(regex("^sha256:[0-9a-f]{64}$", var.batch_image_digest))
+    error_message = "batch_image_digest must be a complete sha256 container digest."
+  }
 }
 
 variable "batch_job_vcpus" {
