@@ -173,14 +173,14 @@ training, promotion, deployment, push, or pull-request mutation occurred.
 ## Published integration evidence
 
 Draft pull request <https://github.com/phatcobra/nrfi-predictor/pull/6> targets
-`main`. Its validated real-data engineering head is
-`295aae96454c198c3e0abaf44019c1eb1ec3ab18`; the ordered slice commits are
-`ede5afd` (authorization), `a95230d` (real MLB slice), and `295aae9` (real
-prediction API and page). It contains every PR #5 commit and changed path. PRs
-#1, #3, and #5 are closed with their remote branches preserved. GitHub Actions
-run `29548242775` completed successfully on that head, and every `release-gate`
-step executed, including the complete offline suite and diagnostic artifact
-upload.
+`main` at validated head `77c73b63901932c09e61d88e67f92817b65674dd`.
+It contains every prior PR #5 commit and changed path, the bounded real slice,
+and the complete multi-season evidence package. PRs #1, #3, and #5 remain
+closed with their remote branches preserved. GitHub Actions run `29555205156`
+completed successfully on that head, and every `release-gate` step executed,
+including the complete offline suite and diagnostic artifact upload. A separate
+draft PR #7 for PostHog appeared outside this execution; it was not created,
+inspected, or modified here and does not alter the product critical path.
 
 ## Bounded real-data slice authorization
 
@@ -338,9 +338,10 @@ the prediction partition identity is
 
 Focused real-package manifest, coverage, reconciliation, ledger-separation,
 byte-portability, and decision validation reports `5 passed`. The complete
-offline suite reports `123 passed, 1 skipped, 21 warnings`; the skip and dependency
-warnings are the existing documented environment baseline. Ruff lint passed, Ruff formatting
-reports `46 files already formatted`, byte compilation passed, and Pyright
+offline suite reports `123 passed, 1 skipped, 21 warnings`; the skip and
+dependency warnings are the existing documented environment baseline. Ruff
+lint passed, Ruff formatting reports `47 files already formatted`, byte
+compilation passed, and Pyright
 reports `0 errors, 0 warnings, 0 informations`. The first full-suite attempt
 correctly rejected the bootstrap's `np.random` spelling under the repository's
 anti-fabrication gate; the deterministic sampler was replaced without weakening
