@@ -18,10 +18,12 @@ import logging
 import os
 import time
 from datetime import datetime
+from pathlib import Path
 
 from nrfi._obs import sentry_sdk
 from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from nrfi.config import ALLOWED_ORIGINS, API_BEARER_TOKEN, TZ_ET
@@ -55,6 +57,9 @@ app.add_middleware(
 _sf: SnowflakeLoader | None = None
 _cache: dict[str, tuple[float, object]] = {}
 CACHE_TTL_S = 60
+VERTICAL_SLICE_PAGE = (
+    Path(__file__).resolve().parents[1] / "docs" / "vertical_slice" / "index.html"
+)
 
 PREDICTION_COLS = (
     "game_id, predicted_at, game_date, home_team, away_team, "
@@ -362,6 +367,29 @@ async def v3_health():
         sentry_sdk.capture_exception(e)
     red = out["snowflake"] != "ok" or out["model_registry"] == "no_production_model"
     return {"status": "red" if red else "green", "checks": out}
+
+
+@app.get("/v3/vertical-slice/prediction")
+async def v3_vertical_slice_prediction():
+    """One real committed historical OOS prediction; no warehouse required."""
+    from nrfi.real_vertical_slice import historical_prediction_payload
+
+    try:
+        return historical_prediction_payload()
+    except Exception as exc:
+        sentry_sdk.capture_exception(exc)
+        logger.error(f"vertical-slice prediction unavailable: {exc}")
+        raise HTTPException(status_code=503, detail="vertical slice unavailable")
+
+
+@app.get("/vertical-slice", response_class=HTMLResponse)
+async def vertical_slice_page():
+    """Minimal browser display for the committed real prediction response."""
+    try:
+        return HTMLResponse(VERTICAL_SLICE_PAGE.read_text(encoding="utf-8"))
+    except OSError as exc:
+        logger.error(f"vertical-slice page unavailable: {exc}")
+        raise HTTPException(status_code=503, detail="vertical slice unavailable")
 
 
 @app.post("/v3/jobs/{job}", dependencies=[Depends(require_token)])

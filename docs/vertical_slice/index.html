@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NRFI/YRFI real historical prediction</title>
+  <style>
+    :root { color-scheme: dark; font-family: Inter, system-ui, sans-serif; }
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #08111f; color: #e8f0ff; }
+    main { width: min(720px, calc(100% - 32px)); }
+    .eyebrow { color: #78a9ff; font-size: .78rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+    .card { margin-top: 12px; padding: 28px; border: 1px solid #243b5a; border-radius: 18px; background: #101d30; box-shadow: 0 18px 60px #0008; }
+    h1 { margin: 8px 0 4px; font-size: clamp(1.7rem, 4vw, 2.7rem); }
+    #meta { color: #a8b8d0; }
+    .probabilities { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 24px 0; }
+    .probability { padding: 18px; border-radius: 14px; background: #172944; }
+    .label { color: #9fb2ce; font-size: .8rem; text-transform: uppercase; letter-spacing: .08em; }
+    .value { display: block; margin-top: 5px; font-size: 2rem; font-weight: 750; }
+    dl { display: grid; grid-template-columns: auto 1fr; gap: 8px 16px; }
+    dt { color: #8ea3c1; } dd { margin: 0; text-align: right; }
+    .note { margin-top: 22px; color: #91a5c2; font-size: .88rem; line-height: 1.5; }
+    .error { color: #ff9b9b; }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="eyebrow">Real MLB data · chronological out-of-sample</div>
+    <section class="card" aria-live="polite">
+      <h1 id="matchup">Loading historical prediction…</h1>
+      <div id="meta">Official MLB StatsAPI development slice</div>
+      <div class="probabilities">
+        <div class="probability"><span class="label">NRFI probability</span><span class="value" id="nrfi">—</span></div>
+        <div class="probability"><span class="label">YRFI probability</span><span class="value" id="yrfi">—</span></div>
+      </div>
+      <dl>
+        <dt>Observed result</dt><dd id="result">—</dd>
+        <dt>Venue</dt><dd id="venue">—</dd>
+        <dt>Actual starters</dt><dd id="starters">—</dd>
+        <dt>Model</dt><dd id="model">—</dd>
+      </dl>
+      <p class="note">Historical development evidence only. Pitcher features, market data, wagering, production deployment, and the locked holdout are not used.</p>
+    </section>
+  </main>
+  <script>
+    const pct = value => `${(value * 100).toFixed(1)}%`;
+    fetch('/v3/vertical-slice/prediction')
+      .then(response => { if (!response.ok) throw new Error('API unavailable'); return response.json(); })
+      .then(data => {
+        const game = data.game;
+        document.querySelector('#matchup').textContent = `${game.away_team.name} at ${game.home_team.name}`;
+        document.querySelector('#meta').textContent = `${game.official_date} · gamePk ${game.game_pk} · ${data.prediction.out_of_sample ? 'out-of-sample' : 'development'}`;
+        document.querySelector('#nrfi').textContent = pct(data.prediction.p_nrfi);
+        document.querySelector('#yrfi').textContent = pct(data.prediction.p_yrfi);
+        document.querySelector('#result').textContent = data.outcome.yrfi ? 'YRFI' : 'NRFI';
+        document.querySelector('#venue').textContent = game.venue.name;
+        document.querySelector('#starters').textContent = `${game.actual_starters.away.player_name} / ${game.actual_starters.home.player_name}`;
+        document.querySelector('#model').textContent = data.prediction.model_version;
+      })
+      .catch(error => {
+        const target = document.querySelector('#matchup');
+        target.textContent = error.message;
+        target.classList.add('error');
+      });
+  </script>
+</body>
+</html>

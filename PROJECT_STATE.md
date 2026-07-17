@@ -219,9 +219,34 @@ informations`), and the complete offline suite (`105 passed, 1 skipped, 22
 warnings`). The existing Windows symlink skip and dependency/cache warnings are
 unchanged.
 
+## Real-prediction API and browser evidence
+
+The read-only `/v3/vertical-slice/prediction` route now exposes one committed
+real out-of-sample prediction without Snowflake or any external request. The
+corresponding `/vertical-slice` page fetches and displays that same response
+without external browser assets. The checked response is gamePk `745907`, New
+York Yankees at Minnesota Twins on 2024-05-16 at Target Field, with Clarke
+Schmidt and Joe Ryan recorded separately as postgame actual starters. The
+baseline returned NRFI `0.532451` and YRFI `0.467549`; the finalized observed
+result was YRFI. The response is explicitly historical development evidence,
+not a production or wagering signal.
+
+Focused API and page-contract validation reports `4 passed`; the live local
+HTTP checks returned status 200 for both the API and page. The in-app browser
+bridge was unavailable, so interactive visual inspection remains a
+nonblocking operational gap rather than substituted evidence. The complete
+locked suite passed with an explicit worktree-local pytest temp root: `109
+passed, 1 skipped, 21 warnings`. The default Windows temp-root attempt first
+reported 100 passes and 10 setup errors caused solely by denied access to
+pytest's temp directory. Ruff lint passed, Ruff formatting reports `44 files
+already formatted`, byte compilation passed, and Pyright reports `0 errors, 0
+warnings, 0 informations`. Parsing passed for 21 JSON files, nine JSONL files
+containing 5,237 records, four YAML files, and `pyproject.toml`; all 11 vertical
+slice artifact hashes and row counts were independently verified. The 22 files
+changed from the published PR head contain no private workstation path or
+recognized secret pattern, and `git diff --check` passes.
+
 ## Exact next action
 
-Expose one committed real historical prediction through a read-only API route
-that does not require Snowflake, and display the same response in a minimal
-browser page. Keep market, wagering, deployment, and additional data domains
-out of scope.
+Push the existing PR #6 integration branch and verify its release-gate run.
+Keep market, wagering, deployment, and additional data domains out of scope.

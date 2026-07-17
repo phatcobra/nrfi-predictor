@@ -26,6 +26,7 @@ STATSAPI_ROOT = "https://statsapi.mlb.com"
 DEFAULT_START = date(2024, 4, 1)
 DEFAULT_END = date(2024, 5, 31)
 DEFAULT_SPLIT = date(2024, 5, 16)
+DEFAULT_ARTIFACT_DIR = Path(__file__).resolve().parents[1] / "docs" / "vertical_slice"
 FINAL_ABSTRACT_STATE = "Final"
 FEATURE_NAMES = (
     "league_yrfi_rate_200",
@@ -627,6 +628,79 @@ def _write_jsonl(path: Path, records: Iterable[Mapping[str, Any]]) -> int:
 def _write_json(path: Path, value: object) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_bytes(canonical_json_bytes(value))
+
+
+def _read_jsonl(path: Path) -> list[dict[str, Any]]:
+    return [
+        json.loads(line)
+        for line in path.read_text(encoding="utf-8").splitlines()
+        if line
+    ]
+
+
+def historical_prediction_payload(
+    game_pk: int | None = None,
+    artifact_dir: Path = DEFAULT_ARTIFACT_DIR,
+) -> dict[str, Any]:
+    """Return one committed real historical prediction without warehouse access."""
+    predictions = _read_jsonl(artifact_dir / "predictions.jsonl")
+    if not predictions:
+        raise VerticalSliceError("no committed real historical prediction exists")
+    prediction = (
+        next((row for row in predictions if int(row["game_pk"]) == game_pk), None)
+        if game_pk is not None
+        else predictions[0]
+    )
+    if prediction is None:
+        raise VerticalSliceError(f"no vertical-slice prediction for game {game_pk}")
+    games = {
+        int(row["game_pk"]): row
+        for row in _read_jsonl(artifact_dir / "normalized_games.jsonl")
+    }
+    game = games.get(int(prediction["game_pk"]))
+    if game is None:
+        raise VerticalSliceError("prediction has no normalized game record")
+    coverage = json.loads((artifact_dir / "coverage.json").read_text(encoding="utf-8"))
+    evaluation = json.loads(
+        (artifact_dir / "evaluation.json").read_text(encoding="utf-8")
+    )
+    return {
+        "slice_id": coverage["slice_id"],
+        "development_only": True,
+        "game": {
+            "game_pk": game["game_pk"],
+            "official_date": game["official_date"],
+            "scheduled_start_at": game["scheduled_start_at"],
+            "away_team": game["away_team"],
+            "home_team": game["home_team"],
+            "venue": game["venue"],
+            "actual_starters": game["actual_starters"],
+        },
+        "prediction": {
+            "model_version": prediction["model_version"],
+            "prediction_cutoff": prediction["prediction_cutoff"],
+            "p_nrfi": prediction["p_nrfi"],
+            "p_yrfi": prediction["p_yrfi"],
+            "out_of_sample": prediction["out_of_sample"],
+            "pitcher_features_used": prediction["pitcher_features_used"],
+            "feature_values": prediction["feature_values"],
+        },
+        "outcome": game["first_inning"],
+        "evidence": {
+            "source": "official_mlb_statsapi",
+            "split_date": evaluation["split_date"],
+            "test_count": evaluation["test_count"],
+            "feature_coverage": coverage["feature_coverage"],
+            "model_log_loss": evaluation["model"]["log_loss"],
+            "model_brier_score": evaluation["model"]["brier_score"],
+            "expected_calibration_error": evaluation["model"][
+                "expected_calibration_error"
+            ],
+            "locked_holdout_used": False,
+            "market_data_used": False,
+        },
+        "disclaimer": "Historical development evidence; not a production or wagering signal.",
+    }
 
 
 def build_vertical_slice(
