@@ -9,6 +9,10 @@ ARG SOURCE_COMMIT
 LABEL org.opencontainers.image.source="https://github.com/phatcobra/nrfi-predictor"
 LABEL org.opencontainers.image.revision="${SOURCE_COMMIT}"
 
+RUN apt-get update \
+    && apt-get install --yes --no-install-recommends libgomp1=12.2.0-14+deb12u1 \
+    && rm -rf /var/lib/apt/lists/*
+
 ENV HOME=/tmp \
     PATH="/opt/venv/bin:${PATH}" \
     PYTHONPATH=/app \
