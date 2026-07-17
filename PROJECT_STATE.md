@@ -8,7 +8,7 @@ Phase 1: **PASS WITH DOCUMENTED EXCEPTIONS**
 
 Phase 2: **PASS WITH DOCUMENTED EXCEPTIONS**
 
-Current task: **multi-season official data acquisition and chronological validation**
+Current task: **multi-season candidate comparison and temporal calibration**
 
 Current branch: `chore/phase1-environment-foundation-20260715`
 
@@ -313,7 +313,8 @@ game. No original prediction cutoff is invented. The renewable chronological
 ledger therefore contains 7,287 predictions and separate grades across the
 2022, 2023, and 2024 folds.
 
-The first complete deterministic package replay passed and produced the
+The final complete deterministic package replay under producing commit
+`cd7c332d42d696794d56928ebfbcc4c6b04a8444` passed and produced the
 conservative primary conclusion `PREDICTIVE SKILL NOT ESTABLISHED`. Pooled log
 loss is `0.693204` versus `0.693270` for expanding overall climatology; pooled
 Brier score is `0.250029` versus `0.250062`. The official-date clustered 95%
@@ -322,9 +323,22 @@ intervals include zero for both improvements, and the candidate degrades in the
 ECE is `0.015694`. These results prohibit any predictive-edge, market, wager,
 promotion, or production claim.
 
-Focused contract, slice, reconciliation, replay, ledger-separation, holdout,
-baseline, and uncertainty validation reports `20 passed`. The complete offline
-suite reports `119 passed, 1 skipped, 21 warnings`; the skip and dependency
+The committed package contains 16 machine-readable artifacts totaling
+50,326,756 bytes. Independent verification parsed 73,108 JSONL records, matched
+every byte hash and row count, verified all 7,287 prediction-to-grade links,
+confirmed that prediction records contain no outcome, reproduced every
+probability with zero maximum difference from the preserved preliminary
+package, and confirmed that 2025, market data, raw payloads, and private paths
+are absent. Repository attributes disable line-ending normalization for both
+real-evidence directories, preserving manifest bytes across platforms. The
+normalized partition identity is
+`f7a3a6e1ad7b3fe0567ed1326f12007f98fa0488ed355f69f2aa679ba5d86d2c`;
+the prediction partition identity is
+`334f1ff8fce0bdcdcedd2f20cc1e6f090dbf589f24b92bbaf0f93b6e439e2f24`.
+
+Focused real-package manifest, coverage, reconciliation, ledger-separation,
+byte-portability, and decision validation reports `5 passed`. The complete
+offline suite reports `123 passed, 1 skipped, 21 warnings`; the skip and dependency
 warnings are the existing documented environment baseline. Ruff lint passed, Ruff formatting
 reports `46 files already formatted`, byte compilation passed, and Pyright
 reports `0 errors, 0 warnings, 0 informations`. The first full-suite attempt
@@ -334,8 +348,10 @@ that gate, and the final suite passed.
 
 ## Exact next action
 
-Commit the explicit cross-partition reconciliation and evaluation-exclusion
-reporting, rebuild the complete package offline from the verified normalization
-v2 cache under that producing commit, and independently verify its analytical
-and byte manifests. Keep 2025, optional data domains, markets, wagering, cloud,
-and production deployment out of scope.
+Using the same admitted real normalized snapshot and immutable season folds,
+compare a deterministic gradient-boosted candidate with the logistic model and
+frozen baselines, then evaluate no calibration versus prior-fold sigmoid
+calibration without tuning on the test season. Preserve the negative skill
+decision unless every predetermined stability and uncertainty gate passes. Keep
+2025, optional data domains, markets, wagering, cloud, and production
+deployment out of scope.
