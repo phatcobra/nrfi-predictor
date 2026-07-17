@@ -24,10 +24,7 @@ WORKDIR /app
 COPY pyproject.toml uv.lock ./
 RUN uv sync --frozen --no-dev --no-install-project
 
-COPY nrfi/ nrfi/
-COPY scripts/aws_baseline_replay.py scripts/aws_baseline_replay.py
-COPY docs/multiseason/ docs/multiseason/
-COPY docs/model_comparison/ docs/model_comparison/
+COPY . .
 
 USER 65532:65532
 
