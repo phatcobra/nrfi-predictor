@@ -60,6 +60,7 @@ jobs:
             -backend-config="key=${{ vars.TF_STATE_KEY }}" \
             -backend-config="region=us-east-2" \
             -backend-config="encrypt=true" \
+            -backend-config="kms_key_id=arn:aws:kms:us-east-2:660838763909:key/7772a2e9-e516-49ff-b2e1-0067567f52a8" \
             -backend-config="use_lockfile=true"
       - name: Terraform validate
         run: terraform validate
