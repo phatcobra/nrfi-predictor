@@ -7,6 +7,7 @@ from pathlib import Path
 import pytest
 
 from nrfi.pitcher_statcast import (
+    _write_parquet,
     build_pitcher_feature_snapshots,
     select_inventory_partitions,
 )
@@ -142,3 +143,16 @@ def test_feature_identity_is_deterministic() -> None:
 
     assert first == second
     assert json.dumps(first, sort_keys=True) == json.dumps(second, sort_keys=True)
+
+
+def test_parquet_output_is_byte_deterministic(tmp_path: Path) -> None:
+    rows = [
+        {"pitcher_id": 7, "feature": 0.25, "missing": None},
+        {"pitcher_id": 8, "feature": 0.5, "missing": "explicit"},
+    ]
+    first = tmp_path / "first.parquet"
+    second = tmp_path / "second.parquet"
+
+    assert _write_parquet(first, rows) == 2
+    assert _write_parquet(second, rows) == 2
+    assert first.read_bytes() == second.read_bytes()

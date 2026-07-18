@@ -20,6 +20,7 @@ from typing import Any, Iterable, Mapping, Sequence
 from urllib.parse import parse_qs, urlparse
 
 import pandas as pd
+import pyarrow as pa
 import pyarrow.parquet as pq
 
 from nrfi.real_vertical_slice import VerticalSliceError, canonical_json_bytes
@@ -124,6 +125,24 @@ def _write_jsonl(path: Path, rows: Iterable[Mapping[str, Any]]) -> int:
     with path.open("wb") as handle:
         for row in materialized:
             handle.write(canonical_json_bytes(row))
+    return len(materialized)
+
+
+def _write_parquet(path: Path, rows: Iterable[Mapping[str, Any]]) -> int:
+    materialized = list(rows)
+    if not materialized:
+        raise VerticalSliceError(f"cannot write an empty analytical table: {path.name}")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    table = pa.Table.from_pylist(materialized)
+    pq.write_table(
+        table,
+        path,
+        compression="zstd",
+        data_page_version="2.0",
+        use_dictionary=True,
+        version="2.6",
+        write_statistics=True,
+    )
     return len(materialized)
 
 
@@ -572,11 +591,11 @@ def generate_pitcher_statcast_package(
 
     output_dir.mkdir(parents=True, exist_ok=True)
     row_counts = {
-        "pitcher_game_history.jsonl": _write_jsonl(
-            output_dir / "pitcher_game_history.jsonl", history
+        "pitcher_game_history.parquet": _write_parquet(
+            output_dir / "pitcher_game_history.parquet", history
         ),
-        "pitcher_features.jsonl": _write_jsonl(
-            output_dir / "pitcher_features.jsonl", snapshots
+        "pitcher_features.parquet": _write_parquet(
+            output_dir / "pitcher_features.parquet", snapshots
         ),
         "rejections.jsonl": _write_jsonl(output_dir / "rejections.jsonl", rejections),
     }
