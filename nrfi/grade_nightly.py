@@ -9,6 +9,7 @@ from datetime import datetime, timedelta, timezone
 import numpy as np
 
 from nrfi._obs import logger, sentry_sdk
+from nrfi._posthog import capture as ph_capture
 from nrfi.config import TZ_ET
 from nrfi.ingest_first_inning_outcomes import backfill
 from nrfi.snowflake_loader import SnowflakeLoader
@@ -113,6 +114,7 @@ def grade_date(warehouse: SnowflakeLoader, date_string: str) -> int:
         warehouse.merge_upsert(
             "NRFI_DB.ML.PREDICTION_GRADES", grades, key_cols=["game_id"])
     logger.info(f"graded {len(grades)} games for {date_string}")
+    ph_capture("grading_completed", {"date": date_string, "graded_count": len(grades)})
     return len(grades)
 
 
@@ -160,6 +162,7 @@ def check_drift(warehouse: SnowflakeLoader) -> list[str]:
             f"(n={clv_rows[0]['n']})")
     for alert in alerts:
         _github_issue(f"[nrfi] drift alert: {alert.split(':')[0]}", alert)
+        ph_capture("drift_alert_raised", {"alert_type": alert.split(":")[0], "alert_count": len(alerts)})
     return alerts
 
 
