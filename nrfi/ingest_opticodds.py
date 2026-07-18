@@ -16,6 +16,7 @@ import time
 from datetime import date, datetime, timezone
 
 from nrfi._obs import logger, sentry_sdk
+from nrfi._posthog import capture as ph_capture
 from nrfi.config import (
     NRFI_SPORTSBOOKS,
     OPTIC_API_KEY,
@@ -193,6 +194,11 @@ def ingest_date(target_date: date | None = None) -> int:
                 total += len(rows)
             time.sleep(0.25)
     logger.info(f"ingested {total} odds snapshots for {len(fixtures)} fixtures")
+    ph_capture("odds_ingest_completed", {
+        "date": target_date.isoformat() if target_date else None,
+        "fixtures_count": len(fixtures),
+        "snapshots_count": total,
+    })
     return total
 
 

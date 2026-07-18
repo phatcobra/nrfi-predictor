@@ -24,6 +24,7 @@ uvicorn[standard]>=0.24.0
 # Observability
 sentry-sdk>=1.39.0
 loguru>=0.7.0
+posthog>=3.0.0
 
 # Utilities
 python-dotenv>=1.0.0

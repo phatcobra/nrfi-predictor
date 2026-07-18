@@ -16,9 +16,13 @@ from __future__ import annotations
 import logging
 import os
 import time
+from contextlib import asynccontextmanager
 from datetime import datetime
 
 from nrfi._obs import sentry_sdk
+from nrfi._posthog import capture as ph_capture
+from nrfi._posthog import init as ph_init
+from nrfi._posthog import shutdown as ph_shutdown
 from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -34,10 +38,18 @@ if os.getenv("SENTRY_DSN"):
                     environment=os.getenv("ENV", "production"),
                     traces_sample_rate=0.1)
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    ph_init()
+    yield
+    ph_shutdown()
+
+
 app = FastAPI(title="NRFI/YRFI Prediction API",
               description="Paper-mode first-inning probabilities with diagnostic "
                           "edge. Not betting advice; no staking functionality.",
-              version="2.0.0-interim")
+              version="2.0.0-interim",
+              lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -107,8 +119,11 @@ async def health():
     except Exception as e:
         logger.error(f"health check db failure: {e}")
         db = "unhealthy"
-    return {"status": "healthy" if db == "healthy" else "degraded",
-            "database": db, "timestamp": datetime.now(TZ_ET).isoformat()}
+    status = "healthy" if db == "healthy" else "degraded"
+    if status == "degraded":
+        ph_capture("health_check_degraded", {"database": db, "endpoint": "v2"})
+    return {"status": status, "database": db,
+            "timestamp": datetime.now(TZ_ET).isoformat()}
 
 
 @app.get("/predictions/date/{date}")
@@ -132,6 +147,7 @@ async def predictions_by_date(date: str):
         sentry_sdk.capture_exception(e)
         logger.error(f"predictions query failed: {e}")
         raise HTTPException(status_code=500, detail="internal error")
+    ph_capture("predictions_fetched", {"date": date, "count": len(rows), "endpoint": "v2"})
     return {"date": date, "count": len(rows), "predictions": rows,
             "disclaimer": "paper-mode diagnostics; not betting advice"}
 
@@ -180,6 +196,7 @@ async def metrics_summary(window_days: int = Query(30, ge=1, le=365)):
     except Exception as e:
         sentry_sdk.capture_exception(e)
         raise HTTPException(status_code=500, detail="internal error")
+    ph_capture("metrics_viewed", {"window_days": window_days, "endpoint": "v2"})
     return {"window_days": window_days, "stats": rows[0] if rows else {}}
 
 
@@ -194,6 +211,7 @@ async def trigger_predict(date: str | None = Query(None)):
         sentry_sdk.capture_exception(e)
         logger.error(f"predict job failed: {e}")
         raise HTTPException(status_code=500, detail="job failed")
+    ph_capture("job_triggered", {"job": "predict", "date": date, "scored": len(rows), "endpoint": "v2"})
     return {"status": "done", "scored": len(rows),
             "timestamp": datetime.now(TZ_ET).isoformat()}
 
@@ -236,6 +254,7 @@ async def v3_predictions(date: str | None = Query(None)):
             "model_version": r["model_version"],
             "generated_at": str(r["predicted_at"]),
         })
+    ph_capture("predictions_fetched", {"date": date, "count": len(games), "endpoint": "v3"})
     return {"date": date, "count": len(games), "games": games,
             "meta": {"data_health": data_health(rows),
                      "mode": "paper", "display_only": True}}
@@ -255,7 +274,9 @@ async def v3_calibration(window_days: int = Query(30, ge=1, le=365)):
         """, [window_days])
 
     try:
-        return {"window_days": window_days, "deciles": cached(f"cal:{window_days}", q)}
+        result = {"window_days": window_days, "deciles": cached(f"cal:{window_days}", q)}
+        ph_capture("calibration_viewed", {"window_days": window_days})
+        return result
     except Exception as e:
         sentry_sdk.capture_exception(e)
         raise HTTPException(status_code=500, detail="internal error")
@@ -285,6 +306,7 @@ async def v3_health():
         sf().execute_query("SELECT 1 AS ok")
     except Exception:
         out["snowflake"] = "down"
+        ph_capture("health_check_degraded", {"snowflake": "down", "endpoint": "v3"})
         return {"status": "red", "checks": out}
     try:
         prod = sf().execute_query(
@@ -301,6 +323,12 @@ async def v3_health():
     except Exception as e:
         sentry_sdk.capture_exception(e)
     red = out["snowflake"] != "ok" or out["model_registry"] == "no_production_model"
+    if red:
+        ph_capture("health_check_degraded", {
+            "snowflake": out["snowflake"],
+            "model_registry": out["model_registry"],
+            "endpoint": "v3",
+        })
     return {"status": "red" if red else "green", "checks": out}
 
 
@@ -311,16 +339,21 @@ async def v3_jobs(job: str, date: str | None = Query(None)):
     try:
         if job == "predict":
             from nrfi.predict_daily import NFRIDailyPredictor
-            return {"job": job, "scored": len(NFRIDailyPredictor().run(date))}
+            scored = len(NFRIDailyPredictor().run(date))
+            ph_capture("job_triggered", {"job": "predict", "date": date, "scored": scored, "endpoint": "v3"})
+            return {"job": job, "scored": scored}
         if job == "grade":
             from nrfi.grade_nightly import grade_date
             d = date or datetime.now(TZ_ET).strftime("%Y-%m-%d")
-            return {"job": job, "graded": grade_date(sf(), d)}
+            graded = grade_date(sf(), d)
+            ph_capture("job_triggered", {"job": "grade", "date": d, "graded": graded, "endpoint": "v3"})
+            return {"job": job, "graded": graded}
         if job == "ingest_odds":
             from nrfi.ingest_opticodds import ingest_date
             from datetime import date as _date
-            return {"job": job,
-                    "snapshots": ingest_date(_date.fromisoformat(date) if date else None)}
+            snapshots = ingest_date(_date.fromisoformat(date) if date else None)
+            ph_capture("job_triggered", {"job": "ingest_odds", "date": date, "snapshots": snapshots, "endpoint": "v3"})
+            return {"job": job, "snapshots": snapshots}
     except HTTPException:
         raise
     except Exception as e:

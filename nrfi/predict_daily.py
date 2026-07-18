@@ -17,6 +17,7 @@ from typing import Dict, List, Optional
 import numpy as np
 
 from nrfi._obs import sentry_sdk
+from nrfi._posthog import capture as ph_capture
 from nrfi.build_features import FeatureBuilder, coverage
 from nrfi.config import (
     Config,
@@ -227,21 +228,23 @@ class NFRIDailyPredictor:
 
         if game.get("home_pitcher_id") is None or game.get("away_pitcher_id") is None:
             row.update(status="BLOCKED", block_reason="no_probable_pitcher")
+            ph_capture("game_prediction_blocked", {"block_reason": "no_probable_pitcher", "game_id": game["game_id"]})
             return row
 
         try:
             features = self.builder.build_game(game)
         except Exception as exc:
             sentry_sdk.capture_exception(exc)
-            row.update(
-                status="BLOCKED",
-                block_reason=f"feature_error:{type(exc).__name__}")
+            reason = f"feature_error:{type(exc).__name__}"
+            row.update(status="BLOCKED", block_reason=reason)
+            ph_capture("game_prediction_blocked", {"block_reason": reason, "game_id": game["game_id"]})
             return row
 
         feature_coverage = coverage(features)
         block_reason = coverage_blocks(feature_coverage)
         if block_reason:
             row.update(status="BLOCKED", block_reason=block_reason)
+            ph_capture("game_prediction_blocked", {"block_reason": block_reason, "game_id": game["game_id"]})
             return row
 
         matrix = np.array([[
@@ -311,6 +314,14 @@ class NFRIDailyPredictor:
         logger.info(
             f"scored {len(rows)} games: {ok_count} OK, "
             f"{degraded_count} DEGRADED, {blocked_count} BLOCKED")
+        ph_capture("prediction_run_completed", {
+            "date": date_string,
+            "total_games": len(rows),
+            "ok_count": ok_count,
+            "degraded_count": degraded_count,
+            "blocked_count": blocked_count,
+            "model_version": self.model_version,
+        })
         return rows
 
 
