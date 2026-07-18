@@ -4,11 +4,6 @@ ARG PYTHON_IMAGE="python@sha256:b18992999dbe963a45a8a4da40ac2b1975be1a776d939d09
 FROM ${UV_IMAGE} AS uv
 FROM ${PYTHON_IMAGE}
 
-ARG SOURCE_COMMIT
-
-LABEL org.opencontainers.image.source="https://github.com/phatcobra/nrfi-predictor"
-LABEL org.opencontainers.image.revision="${SOURCE_COMMIT}"
-
 RUN apt-get update \
     && apt-get install --yes --no-install-recommends libgomp1=12.2.0-14+deb12u1 \
     && rm -rf /var/lib/apt/lists/*
@@ -27,6 +22,11 @@ COPY --from=uv /uv /usr/local/bin/uv
 WORKDIR /app
 COPY pyproject.toml uv.lock ./
 RUN uv sync --frozen --no-dev --no-install-project
+
+ARG SOURCE_COMMIT
+
+LABEL org.opencontainers.image.source="https://github.com/phatcobra/nrfi-predictor"
+LABEL org.opencontainers.image.revision="${SOURCE_COMMIT}"
 
 COPY . .
 
