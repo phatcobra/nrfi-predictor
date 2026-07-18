@@ -1,5 +1,5 @@
 name: terraform-deploy
-# apply-trigger
+# Terraform deploy: plan on push, apply on [tf-apply] commit or workflow_dispatch
 
 on:
   workflow_dispatch:
