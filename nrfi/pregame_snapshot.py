@@ -5,14 +5,12 @@ from __future__ import annotations
 import argparse
 import base64
 import hashlib
+import importlib
 import json
 from collections import defaultdict
 from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Any, Callable, Iterable, Mapping, Sequence
-
-import pyarrow.parquet as pq
-import requests
 
 STATSAPI_ENDPOINT = "https://statsapi.mlb.com/api/v1/schedule"
 SOURCE_SCHEMA_VERSION = "statsapi_probable_starters_source.v1"
@@ -119,7 +117,10 @@ def acquire_source_snapshot(
     if not allow_network:
         raise PregameSnapshotError(f"probable-starter cache is missing: {cache_path}")
 
-    requester = get or requests.get
+    if get is None:
+        requester = getattr(importlib.import_module("requests"), "get")
+    else:
+        requester = get
     response = requester(
         STATSAPI_ENDPOINT,
         params=_request_parameters(target_date),
@@ -275,6 +276,7 @@ def build_probable_starter_rows(
 def _load_latest_profiles(profile_path: Path) -> dict[int, list[dict[str, Any]]]:
     if not profile_path.is_file():
         raise PregameSnapshotError(f"pitcher profile table is missing: {profile_path}")
+    pq = importlib.import_module("pyarrow.parquet")
     grouped: dict[int, list[dict[str, Any]]] = defaultdict(list)
     for row in pq.read_table(profile_path).to_pylist():
         pitcher_id = _integer(row.get("pitcher_id"))

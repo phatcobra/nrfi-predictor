@@ -1,0 +1,169 @@
+locals {
+  pregame_collector_name = "${local.name_prefix}-pregame-collector"
+  pregame_forward_prefix = "signals/pregame/official-statsapi/forward"
+}
+
+data "archive_file" "pregame_collector" {
+  type        = "zip"
+  output_path = "${path.module}/.terraform/pregame-collector.zip"
+
+  source {
+    content  = file("${path.module}/../nrfi/__init__.py")
+    filename = "nrfi/__init__.py"
+  }
+
+  source {
+    content  = file("${path.module}/../nrfi/pregame_snapshot.py")
+    filename = "nrfi/pregame_snapshot.py"
+  }
+
+  source {
+    content  = file("${path.module}/../nrfi/aws_pregame_collector.py")
+    filename = "nrfi/aws_pregame_collector.py"
+  }
+}
+
+data "aws_iam_policy_document" "pregame_collector_assume" {
+  statement {
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["lambda.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_role" "pregame_collector" {
+  name               = local.pregame_collector_name
+  assume_role_policy = data.aws_iam_policy_document.pregame_collector_assume.json
+}
+
+data "aws_iam_policy_document" "pregame_collector" {
+  statement {
+    sid       = "WriteForwardProbableStarterSnapshots"
+    actions   = ["s3:PutObject"]
+    resources = ["${aws_s3_bucket.lake.arn}/${local.pregame_forward_prefix}/*"]
+  }
+
+  statement {
+    sid     = "EncryptForwardSnapshotsViaS3"
+    actions = ["kms:GenerateDataKey*", "kms:Encrypt", "kms:DescribeKey"]
+    resources = [
+      aws_kms_key.platform.arn,
+    ]
+
+    condition {
+      test     = "StringEquals"
+      variable = "kms:CallerAccount"
+      values   = [data.aws_caller_identity.current.account_id]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "kms:ViaService"
+      values   = ["s3.${var.aws_region}.amazonaws.com"]
+    }
+  }
+
+  statement {
+    sid = "WriteBoundedLambdaLogs"
+    actions = [
+      "logs:CreateLogStream",
+      "logs:PutLogEvents",
+    ]
+    resources = ["${aws_cloudwatch_log_group.pregame_collector.arn}:*"]
+  }
+
+  statement {
+    sid     = "DenyLockedHoldoutStorage"
+    effect  = "Deny"
+    actions = ["s3:*"]
+    resources = [
+      "arn:${data.aws_partition.current.partition}:s3:::*locked-holdout*",
+      "arn:${data.aws_partition.current.partition}:s3:::*locked-holdout*/*",
+    ]
+  }
+
+  statement {
+    sid       = "DenyLockedHoldoutKeys"
+    effect    = "Deny"
+    actions   = ["kms:Decrypt", "kms:GenerateDataKey*"]
+    resources = ["*"]
+
+    condition {
+      test     = "ForAnyValue:StringLike"
+      variable = "kms:ResourceAliases"
+      values   = ["alias/*locked-holdout*"]
+    }
+  }
+}
+
+resource "aws_iam_role_policy" "pregame_collector" {
+  name   = "${local.pregame_collector_name}-boundary"
+  role   = aws_iam_role.pregame_collector.id
+  policy = data.aws_iam_policy_document.pregame_collector.json
+}
+
+resource "aws_cloudwatch_log_group" "pregame_collector" {
+  name              = "/aws/lambda/${local.pregame_collector_name}"
+  retention_in_days = var.operational_log_retention_days
+}
+
+resource "aws_lambda_function" "pregame_collector" {
+  function_name = local.pregame_collector_name
+  description   = "Immutable timestamped probable-starter snapshot collector"
+  role          = aws_iam_role.pregame_collector.arn
+  handler       = "nrfi.aws_pregame_collector.lambda_handler"
+  runtime       = "python3.11"
+  architectures = ["x86_64"]
+
+  filename         = data.archive_file.pregame_collector.output_path
+  source_code_hash = data.archive_file.pregame_collector.output_base64sha256
+
+  memory_size = 256
+  timeout     = 120
+
+  environment {
+    variables = {
+      NRFI_LAKE_BUCKET           = aws_s3_bucket.lake.id
+      NRFI_PLATFORM_KMS_KEY_ARN  = aws_kms_key.platform.arn
+      NRFI_LOCKED_HOLDOUT_ACCESS = "DENIED"
+    }
+  }
+
+  lifecycle {
+    precondition {
+      condition = (
+        !strcontains(lower(local.pregame_forward_prefix), "holdout") &&
+        !strcontains(local.pregame_forward_prefix, "2025")
+      )
+      error_message = "The forward snapshot prefix must remain outside locked-holdout storage."
+    }
+  }
+
+  depends_on = [
+    aws_cloudwatch_log_group.pregame_collector,
+    aws_iam_role_policy.pregame_collector,
+  ]
+}
+
+resource "aws_cloudwatch_event_rule" "pregame_collector" {
+  name                = "${local.pregame_collector_name}-schedule"
+  description         = "Multiple pre-first-pitch probable-starter snapshots each day"
+  schedule_expression = "cron(3 11,13,15,17,19,21,23,1 * * ? *)"
+}
+
+resource "aws_cloudwatch_event_target" "pregame_collector" {
+  rule      = aws_cloudwatch_event_rule.pregame_collector.name
+  target_id = "${local.pregame_collector_name}-lambda"
+  arn       = aws_lambda_function.pregame_collector.arn
+}
+
+resource "aws_lambda_permission" "pregame_collector_events" {
+  statement_id  = "AllowScheduledInvocation"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.pregame_collector.function_name
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_cloudwatch_event_rule.pregame_collector.arn
+}
