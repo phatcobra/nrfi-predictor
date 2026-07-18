@@ -1,11 +1,11 @@
 ARG UV_IMAGE="ghcr.io/astral-sh/uv@sha256:0f36cb9361a3346885ca3677e3767016687b5a170c1a6b88465ec14aefec90aa"
-ARG PYTHON_IMAGE="python@sha256:b18992999dbe963a45a8a4da40ac2b1975be1a776d939d098c647482bcad5cba"
+ARG PYTHON_IMAGE="python@sha256:db3ff2e1800a8581e2c48a27c3995339d47bdf046da21c7627accd3d51053a93"
 
 FROM ${UV_IMAGE} AS uv
 FROM ${PYTHON_IMAGE}
 
 RUN apt-get update \
-    && apt-get install --yes --no-install-recommends libgomp1=12.2.0-14+deb12u1 \
+    && apt-get install --yes --no-install-recommends libgomp1=14.2.0-19 \
     && rm -rf /var/lib/apt/lists/*
 
 ENV HOME=/tmp \
