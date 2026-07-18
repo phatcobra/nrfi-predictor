@@ -8,11 +8,13 @@ Phase 1: **PASS WITH DOCUMENTED EXCEPTIONS**
 
 Phase 2: **PASS WITH DOCUMENTED EXCEPTIONS**
 
-AWS platform: **STAGE 2 PASS WITH DOCUMENTED EXCEPTIONS**
+AWS platform: **STAGE 3 IN PROGRESS — RELEASE BLOCKED BY ECR SCAN**
 
-Current task: **publish the verified AWS baseline evidence and resume point-in-time signal work**
+Current task: **publish the deterministic AWS feature checkpoint and clear the container release gate**
 
 Current branch: `feat/aws-probability-platform-20260717`
+
+Current required output: **NO QUALIFIED WAGER**
 
 ## AWS probability-platform checkpoint
 
@@ -512,19 +514,167 @@ files containing 136,656 JSONL rows, four YAML files, and one TOML file. The 15
 publication files contain no recognized secret or private workstation path, and
 `git diff --check` passes.
 
-## Exact next action
+## Deterministic continuation checkpoint — 2026-07-17
 
-Commit and push the AWS evidence on the existing PR #8 branch, then require the
-replacement GitHub Actions run to pass at that exact head. Before another AWS
-execution, rebuild the same bounded image from a patched immutable base and
-require an acceptable ECR scan; do not add a service or endpoint as part of that
-repair.
+### Permanent project goal
 
-The next product deliverable is point-in-time predictive signal, not more
-infrastructure. Use the authoritative inventory without rescanning to identify a
-lawful controlled source of timestamped historical probable-starter identities
-for pre-2025 development games, then prioritize admitted pitcher and Statcast
-features. Preserve the existing 2022-through-2024 out-of-sample evidence, admit
-identities only when pregame availability is proven, quantify coverage and
-rejection reasons, and otherwise fail closed. Do not substitute actual starters,
-inspect 2025, deploy an API, or make any edge or qualification claim.
+Build and operate the complete reproducible, production-grade MLB NRFI/YRFI
+probability platform on AWS. The permanent scope includes lawful point-in-time
+baseball, pitcher, Statcast, lineup, park, weather, umpire, schedule, travel,
+injury, and sportsbook ingestion; leakage-resistant features; chronological
+out-of-sample modeling and calibration; conservative uncertainty and market
+comparison; fail-closed decision and risk gates; probability API and browser
+interface; scheduling, monitoring, grading, retraining, promotion, rollback,
+recovery, audit, security, and cost controls. AWS foundation work, baseline
+replay, data publication, and individual feature tables are components rather
+than completion conditions. Until every qualification gate passes, the required
+decision output is `NO QUALIFIED WAGER`.
+
+### Repository checkpoint
+
+- Existing branch: `feat/aws-probability-platform-20260717`; existing draft PR:
+  `#8`; no branch, worktree, or pull request was created for this checkpoint.
+- Validated publication head before this state-record commit:
+  `162fd92f78ae4b96d2622d12959c510828938321`.
+- Ordered new implementation commits after the previously published
+  `fa9763059144b2e83d62c983a9a907f36142b787` checkpoint:
+  `3db6d38e40ac053832d7034433a1dad2283a6a05`,
+  `ce571dca5ea25e16fe70b9f6d396216607522ed6`,
+  `11fdef7b272e2347bd9e8351fb4def5f43dfb5e7`, evidence metadata commit
+  `ee76650ab8f1a4a9f1e32916c85dd7469bc0943f`, container repair commit
+  `9e1f643b04ee98931e334d75eb2f3077df7e9514`, and evidence-table commit
+  `162fd92f78ae4b96d2622d12959c510828938321`.
+- The CloudShell producing commit
+  `352974280a4d9ec8e101bc4553837379060e5f0b` and local publication head
+  `162fd92f78ae4b96d2622d12959c510828938321` have the identical Git tree
+  `0f253588118d0361988d716290ad56d3dcd5f9a3`. CloudShell preserves the
+  state-record commit `038136d7ac135b30211fca58547cdb7946999e65` and its verified bundle. The
+  workstation checkout now contains the same validated implementation and
+  generated evidence as atomic commits; do not reset, clean, stash, or rewrite
+  either history.
+
+### AWS resource state and identifiers
+
+- Account `660838763909`; approved region `us-east-2`.
+- Storage buckets:
+  `nrfi-probability-dev-660838763909-us-east-2-raw`,
+  `nrfi-probability-dev-660838763909-us-east-2-lake`, and
+  `nrfi-probability-dev-660838763909-us-east-2-evidence`. All are private,
+  versioned, and KMS-encrypted; raw and evidence use Object Lock. The KMS alias
+  is `alias/nrfi-probability-dev-platform`.
+- ECR repository:
+  `660838763909.dkr.ecr.us-east-2.amazonaws.com/nrfi-probability-dev-pipeline`.
+  Patched-base tag:
+  `commit-352974280a4d9ec8e101bc4553837379060e5f0b`; immutable manifest digest:
+  `sha256:2467211600b1a3f56e7d80fa1d05586e02f0bd3c4b0eee34210c63167ada983a`.
+- Batch compute environment ARN:
+  `arn:aws:batch:us-east-2:660838763909:compute-environment/nrfi-probability-dev-fargate`;
+  queue ARN:
+  `arn:aws:batch:us-east-2:660838763909:job-queue/nrfi-probability-dev-baseline`;
+  active job definition:
+  `arn:aws:batch:us-east-2:660838763909:job-definition/nrfi-probability-dev-baseline-replay:4`.
+- Network: default VPC `vpc-0022f9516b839ad93`; private subnet
+  `subnet-0685bb9da6eb5c3a1` (`172.31.48.0/24`, `us-east-2a`, no public IP);
+  S3 gateway endpoint `vpce-0f57a78509aef5802`; ECR Docker endpoint
+  `vpce-017a206f6efa5becb`; ECR API endpoint `vpce-073bf6bdb57b3d0d0`;
+  CloudWatch Logs endpoint `vpce-03f9e321d97c4e9c7`.
+- The Fargate compute environment and queue are `ENABLED`/`VALID`. Counts for
+  `SUBMITTED`, `PENDING`, `RUNNABLE`, `STARTING`, and `RUNNING` jobs are all
+  zero. No Lambda, API Gateway, Glue, SageMaker, scheduled job, or duplicate
+  network resource was added in this operation.
+
+### Completed and validated work
+
+- The Phase 0 inventory remains authoritative; no scan or acquisition was
+  repeated. Exactly 875 manifest-approved 2021-through-2024 Statcast partitions
+  (579,360,770 bytes) produced 19,432 actual-starter game histories and 19,432
+  strict-prior feature snapshots. Of those, 17,509 profiles (90.103952%) meet
+  the minimum prior-history threshold.
+- Historical prediction joins remain explicitly ineligible at 0% because no
+  timestamped probable-starter snapshot is admitted. Actual starter identities
+  are used only for postgame attribution; no probable identity is invented.
+- Two complete offline generations are byte-identical for all five package
+  files. Manifest hashes, byte sizes, row counts, Parquet reads, date bounds,
+  private-path checks, and the five focused tests pass. Dates are bounded from
+  2021-04-01 through 2024-09-30.
+- Two Parquet objects were written to the versioned KMS lake under feature
+  version `pitcher-statcast-strict-prior-v1`. The manifest, coverage,
+  zero-row rejection log, and transfer archive were written to the versioned
+  KMS evidence bucket with Governance retention through July 2027. All six AWS
+  objects have verified byte counts, SHA-256 checksums, encryption, and version
+  IDs. No raw workstation cache was uploaded.
+- The container was rebuilt from immutable Python 3.11 Trixie digest
+  `sha256:db3ff2e1800a8581e2c48a27c3995339d47bdf046da21c7627accd3d51053a93`.
+  Runtime verification reports Python 3.11.15, `libgomp1` 14.2.0-19, and Perl
+  5.40.1-6. The OCI revision label equals the validated implementation head.
+
+### Active release blocker
+
+The replacement ECR scan completed but does not pass: 4 critical, 8 high, and
+3 medium findings. Critical/high packages are glibc 2.41-12+deb13u3, Perl
+5.40.1-6, and SQLite 3.46.1-7+deb13u1. Therefore this image must not update the
+Batch job definition, run another Batch workload, or back an API. No production
+endpoint was deployed. The exact next engineering operation is to inspect the
+fixed-version/removal path for those three runtime packages, make the smallest
+verified container-only repair, and build a new immutable tag; do not rebuild or
+push the already-scanned tag.
+
+### Costs and budget
+
+The account-wide budget remains `$30` per month with the existing 50% forecast,
+80% actual, and 100% actual notifications. The private interface-endpoint floor
+remains approximately `$21.90` per 730-hour month and the rotating KMS key adds
+about `$1`, before storage, logs, data processing, ECR storage, and bounded
+Fargate runtime. This checkpoint added about 4 MB of lake/evidence objects and
+one ECR image but no new recurring service. Cost Explorer ingestion remains
+lagged, so the project must not claim verified zero spend.
+
+### Preserved local-only state
+
+- The authoritative Phase 0 manifests, two completed scans, per-file manifest,
+  checksums, and asset cache remain local and must not be reacquired.
+- `.cache/nrfi_pitcher_statcast/replay2` preserves the second deterministic
+  feature replay. The local transfer archive and Git bundle are preserved under
+  the ignored pitcher-Statcast cache. The manifest-approved raw Statcast cache
+  remains local-only.
+- CloudShell retains the uploaded transfer archive, Git bundle, Dockerfile, and
+  build/push logs for continuation. Its generated 675 MB `.terraform` provider
+  cache was the only deleted item; remote Terraform state and source files were
+  untouched.
+- The dirty external `mlb-model` repository remains read-only and quarantined.
+
+### Safe stopping state
+
+The Docker build and ECR push are complete. The ECR login was removed and the
+Docker configuration no longer contains that registry authentication entry.
+There is no active Docker or Terraform process, no active Batch job, no partial
+S3 write identified, no Terraform apply in progress, and no user-created
+temporary AWS credential. The prior bootstrap user/key remain deleted. The
+CloudShell Git checkout is clean. The scanned ECR image and all S3 objects are
+immutable/versioned and recoverable.
+
+### Commands and operations that must not be repeated
+
+- Do not rerun either Phase 0 asset scan or reacquire the 2021-through-2024 MLB
+  or Statcast source set.
+- Do not rerun the completed 19,432-row pitcher feature generations or their
+  deterministic replay unless their preserved outputs fail verification.
+- Do not rerun the frozen AWS baseline Batch replay or the completed local model
+  comparison/model-selection work.
+- Do not re-upload the six pitcher-Statcast package objects or rebuild/push ECR
+  tag `commit-352974280a4d9ec8e101bc4553837379060e5f0b`.
+- Do not run `terraform apply`; the current checkpoint made no Terraform
+  change and no new infrastructure is required to inspect the ECR blocker.
+- Do not access, copy, upload, tune against, or evaluate the locked 2025
+  holdout.
+
+### Exact next operation
+
+After publishing this checkpoint on the existing branch and verifying the
+replacement CI run at its exact remote head, inspect the ECR fixed-version data
+for glibc, Perl, and SQLite and determine whether the application can remove the
+unneeded packages from the runtime image or must pin a newer immutable base.
+Apply only that container repair, require zero release-blocking critical/high
+findings, and only then update the existing Batch definition and continue the
+AWS-hosted point-in-time ingestion/feature/model pipeline. Preserve the locked
+2025 holdout and emit `NO QUALIFIED WAGER` until every required gate passes.
