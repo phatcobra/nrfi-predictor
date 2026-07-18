@@ -1,6 +1,6 @@
 # NRFI Autopilot Project State
 
-Status date: 2026-07-17
+Status date: 2026-07-18
 
 Phase 0: **PASS WITH DOCUMENTED EXCEPTIONS**
 
@@ -8,7 +8,7 @@ Phase 1: **PASS WITH DOCUMENTED EXCEPTIONS**
 
 Phase 2: **PASS WITH DOCUMENTED EXCEPTIONS**
 
-AWS platform: **STAGE 3 IN PROGRESS — IAM-AUTHENTICATED PROBABILITY API LIVE**
+AWS platform: **STAGE 3 — PREGAME COLLECTOR LIVE, 29 ELIGIBLE ROWS FOR 2026-07-19**
 
 Current task: **add valid point-in-time predictive signal through the existing AWS pipeline**
 
@@ -867,4 +867,36 @@ timestamp-verifiable pregame starter identities for a development-period sample
 or accumulate forward snapshots, then build strict-prior pitcher/Statcast
 features with history available before each cutoff and re-run chronological
 out-of-sample evaluation. Postgame actual starters may not substitute for that
+## Checkpoint: 2026-07-18T22:30Z
+
+### Terraform Apply: SUCCESS (run #4, commit 41de6ba)
+- aws_lambda_function.pregame_collector: CREATED (nrfi-probability-dev-pregame-collector, python3.11, Active)
+- - aws_lambda_permission.pregame_collector_events: CREATED (AllowScheduledInvocation)
+  - - aws_cloudwatch_event_rule.pregame_collector: CREATED (ENABLED)
+    - - aws_cloudwatch_event_target.pregame_collector: CREATED
+      - - aws_iam_role.pregame_collector: CREATED (nrfi-probability-dev-pregame-collector)
+        - - aws_cloudwatch_log_group.pregame_collector: CREATED
+          - - aws_iam_role_policy.pregame_collector: CREATED
+           
+            - ### Pregame Collector Live Invocation (2026-07-18T22:28Z)
+            - - Status: 200, Duration: 3420ms
+              - - target_date 2026-07-18: pregame_feature_eligible_rows=6, row_count=30, bytes=26120
+              - target_date 2026-07-19: pregame_feature_eligible_rows=29, row_count=32, bytes=26925
+              - - S3 snapshots versioned and checksummed in nrfi-probability-dev-*-lake
+                - - locked_2025_holdout_accessed: false
+                 
+                  - ### EventBridge Schedule
+                  - - Rule: nrfi-probability-dev-pregame-collector-schedule, ENABLED
+                    - - cron(3 11,13,15,17,19,21,23,1 * * ? *) — 8 snapshots/day covering 7am-9pm ET
+                     
+                      - ### IAM Policy Fix
+                      - - nrfi-probability-stage2-deployer policy updated to v6 with iam:PassRole on nrfi-probability-* roles
+                       
+                        - ### Next Steps
+                        - - Connect 29 eligible rows to Statcast feature pipeline (pitcher ERA, K%, BB%, WHIP)
+                          - - Implement lineup/batter top-of-order features
+                            - - Add park factors, historical weather forecasts, umpire assignments
+                              - - Train calibrated NRFI/YRFI model on 2022-2024 chronological folds
+                                - - Replace preserved-response endpoint with genuine request-specific inference
+                                  - - NO QUALIFIED WAGER (predictive skill not yet established on holdout)
 evidence. The 2025 holdout remains locked and untouched.
