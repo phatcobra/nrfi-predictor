@@ -8,9 +8,9 @@ Phase 1: **PASS WITH DOCUMENTED EXCEPTIONS**
 
 Phase 2: **PASS WITH DOCUMENTED EXCEPTIONS**
 
-AWS platform: **STAGE 3 IN PROGRESS — PRIVATE BATCH PROBABILITY PATH LIVE**
+AWS platform: **STAGE 3 IN PROGRESS — IAM-AUTHENTICATED PROBABILITY API LIVE**
 
-Current task: **build the AWS-hosted point-in-time signal pipeline and probability API through existing resources**
+Current task: **add valid point-in-time predictive signal through the existing AWS pipeline**
 
 Current branch: `feat/aws-probability-platform-20260717`
 
@@ -727,3 +727,53 @@ when technically indispensable to that product path; do not perform PR,
 publication, audit, or governance expansion as the next operation. Preserve the
 locked 2025 holdout, keep `NRFI_LOCKED_HOLDOUT_ACCESS=DENIED`, and emit
 `NO QUALIFIED WAGER` until every scientific and decision gate passes.
+
+### Live probability API checkpoint — 2026-07-18
+
+Validated implementation commit
+`26a845ab2d5e77ef70737208c402e4f782ea1388` on existing branch
+`feat/aws-probability-platform-20260717` exposes the preserved calibrated
+probability through the existing AWS foundation. This commit remains local and
+is not pushed because pushing would mutate draft PR #8, which the current
+directive forbids.
+
+Terraform added only the sanitized lake object, one bounded CloudWatch log
+group, one least-privilege Lambda role and inline policy, one Python 3.11 Lambda,
+and one IAM-authenticated Function URL. The live endpoint is
+`https://42ajmftf4o2h4jiyaze2f447wm0jxiof.lambda-url.us-east-2.on.aws/`.
+An AWS SigV4-authenticated `GET` returned HTTP 200 with exactly:
+
+```json
+{"p_nrfi":0.511138831136253,"p_yrfi":0.4888611688637469,"uncertainty":{"lower_95":0.4164458332468519,"method":"official-date-cluster-model-bootstrap-v1","replicates":32,"standard_error":0.03987121250858687,"upper_95":0.5626698522933542}}
+```
+
+The same URL returned HTTP 403 without AWS authentication. Lambda state is
+`Active`, last update is `Successful`, runtime is Python 3.11 on `x86_64`,
+memory is 128 MiB, timeout is 10 seconds, and
+`NRFI_LOCKED_HOLDOUT_ACCESS=DENIED`. The response object is 284 bytes at
+`s3://nrfi-probability-dev-660838763909-us-east-2-lake/signals/sanitized/current/probability-response.json`,
+with `application/json`, `no-store`, and platform-key KMS encryption.
+
+The account concurrency quota requires all 10 executions to remain unreserved,
+so AWS rejected reserved concurrency 1. The failed apply stopped before URL
+creation; Terraform then replaced only the tainted incomplete Lambda, created
+the URL, and applied an in-place timeout correction. Final Terraform format and
+validation passed, the encrypted S3 state lock was released, and a full refresh
+plan reported `No changes`. The final state contains no active Batch jobs and no
+active Terraform, Docker build, or Docker push process.
+
+This endpoint adds no recurring monthly infrastructure floor beyond the
+existing approximately $21.90 private-network floor and KMS key; Lambda, logs,
+and S3 are usage-based and remain under the existing $30 monthly budget. No
+temporary credential was created, the 2025 holdout remains untouched, and the
+scientific status remains `PREDICTIVE SKILL NOT ESTABLISHED` with required
+output `NO QUALIFIED WAGER`.
+
+Do not reapply `/tmp/nrfi-probability-api.tfplan`,
+`/tmp/nrfi-probability-api-v2.tfplan`, or
+`/tmp/nrfi-probability-api-v3.tfplan`; their completed effects are represented
+in encrypted remote state. The exact next product operation is to produce and
+join valid timestamped pregame pitcher and Statcast signals through the existing
+AWS feature path, then generate new chronological out-of-sample probabilities
+without accessing or tuning against 2025. Do not add another service, audit,
+schema framework, branch, worktree, or pull request first.
