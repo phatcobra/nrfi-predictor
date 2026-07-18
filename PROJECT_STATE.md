@@ -8,9 +8,9 @@ Phase 1: **PASS WITH DOCUMENTED EXCEPTIONS**
 
 Phase 2: **PASS WITH DOCUMENTED EXCEPTIONS**
 
-AWS platform: **STAGE 3 IN PROGRESS — RELEASE BLOCKED BY ECR SCAN**
+AWS platform: **STAGE 3 IN PROGRESS — PRIVATE BATCH PROBABILITY PATH LIVE**
 
-Current task: **publish the deterministic AWS feature checkpoint and clear the container release gate**
+Current task: **build the AWS-hosted point-in-time signal pipeline and probability API through existing resources**
 
 Current branch: `feat/aws-probability-platform-20260717`
 
@@ -75,18 +75,21 @@ The deployment role now has exactly one trust statement: GitHub OIDC for
 `repo:phatcobra/nrfi-predictor:ref:refs/heads/feat/aws-probability-platform-20260717`;
 the temporary root bootstrap trust is removed.
 
-The final ECR scan completed with 3 critical, 5 high, and 3 medium findings. All
-critical and high findings currently map to Debian package `perl`
-`5.36.0-7+deb12u3`; their identifiers are recorded in the public evidence JSON.
-This is release-blocking for API or broader deployment, but it does not invalidate
-the offline scientific reproduction. No additional AWS service or production
-endpoint may be added until the image is rebuilt from a patched immutable base
-and the scan is clean under the repository's release policy.
+The container release gate is cleared. `Dockerfile.aws` now uses immutable
+Amazon Linux 2023 base digest
+`sha256:f03a6d1b59561c1347a4c386ecb8e38588050cffa290f0ac4f5c7246d055a36e`
+with Python `3.11.15-1.amzn2023.0.3` and `libgomp`
+`14.2.1-7.amzn2023.0.2`. Immutable tag `runtime-7602b07358b2` resolves to ECR
+digest `sha256:710237682af8ba399c2658e4d2846c050e2275a32360430498173f6e3764534e`.
+Its scan is `COMPLETE` with zero critical, high, medium, low, informational, or
+undefined findings. Existing private Batch job definition revision 5 uses that
+digest; revision 4 remains active and available for rollback.
 
 Draft PR #8 remains the sole AWS implementation pull request and must not be
-merged. Publication requires the AWS evidence commit to be pushed and the
-replacement GitHub Actions gate to pass at that exact head. No historical data
-was reacquired, no asset scan was repeated, and no private workstation path,
+merged, retargeted, or otherwise modified by this checkpoint. This checkpoint
+is committed locally on the existing branch and is not pushed because advancing
+the remote branch would modify that pull request. No historical data was
+reacquired, no asset scan was repeated, and no private workstation path,
 credential, raw local dataset, or locked evaluation evidence entered AWS or the
 repository.
 
@@ -104,7 +107,7 @@ uploaded local assets, or inspected locked evaluation evidence.
 | GitHub protection, benefits, and zero-overage settings are unverified | Operational risk; no new paid subscription or weakened repository gate is authorized |
 | GitHub authentication and SSH connectivity | Restored for account `phatcobra`; remote mutation remains limited to the existing PR #8 branch and pull request |
 | AWS Cost Explorer ingestion | Newly enabled account data is unavailable; the budget currently reports `$0.00`, which is not accepted as evidence of zero accrued cost |
-| Final container scan | Release blocker: 3 critical, 5 high, and 3 medium findings; no API or broader deployment until a patched immutable base produces an acceptable scan |
+| Container release scan | Resolved: immutable runtime digest `sha256:710237682af8ba399c2658e4d2846c050e2275a32360430498173f6e3764534e` is `COMPLETE` with all severity counts zero |
 | GitHub-hosted action Node.js 20 runtimes | Nonblocking deprecation warning on the successful release gate; update pinned actions separately before GitHub ends forced Node.js 24 compatibility |
 | Some quarantined files remain incompletely inspected | They remain unadmitted and cannot be used for training, evaluation, or production |
 
@@ -564,15 +567,18 @@ decision output is `NO QUALIFIED WAGER`.
   is `alias/nrfi-probability-dev-platform`.
 - ECR repository:
   `660838763909.dkr.ecr.us-east-2.amazonaws.com/nrfi-probability-dev-pipeline`.
-  Patched-base tag:
+  Preserved blocked tag:
   `commit-352974280a4d9ec8e101bc4553837379060e5f0b`; immutable manifest digest:
   `sha256:2467211600b1a3f56e7d80fa1d05586e02f0bd3c4b0eee34210c63167ada983a`.
+  Live immutable tag `runtime-7602b07358b2` resolves to release-gated digest
+  `sha256:710237682af8ba399c2658e4d2846c050e2275a32360430498173f6e3764534e`.
 - Batch compute environment ARN:
   `arn:aws:batch:us-east-2:660838763909:compute-environment/nrfi-probability-dev-fargate`;
   queue ARN:
   `arn:aws:batch:us-east-2:660838763909:job-queue/nrfi-probability-dev-baseline`;
   active job definition:
-  `arn:aws:batch:us-east-2:660838763909:job-definition/nrfi-probability-dev-baseline-replay:4`.
+  `arn:aws:batch:us-east-2:660838763909:job-definition/nrfi-probability-dev-baseline-replay:5`.
+  Revision 4 remains active as the verified rollback definition.
 - Network: default VPC `vpc-0022f9516b839ad93`; private subnet
   `subnet-0685bb9da6eb5c3a1` (`172.31.48.0/24`, `us-east-2a`, no public IP);
   S3 gateway endpoint `vpce-0f57a78509aef5802`; ECR Docker endpoint
@@ -603,21 +609,54 @@ decision output is `NO QUALIFIED WAGER`.
   KMS evidence bucket with Governance retention through July 2027. All six AWS
   objects have verified byte counts, SHA-256 checksums, encryption, and version
   IDs. No raw workstation cache was uploaded.
-- The container was rebuilt from immutable Python 3.11 Trixie digest
-  `sha256:db3ff2e1800a8581e2c48a27c3995339d47bdf046da21c7627accd3d51053a93`.
-  Runtime verification reports Python 3.11.15, `libgomp1` 14.2.0-19, and Perl
-  5.40.1-6. The OCI revision label equals the validated implementation head.
+- `Dockerfile.aws` was repaired without changing application code or the locked
+  dependency graph. It now uses immutable Amazon Linux 2023 digest
+  `sha256:f03a6d1b59561c1347a4c386ecb8e38588050cffa290f0ac4f5c7246d055a36e`,
+  exact Python package `3.11.15-1.amzn2023.0.3`, exact `libgomp` package
+  `14.2.1-7.amzn2023.0.2`, and `UV_PYTHON=/usr/bin/python3.11`. Runtime smoke
+  verification loaded Python 3.11.15, glibc 2.34, LightGBM 4.6.0, PyArrow
+  25.0.0, and the existing replay module as non-root user `65532:65532`.
 
-### Active release blocker
+### Verified live-AWS checkpoint
 
-The replacement ECR scan completed but does not pass: 4 critical, 8 high, and
-3 medium findings. Critical/high packages are glibc 2.41-12+deb13u3, Perl
-5.40.1-6, and SQLite 3.46.1-7+deb13u1. Therefore this image must not update the
-Batch job definition, run another Batch workload, or back an API. No production
-endpoint was deployed. The exact next engineering operation is to inspect the
-fixed-version/removal path for those three runtime packages, make the smallest
-verified container-only repair, and build a new immutable tag; do not rebuild or
-push the already-scanned tag.
+Immutable tag `runtime-7602b07358b2` was built once and pushed once. ECR digest
+`sha256:710237682af8ba399c2658e4d2846c050e2275a32360430498173f6e3764534e`
+reports scan status `COMPLETE` with critical, high, medium, low, informational,
+and undefined counts all zero. The known-blocked tag and digest remain unchanged
+and were not deployed.
+
+Existing private Batch job definition revision 5 points to the clean digest;
+revision 4 remains available for rollback. Job
+`f8419681-7513-4b73-86e6-f0adaaee2c36` completed `SUCCEEDED` with exit code 0,
+one attempt, no public IP, and `NRFI_LOCKED_HOLDOUT_ACCESS=DENIED`. The job
+verified 29,148 predictions and 29,148 grades, deterministic replay `PASS`, and
+analytical equivalence at or below the declared `1e-12` tolerance; the maximum
+record delta was `1.1712852909795402e-13`. It reported
+`locked_holdout_used=false` and `market_data_used=false`.
+
+The verified calibrated probability response, restricted to probability and
+uncertainty, is:
+
+```json
+{
+  "p_nrfi": 0.511138831136253,
+  "p_yrfi": 0.4888611688637469,
+  "uncertainty": {
+    "lower_95": 0.4164458332468519,
+    "method": "official-date-cluster-model-bootstrap-v1",
+    "replicates": 32,
+    "standard_error": 0.03987121250858687,
+    "upper_95": 0.5626698522933542
+  }
+}
+```
+
+After verification, `SUBMITTED`, `PENDING`, `RUNNABLE`, `STARTING`, and
+`RUNNING` job counts were all zero; Docker was idle; the ECR authentication
+entry was absent; and no build, push, or Terraform operation remained active.
+No new service, schema, endpoint, or recurring infrastructure was created. The
+scientific status remains `PREDICTIVE SKILL NOT ESTABLISHED`, so the required
+output remains `NO QUALIFIED WAGER`.
 
 ### Costs and budget
 
@@ -625,8 +664,9 @@ The account-wide budget remains `$30` per month with the existing 50% forecast,
 80% actual, and 100% actual notifications. The private interface-endpoint floor
 remains approximately `$21.90` per 730-hour month and the rotating KMS key adds
 about `$1`, before storage, logs, data processing, ECR storage, and bounded
-Fargate runtime. This checkpoint added about 4 MB of lake/evidence objects and
-one ECR image but no new recurring service. Cost Explorer ingestion remains
+Fargate runtime. This checkpoint added one immutable ECR image and one bounded
+Fargate validation job but no new recurring service or infrastructure floor.
+Cost Explorer ingestion remains
 lagged, so the project must not claim verified zero spend.
 
 ### Preserved local-only state
@@ -637,21 +677,26 @@ lagged, so the project must not claim verified zero spend.
   feature replay. The local transfer archive and Git bundle are preserved under
   the ignored pitcher-Statcast cache. The manifest-approved raw Statcast cache
   remains local-only.
-- CloudShell retains the uploaded transfer archive, Git bundle, Dockerfile, and
-  build/push logs for continuation. Its generated 675 MB `.terraform` provider
-  cache was the only deleted item; remote Terraform state and source files were
-  untouched.
+- CloudShell retains state commit
+  `038136d7ac135b30211fca58547cdb7946999e65` and its preserved dirty
+  `Dockerfile.aws` runtime copy. Do not clean, reset, commit, or otherwise touch
+  that checkout. The unused local Lambda image cache and temporary transfer and
+  validation copies were removed only to recover CloudShell disk; the pushed
+  ECR image, Git state, remote Terraform state, and source evidence remain
+  recoverable and unchanged.
 - The dirty external `mlb-model` repository remains read-only and quarantined.
 
 ### Safe stopping state
 
-The Docker build and ECR push are complete. The ECR login was removed and the
-Docker configuration no longer contains that registry authentication entry.
-There is no active Docker or Terraform process, no active Batch job, no partial
-S3 write identified, no Terraform apply in progress, and no user-created
-temporary AWS credential. The prior bootstrap user/key remain deleted. The
-CloudShell Git checkout is clean. The scanned ECR image and all S3 objects are
-immutable/versioned and recoverable.
+The single Docker build, smoke verification, ECR push, clean scan, Batch
+revision registration, and live validation job are complete. The ECR login was
+removed and the Docker configuration no longer contains that registry
+authentication entry. There is no active Docker, build, push, or Terraform
+process; no active Batch job; no partial S3 write identified; no Terraform apply
+in progress; and no user-created temporary AWS credential. The prior bootstrap
+user/key remain deleted. CloudShell intentionally preserves only its dirty
+`Dockerfile.aws` runtime copy and must not be touched. The scanned ECR image,
+rollback revision, and all S3 objects are immutable/versioned and recoverable.
 
 ### Commands and operations that must not be repeated
 
@@ -661,20 +706,24 @@ immutable/versioned and recoverable.
   deterministic replay unless their preserved outputs fail verification.
 - Do not rerun the frozen AWS baseline Batch replay or the completed local model
   comparison/model-selection work.
+- Do not rerun successful live validation job
+  `f8419681-7513-4b73-86e6-f0adaaee2c36`, rebuild or repush immutable tag
+  `runtime-7602b07358b2`, or repeat its completed ECR scan.
 - Do not re-upload the six pitcher-Statcast package objects or rebuild/push ECR
   tag `commit-352974280a4d9ec8e101bc4553837379060e5f0b`.
-- Do not run `terraform apply`; the current checkpoint made no Terraform
-  change and no new infrastructure is required to inspect the ECR blocker.
+- Do not run `terraform apply` merely to reproduce this checkpoint; the current
+  operation made no Terraform change.
 - Do not access, copy, upload, tune against, or evaluate the locked 2025
   holdout.
 
 ### Exact next operation
 
-After publishing this checkpoint on the existing branch and verifying the
-replacement CI run at its exact remote head, inspect the ECR fixed-version data
-for glibc, Perl, and SQLite and determine whether the application can remove the
-unneeded packages from the runtime image or must pin a newer immutable base.
-Apply only that container repair, require zero release-blocking critical/high
-findings, and only then update the existing Batch definition and continue the
-AWS-hosted point-in-time ingestion/feature/model pipeline. Preserve the locked
-2025 holdout and emit `NO QUALIFIED WAGER` until every required gate passes.
+Continue directly with AWS-hosted point-in-time signal production through the
+existing resources: define and validate the bounded signal input/output
+contract, connect admitted pregame snapshots to the existing chronology-safe
+feature and calibrated probability path, and expose probability plus
+uncertainty through the existing AWS deployment boundary. Add API hosting only
+when technically indispensable to that product path; do not perform PR,
+publication, audit, or governance expansion as the next operation. Preserve the
+locked 2025 holdout, keep `NRFI_LOCKED_HOLDOUT_ACCESS=DENIED`, and emit
+`NO QUALIFIED WAGER` until every scientific and decision gate passes.
