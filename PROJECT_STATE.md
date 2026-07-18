@@ -777,3 +777,94 @@ join valid timestamped pregame pitcher and Statcast signals through the existing
 AWS feature path, then generate new chronological out-of-sample probabilities
 without accessing or tuning against 2025. Do not add another service, audit,
 schema framework, branch, worktree, or pull request first.
+
+### Timestamped probable-starter AWS checkpoint - 2026-07-18
+
+The permanent goal remains a production-grade AWS-hosted MLB NRFI/YRFI
+probability platform. The active product boundary is calibrated NRFI/YRFI
+probability with uncertainty. The scientific state remains
+`PREDICTIVE SKILL NOT ESTABLISHED`, and the required fail-closed output remains
+`NO QUALIFIED WAGER`.
+
+One official StatsAPI schedule response for games on `2026-07-19` was persisted
+at `2026-07-18T04:47:28.706439Z`. Its 46,037-byte response SHA-256 is
+`ad1313ef710094d83b4aef12471d6a9a09da3df7012b4647079ac153482a453c`.
+All package generations after that acquisition used the checksum-verified local
+cache with networking disabled. The raw response remains local-only and was not
+written to the repository or AWS.
+
+The derived package contains 15 regular-season games and 30 game-side rows.
+Twenty-nine rows have an official probable starter observed before the scheduled
+cutoff. Twenty-two rows match an inventoried strict-prior Statcast profile, and
+20 of those profiles meet the existing minimum-history rule. Inference coverage
+is still zero: those 20 profiles stop before the intervening locked season, two
+profiles lack sufficient prior history, seven pitcher IDs are absent from the
+inventory, and one game side has no probable starter. The package therefore
+does not invent a current game probability.
+
+The producing code and seven focused tests are an isolated commit on the
+preserved CloudShell copy of existing branch
+`feat/aws-probability-platform-20260717`:
+`7b365dd004aa3a1edb6d65cd6dfce091b6ac7216`. This commit contains only
+`nrfi/pregame_snapshot.py` and `tests/test_pregame_snapshot.py`. The files are
+byte-equal to the locally validated files. No push or pull-request mutation was
+performed. This CloudShell history is based on preserved CloudShell head
+`038136d7ac135b30211fca58547cdb7946999e65`; it must not be mistaken for the
+workstation branch head or pushed without intentional lineage reconciliation.
+
+The workstation remains on branch `feat/aws-probability-platform-20260717` at
+`589963ab896dcb7a880c2fc11d15b47052ce2786`, three commits ahead of its remote.
+Its Git metadata is outside the currently writable workspace, so the two code
+files, the five-file derived package under
+`docs/pregame_snapshot/2026-07-19`, and this state update remain uncommitted and
+preserved. Do not reset, clean, stash, overwrite, or regenerate them.
+
+Validation evidence:
+
+- focused pytest: 7 passed; one non-test-failure warning reports that pytest
+  could not write its cache directory;
+- Ruff lint and Ruff format check: passed;
+- Pyright: 0 errors, 0 warnings;
+- byte compilation and `git diff --check`: passed;
+- two offline replays plus the derived package are byte-identical for all five
+  files;
+- every manifest byte count, SHA-256, and row count passed; 30 snapshot IDs and
+  30 feature IDs are unique and linked one-to-one;
+- all eligible snapshot observations precede their prediction cutoffs, and all
+  joined profiles precede their observation timestamps;
+- private-path, secret, raw-response, and locked-2025 checks passed.
+
+The five derived files are live in the existing versioned, private, KMS-encrypted
+lake under
+`s3://nrfi-probability-dev-660838763909-us-east-2-lake/signals/pregame/official-statsapi/2026-07-19/`.
+They use KMS key
+`arn:aws:kms:us-east-2:660838763909:key/7772a2e9-e516-49ff-b2e1-0067567f52a8`
+and `Cache-Control: no-store`. Exact latest versions are:
+
+- `artifact_manifest.json`, 1,000 bytes,
+  `bhatJLtUEWn4oeMCOEMWUiAGZFcFN7nO`;
+- `coverage.json`, 859 bytes, `ugHH5Qe4eDVZcCrYLfqxn.Eq3KLrTLVm`;
+- `pitcher_features.jsonl`, 58,449 bytes,
+  `_wHkkd0IbKTU4Nu8nj2WfCowoASWvD_B`;
+- `probable_starters.jsonl`, 24,651 bytes,
+  `IgFkluPiI3mUyleobZf_S3znkZEPUo5J`;
+- `provenance.json`, 481 bytes, `GmPGViryTdbvf0bays.djLTCuA2r7FIv`.
+
+No AWS service, Terraform resource, subscription, credential, Batch job, or
+recurring cost was created. The only AWS mutations were these five small
+versioned S3 objects and temporary files in the existing CloudShell home
+directory. The `$30` monthly budget and existing network/KMS cost floor are
+unchanged apart from negligible S3 storage and request usage.
+
+Preserved local-only state includes the raw source cache, two replay directories,
+and the 16,674-byte transfer archive under
+`.cache/nrfi_pregame/2026-07-19`. Do not repeat the July 19 StatsAPI acquisition,
+the three package generations, or the five S3 uploads while the recorded hashes
+and version IDs remain available and valid.
+
+The exact next product operation is not infrastructure. It is to obtain lawful,
+timestamp-verifiable pregame starter identities for a development-period sample
+or accumulate forward snapshots, then build strict-prior pitcher/Statcast
+features with history available before each cutoff and re-run chronological
+out-of-sample evaluation. Postgame actual starters may not substitute for that
+evidence. The 2025 holdout remains locked and untouched.
