@@ -9,6 +9,13 @@ on:
         required: true
         default: plan
         options: [plan, apply]
+  push:
+    branches: [feat/aws-probability-platform-20260717]
+    paths:
+      - ".github/workflows/terraform-deploy.yml"
+      - "terraform/**"
+      - "nrfi/aws_pregame_collector.py"
+      - "nrfi/pregame_snapshot.py"
 
 permissions:
   id-token: write
@@ -59,5 +66,7 @@ jobs:
       - name: Terraform plan
         run: terraform plan -input=false -out=tfplan
       - name: Terraform apply
-        if: ${{ inputs.action == 'apply' }}
+        if: >-
+          ${{ (github.event_name == 'workflow_dispatch' && inputs.action == 'apply') ||
+              (github.event_name == 'push' && contains(github.event.head_commit.message, '[tf-apply]')) }}
         run: terraform apply -input=false tfplan
