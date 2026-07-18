@@ -8,96 +8,85 @@ Phase 1: **PASS WITH DOCUMENTED EXCEPTIONS**
 
 Phase 2: **PASS WITH DOCUMENTED EXCEPTIONS**
 
-AWS platform: **STAGE 2 IN PROGRESS**
+AWS platform: **STAGE 2 PASS WITH DOCUMENTED EXCEPTIONS**
 
-Current task: **reproduce the frozen baseline in AWS**
+Current task: **publish the verified AWS baseline evidence and resume point-in-time signal work**
 
 Current branch: `feat/aws-probability-platform-20260717`
 
 ## AWS probability-platform checkpoint
 
-The probability-only AWS directive supersedes the earlier prohibition on AWS
-planning and deployment, but it does not authorize unbudgeted provisioning,
-market or wagering features, private-data upload, or locked-holdout access.
+The frozen probability baseline is reproduced in AWS in approved region
+`us-east-2`. The successful private Fargate job used image digest
+`sha256:23dfb0df95bc2cc423bcce2476a1f3ab8f7a450fc82d8605accc2740d1e90f0a`
+from source commit `bcc2c2aa32bb3a55aeb80d178619b6a4cfa0d753`. It ran with 2
+vCPU, 4,096 MiB, no public IP, no internet or NAT route, one attempt, and a
+two-hour timeout. The measured successful-job duration was 64.691 seconds, and
+no Batch job remained active afterward.
 
-The authoritative implementation base is PR #6 head
-`468b5363ff3b6aa460c82d6395faa2bdbf065b4d`. PR #6 remains an open draft against
-`main`, is mergeable, and its exact-head GitHub release gate run `29562168414`
-succeeded. The AWS branch was created from that clean head in the existing
-worktree; no additional worktree was created.
+The container read only the committed 2021-through-2024 package. It verified all
+source and generated artifact hashes and row counts, then performed the existing
+two-pass deterministic comparison with 32 uncertainty and 2,000 score-bootstrap
+replicates. All 29,148 candidate predictions and 29,148 grades matched the frozen
+package one-to-one after deterministic platform identity remapping. Model,
+calibrator, prediction, grade, and fold links passed; probability complements
+passed; the maximum record delta was `1.1712852909795402e-13`, below the declared
+`1e-12` tolerance. The sole scientific conclusion remains
+`PREDICTIVE SKILL NOT ESTABLISHED`. The 2025 holdout was not opened, copied,
+uploaded, provisioned, or referenced.
 
-AWS Console and CloudShell authentication is restored in approved region
-`us-east-2`. The account preflight found a root console identity with MFA and no
-root access keys, no CloudTrail, no budget or billing alarm, no GitHub OIDC, no
-private subnet, no NAT gateway or VPC endpoints, no customer-managed KMS key,
-no ECR repository, and no Batch environment. The existing three subnets assign
-public IPs. The existing S3 bucket and Athena workgroup do not satisfy the
-required controls and are not reused.
+Three fail-closed diagnostic attempts preceded success: revision 1 exposed a
+missing container package path, revision 2 rejected exact cross-platform
+evaluation equality, and revision 3 rejected platform-sensitive derived hashes.
+Each defect was corrected in the offline replay wrapper only. Production model
+code, dependencies locked in `uv.lock`, normalized data, features, folds,
+probabilities, metrics, manifests, and frozen evidence were not modified.
 
-The approved monthly ceiling is `$30`, with a separately supplied sensitive
-notification address and private networking. AWS pricing verified a
-`$0.01`-per-interface-endpoint-hour rate in `us-east-2`. The cost-bounded design
-therefore uses one private subnet, a free S3 gateway endpoint, and exactly three
-single-AZ interface endpoints for ECR API, ECR Docker, and CloudWatch Logs. The
-approximate 730-hour endpoint floor is `$21.90`; one rotating KMS key adds about
-`$1` before storage, logs, data processing, and bounded Fargate runtime.
+The result SHA-256 is
+`e4269bf2436d107a4792a475a7f616874050d408ececd10e85afc6f8b8c19cd5`.
+The result and bounded run metadata are stored as versioned, KMS-encrypted
+objects under `aws-baseline/2026-07-17/` and locked in governance mode until
+2027-07-18. The public evidence summary is
+`docs/aws/baseline_reproduction.json`.
 
-The Terraform boundary was narrowed before deployment to three KMS-encrypted,
-versioned, public-blocked buckets; immutable ECR; private endpoint networking;
-least-privilege Batch roles; one bounded log group; and an account-wide budget.
-Glue, Athena, SageMaker, Lambda, API Gateway, public access, NAT, scheduled work,
-and a holdout bucket are deferred until a real AWS product milestone exists.
-The locked 2025 holdout was not opened, copied, uploaded, or provisioned.
+The minimum AWS foundation contains three private, versioned, public-blocked,
+KMS-encrypted buckets; immutable KMS-encrypted ECR; one private subnet; a free S3
+gateway endpoint; exactly three single-AZ interface endpoints for ECR API, ECR
+Docker, and CloudWatch Logs; a rotating KMS key; a bounded log group; and a
+scale-to-zero Batch environment capped at 2 vCPU. It contains no NAT gateway,
+public workload address, Lambda, API Gateway, Glue, SageMaker, scheduled job, or
+holdout bucket. Terraform `1.12.2` with `hashicorp/aws v5.100.0` passes format,
+validation, and zero-drift checks against the KMS-encrypted remote state.
 
-A private versioned audit bucket and multi-region CloudTrail were bootstrapped
-first and logging was verified active. A private versioned Terraform-state
-bucket uses the rotating project KMS key, enforces KMS-only writes, and uses an
-S3 lock file. GitHub Actions OIDC and a branch-scoped deployment role were
-created. Because AWS prohibits root from assuming roles, the initial apply used
-a no-console bootstrap user with one temporary access key held only in
-CloudShell memory; the key and user are scheduled for deletion immediately
-after the baseline replay, while future automation remains OIDC-only.
+The account-wide monthly budget is `$30`, with 50% forecast, 80% actual, and
+100% actual notifications. The approximate endpoint floor is `$21.90` per
+730-hour month and the rotating KMS key adds about `$1`, before storage, logs,
+data processing, and the bounded Fargate runtime. AWS Budgets currently reports
+`$0.00`; Cost Explorer reports data unavailable because new-account cost data
+has not yet been ingested, so observed cost remains an operational lag rather
+than a verified zero.
 
-The reviewed root-read-only plan was `49 to add, 0 to change, 0 to destroy` with
-Batch disabled. The first non-root apply stopped on an S3 read-permission gap
-after preserving 31 resources. The three newly created empty buckets were
-independently verified, safely untainted in state instead of replaced, and the
-scoped policy was corrected. A second apply completed bucket controls and
-stopped only on ECR's missing KMS grant permission. After adding the three
-required grant actions, the final saved plan added ECR and its lifecycle rule.
-The resulting Terraform plan reports: `No changes. Your infrastructure matches
-the configuration.`
+CloudTrail is logging and delivering without a recorded delivery or digest
+error. Root MFA is enabled and root has no access keys. The temporary bootstrap
+access key and user are deleted. Superseded managed-policy versions are deleted.
+The deployment role now has exactly one trust statement: GitHub OIDC for
+`repo:phatcobra/nrfi-predictor:ref:refs/heads/feat/aws-probability-platform-20260717`;
+the temporary root bootstrap trust is removed.
 
-Independent post-apply checks show the account-wide `$30` monthly budget with
-50% forecast, 80% actual, and 100% actual thresholds and one subscriber each;
-all four VPC endpoints are available; the subnet is `172.31.48.0/24` in
-`us-east-2a`, does not assign public IPs, and has no internet or NAT route; Batch
-remains disabled; ECR is immutable and KMS-encrypted; KMS rotation is enabled;
-and all three data/evidence buckets are versioned, KMS-encrypted, and fully
-public-blocked.
+The final ECR scan completed with 3 critical, 5 high, and 3 medium findings. All
+critical and high findings currently map to Debian package `perl`
+`5.36.0-7+deb12u3`; their identifiers are recorded in the public evidence JSON.
+This is release-blocking for API or broader deployment, but it does not invalidate
+the offline scientific reproduction. No additional AWS service or production
+endpoint may be added until the image is rebuilt from a patched immutable base
+and the scan is clean under the repository's release policy.
 
-Foundation commit `168854e5d685e171f5529bbd6917ad0d07c73243` is published in
-draft PR #8, stacked narrowly on PR #6. Exact-head GitHub Actions run
-`29607773545` passed every fail-closed release-gate step, including diagnostic
-artifact upload. The PR remains draft and must not be merged or retargeted until
-its base and AWS gates are resolved.
-
-Terraform `1.12.2` was downloaded to a temporary directory and verified against
-HashiCorp's published SHA-256 checksum. With the backend disabled, provider
-`hashicorp/aws v5.100.0` was locked for Windows and Linux, recursive format checks
-passed, and `terraform validate` returned `Success! The configuration is valid.`
-The complete offline repository suite returned `133 passed, 1 skipped, 22
-warnings`; the skip is the environment-specific directory-symlink test. Ruff
-lint and format checks passed, Pyright returned zero errors and warnings, core
-imports and byte compilation passed, the replacement deploy script passed Bash
-syntax validation, and diff, credential-pattern, account-number, and private-path
-checks passed.
-No historical data was reacquired or scanned, no container or model has yet run,
-the preserved 2022-2024 evidence is unchanged, and the locked 2025 holdout
-remains untouched. The exact next action is to publish an immutable container,
-transfer only the committed manifest-approved 2021-2024 evidence, enable one
-bounded Batch replay at the image digest, and require analytical equivalence to
-the frozen baseline.
+Draft PR #8 remains the sole AWS implementation pull request and must not be
+merged. Publication requires the AWS evidence commit to be pushed and the
+replacement GitHub Actions gate to pass at that exact head. No historical data
+was reacquired, no asset scan was repeated, and no private workstation path,
+credential, raw local dataset, or locked evaluation evidence entered AWS or the
+repository.
 
 The Phase 0 asset inventory, per-file manifest, reconciliation, data-gap analysis,
 repository assessment, and risk register are complete. Their two deterministic
@@ -110,9 +99,10 @@ uploaded local assets, or inspected locked evaluation evidence.
 |---|---|
 | Phase 0 documentation branch is unpublished | Nonblocking publication backlog; publish separately when tooling permits |
 | `${MLB_MODEL_REPO}` has 34 modified and 7 untracked paths | Read-only quarantine; do not reset, clean, stash, commit, overwrite, train from, or otherwise alter it |
-| Browser and Computer bridges are unavailable | Operational limitation; signed-in account inspection remains unavailable |
-| GitHub protection, billing, benefits, and zero-overage settings are unverified | Operational risk; no paid, cloud, subscription, or permission-changing action is authorized |
-| GitHub authentication and SSH connectivity | Restored for account `phatcobra`; remote mutation remains limited to the existing PR #6 branch and pull request |
+| GitHub protection, benefits, and zero-overage settings are unverified | Operational risk; no new paid subscription or weakened repository gate is authorized |
+| GitHub authentication and SSH connectivity | Restored for account `phatcobra`; remote mutation remains limited to the existing PR #8 branch and pull request |
+| AWS Cost Explorer ingestion | Newly enabled account data is unavailable; the budget currently reports `$0.00`, which is not accepted as evidence of zero accrued cost |
+| Final container scan | Release blocker: 3 critical, 5 high, and 3 medium findings; no API or broader deployment until a patched immutable base produces an acceptable scan |
 | GitHub-hosted action Node.js 20 runtimes | Nonblocking deprecation warning on the successful release gate; update pinned actions separately before GitHub ends forced Node.js 24 compatibility |
 | Some quarantined files remain incompletely inspected | They remain unadmitted and cannot be used for training, evaluation, or production |
 
@@ -524,10 +514,17 @@ publication files contain no recognized secret or private workstation path, and
 
 ## Exact next action
 
-After committing and publishing this evidence on the existing integration
-branch, use the authoritative inventory without rescanning to identify a lawful
-controlled source of timestamped historical probable-starter identities for
-pre-2025 development games. Admit identities only when pregame availability can
-be proven, quantify coverage and rejection reasons, and otherwise fail closed.
-Do not substitute actual starters, inspect 2025, or begin market, wager, cloud,
-promotion, or production work.
+Commit and push the AWS evidence on the existing PR #8 branch, then require the
+replacement GitHub Actions run to pass at that exact head. Before another AWS
+execution, rebuild the same bounded image from a patched immutable base and
+require an acceptable ECR scan; do not add a service or endpoint as part of that
+repair.
+
+The next product deliverable is point-in-time predictive signal, not more
+infrastructure. Use the authoritative inventory without rescanning to identify a
+lawful controlled source of timestamped historical probable-starter identities
+for pre-2025 development games, then prioritize admitted pitcher and Statcast
+features. Preserve the existing 2022-through-2024 out-of-sample evidence, admit
+identities only when pregame availability is proven, quantify coverage and
+rejection reasons, and otherwise fail closed. Do not substitute actual starters,
+inspect 2025, deploy an API, or make any edge or qualification claim.

@@ -1,0 +1,167 @@
+{
+  "schema_version": "aws_baseline_reproduction.v1",
+  "recorded_at": "2026-07-18T00:24:56Z",
+  "region": "us-east-2",
+  "branch": "feat/aws-probability-platform-20260717",
+  "container_source_commit": "bcc2c2aa32bb3a55aeb80d178619b6a4cfa0d753",
+  "image_digest": "sha256:23dfb0df95bc2cc423bcce2476a1f3ab8f7a450fc82d8605accc2740d1e90f0a",
+  "producing_model_commit": "a3e86f52e62bd8fcfbd47c579822ab5303a29082",
+  "result_sha256": "e4269bf2436d107a4792a475a7f616874050d408ececd10e85afc6f8b8c19cd5",
+  "source": {
+    "seasons": [2021, 2022, 2023, 2024],
+    "scheduled_regular_season_games": 9720,
+    "accepted_finalized_games": 9716,
+    "normalized_partition_observations": 9778,
+    "feature_eligible_games": 9559,
+    "evaluation_eligible_games": 9558,
+    "source_artifact_rows": 73112
+  },
+  "folds": [
+    {
+      "train_seasons": [2021],
+      "test_season": 2022,
+      "train_count": 2271,
+      "test_count": 2429
+    },
+    {
+      "train_seasons": [2021, 2022],
+      "test_season": 2023,
+      "train_count": 4700,
+      "test_count": 2429
+    },
+    {
+      "train_seasons": [2021, 2022, 2023],
+      "test_season": 2024,
+      "train_count": 7129,
+      "test_count": 2429
+    }
+  ],
+  "predictions_per_candidate": 7287,
+  "candidate_count": 4,
+  "generated_prediction_rows": 29148,
+  "generated_grade_rows": 29148,
+  "generated_artifact_rows": 58314,
+  "metrics": {
+    "overall_climatology": {
+      "log_loss": 0.6932704212,
+      "brier_score": 0.2500616118
+    },
+    "logistic_raw": {
+      "log_loss": 0.6932044873356864,
+      "brier_score": 0.25002851194868286,
+      "expected_calibration_error": 0.01569433693309261
+    },
+    "logistic_temporal_sigmoid": {
+      "log_loss": 0.6938467638875778,
+      "brier_score": 0.2503454814433345,
+      "expected_calibration_error": 0.0038560482027618355
+    },
+    "lightgbm_raw": {
+      "log_loss": 0.6976539593031028,
+      "brier_score": 0.2522078470814108,
+      "expected_calibration_error": 0.032467298000109064
+    },
+    "lightgbm_temporal_sigmoid": {
+      "log_loss": 0.6959987307163928,
+      "brier_score": 0.251390058049497,
+      "expected_calibration_error": 0.014365748583300399
+    }
+  },
+  "primary_decision": "PREDICTIVE SKILL NOT ESTABLISHED",
+  "deterministic_replay": "PASS",
+  "numerical_tolerance": 1e-12,
+  "max_logistic_replay_delta": 1.426636586643326e-14,
+  "max_frozen_evaluation_delta": 4.346523141407488e-14,
+  "max_frozen_record_delta": 1.1712852909795402e-13,
+  "analytical_match_within_tolerance": true,
+  "record_verification": {
+    "fold_count": 3,
+    "model_identity_count": 6,
+    "calibrator_identity_count": 6,
+    "prediction_count": 29148,
+    "grade_count": 29148,
+    "probability_complements": "PASS",
+    "prediction_to_model_links": "PASS",
+    "prediction_to_calibrator_links": "PASS",
+    "prediction_to_grade_links": "PASS",
+    "platform_identity_remapping": "ONE_TO_ONE"
+  },
+  "analytical_identities": {
+    "configuration": "155d7d9d1657dd88cbd0c8328fef66c47b7ced4c0cd031c15ee0311a59bc5d19",
+    "aws_model_artifact": "a39afe25953ae0e8fbff6a95e635220a9e86ff42470482e497284d891ce13ecd",
+    "aws_prediction_partition": "75c6a57357ebbf8d53c496e6c9dfd7e1e90290a83a3b63964c6aec8753b357f3",
+    "aws_grade_partition": "21abfbcac455a4e8712b3069845d9c481bac217062f708f5ed07dd3a81eb7eb1",
+    "aws_evaluation": "cd7f1af8532f1ef160690d84335a1365bf31c0055a7dcc67ab1829043f9372df",
+    "frozen_model_artifact": "fbcebb2ffc4e8f76a81b6b5562820196f50c386854a2a9b39a6bf1ec7fb50540",
+    "frozen_prediction_partition": "2518ceafbd3eecfc1b27a60b9733b55fe21cb98a4a1b12d90922f6de9fa51a02",
+    "frozen_grade_partition": "8acc412ff7aad193d66b133508b793e1e6b9037b85be31988d50154e5d1c23a2",
+    "frozen_evaluation": "23428a3f7257f434a6394a8f8a117ae0df3004cade8b8fa47771cb8ba072bfc7"
+  },
+  "execution": {
+    "status": "SUCCEEDED",
+    "job_definition_revision": 4,
+    "duration_ms": 64691,
+    "vcpus": 2,
+    "memory_mib": 4096,
+    "max_vcpus": 2,
+    "public_ip": false,
+    "internet_route": false,
+    "nat_gateway": false,
+    "active_jobs_after_completion": 0,
+    "diagnostic_failed_attempts": 3
+  },
+  "immutable_evidence": {
+    "result_key": "aws-baseline/2026-07-17/baseline-result.json",
+    "metadata_key": "aws-baseline/2026-07-17/run-metadata.json",
+    "versioning": "ENABLED",
+    "encryption": "AWS_KMS",
+    "object_lock_mode": "GOVERNANCE",
+    "result_retain_until": "2027-07-18T00:24:55.793000Z",
+    "metadata_retain_until": "2027-07-18T00:24:56.718000Z"
+  },
+  "account_controls": {
+    "monthly_budget_usd": 30,
+    "notification_thresholds": [
+      "50_PERCENT_FORECASTED",
+      "80_PERCENT_ACTUAL",
+      "100_PERCENT_ACTUAL"
+    ],
+    "cloudtrail_logging": true,
+    "cloudtrail_last_delivery_error": null,
+    "github_oidc_subject": "repo:phatcobra/nrfi-predictor:ref:refs/heads/feat/aws-probability-platform-20260717",
+    "temporary_bootstrap_user_deleted": true,
+    "temporary_access_key_deleted": true,
+    "root_access_keys": 0,
+    "root_mfa_enabled": true
+  },
+  "cost_observation": {
+    "budget_reported_actual_usd": 0,
+    "cost_explorer_status": "DATA_UNAVAILABLE_INGESTION_LAG",
+    "estimated_private_endpoint_floor_usd": 21.9,
+    "estimated_kms_monthly_usd": 1,
+    "storage_requests_logs_data_processing_and_fargate_extra": true
+  },
+  "container_scan": {
+    "status": "COMPLETE_RELEASE_BLOCKING",
+    "critical": 3,
+    "high": 5,
+    "medium": 3,
+    "affected_package": "perl",
+    "affected_version": "5.36.0-7+deb12u3",
+    "critical_findings": [
+      "CVE-2026-13221",
+      "CVE-2026-12087",
+      "CVE-2026-57433"
+    ],
+    "high_findings": [
+      "CVE-2026-7017",
+      "CVE-2026-48961",
+      "CVE-2026-48962",
+      "CVE-2026-57432",
+      "CVE-2026-48959"
+    ]
+  },
+  "locked_2025_holdout_used": false,
+  "new_data_acquired": false,
+  "full_asset_scan_repeated": false
+}
