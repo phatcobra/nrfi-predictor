@@ -30,3 +30,8 @@ output "private_network_monthly_floor_usd" {
   description = "Approximate 730-hour floor for three interface endpoints at the verified us-east-2 price; excludes data processing."
   value       = 21.90
 }
+
+output "probability_api_url" {
+  description = "IAM-authenticated Function URL for the sanitized probability response."
+  value       = aws_lambda_function_url.probability_api.function_url
+}
