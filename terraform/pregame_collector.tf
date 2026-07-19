@@ -157,6 +157,7 @@ resource "aws_lambda_function" "pregame_collector" {
   filename         = data.archive_file.pregame_collector.output_path
   source_code_hash = data.archive_file.pregame_collector.output_base64sha256
 
+  # Sized for the 40.6 MB strict-prior profile projection.
   memory_size = 1024
   timeout     = 120
 
