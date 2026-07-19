@@ -5,7 +5,7 @@ locals {
   # Live assembly now uses the reproduced, determinism-verified 2015-2024
   # profile projection. The prior 2021-2024 key is retained as the rollback
   # target (its read grant is preserved) so reverting is a one-line change.
-  pitcher_profiles_key = "features/pitcher-statcast-strict-prior-2015-2024-v1/profiles.jsonl"
+  pitcher_profiles_key          = "features/pitcher-statcast-strict-prior-2015-2024-v1/profiles.jsonl"
   pitcher_profiles_rollback_key = "features/pitcher-statcast-strict-prior-v1/profiles.jsonl"
 }
 
