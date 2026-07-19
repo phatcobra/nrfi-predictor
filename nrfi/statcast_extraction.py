@@ -341,9 +341,33 @@ def build_pitcher_feature_snapshots_fast(
     for rows in by_pitcher.values():
         rows.sort(key=lambda row: (row["scheduled_start_at"], row["game_pk"]))
     starter_by_pair = {(int(s["game_pk"]), int(s["pitcher_id"])): s for s in starters}
+    starters_by_pitcher: dict[int, list[Mapping[str, Any]]] = {}
+    for starter in starters:
+        starters_by_pitcher.setdefault(int(starter["pitcher_id"]), []).append(starter)
 
     snapshots: list[dict[str, Any]] = []
     for pitcher_id, rows in by_pitcher.items():
+        cutoffs = [
+            str(starter_by_pair[(int(row["game_pk"]), pitcher_id)]["prediction_cutoff"])
+            for row in rows
+            if (int(row["game_pk"]), pitcher_id) in starter_by_pair
+        ]
+        labels = [str(row["label_available_at"]) for row in rows]
+        # The chronological prefix equals the reference's availability set only
+        # when cutoffs are non-decreasing and each label is available before the
+        # next start's cutoff.  Otherwise (e.g. suspended games) fall back to the
+        # exact reference builder for this pitcher, preserving byte equivalence.
+        simple = len(cutoffs) == len(rows) and all(
+            cutoffs[i] <= cutoffs[i + 1] and labels[i] <= cutoffs[i + 1]
+            for i in range(len(rows) - 1)
+        )
+        if not simple:
+            snapshots.extend(
+                build_pitcher_feature_snapshots(
+                    rows, starters_by_pitcher.get(pitcher_id, [])
+                )
+            )
+            continue
         totals: dict[str, float] = {alias: 0 for _src, alias in _TOTAL_FIELDS}
         totals["starts"] = 0
         prior: list[Mapping[str, Any]] = []

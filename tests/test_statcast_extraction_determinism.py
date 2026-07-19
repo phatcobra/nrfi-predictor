@@ -192,6 +192,64 @@ def test_fast_builder_matches_reference_builder_exactly() -> None:
     assert sx._identity(fast) == sx._identity(reference)
 
 
+def test_fast_builder_matches_reference_for_suspended_game_pitcher() -> None:
+    # Start 1 is suspended: its label becomes available AFTER start 2's cutoff,
+    # so the reference excludes it from start 2's availability.  This makes the
+    # pitcher "complex", exercising the exact-reference fallback path.
+    def _row(gp, day, label_day):
+        return {
+            "game_pk": gp,
+            "official_date": day,
+            "scheduled_start_at": f"{day}T23:05:00Z",
+            "label_available_at": f"{label_day}T23:59:00Z",
+            "pitcher_id": PITCHER,
+            "side": "away",
+            "pitch_count": 90,
+            "plate_appearances": 21,
+            "strikeouts": 6,
+            "walks": 2,
+            "home_runs": 1,
+            "swings": 41,
+            "whiffs": 9,
+            "out_of_zone_pitches": 31,
+            "chases": 7,
+            "batted_balls": 13,
+            "hard_hit_balls": 4,
+            "barrels": 1,
+            "fastball_pitches": 46,
+            "fastball_velocity_sum": 94.3 * 46,
+            "first_inning_runs_allowed": 1,
+            "first_inning_scoreless": 0,
+        }
+
+    history = [
+        _row(500001, "2016-04-01", "2016-04-05"),  # suspended, late label
+        _row(500002, "2016-04-03", "2016-04-03"),
+        _row(500003, "2016-04-08", "2016-04-08"),
+        _row(500004, "2016-04-13", "2016-04-13"),
+        _row(500005, "2016-04-18", "2016-04-18"),
+    ]
+    starters = [
+        {
+            "game_pk": r["game_pk"],
+            "official_date": r["official_date"],
+            "prediction_cutoff": f"{r['official_date']}T22:00:00Z",
+            "pitcher_id": PITCHER,
+            "side": "away",
+        }
+        for r in history
+    ]
+
+    reference = sx.build_pitcher_feature_snapshots(history, starters)
+    fast = sx.build_pitcher_feature_snapshots_fast(history, starters)
+
+    assert fast == reference
+    # start 2 must see zero prior starts because start 1's label is not yet
+    # available at start 2's cutoff.
+    by_game = {int(s["game_pk"]): s for s in fast}
+    assert by_game[500002]["feature_values"]["prior_starts_career"] == 0
+
+
 def test_strict_prior_window_excludes_current_and_future_starts(tmp_path: Path) -> None:
     day_cache = tmp_path / "statcast_days"
     multiseason = tmp_path / "multiseason"
