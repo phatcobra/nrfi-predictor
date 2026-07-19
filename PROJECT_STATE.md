@@ -944,3 +944,78 @@ park, weather, umpire, rest, travel, and injury point-in-time inputs and re-run
 strict chronological evaluation. The scientific status remains
 `PREDICTIVE SKILL NOT ESTABLISHED`; the required output remains
 `NO QUALIFIED WAGER`.
+
+## Live forward assembly checkpoint - 2026-07-19
+
+Accumulated forward captures are now admitted into the shared production
+feature path on AWS, and the IAM-authenticated endpoint serves real
+request-specific assembly status. Implementation commit `0c31fd5` added
+`nrfi/forward_admission.py` (capture discovery, schema and identity
+validation, explicit rejections, point-in-time selection with preserved
+revision lineage, strict-prior profile join, per-game fail-closed assembly)
+plus eight focused admission tests, seven endpoint tests, one collector
+wiring test, and the Terraform for both Lambdas. Commits `13bb81e` and
+`904bae8` sized the collector at 1024 MiB for the profile projection. The
+gate for the change set was Ruff lint/format clean, Pyright `0 errors`, and
+the complete offline suite `172 passed, 1 skipped, 21 warnings`; CI stayed
+green through run `29668666368`.
+
+The strict-prior profile table now has a lossless JSONL projection for the
+stdlib Lambda runtime at
+`features/pitcher-statcast-strict-prior-v1/profiles.jsonl`
+(40,608,284 bytes, SHA-256
+`b6a164f6aaacccad88365a90667525a35024915e27bd62e80216a90c019fc071`, version
+`In6dj0vA6fjCBqBiGn2T4yKNvbQ2X42D`, 19,432 rows, 17,509 eligible, zero NaN
+projections, cutoff years 2021-2024 only), derived in CloudShell with PyArrow
+25.0.0 from committed parquet
+`features/pitcher-statcast-strict-prior-v1/producing_commit=11fdef7b272e2347bd9e8351fb4def5f43dfb5e7/pitcher_features.parquet`
+(source SHA-256
+`9ec5ea9250a09ff7055459e960252b305e0b5e9772aa85dcc6b7d7078a9ff1a7`, version
+`sp.tPTyJms.SIny5yWW0nKly4x432bta`); provenance sidecar version is
+`lSDk7MTaHqd0CXvy8vHq9lziKwD_BF7V`.
+
+Deployment ran only through the GitHub OIDC deployer. Run `29668474511`
+planned `0 add, 4 change, 0 destroy`; dispatch run `29668618357` applied it;
+dispatch run `29668657458` confirmed `No changes`; run `29668844142` applied
+the memory sizing (`0 add, 1 change, 0 destroy`). No resource was destroyed
+or replaced at any point.
+
+Independent live verification: the collector (1024 MiB, Active/Successful)
+returned HTTP 200 and published assembly packages for 2026-07-18 (4 admitted
+captures, 15 games) and 2026-07-19 (4 admitted captures, 16 games) with
+`profiles_status=PROFILES_LOADED`. `feature_assembly_eligible_games` is `0`
+on both dates, and that zero is the correct fail-closed product of the
+recorded scientific gap: every side blocks on
+`PROFILE_MISSING_INTERVENING_SEASON_HISTORY`,
+`PROFILE_MINIMUM_PRIOR_STARTS_NOT_MET`, or
+`NO_STRICT_PRIOR_STATCAST_PROFILE` because the 2025 season remains locked.
+The latest verified package is
+`signals/pregame/assembly/2026-07-19/assembly-20260719T013838Z.json` with
+`package_id`
+`0ebc4e68a97378027021edacbdd3154e1f8f1a2b9eda7541ad54eb90f328b4e5`.
+
+Endpoint verification: an unauthenticated game query returned HTTP 403; a
+SigV4 `GET ?game_pk=822786&date=2026-07-19` returned HTTP 200 with the real
+per-game assembly (layered eligibility all false above the snapshot level,
+`freshness_seconds` 2,
+`probability_ineligibility_reasons`
+`["APPROVED_MODEL_UNAVAILABLE","PREDICTIVE_SKILL_NOT_ESTABLISHED"]`, and
+`"wager_decision":"NO QUALIFIED WAGER"`); the root path still returns the
+byte-identical preserved response now explicitly labeled
+`x-nrfi-response-class: preserved-baseline-not-current-inference`.
+
+After verification no Batch job was active in any state and no temporary
+credential persisted; SigV4 test credentials were confined to subshells. The
+new usage (one 40.6 MB object, small assembly objects, eight collector
+invocations per day at 1024 MiB) stays within the approved `$30` monthly
+budget. A deferred security follow-up remains recorded: narrow the deployer
+policy's `lambda:*`/`events:*` grants to the enumerated action set after the
+next stable deployment window.
+
+The exact next product operations are, in order: timestamped lineup
+collection and admission through the same forward pattern; batter and
+top-of-order features; park factors; pregame weather forecasts; umpire
+assignments; rest, travel, and workload effects; then strict chronological
+re-evaluation over the accumulated forward window before any model approval.
+The scientific status remains `PREDICTIVE SKILL NOT ESTABLISHED`; the
+required output remains `NO QUALIFIED WAGER`.
