@@ -330,3 +330,40 @@ def test_run_assembly_refuses_locked_holdout_date() -> None:
             ["2025-07-19"],
             profiles_key=PROFILES_KEY,
         )
+
+
+def test_locked_2025_gap_is_flagged_without_erasing_career_history(
+    tmp_path: Path,
+) -> None:
+    objects = {
+        _forward_key("20260719T120000Z"): _capture_bytes(
+            tmp_path, "c1", _payload(away_pitcher=7, home_pitcher=8), T1
+        ),
+        PROFILES_KEY: _profiles_jsonl(7, 8, cutoff="2024-09-01T18:00:00Z"),
+    }
+    fake = _FakeLakeS3(objects)
+
+    summary = admission.run_assembly(
+        fake,
+        BUCKET,
+        KMS,
+        [TARGET.isoformat()],
+        profiles_key=PROFILES_KEY,
+        now=lambda: AS_OF,
+    )
+
+    package = json.loads(fake.put_calls[-1]["Body"].decode("utf-8"))
+    game = package["games"][0]
+    for side in ("away", "home"):
+        assert game["sides"][side]["feature_status"] == "READY"
+        assert game["sides"][side]["profile_history_gap_seasons"] == 1
+        assert game["sides"][side]["profile_recent_history_missing"] is True
+    assert game["eligibility"]["pitcher_feature"] is True
+    assert game["eligibility"]["feature_assembly"] is True
+    assert game["eligibility"]["probability"] is False
+    assert game["probability_ineligibility_reasons"] == [
+        "APPROVED_MODEL_UNAVAILABLE",
+        "PREDICTIVE_SKILL_NOT_ESTABLISHED",
+    ]
+    assert game["wager_decision"] == "NO QUALIFIED WAGER"
+    assert summary["results"][0]["feature_assembly_eligible_games"] == 1

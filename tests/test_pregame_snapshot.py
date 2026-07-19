@@ -180,7 +180,9 @@ def test_profile_join_uses_latest_strict_prior_profile(tmp_path: Path) -> None:
     assert rows[1]["feature_status"] == "BLOCKED_PREGAME_SNAPSHOT"
 
 
-def test_profile_join_blocks_intervening_history_gap(tmp_path: Path) -> None:
+def test_profile_join_flags_intervening_history_gap_without_erasure(
+    tmp_path: Path,
+) -> None:
     profiles = tmp_path / "profiles.parquet"
     _write_profiles(profiles, [_profile("2024-09-01T18:00:00Z")])
 
@@ -188,11 +190,26 @@ def test_profile_join_blocks_intervening_history_gap(tmp_path: Path) -> None:
         build_probable_starter_rows(_source(), TARGET_DATE), profiles
     )[0]
 
-    assert row["feature_status"] == "DEGRADED_PROFILE_HISTORY_GAP"
-    assert row["feature_status_reason"] == (
-        "PROFILE_MISSING_INTERVENING_SEASON_HISTORY"
-    )
-    assert row["inference_eligible"] is False
+    assert row["feature_status"] == "READY"
+    assert row["feature_status_reason"] is None
+    assert row["inference_eligible"] is True
+    assert row["profile_history_gap_seasons"] == 1
+    assert row["profile_recent_history_missing"] is True
+
+
+def test_profile_join_reports_zero_gap_for_current_history(
+    tmp_path: Path,
+) -> None:
+    profiles = tmp_path / "profiles.parquet"
+    _write_profiles(profiles, [_profile("2026-07-17T18:00:00Z")])
+
+    row = join_pitcher_profiles(
+        build_probable_starter_rows(_source(), TARGET_DATE), profiles
+    )[0]
+
+    assert row["feature_status"] == "READY"
+    assert row["profile_history_gap_seasons"] == 0
+    assert row["profile_recent_history_missing"] is False
 
 
 def test_derived_package_replays_byte_identically_without_raw_payload(

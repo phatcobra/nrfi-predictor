@@ -15,7 +15,7 @@ from typing import Any, Callable, Iterable, Mapping, Sequence
 STATSAPI_ENDPOINT = "https://statsapi.mlb.com/api/v1/schedule"
 SOURCE_SCHEMA_VERSION = "statsapi_probable_starters_source.v1"
 SNAPSHOT_SCHEMA_VERSION = "probable_starter_snapshot.v1"
-FEATURE_SCHEMA_VERSION = "pregame_pitcher_statcast_feature.v1"
+FEATURE_SCHEMA_VERSION = "pregame_pitcher_statcast_feature.v2"
 PACKAGE_SCHEMA_VERSION = "pregame_pitcher_snapshot_package.v1"
 LOCKED_HOLDOUT_SEASON = 2025
 HTTP_TIMEOUT_SECONDS = 20
@@ -323,16 +323,14 @@ def join_pitcher_profiles_from_profiles(
         elif profile.get("profile_feature_eligible") is not True:
             status = "BLOCKED_INSUFFICIENT_PROFILE_HISTORY"
             reason = "PROFILE_MINIMUM_PRIOR_STARTS_NOT_MET"
-        else:
-            profile_time = _parse_utc(profile["prediction_cutoff"])
-            target_year = int(str(snapshot["official_date"])[:4])
-            if profile_time.year < target_year - 1:
-                status = "DEGRADED_PROFILE_HISTORY_GAP"
-                reason = "PROFILE_MISSING_INTERVENING_SEASON_HISTORY"
 
         profile_time = (
             _parse_utc(profile["prediction_cutoff"]) if profile is not None else None
         )
+        history_gap_seasons = None
+        if profile_time is not None:
+            target_year = int(str(snapshot["official_date"])[:4])
+            history_gap_seasons = max(0, target_year - 1 - profile_time.year)
         feature_row = {
             "schema_version": FEATURE_SCHEMA_VERSION,
             "snapshot_id": snapshot["snapshot_id"],
@@ -356,6 +354,10 @@ def join_pitcher_profiles_from_profiles(
                 int((observed - profile_time).total_seconds() // 86400)
                 if profile_time is not None
                 else None
+            ),
+            "profile_history_gap_seasons": history_gap_seasons,
+            "profile_recent_history_missing": (
+                history_gap_seasons > 0 if history_gap_seasons is not None else None
             ),
             "profile_feature_eligible": (
                 profile.get("profile_feature_eligible") if profile is not None else None

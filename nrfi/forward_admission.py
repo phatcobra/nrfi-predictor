@@ -16,7 +16,7 @@ from nrfi.pregame_snapshot import (
 FORWARD_KEY_PREFIX = "signals/pregame/official-statsapi/forward"
 ASSEMBLY_KEY_PREFIX = "signals/pregame/assembly"
 CAPTURE_SCHEMA_VERSION = "forward_probable_starter_capture.v1"
-ASSEMBLY_SCHEMA_VERSION = "pregame_game_assembly.v1"
+ASSEMBLY_SCHEMA_VERSION = "pregame_game_assembly.v2"
 PACKAGE_SCHEMA_VERSION = "pregame_assembly_package.v1"
 PROFILE_TABLE_SCHEMA = "pitcher-statcast-strict-prior-v1"
 LOCKED_HOLDOUT_SEASON = 2025
@@ -389,6 +389,8 @@ def assemble_games(
                 "profile_prediction_cutoff": None,
                 "profile_feature_hash": None,
                 "profile_age_days": None,
+                "profile_history_gap_seasons": None,
+                "profile_recent_history_missing": None,
                 "feature_values": None,
             }
             if selected is None:
@@ -420,6 +422,12 @@ def assemble_games(
                         ],
                         "profile_feature_hash": feature["profile_feature_hash"],
                         "profile_age_days": feature["profile_age_days"],
+                        "profile_history_gap_seasons": feature[
+                            "profile_history_gap_seasons"
+                        ],
+                        "profile_recent_history_missing": feature[
+                            "profile_recent_history_missing"
+                        ],
                         "feature_values": feature["feature_values"],
                     }
                 )
