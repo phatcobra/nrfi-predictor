@@ -867,36 +867,80 @@ timestamp-verifiable pregame starter identities for a development-period sample
 or accumulate forward snapshots, then build strict-prior pitcher/Statcast
 features with history available before each cutoff and re-run chronological
 out-of-sample evaluation. Postgame actual starters may not substitute for that
-## Checkpoint: 2026-07-18T22:30Z
-
-### Terraform Apply: SUCCESS (run #4, commit 41de6ba)
-- aws_lambda_function.pregame_collector: CREATED (nrfi-probability-dev-pregame-collector, python3.11, Active)
-- - aws_lambda_permission.pregame_collector_events: CREATED (AllowScheduledInvocation)
-  - - aws_cloudwatch_event_rule.pregame_collector: CREATED (ENABLED)
-    - - aws_cloudwatch_event_target.pregame_collector: CREATED
-      - - aws_iam_role.pregame_collector: CREATED (nrfi-probability-dev-pregame-collector)
-        - - aws_cloudwatch_log_group.pregame_collector: CREATED
-          - - aws_iam_role_policy.pregame_collector: CREATED
-           
-            - ### Pregame Collector Live Invocation (2026-07-18T22:28Z)
-            - - Status: 200, Duration: 3420ms
-              - - target_date 2026-07-18: pregame_feature_eligible_rows=6, row_count=30, bytes=26120
-              - target_date 2026-07-19: pregame_feature_eligible_rows=29, row_count=32, bytes=26925
-              - - S3 snapshots versioned and checksummed in nrfi-probability-dev-*-lake
-                - - locked_2025_holdout_accessed: false
-                 
-                  - ### EventBridge Schedule
-                  - - Rule: nrfi-probability-dev-pregame-collector-schedule, ENABLED
-                    - - cron(3 11,13,15,17,19,21,23,1 * * ? *) — 8 snapshots/day covering 7am-9pm ET
-                     
-                      - ### IAM Policy Fix
-                      - - nrfi-probability-stage2-deployer policy updated to v6 with iam:PassRole on nrfi-probability-* roles
-                       
-                        - ### Next Steps
-                        - - Connect 29 eligible rows to Statcast feature pipeline (pitcher ERA, K%, BB%, WHIP)
-                          - - Implement lineup/batter top-of-order features
-                            - - Add park factors, historical weather forecasts, umpire assignments
-                              - - Train calibrated NRFI/YRFI model on 2022-2024 chronological folds
-                                - - Replace preserved-response endpoint with genuine request-specific inference
-                                  - - NO QUALIFIED WAGER (predictive skill not yet established on holdout)
 evidence. The 2025 holdout remains locked and untouched.
+
+## Forward snapshot collector checkpoint - 2026-07-18
+
+The scheduled forward collector for immutable timestamped probable-starter
+snapshots is live in AWS. Implementation commit
+`af6c178a59eafa0af6489c3d57864f49f04fe08b` added
+`nrfi/aws_pregame_collector.py` (schema `forward_probable_starter_capture.v1`,
+reusing the committed `pregame_snapshot` acquisition and normalization path
+through lazy imports), six focused tests, `terraform/pregame_collector.tf`, and
+the OIDC deployment workflow `.github/workflows/terraform-deploy.yml`. Workflow
+commits `f0a68f5` and `c740ec9` added branch-push triggering and KMS-encrypted
+state locking. The change-set gate passed Ruff lint and format, Pyright
+`0 errors, 0 warnings, 0 informations`, and the complete offline suite
+`158 passed, 1 skipped, 21 warnings`; CI remained green through run
+`29663636034`.
+
+Deployment executed under GitHub OIDC role
+`nrfi-probability-terraform-deployer`; no root or long-lived credential ran
+Terraform. Managed policy `nrfi-probability-stage2-deployer` was extended from
+the operator console session as bounded bootstrap actions: version v5 added
+`lambda:*`, `events:*`, and Lambda log-group management scoped to
+`nrfi-probability-*` resources plus `logs:DescribeLogGroups`; version v6 added
+`iam:PassRole` for `arn:aws:iam::660838763909:role/nrfi-probability-*`. Prior
+policy versions remain available for rollback. The first apply attempt
+(run `29663147439`, commit `917dd31`) failed closed on the missing
+`iam:PassRole` permission and mutated nothing.
+
+Terraform run `29663385687` (trigger commit `41de6ba`) applied the reviewed
+plan `7 to add, 1 to change, 0 to destroy`; the single in-place change
+realigned `aws_batch_job_definition.baseline` with the already-deployed clean
+image digest. Created resources:
+
+- Lambda `nrfi-probability-dev-pregame-collector` (python3.11, 256 MiB, 120 s
+  timeout, `NRFI_LOCKED_HOLDOUT_ACCESS=DENIED`), verified `Active` and
+  `Successful`;
+- IAM role and boundary policy `nrfi-probability-dev-pregame-collector`
+  limited to `s3:PutObject` under `signals/pregame/official-statsapi/forward/`,
+  KMS via S3, its own bounded log group, and explicit locked-holdout denies;
+- log group `/aws/lambda/nrfi-probability-dev-pregame-collector` with 30-day
+  retention;
+- EventBridge rule `nrfi-probability-dev-pregame-collector-schedule`,
+  verified `ENABLED` with `cron(3 11,13,15,17,19,21,23,1 * * ? *)` (eight
+  captures per day for the market's today and tomorrow), plus its target and
+  invoke permission.
+
+The controlled first invocation returned status 200 in 3,420 ms and wrote two
+versioned, KMS-encrypted, `no-store` captures whose keys, byte counts, and
+version IDs were independently re-read from S3 afterward:
+
+- `signals/pregame/official-statsapi/forward/2026-07-18/capture-20260718T222823Z.json`,
+  26,120 bytes, version `Rp7NoKU12L98CoZjtzSUtShEaHC_Y9x3`, 30 rows, 6
+  pregame-eligible;
+- `signals/pregame/official-statsapi/forward/2026-07-19/capture-20260718T222824Z.json`,
+  26,925 bytes, version `jhvZWkcM6nQKmS4sY2mOBcKEvXS9tVfm`, 32 rows, 29
+  pregame-eligible.
+
+Captures persist derived rows, request parameters, retrieval timestamps, and
+the source response SHA-256 only; no raw StatsAPI payload was uploaded, and
+`locked_2025_holdout_accessed` is false in both captures. After verification,
+`RUNNING` Batch jobs were zero, no temporary AWS credential existed, and the
+only new recurring usage is the schedule's negligible Lambda, S3, and KMS
+request cost inside the approved `$30` monthly budget.
+
+A public-archive probe for 2022-2024 probable-pitcher pages could not be
+executed from this session because the fetch path is blocklisted; lawful
+timestamp-verifiable historical probable-starter evidence therefore remains
+unavailable, and scheduled forward accumulation is the active remedy.
+
+The exact next product operation is to admit accumulated forward captures from
+the lake into the shared feature path: verify capture checksums, join
+strict-prior Statcast profiles, surface per-game eligibility and rejection
+reasons through the existing IAM-authenticated endpoint, then extend lineup,
+park, weather, umpire, rest, travel, and injury point-in-time inputs and re-run
+strict chronological evaluation. The scientific status remains
+`PREDICTIVE SKILL NOT ESTABLISHED`; the required output remains
+`NO QUALIFIED WAGER`.
