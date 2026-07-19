@@ -14,7 +14,10 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
+import sys
+import time
 from datetime import date
 from pathlib import Path
 from typing import Any, Mapping, Sequence
@@ -199,7 +202,12 @@ def build_pitcher_game_history_from_daycache(
     history: list[dict[str, Any]] = []
     opened: list[dict[str, Any]] = []
     required = list(dict.fromkeys((*STATCAST_COLUMNS, "stand")))
-    for entry in admitted:
+    progress = os.environ.get("NRFI_EXTRACTION_PROGRESS")
+    log_every = int(progress) if progress and progress.isdigit() else 0
+    total = len(admitted)
+    started = time.monotonic()
+    read_bytes = 0
+    for index, entry in enumerate(admitted, start=1):
         rel = str(entry["relative_path"])
         if str(entry.get("game_date", "")).startswith(str(LOCKED_HOLDOUT_SEASON)):
             raise StatcastExtractionError("refused to open a locked-2025 file")
@@ -209,6 +217,16 @@ def build_pitcher_game_history_from_daycache(
         present = [column for column in required if column in available]
         table = parquet_file.read(columns=present)
         analytic_ready = all(column in available for column in STATCAST_COLUMNS)
+        read_bytes += path.stat().st_size
+        if log_every and (index % log_every == 0 or index == total):
+            elapsed = time.monotonic() - started
+            rate = read_bytes / elapsed / 1_048_576 if elapsed else 0.0
+            print(
+                f"[extract] {index}/{total} files "
+                f"{elapsed:.0f}s {rate:.1f} MiB/s last={rel}",
+                file=sys.stderr,
+                flush=True,
+            )
         opened.append(
             {
                 "relative_path": rel,
@@ -408,17 +426,26 @@ def generate_expanded_pitcher_statcast_package(
     if not season_set or any(value >= LOCKED_HOLDOUT_SEASON for value in season_set):
         raise StatcastExtractionError("only pre-2025 seasons may be extracted")
 
+    def _stage(message: str) -> None:
+        if os.environ.get("NRFI_EXTRACTION_PROGRESS"):
+            print(f"[extract] {message}", file=sys.stderr, flush=True)
+
+    _stage("building source ledger")
     ledger = build_source_ledger(day_cache_dir)
+    _stage(f"ledger: {len(ledger['admitted'])} admitted; loading starters")
     starters, _ = load_development_context(multiseason_dir, sorted(season_set))
+    _stage(f"starters: {len(starters)}; opening admitted day files")
     history, starter_rejections, opened = build_pitcher_game_history_from_daycache(
         day_cache_dir, ledger["admitted"], starters
     )
+    _stage(f"history rows: {len(history)}; building feature snapshots")
     builder = (
         build_pitcher_feature_snapshots_fast
         if fast
         else build_pitcher_feature_snapshots
     )
     snapshots = builder(history, starters)
+    _stage(f"snapshots: {len(snapshots)}; writing artifacts")
 
     opened_2025 = sum(1 for row in opened if str(row["game_date"]).startswith("2025"))
     if opened_2025:
