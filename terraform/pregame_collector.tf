@@ -2,7 +2,11 @@ locals {
   pregame_collector_name  = "${local.name_prefix}-pregame-collector"
   pregame_forward_prefix  = "signals/pregame/official-statsapi/forward"
   pregame_assembly_prefix = "signals/pregame/assembly"
-  pitcher_profiles_key    = "features/pitcher-statcast-strict-prior-v1/profiles.jsonl"
+  # Live assembly now uses the reproduced, determinism-verified 2015-2024
+  # profile projection. The prior 2021-2024 key is retained as the rollback
+  # target (its read grant is preserved) so reverting is a one-line change.
+  pitcher_profiles_key = "features/pitcher-statcast-strict-prior-2015-2024-v1/profiles.jsonl"
+  pitcher_profiles_rollback_key = "features/pitcher-statcast-strict-prior-v1/profiles.jsonl"
 }
 
 data "archive_file" "pregame_collector" {
@@ -62,6 +66,7 @@ data "aws_iam_policy_document" "pregame_collector" {
     resources = [
       "${aws_s3_bucket.lake.arn}/${local.pregame_forward_prefix}/*",
       "${aws_s3_bucket.lake.arn}/${local.pitcher_profiles_key}",
+      "${aws_s3_bucket.lake.arn}/${local.pitcher_profiles_rollback_key}",
     ]
   }
 
@@ -157,8 +162,8 @@ resource "aws_lambda_function" "pregame_collector" {
   filename         = data.archive_file.pregame_collector.output_path
   source_code_hash = data.archive_file.pregame_collector.output_base64sha256
 
-  # Sized for the 40.6 MB strict-prior profile projection.
-  memory_size = 1024
+  # Sized for the 80.7 MB expanded 2015-2024 strict-prior profile projection.
+  memory_size = 1536
   timeout     = 120
 
   environment {
