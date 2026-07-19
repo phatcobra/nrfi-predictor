@@ -25,13 +25,16 @@ import pyarrow.parquet as pq
 from nrfi.pitcher_statcast import (
     FEATURE_VERSION,
     MINIMUM_PRIOR_STARTS,
+    RATE_FIELDS,
     STATCAST_COLUMNS,
     WINDOWS,
     _artifact_entry,
     _identity,
     _numeric,
+    _ratio,
     _sha256_file,
     _summarize_statcast_group,
+    _window_metrics,
     _write_json,
     _write_jsonl,
     _write_parquet,
@@ -265,6 +268,132 @@ def build_pitcher_game_history_from_daycache(
     return history, rejections, opened
 
 
+_TOTAL_FIELDS = (
+    ("strikeouts", "k"),
+    ("walks", "walks"),
+    ("home_runs", "hr"),
+    ("whiffs", "whiffs"),
+    ("chases", "chases"),
+    ("hard_hit_balls", "hard"),
+    ("barrels", "barrels"),
+    ("fastball_velocity_sum", "fb_velo"),
+    ("pitch_count", "pitch_count"),
+    ("first_inning_runs_allowed", "fi_runs"),
+    ("first_inning_scoreless", "fi_scoreless"),
+    ("plate_appearances", "pa"),
+    ("swings", "swings"),
+    ("out_of_zone_pitches", "oz"),
+    ("batted_balls", "bb"),
+    ("fastball_pitches", "fb"),
+)
+
+
+def _career_metrics_from_totals(t: Mapping[str, float]) -> dict[str, float | None]:
+    """Reproduce _window_metrics exactly from running career totals."""
+    return {
+        "strikeout_rate": _ratio(t["k"], t["pa"]),
+        "walk_rate": _ratio(t["walks"], t["pa"]),
+        "home_run_rate": _ratio(t["hr"], t["pa"]),
+        "whiff_rate": _ratio(t["whiffs"], t["swings"]),
+        "chase_rate": _ratio(t["chases"], t["oz"]),
+        "hard_hit_rate": _ratio(t["hard"], t["bb"]),
+        "barrel_rate": _ratio(t["barrels"], t["bb"]),
+        "average_fastball_velocity": _ratio(t["fb_velo"], t["fb"]),
+        "average_pitch_count": _ratio(t["pitch_count"], t["starts"]),
+        "first_inning_runs_per_start": _ratio(t["fi_runs"], t["starts"]),
+        "first_inning_scoreless_rate": _ratio(t["fi_scoreless"], t["starts"]),
+    }
+
+
+def build_pitcher_feature_snapshots_fast(
+    history: Sequence[Mapping[str, Any]],
+    starters: Sequence[Mapping[str, Any]],
+) -> list[dict[str, Any]]:
+    """Byte-identical, near-linear reimplementation of the strict-prior builder.
+
+    The career window is accumulated left-to-right (identical float arithmetic to
+    a prefix ``sum``); the bounded last_5 / last_20 windows reuse the exact
+    ``_window_metrics`` over their <=20-row slices.  Availability follows the
+    same chronological prefix the reference filter produces for a pitcher's own
+    start sequence; equivalence is asserted against the reference elsewhere.
+    """
+    by_pitcher: dict[int, list[Mapping[str, Any]]] = {}
+    for row in history:
+        by_pitcher.setdefault(int(row["pitcher_id"]), []).append(row)
+    for rows in by_pitcher.values():
+        rows.sort(key=lambda row: (row["scheduled_start_at"], row["game_pk"]))
+    starter_by_pair = {(int(s["game_pk"]), int(s["pitcher_id"])): s for s in starters}
+
+    snapshots: list[dict[str, Any]] = []
+    for pitcher_id, rows in by_pitcher.items():
+        totals: dict[str, float] = {alias: 0 for _src, alias in _TOTAL_FIELDS}
+        totals["starts"] = 0
+        prior: list[Mapping[str, Any]] = []
+        for row in rows:
+            starter = starter_by_pair.get((int(row["game_pk"]), pitcher_id))
+            if starter is None:
+                continue
+            career_starts = int(totals["starts"])
+            values: dict[str, float | int | None] = {}
+            for name, length in WINDOWS:
+                if length is None:
+                    window_len = career_starts
+                    metrics = _career_metrics_from_totals(totals)
+                else:
+                    window = prior[-length:]
+                    window_len = len(window)
+                    metrics = _window_metrics(window)
+                values[f"prior_starts_{name}"] = window_len
+                values.update({f"{m}_{name}": v for m, v in metrics.items()})
+            previous_date = (
+                date.fromisoformat(str(prior[-1]["official_date"])) if prior else None
+            )
+            target_date = date.fromisoformat(str(starter["official_date"]))
+            values["days_since_previous_start"] = (
+                (target_date - previous_date).days
+                if previous_date is not None
+                else None
+            )
+            core = [
+                values[f"{metric}_last_20"]
+                for metric in RATE_FIELDS
+                if metric != "average_fastball_velocity"
+            ]
+            eligible = career_starts >= MINIMUM_PRIOR_STARTS and all(
+                value is not None for value in core
+            )
+            present = sum(value is not None for value in values.values())
+            analytical = {
+                "schema_version": "pitcher_feature_snapshot.v1",
+                "feature_version": FEATURE_VERSION,
+                "game_pk": int(starter["game_pk"]),
+                "official_date": starter["official_date"],
+                "prediction_cutoff": str(starter["prediction_cutoff"]),
+                "pitcher_id": int(starter["pitcher_id"]),
+                "side": starter["side"],
+                "pitcher_identity_basis": "POSTGAME_ACTUAL_STARTER_ATTRIBUTION",
+                "profile_feature_eligible": eligible,
+                "historical_prediction_join_eligible": False,
+                "historical_prediction_join_ineligibility_reason": (
+                    "NO_TIMESTAMPED_PROBABLE_STARTER_SNAPSHOT"
+                ),
+                "feature_values": values,
+                "feature_value_coverage_pct": round(100.0 * present / len(values), 6),
+            }
+            snapshots.append({**analytical, "feature_hash": _identity(analytical)})
+
+            for src, alias in _TOTAL_FIELDS:
+                totals[alias] += row[src]
+            totals["starts"] += 1
+            prior.append(row)
+            if len(prior) > max(length for _n, length in WINDOWS if length):
+                prior.pop(0)
+    snapshots.sort(
+        key=lambda row: (row["prediction_cutoff"], row["game_pk"], row["side"])
+    )
+    return snapshots
+
+
 def generate_expanded_pitcher_statcast_package(
     *,
     day_cache_dir: Path,
@@ -272,6 +401,7 @@ def generate_expanded_pitcher_statcast_package(
     output_dir: Path,
     producing_commit: str,
     seasons: Sequence[int],
+    fast: bool = True,
 ) -> dict[str, Any]:
     """Execute the <=2024 extraction contract and rebuild strict-prior profiles."""
     season_set = {int(value) for value in seasons}
@@ -283,7 +413,12 @@ def generate_expanded_pitcher_statcast_package(
     history, starter_rejections, opened = build_pitcher_game_history_from_daycache(
         day_cache_dir, ledger["admitted"], starters
     )
-    snapshots = build_pitcher_feature_snapshots(history, starters)
+    builder = (
+        build_pitcher_feature_snapshots_fast
+        if fast
+        else build_pitcher_feature_snapshots
+    )
+    snapshots = builder(history, starters)
 
     opened_2025 = sum(1 for row in opened if str(row["game_date"]).startswith("2025"))
     if opened_2025:
@@ -382,6 +517,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         type=int,
         default=list(range(ADMITTED_MIN_SEASON, ADMITTED_MAX_SEASON + 1)),
     )
+    parser.add_argument(
+        "--reference-slow",
+        action="store_true",
+        help="Use the unoptimized reference window builder (equivalence oracle).",
+    )
     args = parser.parse_args(argv)
     result = generate_expanded_pitcher_statcast_package(
         day_cache_dir=args.day_cache_dir,
@@ -389,6 +529,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         output_dir=args.output_dir,
         producing_commit=args.producing_commit,
         seasons=args.seasons,
+        fast=not args.reference_slow,
     )
     print(json.dumps(result["coverage"], sort_keys=True))
     return 0

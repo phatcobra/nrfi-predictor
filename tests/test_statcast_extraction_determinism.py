@@ -141,6 +141,57 @@ def test_two_complete_builds_are_byte_identical(tmp_path: Path) -> None:
         ).read_bytes()
 
 
+def test_fast_builder_matches_reference_builder_exactly() -> None:
+    # A single pitcher with a run of starts on distinct dates, so the fast
+    # cumulative career window and the reference full-sum window must agree.
+    history = []
+    starters = []
+    for i in range(1, 26):
+        gp = 300000 + i
+        day = f"2016-04-{i:02d}"
+        history.append(
+            {
+                "game_pk": gp,
+                "official_date": day,
+                "scheduled_start_at": f"{day}T23:05:00Z",
+                "label_available_at": f"{day}T23:59:00Z",
+                "pitcher_id": PITCHER,
+                "side": "away",
+                "pitch_count": 90 + i,
+                "plate_appearances": 20 + (i % 3),
+                "strikeouts": 5 + (i % 4),
+                "walks": 2 + (i % 2),
+                "home_runs": i % 2,
+                "swings": 40 + i,
+                "whiffs": 8 + (i % 5),
+                "out_of_zone_pitches": 30 + i,
+                "chases": 7 + (i % 3),
+                "batted_balls": 12 + (i % 4),
+                "hard_hit_balls": 3 + (i % 3),
+                "barrels": i % 2,
+                "fastball_pitches": 45 + i,
+                "fastball_velocity_sum": 94.3 * (45 + i),
+                "first_inning_runs_allowed": i % 3,
+                "first_inning_scoreless": 1 if i % 3 == 0 else 0,
+            }
+        )
+        starters.append(
+            {
+                "game_pk": gp,
+                "official_date": day,
+                "prediction_cutoff": f"{day}T22:00:00Z",
+                "pitcher_id": PITCHER,
+                "side": "away",
+            }
+        )
+
+    reference = sx.build_pitcher_feature_snapshots(history, starters)
+    fast = sx.build_pitcher_feature_snapshots_fast(history, starters)
+
+    assert fast == reference
+    assert sx._identity(fast) == sx._identity(reference)
+
+
 def test_strict_prior_window_excludes_current_and_future_starts(tmp_path: Path) -> None:
     day_cache = tmp_path / "statcast_days"
     multiseason = tmp_path / "multiseason"
