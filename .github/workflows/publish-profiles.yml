@@ -75,7 +75,9 @@ jobs:
             --artifact-dir docs/pitcher_statcast_2015_2024 \
             --multiseason-dir docs/multiseason_2015_2024
       - name: Publish to the encrypted versioned lake
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.mode == 'publish' }}
+        if: >-
+          ${{ (github.event_name == 'workflow_dispatch' && inputs.mode == 'publish') ||
+              (github.event_name == 'push' && contains(github.event.head_commit.message, '[publish]')) }}
         run: |
           uv run --frozen --with boto3 python -m nrfi.aws_publish_profiles \
             --artifact-dir docs/pitcher_statcast_2015_2024 \
@@ -84,7 +86,9 @@ jobs:
             --kms-key-arn "$KMS_KEY_ARN" \
             --producing-commit "${{ github.sha }}" | tee published.json
       - name: Upload publication manifest
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.mode == 'publish' }}
+        if: >-
+          ${{ (github.event_name == 'workflow_dispatch' && inputs.mode == 'publish') ||
+              (github.event_name == 'push' && contains(github.event.head_commit.message, '[publish]')) }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: published-manifest
