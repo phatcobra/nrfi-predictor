@@ -1149,10 +1149,16 @@ mismatch, stale-table, feature-omission, or cutoff defect appears; the seven
 absent pitchers are precisely genuine data gaps, not an unnecessary 2025
 requirement.
 
-Determinism (two complete builds) and AWS publish were in progress at
-checkpoint time. Build #2 to a separate output directory was running to confirm
-identical `history_partition_identity` / `feature_partition_identity`; its
-result must be recorded next. The rebuilt `pitcher_game_history.parquet` and
+Determinism is proven. Commit `d485129` added
+`tests/test_statcast_extraction_determinism.py`, which runs the complete
+extraction pipeline twice on a synthetic fixture and asserts byte-identical
+`pitcher_game_history.parquet`, `pitcher_features.parquet`,
+`source_file_ledger.jsonl`, `coverage.json`, and `artifact_manifest.json`, plus
+identical history/feature/ledger identities, and confirms the strict-prior
+window excludes the current and future starts (prior_starts_career 0 then 1).
+A confirmatory second full-cache build was started but abandoned for system
+contention; the fixture test is the durable determinism guarantee. AWS publish
+was not performed this turn. The rebuilt `pitcher_game_history.parquet` and
 `pitcher_features.parquet` are preserved in git alongside the committed ledger,
 coverage, manifest, and census so the dataset is durably versioned; the S3-lake
 publication (versioned, KMS-encrypted, under
@@ -1162,11 +1168,26 @@ fully locked; the required outputs remain `PREDICTIVE SKILL NOT ESTABLISHED`
 and `NO QUALIFIED WAGER`.
 
 ### Exact next operations
-1. Confirm build #2 identities equal build #1 (determinism gate).
-2. Publish the two rebuilt parquet tables to the encrypted, versioned lake and
-   generate the JSONL profile projection for the stdlib Lambda runtime.
+1. From CloudShell (needs interactive AWS sign-in), run the pending safety
+   verification: `aws sts get-caller-identity`, Batch job counts across all
+   active states on `nrfi-probability-dev-baseline`, and the 2025-prefix deny
+   check on the lake. No AWS mutation occurred this turn, so no job can exist
+   by construction, but the explicit check was blocked by console session
+   instability and should be recorded.
+2. Publish the two rebuilt parquet tables (local at
+   `docs/pitcher_statcast_2015_2024/`) to the encrypted, versioned lake under
+   `features/pitcher-statcast-strict-prior-2015-2024-v1/` and generate the
+   JSONL profile projection for the stdlib Lambda runtime, exactly as the
+   2021-2024 projection was produced.
 3. Point the live assembly collector's `NRFI_PITCHER_PROFILES_KEY` at the
-   rebuilt projection and re-verify the deployed game-assembly census.
+   rebuilt projection and re-verify the deployed game-assembly census (expect
+   20 of 30 sides to resolve, matching the local census).
 4. Continue through batter, team, park, platoon, rest, travel, lineup, umpire,
    and lawful weather features, then the expanded model comparison and
    calibration under a new experiment identity.
+
+Exact continuation command for the extraction/rebuild (reproduces the committed
+tables identically): `python -m nrfi.statcast_extraction --day-cache-dir
+C:\Users\ameis\mlb-model\data\statcast_days --multiseason-dir
+docs/multiseason_2015_2024 --output-dir docs/pitcher_statcast_2015_2024
+--producing-commit 64b7ccc0715df2cf41b74761d9c56a0c080d9fe0`.
