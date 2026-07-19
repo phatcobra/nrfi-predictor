@@ -15,8 +15,7 @@ on:
     paths:
       - ".github/workflows/terraform-deploy.yml"
       - "terraform/**"
-      - "nrfi/aws_pregame_collector.py"
-      - "nrfi/pregame_snapshot.py"
+      - "nrfi/**"
 
 permissions:
   id-token: write
