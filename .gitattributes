@@ -8,6 +8,8 @@ docs/pregame_snapshot/**/*.json -text
 docs/pregame_snapshot/**/*.jsonl -text
 docs/multiseason_2015_2024/*.json -text
 docs/multiseason_2015_2024/*.jsonl -text
+docs/pitcher_statcast_2015_2024/*.json -text
+docs/pitcher_statcast_2015_2024/*.jsonl -text
 *.sh text eol=lf
 *.tf text eol=lf
 .terraform.lock.hcl text eol=lf

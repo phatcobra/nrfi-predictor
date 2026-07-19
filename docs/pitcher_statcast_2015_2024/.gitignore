@@ -1,0 +1,3 @@
+# Large binary profile tables are published to the encrypted S3 lake, not git.
+# Their SHA-256 identities are recorded in artifact_manifest.json.
+*.parquet
