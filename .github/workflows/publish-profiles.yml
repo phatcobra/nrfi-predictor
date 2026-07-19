@@ -94,3 +94,29 @@ jobs:
           name: published-manifest
           path: published.json
           if-no-files-found: error
+      - name: Verify live collector uses the expanded profiles and rerun census
+        if: >-
+          ${{ github.event_name == 'push' &&
+              contains(github.event.head_commit.message, '[verify-live]') }}
+        run: |
+          set -euo pipefail
+          echo "Collector configuration:"
+          aws lambda get-function-configuration \
+            --function-name nrfi-probability-dev-pregame-collector \
+            --query '[MemorySize,LastUpdateStatus,Environment.Variables.NRFI_PITCHER_PROFILES_KEY]' \
+            --output text
+          echo "Invoking collector (rebuilds assemblies from the new profiles):"
+          aws lambda invoke --function-name nrfi-probability-dev-pregame-collector \
+            --cli-read-timeout 200 --payload '{}' out.json >/dev/null
+          python - <<'PY'
+          import json
+          d = json.load(open("out.json"))
+          results = d.get("assembly", {}).get("results", [])
+          summary = [
+              {k: r.get(k) for k in (
+                  "official_date", "profiles_status", "games",
+                  "feature_assembly_eligible_games", "admitted_captures")}
+              for r in results
+          ]
+          print("assembly_summary=", json.dumps(summary, sort_keys=True))
+          PY
