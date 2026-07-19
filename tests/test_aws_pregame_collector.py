@@ -193,3 +193,55 @@ def test_market_date_resolves_and_survives_missing_tzdata(
 
     monkeypatch.setattr(collector.importlib, "import_module", broken)
     assert collector.market_today(NOW) == date(2026, 7, 18)
+
+
+def test_handler_publishes_assembly_when_profiles_configured(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _configure_env(monkeypatch)
+    monkeypatch.setenv("NRFI_PITCHER_PROFILES_KEY", "features/profiles.jsonl")
+    monkeypatch.setenv("NRFI_ASSEMBLY_FRESHNESS_SECONDS", "1234")
+    fake_s3 = _FakeS3()
+    runtime_boto3 = __import__("types").SimpleNamespace(client=lambda service: fake_s3)
+    monkeypatch.setattr(
+        collector.importlib,
+        "import_module",
+        lambda name: runtime_boto3 if name == "boto3" else None,
+    )
+    summary_stub = {
+        "captures": [{"target_date": "2026-07-18"}, {"target_date": "2026-07-19"}]
+    }
+    monkeypatch.setattr(collector, "run_forward_collection", lambda: dict(summary_stub))
+    recorded: dict[str, Any] = {}
+
+    def fake_run_assembly(
+        s3_client: Any,
+        bucket: str,
+        kms_key_arn: str,
+        dates: Any,
+        *,
+        profiles_key: str,
+        freshness_limit_seconds: int,
+    ) -> dict[str, Any]:
+        recorded.update(
+            {
+                "s3_client": s3_client,
+                "bucket": bucket,
+                "kms_key_arn": kms_key_arn,
+                "dates": list(dates),
+                "profiles_key": profiles_key,
+                "freshness_limit_seconds": freshness_limit_seconds,
+            }
+        )
+        return {"schema_version": "forward_assembly_run.v1"}
+
+    monkeypatch.setattr(collector.forward_admission, "run_assembly", fake_run_assembly)
+
+    summary = collector.lambda_handler({}, None)
+
+    assert summary["assembly"] == {"schema_version": "forward_assembly_run.v1"}
+    assert recorded["bucket"] == "test-lake"
+    assert recorded["dates"] == ["2026-07-18", "2026-07-19"]
+    assert recorded["profiles_key"] == "features/profiles.jsonl"
+    assert recorded["freshness_limit_seconds"] == 1234
+    assert recorded["s3_client"] is fake_s3

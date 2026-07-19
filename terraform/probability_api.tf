@@ -8,8 +8,28 @@ data "archive_file" "probability_api" {
   output_path = "${path.module}/.terraform/probability-api.zip"
 
   source {
+    content  = file("${path.module}/../nrfi/__init__.py")
+    filename = "nrfi/__init__.py"
+  }
+
+  source {
+    content  = file("${path.module}/../nrfi/pregame_snapshot.py")
+    filename = "nrfi/pregame_snapshot.py"
+  }
+
+  source {
+    content  = file("${path.module}/../nrfi/forward_admission.py")
+    filename = "nrfi/forward_admission.py"
+  }
+
+  source {
+    content  = file("${path.module}/../nrfi/aws_pregame_collector.py")
+    filename = "nrfi/aws_pregame_collector.py"
+  }
+
+  source {
     content  = file("${path.module}/../nrfi/aws_probability_api.py")
-    filename = "aws_probability_api.py"
+    filename = "nrfi/aws_probability_api.py"
   }
 }
 
@@ -55,6 +75,24 @@ data "aws_iam_policy_document" "probability_api" {
     sid       = "ReadSanitizedProbabilityResponse"
     actions   = ["s3:GetObject", "s3:GetObjectVersion"]
     resources = ["${aws_s3_bucket.lake.arn}/${local.probability_response_key}"]
+  }
+
+  statement {
+    sid       = "ReadAssemblyPackages"
+    actions   = ["s3:GetObject"]
+    resources = ["${aws_s3_bucket.lake.arn}/${local.pregame_assembly_prefix}/*"]
+  }
+
+  statement {
+    sid       = "ListAssemblyPackages"
+    actions   = ["s3:ListBucket"]
+    resources = [aws_s3_bucket.lake.arn]
+
+    condition {
+      test     = "StringLike"
+      variable = "s3:prefix"
+      values   = ["${local.pregame_assembly_prefix}/*"]
+    }
   }
 
   statement {
@@ -125,7 +163,7 @@ resource "aws_lambda_function" "probability_api" {
   function_name = local.probability_api_name
   description   = "Fail-closed sanitized NRFI/YRFI probability response"
   role          = aws_iam_role.probability_api.arn
-  handler       = "aws_probability_api.lambda_handler"
+  handler       = "nrfi.aws_probability_api.lambda_handler"
   runtime       = "python3.11"
   architectures = ["x86_64"]
 
@@ -133,7 +171,7 @@ resource "aws_lambda_function" "probability_api" {
   source_code_hash = data.archive_file.probability_api.output_base64sha256
 
   memory_size = 128
-  timeout     = 10
+  timeout     = 15
 
   environment {
     variables = {

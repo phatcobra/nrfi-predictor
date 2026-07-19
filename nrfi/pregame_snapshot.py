@@ -291,7 +291,16 @@ def join_pitcher_profiles(
     snapshots: Sequence[Mapping[str, Any]], profile_path: Path
 ) -> list[dict[str, Any]]:
     """Join only strict-prior profiles and block gaps across whole seasons."""
-    profiles = _load_latest_profiles(profile_path)
+    return join_pitcher_profiles_from_profiles(
+        snapshots, _load_latest_profiles(profile_path)
+    )
+
+
+def join_pitcher_profiles_from_profiles(
+    snapshots: Sequence[Mapping[str, Any]],
+    profiles: Mapping[int, list[dict[str, Any]]],
+) -> list[dict[str, Any]]:
+    """Join preloaded strict-prior profiles; shared by local and AWS paths."""
     joined: list[dict[str, Any]] = []
     for snapshot in snapshots:
         observed = _parse_utc(snapshot["probable_starter_observed_at"])

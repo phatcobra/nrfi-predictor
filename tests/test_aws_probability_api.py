@@ -137,3 +137,155 @@ def test_runtime_boundary_and_s3_errors_are_generic(monkeypatch):
     assert client.calls == [
         {"Bucket": "sanitized-lake", "Key": api.PROBABILITY_OBJECT_KEY}
     ]
+
+
+class FakeAssemblyS3:
+    def __init__(self, objects):
+        self.objects = dict(objects)
+        self.calls = []
+
+    def list_objects_v2(self, **kwargs):
+        prefix = kwargs["Prefix"]
+        contents = [
+            {"Key": key} for key in sorted(self.objects) if key.startswith(prefix)
+        ]
+        return {"Contents": contents, "IsTruncated": False}
+
+    def get_object(self, **kwargs):
+        self.calls.append(kwargs)
+        return {"Body": io.BytesIO(self.objects[kwargs["Key"]])}
+
+
+def _assembly_package(game_pk=745, official_date="2026-07-19"):
+    return {
+        "schema_version": api.PACKAGE_SCHEMA_VERSION,
+        "official_date": official_date,
+        "generated_at": "2026-07-19T16:00:00Z",
+        "profiles_status": "PROFILES_LOADED",
+        "package_id": "pkg-1",
+        "locked_2025_holdout_accessed": False,
+        "games": [
+            {
+                "game_pk": game_pk,
+                "eligibility": {
+                    "probable_starter_snapshot": True,
+                    "pitcher_feature": True,
+                    "feature_assembly": True,
+                    "probability": False,
+                    "market_evaluation": False,
+                    "wager": False,
+                },
+                "wager_decision": "NO QUALIFIED WAGER",
+            }
+        ],
+        "wager_decision": "NO QUALIFIED WAGER",
+    }
+
+
+def _configure_assembly(monkeypatch, objects):
+    client = FakeAssemblyS3(objects)
+    monkeypatch.setenv("NRFI_LAKE_BUCKET", "sanitized-lake")
+    monkeypatch.setenv("NRFI_LOCKED_HOLDOUT_ACCESS", "DENIED")
+    runtime_boto3 = SimpleNamespace(client=lambda service: client)
+    monkeypatch.setattr(
+        api.importlib,
+        "import_module",
+        lambda name: runtime_boto3 if name == "boto3" else None,
+    )
+    return client
+
+
+def _game_event(game_pk="745", date_value="2026-07-19"):
+    return {
+        "requestContext": {"http": {"method": "GET"}},
+        "queryStringParameters": {"game_pk": game_pk, "date": date_value},
+    }
+
+
+def test_root_response_is_marked_preserved_not_current(monkeypatch):
+    _configure(monkeypatch, json.dumps(VALID_RESPONSE).encode())
+
+    response = api.lambda_handler(_event(), None)
+
+    assert response["statusCode"] == 200
+    assert response["headers"]["x-nrfi-response-class"] == api.PRESERVED_RESPONSE_CLASS
+    assert json.loads(response["body"]) == VALID_RESPONSE
+
+
+def test_game_query_returns_real_assembly_status(monkeypatch):
+    key = f"{api.ASSEMBLY_KEY_PREFIX}/2026-07-19/assembly-20260719T160000Z.json"
+    package = _assembly_package()
+    _configure_assembly(
+        monkeypatch,
+        {key: json.dumps(package).encode("utf-8")},
+    )
+
+    response = api.lambda_handler(_game_event(), None)
+
+    assert response["statusCode"] == 200
+    body = json.loads(response["body"])
+    assert body["response_class"] == "game-assembly-status"
+    assert body["requested_game_pk"] == 745
+    assert body["assembly_package"]["key"] == key
+    assert body["game"]["eligibility"]["probability"] is False
+    assert body["wager_decision"] == "NO QUALIFIED WAGER"
+
+
+def test_game_query_prefers_latest_assembly_package(monkeypatch):
+    older = f"{api.ASSEMBLY_KEY_PREFIX}/2026-07-19/assembly-20260719T120000Z.json"
+    newer = f"{api.ASSEMBLY_KEY_PREFIX}/2026-07-19/assembly-20260719T160000Z.json"
+    old_package = _assembly_package()
+    old_package["package_id"] = "pkg-old"
+    _configure_assembly(
+        monkeypatch,
+        {
+            older: json.dumps(old_package).encode("utf-8"),
+            newer: json.dumps(_assembly_package()).encode("utf-8"),
+        },
+    )
+
+    response = api.lambda_handler(_game_event(), None)
+
+    assert json.loads(response["body"])["assembly_package"]["key"] == newer
+
+
+def test_unknown_game_is_explicit_not_found(monkeypatch):
+    key = f"{api.ASSEMBLY_KEY_PREFIX}/2026-07-19/assembly-20260719T160000Z.json"
+    _configure_assembly(
+        monkeypatch,
+        {key: json.dumps(_assembly_package(game_pk=1)).encode("utf-8")},
+    )
+
+    response = api.lambda_handler(_game_event(), None)
+
+    assert response["statusCode"] == 404
+    body = json.loads(response["body"])
+    assert body["error"] == "game_not_found"
+    assert body["searched_dates"] == ["2026-07-19"]
+    assert body["wager_decision"] == "NO QUALIFIED WAGER"
+
+
+def test_missing_assembly_package_fails_closed_with_reason(monkeypatch):
+    _configure_assembly(monkeypatch, {})
+
+    response = api.lambda_handler(_game_event(), None)
+
+    assert response["statusCode"] == 200
+    body = json.loads(response["body"])
+    assert body["assembly_status"] == "ASSEMBLY_UNAVAILABLE"
+    assert body["reasons"] == ["NO_ASSEMBLY_PACKAGE_FOR_DATE"]
+    assert body["wager_decision"] == "NO QUALIFIED WAGER"
+
+
+def test_invalid_and_locked_game_requests_are_rejected(monkeypatch):
+    _configure_assembly(monkeypatch, {})
+
+    invalid = api.lambda_handler(_game_event(game_pk="not-a-number"), None)
+    assert invalid["statusCode"] == 400
+    assert json.loads(invalid["body"])["reasons"] == ["INVALID_GAME_PK"]
+
+    locked = api.lambda_handler(_game_event(date_value="2025-07-19"), None)
+    assert locked["statusCode"] == 400
+    body = json.loads(locked["body"])
+    assert body["reasons"] == ["LOCKED_HOLDOUT_RECORD"]
+    assert body["wager_decision"] == "NO QUALIFIED WAGER"

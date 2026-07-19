@@ -1,6 +1,8 @@
 locals {
-  pregame_collector_name = "${local.name_prefix}-pregame-collector"
-  pregame_forward_prefix = "signals/pregame/official-statsapi/forward"
+  pregame_collector_name  = "${local.name_prefix}-pregame-collector"
+  pregame_forward_prefix  = "signals/pregame/official-statsapi/forward"
+  pregame_assembly_prefix = "signals/pregame/assembly"
+  pitcher_profiles_key    = "features/pitcher-statcast-strict-prior-v1/profiles.jsonl"
 }
 
 data "archive_file" "pregame_collector" {
@@ -15,6 +17,11 @@ data "archive_file" "pregame_collector" {
   source {
     content  = file("${path.module}/../nrfi/pregame_snapshot.py")
     filename = "nrfi/pregame_snapshot.py"
+  }
+
+  source {
+    content  = file("${path.module}/../nrfi/forward_admission.py")
+    filename = "nrfi/forward_admission.py"
   }
 
   source {
@@ -41,14 +48,43 @@ resource "aws_iam_role" "pregame_collector" {
 
 data "aws_iam_policy_document" "pregame_collector" {
   statement {
-    sid       = "WriteForwardProbableStarterSnapshots"
-    actions   = ["s3:PutObject"]
-    resources = ["${aws_s3_bucket.lake.arn}/${local.pregame_forward_prefix}/*"]
+    sid     = "WriteForwardSnapshotsAndAssemblies"
+    actions = ["s3:PutObject"]
+    resources = [
+      "${aws_s3_bucket.lake.arn}/${local.pregame_forward_prefix}/*",
+      "${aws_s3_bucket.lake.arn}/${local.pregame_assembly_prefix}/*",
+    ]
   }
 
   statement {
-    sid     = "EncryptForwardSnapshotsViaS3"
-    actions = ["kms:GenerateDataKey*", "kms:Encrypt", "kms:DescribeKey"]
+    sid     = "ReadForwardSnapshotsAndProfiles"
+    actions = ["s3:GetObject"]
+    resources = [
+      "${aws_s3_bucket.lake.arn}/${local.pregame_forward_prefix}/*",
+      "${aws_s3_bucket.lake.arn}/${local.pitcher_profiles_key}",
+    ]
+  }
+
+  statement {
+    sid       = "ListForwardSnapshots"
+    actions   = ["s3:ListBucket"]
+    resources = [aws_s3_bucket.lake.arn]
+
+    condition {
+      test     = "StringLike"
+      variable = "s3:prefix"
+      values   = ["${local.pregame_forward_prefix}/*"]
+    }
+  }
+
+  statement {
+    sid = "EncryptForwardSnapshotsViaS3"
+    actions = [
+      "kms:GenerateDataKey*",
+      "kms:Encrypt",
+      "kms:Decrypt",
+      "kms:DescribeKey",
+    ]
     resources = [
       aws_kms_key.platform.arn,
     ]
@@ -126,19 +162,25 @@ resource "aws_lambda_function" "pregame_collector" {
 
   environment {
     variables = {
-      NRFI_LAKE_BUCKET           = aws_s3_bucket.lake.id
-      NRFI_PLATFORM_KMS_KEY_ARN  = aws_kms_key.platform.arn
-      NRFI_LOCKED_HOLDOUT_ACCESS = "DENIED"
+      NRFI_LAKE_BUCKET                = aws_s3_bucket.lake.id
+      NRFI_PLATFORM_KMS_KEY_ARN       = aws_kms_key.platform.arn
+      NRFI_LOCKED_HOLDOUT_ACCESS      = "DENIED"
+      NRFI_PITCHER_PROFILES_KEY       = local.pitcher_profiles_key
+      NRFI_ASSEMBLY_FRESHNESS_SECONDS = "21600"
     }
   }
 
   lifecycle {
     precondition {
-      condition = (
-        !strcontains(lower(local.pregame_forward_prefix), "holdout") &&
-        !strcontains(local.pregame_forward_prefix, "2025")
-      )
-      error_message = "The forward snapshot prefix must remain outside locked-holdout storage."
+      condition = alltrue([
+        for prefix in [
+          local.pregame_forward_prefix,
+          local.pregame_assembly_prefix,
+          local.pitcher_profiles_key,
+        ] :
+        !strcontains(lower(prefix), "holdout") && !strcontains(prefix, "2025")
+      ])
+      error_message = "Pregame signal prefixes must remain outside locked-holdout storage."
     }
   }
 

@@ -12,6 +12,7 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Callable, Mapping
 
+from nrfi import forward_admission
 from nrfi.pregame_snapshot import (
     PregameSnapshotError,
     acquire_source_snapshot,
@@ -214,8 +215,26 @@ def run_forward_collection(
 
 
 def lambda_handler(event: Any, context: Any) -> dict[str, Any]:
-    """Preserve versioned pregame probable-starter snapshots on schedule."""
+    """Preserve snapshots, then publish fail-closed assembly packages."""
     del event, context
     summary = run_forward_collection()
+    profiles_key = os.environ.get("NRFI_PITCHER_PROFILES_KEY", "")
+    if profiles_key:
+        bucket, kms_key_arn = _required_environment()
+        s3_client = getattr(importlib.import_module("boto3"), "client")("s3")
+        freshness_limit = int(
+            os.environ.get(
+                "NRFI_ASSEMBLY_FRESHNESS_SECONDS",
+                str(forward_admission.DEFAULT_FRESHNESS_LIMIT_SECONDS),
+            )
+        )
+        summary["assembly"] = forward_admission.run_assembly(
+            s3_client,
+            bucket,
+            kms_key_arn,
+            [capture["target_date"] for capture in summary["captures"]],
+            profiles_key=profiles_key,
+            freshness_limit_seconds=freshness_limit,
+        )
     print(json.dumps(summary, sort_keys=True, separators=(",", ":")))
     return summary
