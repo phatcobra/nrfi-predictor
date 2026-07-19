@@ -1255,3 +1255,60 @@ unoptimized oracle).
 No temporary credentials exist, no Batch job was started, no Terraform apply
 ran, and no 2025 source file was opened this turn. Required outputs remain
 `PREDICTIVE SKILL NOT ESTABLISHED` and `NO QUALIFIED WAGER`.
+
+## Direct real-data determinism proof complete - 2026-07-19
+
+The direct real-cache two-build determinism proof is complete and passes. A
+second full build from the exact committed 2015-2024 allowlist, using the
+optimized `build_pitcher_feature_snapshots_fast`, is byte-identical to the
+committed reference build across every artifact:
+`pitcher_game_history.parquet`, `pitcher_features.parquet`,
+`source_file_ledger.jsonl`, `coverage.json`, and `rejections.jsonl` all match;
+history identity `3d2243a4...`, feature identity `52c0d0a9...`, ledger identity
+`1e1f7410...`, 2450 files opened, 0 opened for 2025, 43 rejected, 45,522
+snapshots, 42,437 eligible. Evidence is committed at
+`docs/pitcher_statcast_2015_2024/determinism_evidence.json`. This is a direct
+real-data comparison, not synthetic-fixture transitivity.
+
+Read-phase diagnosis (Phase 1 of the request): the loop is not a hang. Env-gated
+progress logging (`NRFI_EXTRACTION_PROGRESS`, stderr only, artifacts unchanged;
+commit `4f3d728`) showed a steady ~0.5 s/file, 0.7-0.9 MiB/s, ~1350 s total for
+2,450 files (1.17 GB); CPU time and the processed-file counter advanced
+monotonically throughout. The cost is per-file parquet open + column read + a
+full-file SHA-256 second read plus per-open Windows scanning - pure source I/O,
+environmental, unchanged by the window optimization (which made the window stage
+near-instant).
+
+Nondeterminism found and corrected (Phase 4 of the request): the first optimized
+build differed from the reference in exactly one row - game 632352, pitcher
+663753, home - where the fast path counted 3 prior starts and the reference 2,
+flipping eligibility. Root cause: a chronologically-prior start was suspended and
+its label became available after this game's prediction cutoff, so the reference
+excludes it while a pure chronological prefix wrongly includes it (an
+availability-filter difference, not ordering, float, null, schema, or
+serialization). Fix (commit `4f1f009`): pitchers whose prediction cutoffs are
+non-decreasing and whose each label precedes the next start's cutoff use the fast
+prefix path (provably equal to the reference availability set); all others fall
+back to the exact reference builder for that pitcher. A dedicated suspended-game
+regression test plus the fast-vs-reference equivalence and full-pipeline
+determinism tests pass (nine extraction determinism tests; Ruff and Pyright
+clean). Commits this turn: `4f3d728`, `4f1f009`, and this checkpoint.
+
+### Remaining phases (unchanged plan, need AWS write)
+Phase 3 publish and Phase 5 live switch require AWS write, reached
+non-interactively through the OIDC deployer (holds `s3:*` on
+`nrfi-probability-*`). The efficient Phase 3/4 design: the canonical immutable
+input is the small `pitcher_game_history.parquet` (1.2 MB) plus the 2015-2024
+multiseason package; `pitcher_features.parquet` is a pure deterministic
+derivation of that history via `build_pitcher_feature_snapshots_fast`, so AWS
+Batch can rebuild and hash-compare features from the uploaded canonical history
+without any raw 2015-2024 Statcast in S3 (respecting source licensing). Publish
+under `features/pitcher-statcast-strict-prior-2015-2024-v1/` (SSE-KMS, versioned)
+with ledger, manifest, coverage, determinism evidence, schema, and producing
+commit; then Terraform points the collector `NRFI_PITCHER_PROFILES_KEY` at the
+new JSONL projection (old key kept as rollback) and the deployed game-assembly
+census is re-run (expect 20 of 30 sides to resolve). Phases 6-15 follow.
+
+2025 remains fully locked; no 2025 file was opened; no temporary credential,
+Batch job, or Terraform apply exists. Required outputs remain
+`PREDICTIVE SKILL NOT ESTABLISHED` and `NO QUALIFIED WAGER`.

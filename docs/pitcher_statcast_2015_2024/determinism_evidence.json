@@ -1,0 +1,51 @@
+{
+  "schema_version": "statcast_real_build_determinism.v1",
+  "generated_at": "2026-07-19",
+  "claim": "Two independent complete real-cache builds produce byte-identical artifacts.",
+  "build_a": {
+    "label": "reference-slow-builder",
+    "producing_commit": "64b7ccc0715df2cf41b74761d9c56a0c080d9fe0",
+    "builder": "build_pitcher_feature_snapshots",
+    "committed_at_commit": "810815a"
+  },
+  "build_b": {
+    "label": "optimized-fast-builder-with-suspended-game-fallback",
+    "producing_commit": "64b7ccc0715df2cf41b74761d9c56a0c080d9fe0",
+    "builder": "build_pitcher_feature_snapshots_fast",
+    "code_commit": "4f1f009"
+  },
+  "identical_artifacts": [
+    "pitcher_game_history.parquet",
+    "pitcher_features.parquet",
+    "source_file_ledger.jsonl",
+    "coverage.json",
+    "rejections.jsonl"
+  ],
+  "history_partition_identity": "3d2243a43deb2b70287c4efd777c510f1f0ef89c558251989981dcdc01f6b5e5",
+  "feature_partition_identity": "52c0d0a9405ee2096301d52c1d06e54c9c588a7ff4041738da916befa1ba90b8",
+  "source_file_ledger_identity": "1e1f7410e51b1bd9c9fc825d28443a71f65b272f55a30b8f46d0eba972642677",
+  "day_files_opened": 2450,
+  "day_files_opened_2025": 0,
+  "day_files_rejected": 43,
+  "opened_source_bytes": 1167901647,
+  "pitcher_feature_snapshot_rows": 45522,
+  "profile_feature_eligible_rows": 42437,
+  "difference_found_and_fixed": {
+    "row": {"game_pk": 632352, "pitcher_id": 663753, "side": "home"},
+    "symptom": "fast build counted 3 prior starts vs reference 2; eligibility flipped",
+    "root_cause": "a chronologically-prior start was suspended and its label became available after this game's prediction cutoff, so the reference excludes it; the pure chronological prefix wrongly included it",
+    "category": "availability-filter (not ordering, float, null, schema, or serialization)",
+    "fix": "route pitchers whose cutoffs are non-decreasing and whose labels precede the next cutoff through the fast prefix path; all others fall back to the exact reference builder for that pitcher",
+    "regression_test": "tests/test_statcast_extraction_determinism.py::test_fast_builder_matches_reference_for_suspended_game_pitcher"
+  },
+  "read_phase_diagnosis": {
+    "files": 2450,
+    "bytes": 1167901647,
+    "throughput_mib_s": "0.7-0.9",
+    "seconds_per_file": "~0.5",
+    "loop_seconds": "~1350",
+    "cause": "per-file parquet open + column read + full-file SHA-256 (second read) plus Windows per-open scanning; not a hang - CPU and file count advanced monotonically",
+    "note": "the window-builder optimization made the windowing stage near-instant; remaining cost is source I/O and is environmental"
+  },
+  "locked_2025_holdout_accessed": false
+}
