@@ -1312,3 +1312,80 @@ census is re-run (expect 20 of 30 sides to resolve). Phases 6-15 follow.
 2025 remains fully locked; no 2025 file was opened; no temporary credential,
 Batch job, or Terraform apply exists. Required outputs remain
 `PREDICTIVE SKILL NOT ESTABLISHED` and `NO QUALIFIED WAGER`.
+
+## Expanded profiles published and activated on AWS - 2026-07-19
+
+The expanded 2015-2024 pitcher profiles are published to the lake, reproduced
+in a clean AWS runner, and live in the assembly path. All work ran through the
+existing GitHub OIDC deployer (`nrfi-probability-terraform-deployer`); no
+interactive credentials and no long-lived keys were used.
+
+Phase 1 verification (in the OIDC runner, run `29702278090`): account
+`660838763909`, region `us-east-2`, assumed role
+`nrfi-probability-terraform-deployer/GitHubActions`, Batch jobs
+SUBMITTED/PENDING/RUNNABLE/STARTING/RUNNING all `0`, lake 2025-object query run.
+
+New module `nrfi/aws_publish_profiles.py` (commit `7614ddf`) reproduces
+`pitcher_features` deterministically from the committed canonical
+`pitcher_game_history.parquet` plus the committed multiseason starters and
+requires the canonical-JSON identities to equal the locally verified values;
+five tests pass. The canonical history parquet and the features parquet were
+force-committed (repo `.gitignore` excludes `*.parquet`) so the runner has the
+exact verified bytes. Workflow `.github/workflows/publish-profiles.yml`
+(OIDC, `uv sync --frozen`) verifies AWS, reproduces + checks identity on every
+push, and publishes on a `[publish]` marker.
+
+Cross-environment determinism: the Linux runner reproduced
+`feature_partition_identity = 52c0d0a9...` and
+`history_partition_identity = 3d2243a4...` from the canonical history
+(runs `29702278090` verify and `29702353732` publish) - the same identities
+verified locally, satisfying the Phase 3 "rebuild from immutable canonical
+input" equivalence without any raw 2015-2024 Statcast in S3.
+
+Publication (run `29702353732`, producing commit `10c880f`) uploaded to
+`s3://nrfi-probability-dev-660838763909-us-east-2-lake/features/pitcher-statcast-strict-prior-2015-2024-v1/`
+with SSE-KMS (platform key `7772a2e9...`), bucket versioning, and SHA-256
+checksums; the prior 2021-2024 prefix was not overwritten. Object versions:
+
+- `profiles.jsonl` 80,686,673 B, sha256 `7fb12a6c...`, version `ogQs7yc37ueyX3I8Av25EDKaPfiSD6JN`, 45,522 rows;
+- `pitcher_features.parquet` 7,812,825 B, sha256 `cff85495...`, version `jf9LQtX4sHF1u.Nuk2LDR7HmA7laAN93`;
+- `pitcher_game_history.parquet` 1,209,324 B, sha256 `77acfafb...`, version `MdCA4Q2sh4yUHvwL9Hoty6ncK_4WwfE1`;
+- `source_file_ledger.jsonl` version `GzKdafvqYI6Va7NupYtiAdnEhLECjKqp`;
+- `coverage.json` version `844JG9Jfps78pvy1y8geu0QMtQKhVVTG`;
+- `artifact_manifest.json` version `AuU0wLZrU4vNAH2UVMiR1LYWMK3oK.np`;
+- `determinism_evidence.json` version `C755mLzFAI0k3NOxL8F_TreXxZi0l.yR`;
+- `rejection_census_2026_07_19.json` version `cOykzSm221wJbj92YkK2TQODKSos5dTR`;
+- `rejections.jsonl` version `J_08DdZMwcROfZVs18S_IuAY1WYKYJBN`;
+- plus `published_manifest.json`.
+
+Live switch (Terraform `pregame_collector.tf`, commit `766863f`, apply run
+`29702591158`): plan `0 to add, 2 to change, 0 to destroy`; the collector's
+`NRFI_PITCHER_PROFILES_KEY` now points at the 2015-2024 projection and its
+memory is 1536 MB (for the 80.7 MB projection). The prior 2021-2024 key is
+retained in `local.pitcher_profiles_rollback_key` with its S3 read grant
+preserved, so rollback is a one-line change. The holdout precondition still
+passes (the new key contains neither "2025" nor "holdout").
+
+Live verification (run `29702678823`): collector `LastUpdateStatus=Successful`,
+memory `1536`, `NRFI_PITCHER_PROFILES_KEY` = the 2015-2024 projection. A live
+invocation returned `PROFILES_LOADED` for both dates and, for 2026-07-20,
+`feature_assembly_eligible_games = 8` of 15 (versus ~0 under the prior
+2021-2024 table) - the expanded history now supplies strict-prior profiles for
+far more starters. 2026-07-19 shows 0 eligible purely because that day's games
+are already underway (freshness/cutoff gate), not a profile gap. No side is
+rejected solely because 2025 is locked; probability remains blocked behind
+model approval.
+
+Batch note: the deterministic feature rebuild from the immutable canonical
+history was reproduced in the OIDC runner (Linux). A dedicated scale-to-zero
+Batch job definition for the same rebuild is the remaining Phase 4
+productionization; the equivalence it would assert is already demonstrated by
+the runner reproduction with identical identities.
+
+Required outputs remain `PREDICTIVE SKILL NOT ESTABLISHED` and
+`NO QUALIFIED WAGER`. Next: rerun the full game-specific rejection census in the
+live path, then continue through batter/lineup, team, park, platoon, rest,
+travel, weather, umpire, and unified point-in-time features, the expanded
+chronological model comparison and calibration, and the market/decision/grading
+layers. No 2025 file was opened; no temporary credential, active Batch job, or
+in-flight Terraform apply remains.
