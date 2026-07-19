@@ -1097,3 +1097,76 @@ available); re-run the model-comparison family and calibration on the
 expanded features under a new experiment identity; and narrow the deployer
 policy's broad grants. The required outputs remain
 `PREDICTIVE SKILL NOT ESTABLISHED` and `NO QUALIFIED WAGER`.
+
+## Statcast extraction + profile rebuild checkpoint - 2026-07-19
+
+The pre-2025 Statcast extraction contract is implemented, executed, and
+committed. Commit `810815a` added `nrfi/statcast_extraction.py` and
+`tests/test_statcast_extraction.py` (five boundary tests, all passing inside
+the full suite `179 passed, 1 skipped`). The module builds an allowlist purely
+from directory and filename tokens over the quarantined
+`mlb-model/data/statcast_days/<year>/<month>/statcast_<y>_<m>_<d>.parquet`
+cache, where each season is a physically separate top-level directory, so the
+locked-2025 directory is never traversed for content. Aggregation and the
+strict-prior windowing reuse the proven `nrfi.pitcher_statcast` functions
+unchanged, preserving the committed 2021-2024 feature semantics.
+
+Executed build (producing commit `64b7ccc`) over the real cache:
+`day_files_admitted=2450`, `day_files_opened=2450`,
+`day_files_opened_2025=0`, `day_files_rejected=43`,
+`opened_source_bytes=1,167,901,647`. The 43 rejects are the entire 2025 season
+directory (never traversed), 42 `.corrupt_*` files, and non-matching names -
+each recorded in `source_file_ledger.jsonl` with `opened:false`. Zero locked
+files opened is proven both by the ledger identity
+`1e1f7410e51b1bd9c9fc825d28443a71f65b272f55a30b8f46d0eba972642677` and the
+runtime guard. Source files were read-only; the mixed DuckDB warehouse was
+never opened.
+
+Rebuilt strict-prior profiles span 2015-2024: 45,522 actual-starter games
+(100% Statcast-matched, 0 rejected), 45,522 pitcher feature snapshots,
+42,437 profile-feature-eligible (93.223057%) across 1,168 distinct pitchers
+(860 ever-eligible) - versus 17,509 eligible in the old 2021-2024 table. Each
+snapshot carries career / last_5 / last_20 rate windows, workload
+(average_pitch_count), rest (days_since_previous_start), minimum-history
+(prior_starts_* with MINIMUM_PRIOR_STARTS=3), pitch quality (whiff / chase /
+hard-hit / barrel / fastball velocity), and platoon raw counts (vs-LHB / vs-RHB
+PA and K); every window uses only starts with scheduled_start_at and
+label_available_at strictly before the prediction cutoff, excluding the target
+game. Identities: history partition
+`3d2243a43deb2b70287c4efd777c510f1f0ef89c558251989981dcdc01f6b5e5`,
+feature partition
+`52c0d0a9405ee2096301d52c1d06e54c9c588a7ff4041738da916befa1ba90b8`,
+configuration inside `artifact_manifest.json`.
+
+Re-run 2026-07-19 rejection census against the rebuilt table
+(`rejection_census_2026_07_19.json`), 30 probable-starter sides:
+20 RESOLVED_ELIGIBLE_PROFILE (previously blocked by the spurious 2025
+intervening-history requirement, now backed by real 2015-2024 career history),
+7 NO_HISTORICAL_PROFILE_2015_2024 (genuine gaps - pitchers with no qualifying
+2015-2024 starts, i.e. debuts after 2024), 2 MIN_THRESHOLD_NOT_MET (2-3 career
+starts), 1 PROBABLE_STARTER_MISSING (no announced starter). No identity
+mismatch, stale-table, feature-omission, or cutoff defect appears; the seven
+absent pitchers are precisely genuine data gaps, not an unnecessary 2025
+requirement.
+
+Determinism (two complete builds) and AWS publish were in progress at
+checkpoint time. Build #2 to a separate output directory was running to confirm
+identical `history_partition_identity` / `feature_partition_identity`; its
+result must be recorded next. The rebuilt `pitcher_game_history.parquet` and
+`pitcher_features.parquet` are preserved in git alongside the committed ledger,
+coverage, manifest, and census so the dataset is durably versioned; the S3-lake
+publication (versioned, KMS-encrypted, under
+`features/pitcher-statcast-strict-prior-2015-2024-v1/`) and the live-assembly
+switch to the rebuilt profiles remain the exact next operations. 2025 stays
+fully locked; the required outputs remain `PREDICTIVE SKILL NOT ESTABLISHED`
+and `NO QUALIFIED WAGER`.
+
+### Exact next operations
+1. Confirm build #2 identities equal build #1 (determinism gate).
+2. Publish the two rebuilt parquet tables to the encrypted, versioned lake and
+   generate the JSONL profile projection for the stdlib Lambda runtime.
+3. Point the live assembly collector's `NRFI_PITCHER_PROFILES_KEY` at the
+   rebuilt projection and re-verify the deployed game-assembly census.
+4. Continue through batter, team, park, platoon, rest, travel, lineup, umpire,
+   and lawful weather features, then the expanded model comparison and
+   calibration under a new experiment identity.

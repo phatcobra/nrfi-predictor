@@ -1,0 +1,166 @@
+{
+ "census_2026_07_19": {
+  "MIN_THRESHOLD_NOT_MET": 2,
+  "NO_HISTORICAL_PROFILE_2015_2024": 7,
+  "RESOLVED_ELIGIBLE_PROFILE": 20,
+  "SNAPSHOT_INELIGIBLE": 1
+ },
+ "detail": [
+  {
+   "pitcher_id": 680732,
+   "reason": "MIN_THRESHOLD_NOT_MET(starts=3)",
+   "side": "822786:away"
+  },
+  {
+   "pitcher_id": 702056,
+   "reason": "NO_HISTORICAL_PROFILE_2015_2024",
+   "side": "822786:home"
+  },
+  {
+   "pitcher_id": 690997,
+   "reason": "NO_HISTORICAL_PROFILE_2015_2024",
+   "side": "823439:away"
+  },
+  {
+   "pitcher_id": 660604,
+   "reason": "NO_HISTORICAL_PROFILE_2015_2024",
+   "side": "823439:home"
+  },
+  {
+   "pitcher_id": 663556,
+   "reason": "RESOLVED_ELIGIBLE_PROFILE",
+   "side": "824739:away"
+  },
+  {
+   "pitcher_id": 543243,
+   "reason": "RESOLVED_ELIGIBLE_PROFILE",
+   "side": "824739:home"
+  },
+  {
+   "pitcher_id": null,
+   "reason": "SNAPSHOT_INELIGIBLE:PROBABLE_STARTER_MISSING",
+   "side": "824897:away"
+  },
+  {
+   "pitcher_id": 656550,
+   "reason": "RESOLVED_ELIGIBLE_PROFILE",
+   "side": "824897:home"
+  },
+  {
+   "pitcher_id": 694973,
+   "reason": "RESOLVED_ELIGIBLE_PROFILE",
+   "side": "824411:away"
+  },
+  {
+   "pitcher_id": 676440,
+   "reason": "RESOLVED_ELIGIBLE_PROFILE",
+   "side": "824411:home"
+  },
+  {
+   "pitcher_id": 691587,
+   "reason": "RESOLVED_ELIGIBLE_PROFILE",
+   "side": "823764:away"
+  },
+  {
+   "pitcher_id": 688107,
+   "reason": "RESOLVED_ELIGIBLE_PROFILE",
+   "side": "823764:home"
+  },
+  {
+   "pitcher_id": 608566,
+   "reason": "RESOLVED_ELIGIBLE_PROFILE",
+   "side": "824086:away"
+  },
+  {
+   "pitcher_id": 702070,
+   "reason": "NO_HISTORICAL_PROFILE_2015_2024",
+   "side": "824086:home"
+  },
+  {
+   "pitcher_id": 680694,
+   "reason": "RESOLVED_ELIGIBLE_PROFILE",
+   "side": "824168:away"
+  },
+  {
+   "pitcher_id": 686613,
+   "reason": "RESOLVED_ELIGIBLE_PROFILE",
+   "side": "824168:home"
+  },
+  {
+   "pitcher_id": 805673,
+   "reason": "RESOLVED_ELIGIBLE_PROFILE",
+   "side": "824653:away"
+  },
+  {
+   "pitcher_id": 684007,
+   "reason": "RESOLVED_ELIGIBLE_PROFILE",
+   "side": "824653:home"
+  },
+  {
+   "pitcher_id": 668881,
+   "reason": "RESOLVED_ELIGIBLE_PROFILE",
+   "side": "824330:away"
+  },
+  {
+   "pitcher_id": 663372,
+   "reason": "RESOLVED_ELIGIBLE_PROFILE",
+   "side": "824330:home"
+  },
+  {
+   "pitcher_id": 656492,
+   "reason": "NO_HISTORICAL_PROFILE_2015_2024",
+   "side": "824978:away"
+  },
+  {
+   "pitcher_id": 682052,
+   "reason": "MIN_THRESHOLD_NOT_MET(starts=2)",
+   "side": "824978:home"
+  },
+  {
+   "pitcher_id": 663554,
+   "reason": "RESOLVED_ELIGIBLE_PROFILE",
+   "side": "824007:away"
+  },
+  {
+   "pitcher_id": 696270,
+   "reason": "NO_HISTORICAL_PROFILE_2015_2024",
+   "side": "824007:home"
+  },
+  {
+   "pitcher_id": 592662,
+   "reason": "RESOLVED_ELIGIBLE_PROFILE",
+   "side": "823113:away"
+  },
+  {
+   "pitcher_id": 669302,
+   "reason": "RESOLVED_ELIGIBLE_PROFILE",
+   "side": "823113:home"
+  },
+  {
+   "pitcher_id": 669467,
+   "reason": "RESOLVED_ELIGIBLE_PROFILE",
+   "side": "825057:away"
+  },
+  {
+   "pitcher_id": 593958,
+   "reason": "RESOLVED_ELIGIBLE_PROFILE",
+   "side": "825057:home"
+  },
+  {
+   "pitcher_id": 808967,
+   "reason": "RESOLVED_ELIGIBLE_PROFILE",
+   "side": "823521:away"
+  },
+  {
+   "pitcher_id": 693645,
+   "reason": "NO_HISTORICAL_PROFILE_2015_2024",
+   "side": "823521:home"
+  }
+ ],
+ "probable_sides": 30,
+ "rebuilt_table": {
+  "distinct_pitchers": 1168,
+  "eligible_pitchers": 860,
+  "snapshot_rows": 45522
+ }
+}
