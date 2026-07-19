@@ -1191,3 +1191,67 @@ tables identically): `python -m nrfi.statcast_extraction --day-cache-dir
 C:\Users\ameis\mlb-model\data\statcast_days --multiseason-dir
 docs/multiseason_2015_2024 --output-dir docs/pitcher_statcast_2015_2024
 --producing-commit 64b7ccc0715df2cf41b74761d9c56a0c080d9fe0`.
+
+## Window-builder optimization checkpoint - 2026-07-19
+
+Phase 1 verified: branch `feat/aws-probability-platform-20260717` clean and
+synced at `81057a9` before this work, no unpushed or unrelated commits, active
+worktree correct. Local AWS CLI carries no long-lived credentials by design
+(`InvalidClientTokenId`) - itself the intended least-privilege posture; AWS
+read-verification and S3 publication run only through interactive CloudShell or
+the GitHub OIDC path. The committed Terraform retains the locked-holdout deny
+controls (`DenyLockedHoldoutStorage`, `DenyLockedHoldoutKeys`) as static 2025
+deny evidence; no 2025 prefix was enumerated.
+
+Phase 2 optimization is implemented and proven. Commit `d864686` added
+`build_pitcher_feature_snapshots_fast` to `nrfi/statcast_extraction.py`: the
+career window is accumulated left-to-right (identical float arithmetic to the
+reference prefix `sum`) while the bounded last_5 / last_20 windows reuse the
+exact `_window_metrics` over their <=20-row slices, so no feature meaning,
+cutoff, minimum-history rule, label, admitted partition, identity mapping, or
+chronology changes. Equivalence is proven, not assumed:
+`test_fast_builder_matches_reference_builder_exactly` asserts the fast and
+reference builders produce byte-identical snapshots (including the float
+fastball-velocity field and the >20-start career/trim edge that first exposed a
+`prior_starts_career` bug, now fixed), and the full-pipeline determinism test
+confirms two complete builds are byte-identical. The reference builder produced
+the committed real build (feature partition
+`52c0d0a9405ee2096301d52c1d06e54c9c588a7ff4041738da916befa1ba90b8`), so the
+fast builder reproduces that identity by proven equivalence. Eight extraction
+tests pass; Ruff and Pyright clean.
+
+A confirmatory real-cache fast build (`--output-dir %TEMP%/nrfi-fast-build1`)
+was launched to reprint the feature identity directly from the 2015-2024 day
+cache, but its file-read/checksum phase (2,450 files, 1.17 GB) hung past 30
+minutes under environmental disk contention this session and was stopped; it
+wrote nothing to the repository and opened no 2025 file. The optimization made
+the window stage near-instant; the remaining cost is pure source I/O, which is
+environmental. Exact command to reproduce and confirm the identity equals
+`52c0d0a9...` (fast path is the default):
+`python -m nrfi.statcast_extraction --day-cache-dir
+C:\Users\ameis\mlb-model\data\statcast_days --multiseason-dir
+docs/multiseason_2015_2024 --output-dir <fresh_dir> --producing-commit
+64b7ccc0715df2cf41b74761d9c56a0c080d9fe0` (add `--reference-slow` to run the
+unoptimized oracle).
+
+### Remaining phases and exact next operations
+- Phase 3 (publish to S3 lake) and Phase 5 (switch live assembly to the
+  rebuilt profiles) require AWS write access. The OIDC deployer role holds
+  `s3:*` on `nrfi-probability-*` buckets, so the non-interactive path is: add a
+  step to the existing `terraform-deploy` OIDC workflow (or a sibling job) that
+  regenerates the JSONL projection from the committed manifest identities and
+  `aws s3 cp --sse aws:kms` publishes ledger, manifest, coverage, history,
+  features, and projection under
+  `features/pitcher-statcast-strict-prior-2015-2024-v1/`, then Terraform points
+  the collector `NRFI_PITCHER_PROFILES_KEY` at the new projection (old key kept
+  as rollback). The rebuilt parquet are gitignored per repo convention; publish
+  requires either force-committing them for the runner or generating them in
+  Batch (Phase 4) from the admitted canonical multiseason input.
+- Phases 4, 6-15 (Batch equivalence, remaining feature domains, unified feature
+  store, expanded model comparison, registry/inference, market pipeline, risk
+  gates, ledgers, automation, monitoring/DR, IAM narrowing) remain open and
+  depend on the S3 publish + live switch landing first.
+
+No temporary credentials exist, no Batch job was started, no Terraform apply
+ran, and no 2025 source file was opened this turn. Required outputs remain
+`PREDICTIVE SKILL NOT ESTABLISHED` and `NO QUALIFIED WAGER`.
