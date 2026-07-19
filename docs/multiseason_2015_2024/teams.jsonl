@@ -1,0 +1,30 @@
+{"abbreviation":"LAA","name":"Los Angeles Angels","schema_version":"team_identity.v1","team_id":108}
+{"abbreviation":"AZ","name":"Arizona Diamondbacks","schema_version":"team_identity.v1","team_id":109}
+{"abbreviation":"BAL","name":"Baltimore Orioles","schema_version":"team_identity.v1","team_id":110}
+{"abbreviation":"BOS","name":"Boston Red Sox","schema_version":"team_identity.v1","team_id":111}
+{"abbreviation":"CHC","name":"Chicago Cubs","schema_version":"team_identity.v1","team_id":112}
+{"abbreviation":"CIN","name":"Cincinnati Reds","schema_version":"team_identity.v1","team_id":113}
+{"abbreviation":"CLE","name":"Cleveland Guardians","schema_version":"team_identity.v1","team_id":114}
+{"abbreviation":"COL","name":"Colorado Rockies","schema_version":"team_identity.v1","team_id":115}
+{"abbreviation":"DET","name":"Detroit Tigers","schema_version":"team_identity.v1","team_id":116}
+{"abbreviation":"HOU","name":"Houston Astros","schema_version":"team_identity.v1","team_id":117}
+{"abbreviation":"KC","name":"Kansas City Royals","schema_version":"team_identity.v1","team_id":118}
+{"abbreviation":"LAD","name":"Los Angeles Dodgers","schema_version":"team_identity.v1","team_id":119}
+{"abbreviation":"WSH","name":"Washington Nationals","schema_version":"team_identity.v1","team_id":120}
+{"abbreviation":"NYM","name":"New York Mets","schema_version":"team_identity.v1","team_id":121}
+{"abbreviation":"OAK","name":"Oakland Athletics","schema_version":"team_identity.v1","team_id":133}
+{"abbreviation":"PIT","name":"Pittsburgh Pirates","schema_version":"team_identity.v1","team_id":134}
+{"abbreviation":"SD","name":"San Diego Padres","schema_version":"team_identity.v1","team_id":135}
+{"abbreviation":"SEA","name":"Seattle Mariners","schema_version":"team_identity.v1","team_id":136}
+{"abbreviation":"SF","name":"San Francisco Giants","schema_version":"team_identity.v1","team_id":137}
+{"abbreviation":"STL","name":"St. Louis Cardinals","schema_version":"team_identity.v1","team_id":138}
+{"abbreviation":"TB","name":"Tampa Bay Rays","schema_version":"team_identity.v1","team_id":139}
+{"abbreviation":"TEX","name":"Texas Rangers","schema_version":"team_identity.v1","team_id":140}
+{"abbreviation":"TOR","name":"Toronto Blue Jays","schema_version":"team_identity.v1","team_id":141}
+{"abbreviation":"MIN","name":"Minnesota Twins","schema_version":"team_identity.v1","team_id":142}
+{"abbreviation":"PHI","name":"Philadelphia Phillies","schema_version":"team_identity.v1","team_id":143}
+{"abbreviation":"ATL","name":"Atlanta Braves","schema_version":"team_identity.v1","team_id":144}
+{"abbreviation":"CWS","name":"Chicago White Sox","schema_version":"team_identity.v1","team_id":145}
+{"abbreviation":"MIA","name":"Miami Marlins","schema_version":"team_identity.v1","team_id":146}
+{"abbreviation":"NYY","name":"New York Yankees","schema_version":"team_identity.v1","team_id":147}
+{"abbreviation":"MIL","name":"Milwaukee Brewers","schema_version":"team_identity.v1","team_id":158}

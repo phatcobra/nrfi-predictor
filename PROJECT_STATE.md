@@ -1019,3 +1019,81 @@ assignments; rest, travel, and workload effects; then strict chronological
 re-evaluation over the accumulated forward window before any model approval.
 The scientific status remains `PREDICTIVE SKILL NOT ESTABLISHED`; the
 required output remains `NO QUALIFIED WAGER`.
+
+## Expanded-history admission checkpoint - 2026-07-19
+
+A read-only inventory reconciled every located 2015-2024 historical asset;
+the committed ledger is `docs/historical_inventory/2026-07-19/`
+(`inventory.json` + `summary.md`). Principal findings: the StatsAPI
+normalized-v2 cache and committed evidence remain the canonical outcome
+source; the quarantined `mlb-model` repository holds the 2015-2024 raw
+Statcast day-level cache (1.23 GB, 2,584 files, 2015-2025 mixed) and a
+3.78 GB DuckDB warehouse (Statcast/Retrosheet/Lahman/StatsAPI, includes
+2025); its 2025 members are HOLDOUT_BLOCKED, its derived outputs are
+holdout-contaminated and stay QUARANTINED, and its 2015-2024 slices are
+admission candidates strictly through a season<=2024 extraction contract
+that has not yet been executed. No historical weather, injury, or
+timestamped sportsbook-price asset was located. No source asset was
+modified; the 2025 holdout was not listed, loaded, or computed against.
+
+The precise 2026 assembly-rejection census (30 committed sides plus the
+32-side deployed run) is recorded in the ledger: one missing probable
+starter, seven pitchers absent from the 2021-2024 profile table, two below
+the minimum-starts threshold, twenty blocked only by the unnecessary
+requirement for locked-2025 intervening history, and zero identity,
+staleness, omission, or cutoff defects. Commit
+`a60be5a` corrected the unnecessary requirement: feature schema
+`pregame_pitcher_statcast_feature.v2` and assembly schema
+`pregame_game_assembly.v2` now express the gap as
+`profile_history_gap_seasons` / `profile_recent_history_missing` without
+erasing valid career history, and probability eligibility remains
+fail-closed behind model approval. Terraform run `29682891314` planned
+`0 add, 2 change, 0 destroy` and marker run `29682932564` applied it; both
+Lambdas run the v2 semantics. The full gate passed
+(`174 passed, 1 skipped, 21 warnings`; Ruff and Pyright clean).
+
+The multiseason engine then acquired and normalized the 2015-2020 regular
+seasons into the existing resumable cache (36 new monthly partitions,
+official StatsAPI, raw payloads in memory only) and produced the new
+expanded-history experiment package `docs/multiseason_2015_2024/`
+(17 artifacts, 124,756,722 bytes, per-file SHA-256 manifest, deterministic
+double-derivation replay PASS, producing commit
+`5a7a5b77de87b7b11510c83e7e5f228fc2ea4d43`). Coverage: 22,772 scheduled,
+22,761 accepted finalized games, 11 explicit rejections, 193
+cross-partition duplicate gamePks deduplicated with reconciliation
+records, 100% actual-starter coverage, 99.95% label coverage, and
+`locked_holdout_used=false` throughout. The prior `docs/multiseason`
+2021-2024 package and every existing prediction, grade, and baseline
+remain untouched.
+
+Chronological evaluation now spans nine expanding folds (train 2015..K,
+predict K+1, for K+1 in 2016-2024; the 2020 fold holds 898 pandemic-season
+predictions) with 20,330 out-of-sample predictions. Pooled candidate
+metrics: log loss `0.693166` versus `0.693277` overall climatology; Brier
+`0.250009` versus `0.250065`; ECE `0.010349`; calibration slope
+`0.583255`, intercept `-0.010933`. The official-date-clustered bootstrap
+(2,000 replicates) log-loss improvement is `+0.000111` with 95% interval
+`[-0.000263, +0.000...]` including zero. Key identities: configuration
+`f9044e29...96c728`, normalized partition `d81999b1...87f5aa`, features
+`2e92ae82...34f8dc`, predictions `ddd70534...49003c`, grades
+`7e76f426...dec5bb`, evaluation `9438d52b...14a5d4`, fold membership
+`7e8cb53a...ec2d11`. The decision on the maximum lawful outcome history is
+unchanged: `PREDICTIVE SKILL NOT ESTABLISHED`.
+
+2025-denial evidence: the engine CLI rejects any season >= 2025 by
+construction (`the locked 2025 holdout is prohibited`), the collector and
+admission paths carry dedicated locked-2025 tests (suite green), every
+manifest records `locked_holdout_used=false`, and no 2025 object exists in
+the project lake.
+
+Remaining operations, in order: execute the season<=2024 Statcast
+extraction contract from the quarantined raw cache and rebuild the
+pitcher profile table over 2015-2024 (then batter/top-of-order, team,
+park, platoon, rest/travel/workload tables with explicit missingness);
+verify Retrosheet coverage for lineups/umpires and admit or reject it;
+publish the expanded package and rebuilt tables to the versioned lake
+(pending operator console sign-in; the GitHub OIDC deploy path remains
+available); re-run the model-comparison family and calibration on the
+expanded features under a new experiment identity; and narrow the deployer
+policy's broad grants. The required outputs remain
+`PREDICTIVE SKILL NOT ESTABLISHED` and `NO QUALIFIED WAGER`.
