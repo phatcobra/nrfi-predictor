@@ -1417,6 +1417,17 @@ therefore precisely `pitcher_profile_eligible_games`, not complete-feature
 eligibility; `unified_feature_set_eligible_games` is `0`, and probability,
 market, and wager remain blocked.
 
+Deployed and verified live. terraform-deploy run `29711295729` applied
+`0 add, 2 change, 0 destroy` (both the collector and probability_api Lambdas
+bundle `forward_admission.py`, so both moved to the v3 runtime). Live collector
+invocation (run `29711351773`) returned, with `profiles_status=PROFILES_LOADED`:
+2026-07-19 -> `pitcher_profile_eligible_games=0`,
+`unified_feature_set_eligible_games=0` (games already underway); 2026-07-20 ->
+`pitcher_profile_eligible_games=8`, `unified_feature_set_eligible_games=0`. The
+live path now labels eligibility honestly by stage and never reports a game as
+complete-feature eligible. No temporary credentials, no active Batch jobs, no
+public endpoint, no 2025 access.
+
 Remaining phases (unchanged): Phase A AWS Batch productionization of the
 profile rebuild (immutable ECR image, scale-to-zero Batch job definition,
 rebuild from the versioned canonical-history S3 object, local/OIDC/Batch
