@@ -1389,3 +1389,41 @@ travel, weather, umpire, and unified point-in-time features, the expanded
 chronological model comparison and calibration, and the market/decision/grading
 layers. No 2025 file was opened; no temporary credential, active Batch job, or
 in-flight Terraform apply remains.
+
+## Staged eligibility correction - 2026-07-19
+
+The single misleading `feature_assembly` eligibility flag is replaced by
+explicit, honest eligibility stages (commit `f48f212`, assembly schema
+`pregame_game_assembly.v3`). Each game assembly now reports:
+`probable_starter_eligible`, `pitcher_profile_eligible`,
+`lineup_feature_eligible`, `batter_feature_eligible`, `team_context_eligible`,
+`park_context_eligible`, `weather_context_eligible`, `umpire_context_eligible`,
+`schedule_travel_eligible`, `unified_feature_set_eligible`,
+`model_probability_eligible`, `market_eligible`, and `wager_eligible`. Only the
+first two feature domains are implemented; every later domain is `False` with
+reason `FEATURE_DOMAIN_NOT_YET_IMPLEMENTED`, and `unified_feature_set_eligible`
+is the AND of all feature domains, so it is always `False` today - no game is
+ever described as complete-feature eligible before the frozen model's required
+feature contract passes. Freshness and cutoff are exposed separately
+(`snapshot_fresh`, `before_prediction_cutoff`) and fold into
+`probable_starter_eligible`. `probability_ineligibility_reasons` now includes
+`UNIFIED_FEATURE_SET_INCOMPLETE`. Package/run summaries renamed
+`feature_assembly_eligible_games` to `pitcher_profile_eligible_games` and added
+`unified_feature_set_eligible_games` (always 0 until the domains exist). Full
+suite `188 passed, 1 skipped`; Ruff and Pyright clean.
+
+The `8 of 15` figure reported for 2026-07-20 in the prior checkpoint is
+therefore precisely `pitcher_profile_eligible_games`, not complete-feature
+eligibility; `unified_feature_set_eligible_games` is `0`, and probability,
+market, and wager remain blocked.
+
+Remaining phases (unchanged): Phase A AWS Batch productionization of the
+profile rebuild (immutable ECR image, scale-to-zero Batch job definition,
+rebuild from the versioned canonical-history S3 object, local/OIDC/Batch
+identity equality, rollback test); Phase B lineups + batter features; Phase C
+team/park/schedule/travel context; Phase D weather + umpires (forward-only
+where historical timing is unprovable); Phase E unified point-in-time feature
+generation; Phase F expanded model comparison under a new experiment identity;
+Phase G market, decisioning, grading, monitoring, retraining, and IAM
+narrowing. 2025 stays locked. Required outputs remain
+`PREDICTIVE SKILL NOT ESTABLISHED` and `NO QUALIFIED WAGER`.
