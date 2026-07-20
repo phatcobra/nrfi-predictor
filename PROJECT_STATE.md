@@ -1438,3 +1438,76 @@ generation; Phase F expanded model comparison under a new experiment identity;
 Phase G market, decisioning, grading, monitoring, retraining, and IAM
 narrowing. 2025 stays locked. Required outputs remain
 `PREDICTIVE SKILL NOT ESTABLISHED` and `NO QUALIFIED WAGER`.
+
+## Forward lineup collection live + lineup evidence inventory - 2026-07-20
+
+Phase 1 (forward lineup snapshot collection) is built, deployed, and verified
+live. New module `nrfi/lineup_snapshot.py` normalizes the official StatsAPI
+`lineups` hydration into deterministic point-in-time snapshot rows carrying
+game/team/side identity, batting-order position, defensive position where
+present, `lineup_status` (`CONFIRMED` when posted, `NOT_AVAILABLE` otherwise),
+`lineup_observed_at`, `source_publication_time` (always `None` - StatsAPI does
+not expose lineup publication time, so it is never fabricated),
+`prediction_cutoff`, `observed_before_cutoff`, source-response SHA-256, and a
+deterministic `snapshot_id`. The existing forward collector Lambda now also
+fetches lineups and writes immutable, versioned, SSE-KMS `no-store` lineup
+captures under `signals/pregame/official-statsapi/lineups/<date>/`, reusing the
+same EventBridge schedule (no new recurring service). Because every timestamped
+capture is preserved immutably, the not-available -> confirmed -> revised
+progression and any late scratch are recoverable; revision selection will live
+in the admission layer. Run schema is now `forward_collector_run.v2`.
+
+Commits: `9b95901` (module + collector wiring + Terraform archive/IAM/precondition
+for the lineup prefix + tests; full suite `195 passed, 1 skipped`, Ruff and
+Pyright clean) and `1f0e50a` (live verification step). terraform-deploy run
+`29711892603` applied `0 add, 3 change, 0 destroy` (collector code + its IAM
+policy, plus the probability_api archive that bundles the collector module).
+Live verification (run `29711964582`): the collector invocation wrote lineup
+captures
+`signals/pregame/official-statsapi/lineups/2026-07-19/capture-20260720T020750Z.json`
+and `.../2026-07-20/capture-20260720T020750Z.json`; for 2026-07-19 it observed
+32 confirmed lineups (games already under way, so 0 before cutoff), and for
+2026-07-20 it observed 30 game-sides with lineups not yet posted (0 confirmed,
+all 30 before cutoff) - exactly the expected pregame progression.
+
+Phase 2 (historical lineup evidence) is inventoried in
+`docs/historical_inventory/2026-07-20/lineup_evidence.md`. Determination:
+timestamp-verifiable historical pregame lineups are UNAVAILABLE for 2015-2024 -
+StatsAPI historical batting orders and Retrosheet are postgame/in-game
+attribution with no pregame publication time. Consequence (already the design):
+forward-only lineups for production, lineup-independent strict-prior batter
+aggregations for model development, and explicit historical lineup missingness;
+`lineup_feature_eligible` stays false for historical folds. No timestamp is
+fabricated; 2025 not inspected.
+
+### Exact next operations (continuation)
+1. Phase 3 - strict-prior batter features: build canonical batter-game and
+   batter-feature tables from the 2015-2024 day cache via a batter analogue of
+   `nrfi/statcast_extraction.py` (aggregate pitch rows by (game_pk, batter);
+   career/rolling PA, OBP proxy, K%, BB%, whiff, chase, hard-hit, barrel,
+   GB/FB, handedness, platoon vs pitcher hand, home/away, min-history and
+   missingness; strict-prior windows only; same allowlist/ledger/determinism
+   pattern; ~20-minute read using the committed progress logging). Reuse the
+   proven fast-window builder pattern.
+2. Phase 4 - top-of-order/matchup features from the forward lineup snapshot
+   (expected first 3/4 batters, top-of-order OBP/K-avoid/contact/hard-contact,
+   handedness sequence, batter-vs-pitcher-hand, depth, projected-vs-confirmed,
+   freshness, revision count, missing-profile count), recording which lineup
+   representation produced each row; never substitute the postgame actual
+   lineup.
+3. Phase 5 - wire `lineup_feature_eligible` / `batter_feature_eligible` into the
+   staged eligibility (unified stays false until all frozen critical domains
+   pass); Phase 6 determinism/leakage tests; Phase 7 S3 publication via the
+   existing OIDC publish workflow; Phase 8 live verification + full lineup/batter
+   rejection census.
+4. Parallel: Phase A pitcher Batch productionization (immutable ECR image,
+   scale-to-zero Batch job def, rebuild from the versioned canonical-history S3
+   object, local/OIDC/Batch identity equality, rollback test).
+5. Then team/park/schedule/travel/weather/umpire domains, unified feature freeze,
+   predeclared promotion criteria, expanded chronological model comparison and
+   calibration, market collection + de-vigging, decisioning, ledgers,
+   monitoring, retraining, rollback/recovery, and IAM narrowing.
+
+No temporary credentials, no active Batch jobs, no public endpoint, no 2025
+access, no real wager. Required outputs remain `PREDICTIVE SKILL NOT
+ESTABLISHED` and `NO QUALIFIED WAGER`.
