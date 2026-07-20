@@ -163,6 +163,7 @@ resource "aws_lambda_function" "pregame_collector" {
   source_code_hash = data.archive_file.pregame_collector.output_base64sha256
 
   # Sized for the 80.7 MB expanded 2015-2024 strict-prior profile projection.
+  # Runtime emits staged eligibility (pregame_game_assembly.v3).
   memory_size = 1536
   timeout     = 120
 
