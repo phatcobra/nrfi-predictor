@@ -115,7 +115,8 @@ jobs:
           summary = [
               {k: r.get(k) for k in (
                   "official_date", "profiles_status", "games",
-                  "feature_assembly_eligible_games", "admitted_captures")}
+                  "pitcher_profile_eligible_games",
+                  "unified_feature_set_eligible_games", "admitted_captures")}
               for r in results
           ]
           print("assembly_summary=", json.dumps(summary, sort_keys=True))

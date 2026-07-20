@@ -168,12 +168,12 @@ def _assembly_package(game_pk=745, official_date="2026-07-19"):
             {
                 "game_pk": game_pk,
                 "eligibility": {
-                    "probable_starter_snapshot": True,
-                    "pitcher_feature": True,
-                    "feature_assembly": True,
-                    "probability": False,
-                    "market_evaluation": False,
-                    "wager": False,
+                    "probable_starter_eligible": True,
+                    "pitcher_profile_eligible": True,
+                    "unified_feature_set_eligible": False,
+                    "model_probability_eligible": False,
+                    "market_eligible": False,
+                    "wager_eligible": False,
                 },
                 "wager_decision": "NO QUALIFIED WAGER",
             }
@@ -227,7 +227,8 @@ def test_game_query_returns_real_assembly_status(monkeypatch):
     assert body["response_class"] == "game-assembly-status"
     assert body["requested_game_pk"] == 745
     assert body["assembly_package"]["key"] == key
-    assert body["game"]["eligibility"]["probability"] is False
+    assert body["game"]["eligibility"]["model_probability_eligible"] is False
+    assert body["game"]["eligibility"]["unified_feature_set_eligible"] is False
     assert body["wager_decision"] == "NO QUALIFIED WAGER"
 
 

@@ -16,7 +16,27 @@ from nrfi.pregame_snapshot import (
 FORWARD_KEY_PREFIX = "signals/pregame/official-statsapi/forward"
 ASSEMBLY_KEY_PREFIX = "signals/pregame/assembly"
 CAPTURE_SCHEMA_VERSION = "forward_probable_starter_capture.v1"
-ASSEMBLY_SCHEMA_VERSION = "pregame_game_assembly.v2"
+ASSEMBLY_SCHEMA_VERSION = "pregame_game_assembly.v3"
+
+# Ordered eligibility stages a game must clear before it can carry a
+# probability, a market comparison, or a wager decision.  Only the first two
+# feature domains are implemented; every later domain is reported explicitly so
+# no game is ever described as complete-feature eligible before the frozen
+# model's required feature contract passes.
+IMPLEMENTED_FEATURE_STAGES = (
+    "probable_starter_eligible",
+    "pitcher_profile_eligible",
+)
+UNIMPLEMENTED_FEATURE_STAGES = (
+    "lineup_feature_eligible",
+    "batter_feature_eligible",
+    "team_context_eligible",
+    "park_context_eligible",
+    "weather_context_eligible",
+    "umpire_context_eligible",
+    "schedule_travel_eligible",
+)
+UNIMPLEMENTED_STAGE_REASON = "FEATURE_DOMAIN_NOT_YET_IMPLEMENTED"
 PACKAGE_SCHEMA_VERSION = "pregame_assembly_package.v1"
 PROFILE_TABLE_SCHEMA = "pitcher-statcast-strict-prior-v1"
 LOCKED_HOLDOUT_SEASON = 2025
@@ -479,10 +499,34 @@ def _finalize_assembly(
         reasons.append("game:SNAPSHOT_STALE")
     if pitcher_feature_eligible and not before_cutoff:
         reasons.append("game:PREDICTION_CUTOFF_PASSED")
-    feature_assembly_eligible = pitcher_feature_eligible and fresh and before_cutoff
+
+    probable_starter_eligible = snapshot_eligible and fresh and before_cutoff
+    pitcher_profile_eligible = probable_starter_eligible and pitcher_feature_eligible
+    eligibility = {
+        "probable_starter_eligible": probable_starter_eligible,
+        "pitcher_profile_eligible": pitcher_profile_eligible,
+    }
+    for stage in UNIMPLEMENTED_FEATURE_STAGES:
+        eligibility[stage] = False
+    # The unified feature set requires every feature domain the frozen model
+    # contract will demand; unimplemented domains keep it False, so no game is
+    # ever complete-feature eligible yet.
+    eligibility["unified_feature_set_eligible"] = all(
+        eligibility[stage]
+        for stage in (*IMPLEMENTED_FEATURE_STAGES, *UNIMPLEMENTED_FEATURE_STAGES)
+    )
+    eligibility["model_probability_eligible"] = False
+    eligibility["market_eligible"] = False
+    eligibility["wager_eligible"] = False
+    if pitcher_profile_eligible:
+        reasons.extend(
+            f"game:{stage}:{UNIMPLEMENTED_STAGE_REASON}"
+            for stage in UNIMPLEMENTED_FEATURE_STAGES
+        )
     probability_reasons = [
         "APPROVED_MODEL_UNAVAILABLE",
         "PREDICTIVE_SKILL_NOT_ESTABLISHED",
+        "UNIFIED_FEATURE_SET_INCOMPLETE",
     ]
     assembly = {
         "schema_version": ASSEMBLY_SCHEMA_VERSION,
@@ -500,14 +544,11 @@ def _finalize_assembly(
         "sides": sides,
         "freshness_seconds": freshness,
         "freshness_limit_seconds": freshness_limit_seconds,
-        "eligibility": {
-            "probable_starter_snapshot": snapshot_eligible,
-            "pitcher_feature": pitcher_feature_eligible,
-            "feature_assembly": feature_assembly_eligible,
-            "probability": False,
-            "market_evaluation": False,
-            "wager": False,
-        },
+        "snapshot_fresh": fresh,
+        "before_prediction_cutoff": before_cutoff,
+        "eligibility": eligibility,
+        "implemented_feature_stages": list(IMPLEMENTED_FEATURE_STAGES),
+        "pending_feature_stages": list(UNIMPLEMENTED_FEATURE_STAGES),
         "probability_ineligibility_reasons": probability_reasons,
         "market_ineligibility_reasons": ["MARKET_DATA_UNAVAILABLE"],
         "rejection_reasons": sorted(set(reasons)),
@@ -550,8 +591,15 @@ def build_assembly_package(
             1 for item in capture_admissions if item["status"] == "ADMITTED"
         ),
         "games": assemblies,
-        "feature_assembly_eligible_games": sum(
-            1 for assembly in assemblies if assembly["eligibility"]["feature_assembly"]
+        "pitcher_profile_eligible_games": sum(
+            1
+            for assembly in assemblies
+            if assembly["eligibility"]["pitcher_profile_eligible"]
+        ),
+        "unified_feature_set_eligible_games": sum(
+            1
+            for assembly in assemblies
+            if assembly["eligibility"]["unified_feature_set_eligible"]
         ),
         "locked_2025_holdout_accessed": False,
         "wager_decision": WAGER_DECISION,
@@ -655,8 +703,11 @@ def run_assembly(
                 "capture_keys": keys,
                 "admitted_captures": package["admitted_captures"],
                 "games": len(package["games"]),
-                "feature_assembly_eligible_games": package[
-                    "feature_assembly_eligible_games"
+                "pitcher_profile_eligible_games": package[
+                    "pitcher_profile_eligible_games"
+                ],
+                "unified_feature_set_eligible_games": package[
+                    "unified_feature_set_eligible_games"
                 ],
                 "profiles_status": profiles_status,
                 "stored": stored,

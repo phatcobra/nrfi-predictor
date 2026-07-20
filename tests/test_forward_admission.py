@@ -149,7 +149,8 @@ def test_end_to_end_assembly_selects_latest_and_exposes_lineage(
     result = summary["results"][0]
     assert result["profiles_status"] == "PROFILES_LOADED"
     assert result["admitted_captures"] == 2
-    assert result["feature_assembly_eligible_games"] == 1
+    assert result["pitcher_profile_eligible_games"] == 1
+    assert result["unified_feature_set_eligible_games"] == 0
     stored = fake.put_calls[-1]
     assert stored["ServerSideEncryption"] == "aws:kms"
     assert stored["Key"].startswith(
@@ -166,12 +167,19 @@ def test_end_to_end_assembly_selects_latest_and_exposes_lineage(
     ] == [(7, 9)]
     assert game["sides"]["home"]["probable_pitcher_id"] == 8
     assert game["eligibility"] == {
-        "probable_starter_snapshot": True,
-        "pitcher_feature": True,
-        "feature_assembly": True,
-        "probability": False,
-        "market_evaluation": False,
-        "wager": False,
+        "probable_starter_eligible": True,
+        "pitcher_profile_eligible": True,
+        "lineup_feature_eligible": False,
+        "batter_feature_eligible": False,
+        "team_context_eligible": False,
+        "park_context_eligible": False,
+        "weather_context_eligible": False,
+        "umpire_context_eligible": False,
+        "schedule_travel_eligible": False,
+        "unified_feature_set_eligible": False,
+        "model_probability_eligible": False,
+        "market_eligible": False,
+        "wager_eligible": False,
     }
     assert game["wager_decision"] == "NO QUALIFIED WAGER"
     assert package["wager_decision"] == "NO QUALIFIED WAGER"
@@ -200,10 +208,11 @@ def test_observation_at_or_after_cutoff_is_never_selected(tmp_path: Path) -> Non
     package = json.loads(fake.put_calls[-1]["Body"].decode("utf-8"))
     game = package["games"][0]
     assert game["sides"]["away"]["selection_status"] == "NO_ADMISSIBLE_OBSERVATION"
-    assert game["eligibility"]["probable_starter_snapshot"] is False
-    assert game["eligibility"]["feature_assembly"] is False
+    assert game["eligibility"]["probable_starter_eligible"] is False
+    assert game["eligibility"]["pitcher_profile_eligible"] is False
+    assert game["eligibility"]["unified_feature_set_eligible"] is False
     assert "away:NO_ADMISSIBLE_OBSERVATION" in game["rejection_reasons"]
-    assert summary["results"][0]["feature_assembly_eligible_games"] == 0
+    assert summary["results"][0]["pitcher_profile_eligible_games"] == 0
 
 
 def test_stale_snapshot_fails_freshness_gate(tmp_path: Path) -> None:
@@ -227,8 +236,10 @@ def test_stale_snapshot_fails_freshness_gate(tmp_path: Path) -> None:
 
     package = json.loads(fake.put_calls[-1]["Body"].decode("utf-8"))
     game = package["games"][0]
-    assert game["eligibility"]["pitcher_feature"] is True
-    assert game["eligibility"]["feature_assembly"] is False
+    assert game["snapshot_fresh"] is False
+    assert game["eligibility"]["probable_starter_eligible"] is False
+    assert game["eligibility"]["pitcher_profile_eligible"] is False
+    assert game["eligibility"]["unified_feature_set_eligible"] is False
     assert "game:SNAPSHOT_STALE" in game["rejection_reasons"]
 
 
@@ -358,12 +369,17 @@ def test_locked_2025_gap_is_flagged_without_erasing_career_history(
         assert game["sides"][side]["feature_status"] == "READY"
         assert game["sides"][side]["profile_history_gap_seasons"] == 1
         assert game["sides"][side]["profile_recent_history_missing"] is True
-    assert game["eligibility"]["pitcher_feature"] is True
-    assert game["eligibility"]["feature_assembly"] is True
-    assert game["eligibility"]["probability"] is False
+    assert game["eligibility"]["probable_starter_eligible"] is True
+    assert game["eligibility"]["pitcher_profile_eligible"] is True
+    # implemented stages pass, but the unified feature set (and therefore
+    # probability, market, and wager) stays blocked on unbuilt domains.
+    assert game["eligibility"]["unified_feature_set_eligible"] is False
+    assert game["eligibility"]["model_probability_eligible"] is False
     assert game["probability_ineligibility_reasons"] == [
         "APPROVED_MODEL_UNAVAILABLE",
         "PREDICTIVE_SKILL_NOT_ESTABLISHED",
+        "UNIFIED_FEATURE_SET_INCOMPLETE",
     ]
     assert game["wager_decision"] == "NO QUALIFIED WAGER"
-    assert summary["results"][0]["feature_assembly_eligible_games"] == 1
+    assert summary["results"][0]["pitcher_profile_eligible_games"] == 1
+    assert summary["results"][0]["unified_feature_set_eligible_games"] == 0
