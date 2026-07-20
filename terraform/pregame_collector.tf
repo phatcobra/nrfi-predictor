@@ -1,6 +1,7 @@
 locals {
   pregame_collector_name  = "${local.name_prefix}-pregame-collector"
   pregame_forward_prefix  = "signals/pregame/official-statsapi/forward"
+  pregame_lineup_prefix   = "signals/pregame/official-statsapi/lineups"
   pregame_assembly_prefix = "signals/pregame/assembly"
   # Live assembly now uses the reproduced, determinism-verified 2015-2024
   # profile projection. The prior 2021-2024 key is retained as the rollback
@@ -26,6 +27,11 @@ data "archive_file" "pregame_collector" {
   source {
     content  = file("${path.module}/../nrfi/forward_admission.py")
     filename = "nrfi/forward_admission.py"
+  }
+
+  source {
+    content  = file("${path.module}/../nrfi/lineup_snapshot.py")
+    filename = "nrfi/lineup_snapshot.py"
   }
 
   source {
@@ -56,6 +62,7 @@ data "aws_iam_policy_document" "pregame_collector" {
     actions = ["s3:PutObject"]
     resources = [
       "${aws_s3_bucket.lake.arn}/${local.pregame_forward_prefix}/*",
+      "${aws_s3_bucket.lake.arn}/${local.pregame_lineup_prefix}/*",
       "${aws_s3_bucket.lake.arn}/${local.pregame_assembly_prefix}/*",
     ]
   }
@@ -182,6 +189,7 @@ resource "aws_lambda_function" "pregame_collector" {
       condition = alltrue([
         for prefix in [
           local.pregame_forward_prefix,
+          local.pregame_lineup_prefix,
           local.pregame_assembly_prefix,
           local.pitcher_profiles_key,
         ] :

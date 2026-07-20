@@ -13,7 +13,14 @@ from pathlib import Path
 from typing import Any, Callable, Mapping
 
 from nrfi import forward_admission
+from nrfi.lineup_snapshot import (
+    LineupSnapshotError,
+    build_lineup_snapshot_rows,
+    summarize_lineups,
+)
 from nrfi.pregame_snapshot import (
+    HTTP_TIMEOUT_SECONDS,
+    STATSAPI_ENDPOINT,
     PregameSnapshotError,
     acquire_source_snapshot,
     build_probable_starter_rows,
@@ -21,8 +28,11 @@ from nrfi.pregame_snapshot import (
 )
 
 CAPTURE_SCHEMA_VERSION = "forward_probable_starter_capture.v1"
-RUN_SCHEMA_VERSION = "forward_collector_run.v1"
+LINEUP_CAPTURE_SCHEMA_VERSION = "forward_lineup_capture.v1"
+RUN_SCHEMA_VERSION = "forward_collector_run.v2"
 FORWARD_KEY_PREFIX = "signals/pregame/official-statsapi/forward"
+LINEUP_KEY_PREFIX = "signals/pregame/official-statsapi/lineups"
+NO_LINEUP_GAMES_MESSAGE = "no regular-season games found for target date"
 MARKET_TIMEZONE = "America/New_York"
 FALLBACK_UTC_OFFSET_HOURS = -4
 TARGET_DATE_OFFSETS = (0, 1)
@@ -130,6 +140,96 @@ def collect_capture(
     }
 
 
+def _lineup_request_parameters(target_date: date) -> dict[str, str | int]:
+    return {
+        "date": target_date.isoformat(),
+        "hydrate": "lineups,team",
+        "sportId": 1,
+    }
+
+
+def collect_lineup_capture(
+    target_date: date,
+    *,
+    now: Callable[[], datetime] = _utc_now,
+    get: Callable[..., Any] | None = None,
+) -> dict[str, Any]:
+    """Fetch and normalize one immutable, timestamped lineup snapshot capture."""
+    if target_date.year == 2025:
+        raise ForwardCollectorError("the locked 2025 holdout is prohibited")
+    requester = get or stdlib_get
+    params = _lineup_request_parameters(target_date)
+    response = requester(STATSAPI_ENDPOINT, params=params, timeout=HTTP_TIMEOUT_SECONDS)
+    response.raise_for_status()
+    raw = bytes(response.content)
+    source = {
+        "request_parameters": params,
+        "retrieved_at": _utc_text(now()),
+        "response_bytes": len(raw),
+        "response_sha256": hashlib.sha256(raw).hexdigest(),
+        "payload": json.loads(raw),
+    }
+    try:
+        rows = build_lineup_snapshot_rows(source, target_date)
+    except LineupSnapshotError as error:
+        if str(error) != NO_LINEUP_GAMES_MESSAGE:
+            raise
+        rows = []
+    coverage = summarize_lineups(rows)
+    return {
+        "schema_version": LINEUP_CAPTURE_SCHEMA_VERSION,
+        "target_date": target_date.isoformat(),
+        "endpoint": STATSAPI_ENDPOINT,
+        "request_parameters": params,
+        "retrieved_at": source["retrieved_at"],
+        "response_bytes": source["response_bytes"],
+        "response_sha256": source["response_sha256"],
+        "raw_source_payload_uploaded": False,
+        "row_count": len(rows),
+        "confirmed_lineups": coverage["confirmed_lineups"],
+        "lineups_observed_before_cutoff": coverage["lineups_observed_before_cutoff"],
+        "snapshot_identity": hashlib.sha256(canonical_json_bytes(rows)).hexdigest(),
+        "rows": rows,
+        "locked_2025_holdout_accessed": False,
+    }
+
+
+def lineup_capture_object_key(capture: Mapping[str, Any]) -> str:
+    """Derive the immutable, versioned S3 key for one lineup capture."""
+    target_date = str(capture["target_date"])
+    compact = str(capture["retrieved_at"])[:19].replace("-", "").replace(":", "") + "Z"
+    key = f"{LINEUP_KEY_PREFIX}/{target_date}/capture-{compact}.json"
+    if target_date.startswith("2025") or "holdout" in key.lower():
+        raise ForwardCollectorError("lineup key violates the locked-holdout boundary")
+    return key
+
+
+def store_lineup_capture(
+    s3_client: Any,
+    bucket: str,
+    kms_key_arn: str,
+    capture: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Write one lineup capture as a versioned, KMS-encrypted, no-store object."""
+    key = lineup_capture_object_key(capture)
+    body = canonical_json_bytes(capture)
+    response = s3_client.put_object(
+        Bucket=bucket,
+        Key=key,
+        Body=body,
+        ContentType="application/json",
+        CacheControl="no-store",
+        ServerSideEncryption="aws:kms",
+        SSEKMSKeyId=kms_key_arn,
+    )
+    return {
+        "key": key,
+        "bytes": len(body),
+        "sha256": hashlib.sha256(body).hexdigest(),
+        "version_id": response.get("VersionId"),
+    }
+
+
 def capture_object_key(capture: Mapping[str, Any]) -> str:
     """Derive the immutable, versioned S3 key for one capture."""
     target_date = str(capture["target_date"])
@@ -183,6 +283,7 @@ def run_forward_collection(
     run_cache = cache_dir or Path("/tmp") / "nrfi-forward" / run_token
     base_date = market_today(started_at)
     captures: list[dict[str, Any]] = []
+    lineup_captures: list[dict[str, Any]] = []
     try:
         for offset in TARGET_DATE_OFFSETS:
             target_date = base_date + timedelta(days=offset)
@@ -200,6 +301,21 @@ def run_forward_collection(
                     "stored": stored,
                 }
             )
+            lineup = collect_lineup_capture(target_date, now=now, get=get)
+            lineup_stored = store_lineup_capture(s3_client, bucket, kms_key_arn, lineup)
+            lineup_captures.append(
+                {
+                    "target_date": lineup["target_date"],
+                    "retrieved_at": lineup["retrieved_at"],
+                    "response_sha256": lineup["response_sha256"],
+                    "row_count": lineup["row_count"],
+                    "confirmed_lineups": lineup["confirmed_lineups"],
+                    "lineups_observed_before_cutoff": lineup[
+                        "lineups_observed_before_cutoff"
+                    ],
+                    "stored": lineup_stored,
+                }
+            )
     finally:
         for stale in sorted(run_cache.glob("source-*.json")):
             stale.unlink()
@@ -210,6 +326,7 @@ def run_forward_collection(
         "run_completed_at": _utc_text(now()),
         "bucket": bucket,
         "captures": captures,
+        "lineup_captures": lineup_captures,
         "locked_2025_holdout_accessed": False,
     }
 

@@ -93,7 +93,8 @@ def test_run_preserves_two_derived_snapshots_without_raw_payload(
         cache_dir=tmp_path,
     )
 
-    assert [call["Key"] for call in fake_s3.calls] == [
+    forward_keys = [c["Key"] for c in fake_s3.calls if "/forward/" in c["Key"]]
+    assert forward_keys == [
         "signals/pregame/official-statsapi/forward/2026-07-18/"
         "capture-20260718T120000Z.json",
         "signals/pregame/official-statsapi/forward/2026-07-19/"
@@ -106,15 +107,27 @@ def test_run_preserves_two_derived_snapshots_without_raw_payload(
         assert call["ServerSideEncryption"] == "aws:kms"
         assert call["SSEKMSKeyId"].startswith("arn:aws:kms:")
         body = json.loads(call["Body"].decode("utf-8"))
-        assert body["schema_version"] == collector.CAPTURE_SCHEMA_VERSION
         assert body["raw_source_payload_uploaded"] is False
         assert body["locked_2025_holdout_accessed"] is False
-        assert body["row_count"] == 2
         assert "response_body_base64" not in call["Body"].decode("utf-8")
+    forward_bodies = [
+        json.loads(c["Body"].decode("utf-8"))
+        for c in fake_s3.calls
+        if "/forward/" in c["Key"]
+    ]
+    for body in forward_bodies:
+        assert body["schema_version"] == collector.CAPTURE_SCHEMA_VERSION
+        assert body["row_count"] == 2
     assert summary["schema_version"] == collector.RUN_SCHEMA_VERSION
+    # each date stores a forward capture then a lineup capture, so version ids
+    # interleave v1(forward) v2(lineup) v3(forward) v4(lineup).
     assert [item["stored"]["version_id"] for item in summary["captures"]] == [
         "v1",
+        "v3",
+    ]
+    assert [item["stored"]["version_id"] for item in summary["lineup_captures"]] == [
         "v2",
+        "v4",
     ]
     assert not sorted(tmp_path.glob("source-*.json"))
 
