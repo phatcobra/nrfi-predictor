@@ -121,4 +121,13 @@ jobs:
               for r in results
           ]
           print("assembly_summary=", json.dumps(summary, sort_keys=True))
+          lineups = [
+              {k: c.get(k) for k in (
+                  "target_date", "row_count", "confirmed_lineups",
+                  "lineups_observed_before_cutoff")}
+              for c in d.get("lineup_captures", [])
+          ]
+          print("lineup_summary=", json.dumps(lineups, sort_keys=True))
+          print("lineup_capture_keys=", json.dumps(
+              [c["stored"]["key"] for c in d.get("lineup_captures", [])]))
           PY
