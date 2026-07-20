@@ -1,4 +1,5 @@
 name: publish-profiles
+# Live assembly now reports staged eligibility (pregame_game_assembly.v3).
 # Reproduce the expanded 2015-2024 pitcher profiles from the committed canonical
 # history and publish them to the private, versioned, SSE-KMS S3 lake via OIDC.
 # Push runs a verify-only identity reproduction; publishing requires an explicit
