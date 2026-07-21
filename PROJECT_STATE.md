@@ -1511,3 +1511,102 @@ fabricated; 2025 not inspected.
 No temporary credentials, no active Batch jobs, no public endpoint, no 2025
 access, no real wager. Required outputs remain `PREDICTIVE SKILL NOT
 ESTABLISHED` and `NO QUALIFIED WAGER`.
+
+## Checkpoint 2026-07-21 — batter profiles: determinism proven + published
+
+Commits (branch `feat/aws-probability-platform-20260717`, pushed to origin):
+- `cc3bf81` strict-prior batter extraction module + tests (ruff/pyright clean,
+  full suite green). Aggregation is a ~10x-heavier per-group workload than the
+  pitcher path (~420k batter-game groups); a full real build takes ~60-75 min.
+- `fdaf0ab` real-data determinism evidence + Phase-8 OIDC publish path. Adds
+  `docs/batter_statcast_2015_2024/` (canonical `batter_game_history.parquet`
+  force-added past the `*.parquet` ignore, plus `source_file_ledger.jsonl`,
+  `rejections.jsonl`, `coverage.json`, `artifact_manifest.json`,
+  `determinism_evidence.json`, `schema_definitions.json`,
+  `historical_lineup_timing.json`), `nrfi/aws_publish_batter_profiles.py` (fail-
+  closed reproduce/verify/publish with refusal guards on identity, zero-2025,
+  required artifacts, producing commit, row counts, schema), its tests, and the
+  batter verify+publish steps in `publish-profiles.yml`. The 107 MB
+  `batter_features.parquet` is intentionally NOT committed (exceeds GitHub's
+  100 MiB limit); the runner reproduces it from the canonical history.
+
+PHASE 1 real-data determinism — PROVEN. Two independent full real builds:
+- build one `C:\Users\ameis\nrfi_batter_builds\b1` (aggregation 2828 s, exit 0)
+- build two `C:\Users\ameis\nrfi_batter_builds\b2` (aggregation 3297 s, exit 0)
+- 472,585 batter-game rows, 472,585 feature snapshots, 2,606 distinct batters,
+  2,450 admitted source files, 0 files opened from 2025, 92.96 % profile
+  eligible (439,314 rows), source-ledger 2,493 rows.
+- Independent verification (memory-safe, one build at a time; NOT trusting the
+  manifest identity fields): every one of the six artifacts is byte-identical
+  b1 vs b2 by recomputed SHA-256, and history/feature/ledger canonical
+  identities re-derived from each build's on-disk parquet/jsonl equal the
+  expected values and each other:
+  - history  `596194c2fbf6b7b6d3e0ce1ebc727cc83a69d23f4f151ffaf5d9a7b234759496`
+  - feature  `edd1ff171779a57854dbefea4ad654a13746dc4bf2814969f3c31415b0de355d`
+  - ledger   `b0f2a0f9e96819d29910f52250bdb4a033add742c43284fef75b7ad0f0069d16`
+  - artifact SHA-256: history parquet `49f91096…`, features parquet
+    `69219e02…`, ledger `89c53d15…`, coverage `7076282c…`, manifest
+    `c2755c56…`, rejections empty `e3b0c442…`.
+  Evidence: `docs/batter_statcast_2015_2024/determinism_evidence.json`.
+
+CI runs on push of `fdaf0ab`:
+- `29794687793` build/ci (pull_request #8) — success, 1m12s (full suite Linux).
+- `29794685043` terraform-deploy — success, 46s, apply step SKIPPED (no
+  `[tf-apply]` marker); plan/validate only, no infra change.
+- `29794685055` publish-profiles — success, publish job 22m18s.
+  Pre-publish AWS-state guard: Batch SUBMITTED/PENDING/RUNNABLE/STARTING/RUNNING
+  all 0; `features/` objects containing "2025" = 0. Batter verify step
+  reproduced the feature identity on the Linux OIDC runner (cross-environment
+  identity equality) BEFORE publish; the publish step's in-runner features
+  parquet came out byte-identical to local (`69219e02…`).
+
+PHASE 3 publication — DONE. Private, versioned, SSE-KMS lake
+`nrfi-probability-dev-660838763909-us-east-2-lake`, NEW immutable prefix
+`features/batter-statcast-strict-prior-2015-2024-v1/`, producing commit
+`fdaf0ab1227f2bd8a3caea923c89d8a1c5c1c5de`, KMS key
+`…/7772a2e9-e516-49ff-b2e1-0067567f52a8`. Pitcher artifacts untouched. Objects
+(key → bytes, version id):
+- `batter_game_history.parquet` 5,271,285 `q0uHOviEqAMq4nJE3w.iTTodwu7iVZh3`
+- `batter_features.parquet` 107,287,476 `AtaGCetvafxOMQkhyiH6zpq.VllWq1fC`
+  (reproduced in runner, sha `69219e02…`)
+- `profiles.jsonl` 1,713,469,044 `ccWLufLQ2dyJA6x24P5oM7t9edrxA42q`
+  (sha `1230edbd…`; full historical projection of all 472,585 snapshots —
+  NOTE: 1.7 GB; live serving must project only the needed per-batter subset,
+  not load this whole object)
+- `source_file_ledger.jsonl` 596,134 `CvuCC42bvtOghiXki6I1fYtV9Kr197uF`
+- `rejections.jsonl` 0 `qG0oMdFn0zCuJHADrx5f3FbbF2o1.Dax`
+- `coverage.json` 971 `FNq3nipq5scPiIpZ58aUQtS04TryGVFx`
+- `artifact_manifest.json` 1,232 `Q8zMy_yS5gijwGbIOskOQEFcqaXzAPZD`
+- `determinism_evidence.json` 3,438 `Ys8LvL7K0Gfu9NPexVO84lYlvgngIVAB`
+- `schema_definitions.json` 2,862 `9LD_Ony8Tc3Eteem9HojpwXUR81yO1Cg`
+- `historical_lineup_timing.json` 1,254 `Bds4smZeQJcoj0YKSODjAYQnuKrDFYNB`
+- `published_manifest.json` (schema `batter_profile_publication.v1`) written last.
+All uploads used `ServerSideEncryption=aws:kms` + `ChecksumAlgorithm=SHA256`;
+every object returned a VersionId (bucket versioning on). No object key contains
+2025. `historical_prediction_join_eligible=false`,
+`historical_lineup_timing_available=false`.
+
+PHASE 4 (partial) — cross-environment reproduction on the Linux OIDC runner
+matched local identities exactly. STILL OUTSTANDING: actual AWS Batch
+productionization (ECR image + digest, Batch job-def revision, submit job from
+the versioned canonical-history S3 object, CloudWatch logs, cost, output
+versions, local/OIDC/Batch identity equality, zero active jobs after) for BOTH
+batter and the still-outstanding pitcher Batch job. A GitHub Actions runner is
+NOT AWS Batch.
+
+Exact continuation command / next steps:
+1. Phase 5 live top-of-order assembly from pre-cutoff forward lineup snapshots
+   (statuses NOT_AVAILABLE/PROJECTED/CONFIRMED/UPDATED/WITHDRAWN; first 3/4
+   batter ids, aggregate OBP/K-avoid/BB/contact/whiff/hard-hit/barrel,
+   handedness sequence, platoon vs probable starter, top-of-order min-history);
+   same batter feature implementation for replay and live.
+2. Phase 6 wire `lineup_feature_eligible` / `batter_feature_eligible` into
+   `forward_admission.py` staged v3 with explicit reason codes; unified stays
+   false. Build a batter live-projection object (latest per batter) instead of
+   the 1.7 GB full projection.
+3. Phase 7 deploy collector/API via Terraform+OIDC, verify live, rejection
+   census. Phase 4 AWS Batch productionization (batter + pitcher).
+
+State: no temporary credentials, no active Batch jobs, no public endpoint, no
+2025 access, no real wager. Required outputs remain `PREDICTIVE SKILL NOT
+ESTABLISHED` and `NO QUALIFIED WAGER`.
