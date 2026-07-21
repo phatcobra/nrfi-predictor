@@ -300,11 +300,21 @@ def test_missing_profiles_object_is_recorded_fail_closed(tmp_path: Path) -> None
     )
 
     result = summary["results"][0]
+    # The lineup/batter stages are independent of the pitcher profile object, so
+    # the assembly now runs even when the pitcher profiles are unavailable; it
+    # must remain fully fail-closed (pitcher/batter/unified all ineligible).
     assert result["profiles_status"] == "PROFILES_UNAVAILABLE"
-    assert result["games"] == 0
+    assert result["games"] == 1
+    assert result["pitcher_profile_eligible_games"] == 0
+    assert result["batter_feature_eligible_games"] == 0
+    assert result["unified_feature_set_eligible_games"] == 0
     package = json.loads(fake.put_calls[-1]["Body"].decode("utf-8"))
     assert package["profiles_status"] == "PROFILES_UNAVAILABLE"
-    assert package["games"] == []
+    assert len(package["games"]) == 1
+    eligibility = package["games"][0]["eligibility"]
+    assert eligibility["pitcher_profile_eligible"] is False
+    assert eligibility["batter_feature_eligible"] is False
+    assert eligibility["unified_feature_set_eligible"] is False
     assert package["admitted_captures"] == 1
     assert package["wager_decision"] == "NO QUALIFIED WAGER"
 
