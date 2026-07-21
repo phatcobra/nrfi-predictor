@@ -1780,3 +1780,37 @@ Safe-stop state: git clean at `d0e8fd3` (pushed), no running python build, no
 active Batch job, Terraform apply complete (0 destroyed), no temporary
 credential, no public endpoint, no 2025 access, no real wager. Required outputs
 remain `PREDICTIVE SKILL NOT ESTABLISHED` and `NO QUALIFIED WAGER`.
+
+## Checkpoint 2026-07-21 (f) — Phase A team first-inning feature domain (offline)
+
+`1d06291` `nrfi/team_features.py` + tests: deterministic strict-prior team
+first-inning offense/prevention domain sourced only from the committed 2015-2024
+multiseason outcomes (the existing `team-league-strict-prior-v2` in
+`features.jsonl` is a historical-evaluation feature set only — this is a new
+live-servable domain). Two team-side records per completed R game (away batted
+for away_runs / allowed home_runs; home the reverse); strict-prior snapshots over
+career/last-10/25/50 + season-to-date windows + home/away splits (runs
+scored/allowed per game, scored/allowed rates, offense/defense scoreless rates,
+min-history-20 gate, missingness); compact terminal per-team projection
+(as-of end-2024) as the live-servable join table.
+Real build (two, byte-identical): 30 teams, 45,522 records + 45,522 snapshots,
+all 30 terminal-eligible, zero 2025. Identities: records `1520a5ea…`, features
+`5124bebb…`, terminal `c99563f7…`, terminal projection sha `4e931e27…`. Gates:
+ruff clean, pyright 0 errors, full suite 253 passed / 1 skipped.
+
+NEXT for the team domain (mirror the batter rollout): publish the terminal team
+projection to the lake under a new immutable identity (fail-closed reproduce +
+identity `c99563f7` + sha `4e931e27` + 30 rows guards); add a team terminal
+loader; wire `team_context_eligible` into `forward_admission.assemble_games`
+(true only when BOTH clubs have eligible team profiles); keep
+`unified_feature_set_eligible` false; deploy + live-verify. Then Phases B (park),
+C (starter workload/rest), D (schedule/travel), then weather/umpire, unified
+freeze, model comparison/calibration, market, ledgers, monitoring. Also pending:
+the scheduled confirmed-lineup batter verification (`nrfi-confirmed-lineup-verify`
+fires 2026-07-21T19:30Z); platoon-handedness refinement; AWS Batch
+productionization.
+
+Safe-stop state: git clean at `1d06291` (pushed), no running python build, no
+active Batch job, Terraform apply complete (0 destroyed), no temporary
+credential, no public endpoint, no 2025 access, no real wager. Required outputs
+remain `PREDICTIVE SKILL NOT ESTABLISHED` and `NO QUALIFIED WAGER`.
