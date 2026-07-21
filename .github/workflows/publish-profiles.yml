@@ -20,6 +20,7 @@ on:
       - ".github/workflows/publish-profiles.yml"
       - "nrfi/aws_publish_profiles.py"
       - "nrfi/aws_publish_batter_profiles.py"
+      - "nrfi/batter_live_profiles.py"
       - "docs/pitcher_statcast_2015_2024/**"
       - "docs/batter_statcast_2015_2024/**"
 
@@ -161,4 +162,34 @@ jobs:
         with:
           name: published-batter-manifest
           path: published_batter.json
+          if-no-files-found: error
+      - name: Reproduce terminal batter projection and verify identity
+        if: >-
+          ${{ github.event_name == 'workflow_dispatch' ||
+              contains(github.event.head_commit.message, '[verify-terminal]') ||
+              contains(github.event.head_commit.message, '[publish-terminal]') }}
+        run: |
+          uv run --frozen python -m nrfi.aws_publish_batter_profiles --terminal \
+            --verify-only --artifact-dir docs/batter_statcast_2015_2024
+      - name: Publish terminal batter projection to the encrypted versioned lake
+        if: >-
+          ${{ (github.event_name == 'workflow_dispatch' && inputs.mode == 'publish') ||
+              (github.event_name == 'push' &&
+               contains(github.event.head_commit.message, '[publish-terminal]')) }}
+        run: |
+          uv run --frozen --with boto3 python -m nrfi.aws_publish_batter_profiles \
+            --terminal \
+            --artifact-dir docs/batter_statcast_2015_2024 \
+            --bucket "$LAKE_BUCKET" \
+            --kms-key-arn "$KMS_KEY_ARN" \
+            --producing-commit "${{ github.sha }}" | tee published_terminal.json
+      - name: Upload terminal publication manifest
+        if: >-
+          ${{ (github.event_name == 'workflow_dispatch' && inputs.mode == 'publish') ||
+              (github.event_name == 'push' &&
+               contains(github.event.head_commit.message, '[publish-terminal]')) }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: published-terminal-manifest
+          path: published_terminal.json
           if-no-files-found: error

@@ -1,0 +1,20 @@
+{
+  "schema_version": "batter_terminal_determinism_evidence.v1",
+  "comparison_result": "BYTE_IDENTICAL",
+  "byte_identical": true,
+  "builder": "nrfi.batter_live_profiles.build_terminal_profiles",
+  "source_history_parquet": "docs/batter_statcast_2015_2024/batter_game_history.parquet",
+  "source_history_identity": "596194c2fbf6b7b6d3e0ce1ebc727cc83a69d23f4f151ffaf5d9a7b234759496",
+  "builds": [
+    {"path": "C:/Users/ameis/nrfi_batter_builds/live1"},
+    {"path": "C:/Users/ameis/nrfi_batter_builds/live2"}
+  ],
+  "terminal_profiles_identity": "7e7fc570d5ad4ea58fc087a87a488f54c63a07e729ae532ace1fd20e37f97299",
+  "projection_sha256": "5ce26a4a87b66ea4a34b150a07e0ac53eb1303e27d9ef4b65ca1e9ab87a86be2",
+  "distinct_batters": 2606,
+  "profile_feature_eligible": 1543,
+  "projection_bytes": 9460808,
+  "fc_binary_result": "no differences encountered",
+  "locked_2025_holdout_accessed": false,
+  "note": "Two independent real terminal-profile builds from the committed canonical history parquet produced byte-identical live_profiles.jsonl (fc /b) and identical terminal identity + projection sha256."
+}

@@ -1,0 +1,29 @@
+{
+  "schema_version": "batter_terminal_profile_schema.v1",
+  "record_schema": "batter_terminal_profile.v1",
+  "profile_version": "batter-terminal-strict-prior-2015-2024-v1",
+  "feature_version": "batter-statcast-strict-prior-v1",
+  "grain": "one terminal strict-prior profile per batter over complete 2015-2024 history",
+  "keys": [
+    "schema_version", "profile_version", "feature_version", "batter_id",
+    "career_games", "career_plate_appearances", "profile_feature_eligible",
+    "as_of_official_date", "as_of_season", "batter_stand_latest",
+    "batter_stand_observed", "batter_identity_basis",
+    "historical_lineup_timing_unavailable", "feature_values", "feature_hash"
+  ],
+  "feature_values": {
+    "per_window_counts": ["prior_games_{window}", "prior_plate_appearances_{window}"],
+    "windows": ["last_20", "last_50", "last_100", "career"],
+    "per_window_metrics": [
+      "on_base_rate", "walk_rate", "strikeout_rate", "strikeout_avoidance_rate",
+      "contact_rate", "whiff_rate", "hard_hit_rate", "barrel_rate",
+      "average_exit_velocity", "ground_ball_rate", "fly_ball_rate",
+      "line_drive_rate", "total_bases_per_pa", "vs_lhp_strikeout_rate",
+      "vs_lhp_on_base_rate", "vs_rhp_strikeout_rate", "vs_rhp_on_base_rate"
+    ]
+  },
+  "eligibility": "profile_feature_eligible = career_plate_appearances >= 50",
+  "identity_basis": "POSTGAME_PLATE_APPEARANCE_ATTRIBUTION",
+  "historical_lineup_timing_unavailable": true,
+  "runtime_projection_object": "terminal_batter_profiles.jsonl"
+}

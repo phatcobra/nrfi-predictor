@@ -12,6 +12,7 @@ import pytest
 
 from nrfi import aws_publish_batter_profiles as pub
 from nrfi import batter_extraction as bx
+from nrfi import batter_live_profiles as blp
 
 
 def _history(n: int, batter: int = 700001) -> list[dict[str, Any]]:
@@ -221,5 +222,81 @@ def test_publish_refuses_missing_artifact(
             bucket="b",
             kms_key_arn="arn",
             producing_commit="cc3bf81",
+            s3_client=_FakeS3(),
+        )
+
+
+def _valid_terminal_dir(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> tuple[Path, str, int, int]:
+    # Two batters, one eligible (>=50 PA) and one not, so counts are non-trivial.
+    history = _history(20, batter=800001) + _history(4, batter=800002)
+    profiles = blp.build_terminal_profiles(history)
+    identity = pub._identity(profiles)
+    eligible = sum(1 for p in profiles if p["profile_feature_eligible"])
+    monkeypatch.setattr(pub, "EXPECTED_TERMINAL_IDENTITY", identity)
+    monkeypatch.setattr(pub, "EXPECTED_TERMINAL_ROWS", len(profiles))
+    monkeypatch.setattr(pub, "EXPECTED_TERMINAL_ELIGIBLE", eligible)
+
+    art = tmp_path / "art"
+    art.mkdir()
+    pq.write_table(pa.Table.from_pylist(history), art / "batter_game_history.parquet")
+    (art / "coverage.json").write_text(
+        json.dumps({"day_files_opened_2025": 0, "locked_2025_holdout_accessed": False}),
+        encoding="utf-8",
+    )
+    for name in (
+        "terminal_profile_coverage.json",
+        "terminal_profile_schema.json",
+        "terminal_determinism_evidence.json",
+    ):
+        (art / name).write_text("{}", encoding="utf-8")
+    return art, identity, len(profiles), eligible
+
+
+def test_terminal_reproduce_rejects_identity_mismatch(tmp_path: Path) -> None:
+    parquet = tmp_path / "batter_game_history.parquet"
+    pq.write_table(pa.Table.from_pylist(_history(20)), parquet)
+    with pytest.raises(pub.PublicationRefused):
+        pub.reproduce_terminal(parquet)  # fixture identity != baked 7e7fc570
+
+
+def test_publish_terminal_uploads(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    art, identity, rows, eligible = _valid_terminal_dir(tmp_path, monkeypatch)
+    fake = _FakeS3()
+    published = pub.publish_terminal(
+        artifact_dir=art,
+        bucket="lake-bucket",
+        kms_key_arn="arn:aws:kms:us-east-2:660838763909:key/abc",
+        producing_commit="19ac2ad",
+        s3_client=fake,
+    )
+    assert published["terminal_profiles_identity"] == identity
+    assert published["profile_count"] == rows
+    assert published["eligible_count"] == eligible
+    assert published["historical_lineup_timing_available"] is False
+    keys = [c["Key"] for c in fake.calls]
+    assert f"{pub.LAKE_PREFIX}/terminal_batter_profiles.jsonl" in keys
+    assert f"{pub.LAKE_PREFIX}/terminal_published_manifest.json" in keys
+    # never overwrites the full historical artifacts
+    assert f"{pub.LAKE_PREFIX}/batter_features.parquet" not in keys
+    assert f"{pub.LAKE_PREFIX}/profiles.jsonl" not in keys
+    for call in fake.calls:
+        assert call["ServerSideEncryption"] == "aws:kms"
+
+
+def test_publish_terminal_refuses_missing_evidence(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    art, _identity, _rows, _eligible = _valid_terminal_dir(tmp_path, monkeypatch)
+    (art / "terminal_profile_schema.json").unlink()
+    with pytest.raises(pub.PublicationRefused):
+        pub.publish_terminal(
+            artifact_dir=art,
+            bucket="b",
+            kms_key_arn="arn",
+            producing_commit="19ac2ad",
             s3_client=_FakeS3(),
         )

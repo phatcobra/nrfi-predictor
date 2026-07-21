@@ -29,7 +29,25 @@ from nrfi.batter_extraction import (
     BATTER_FEATURE_VERSION,
     build_batter_feature_snapshots,
 )
+from nrfi.batter_live_profiles import (
+    TERMINAL_PROFILE_VERSION,
+    build_terminal_profiles,
+    terminal_projection_bytes,
+)
 from nrfi.pitcher_statcast import _write_parquet, canonical_json_bytes
+
+EXPECTED_TERMINAL_IDENTITY = (
+    "7e7fc570d5ad4ea58fc087a87a488f54c63a07e729ae532ace1fd20e37f97299"
+)
+EXPECTED_TERMINAL_ROWS = 2606
+EXPECTED_TERMINAL_ELIGIBLE = 1543
+TERMINAL_REQUIRED_ARTIFACTS = (
+    "batter_game_history.parquet",
+    "coverage.json",
+    "terminal_profile_coverage.json",
+    "terminal_profile_schema.json",
+    "terminal_determinism_evidence.json",
+)
 
 EXPECTED_HISTORY_IDENTITY = (
     "596194c2fbf6b7b6d3e0ce1ebc727cc83a69d23f4f151ffaf5d9a7b234759496"
@@ -285,16 +303,143 @@ def publish(
     return published
 
 
+def reproduce_terminal(
+    history_parquet: Path,
+) -> tuple[list[dict[str, Any]], bytes, dict[str, Any]]:
+    """Rebuild terminal per-batter profiles; verify identity/rows/eligible."""
+    history = pq.read_table(history_parquet).to_pylist()
+    profiles = build_terminal_profiles(history)
+    identity = _identity(profiles)
+    eligible = sum(1 for p in profiles if p["profile_feature_eligible"])
+    if identity != EXPECTED_TERMINAL_IDENTITY:
+        raise PublicationRefused(
+            f"terminal identity mismatch: {identity} != {EXPECTED_TERMINAL_IDENTITY}"
+        )
+    if len(profiles) != EXPECTED_TERMINAL_ROWS:
+        raise PublicationRefused(
+            f"terminal row count differs: {len(profiles)} != {EXPECTED_TERMINAL_ROWS}"
+        )
+    if eligible != EXPECTED_TERMINAL_ELIGIBLE:
+        raise PublicationRefused(
+            f"terminal eligible count differs: {eligible} != {EXPECTED_TERMINAL_ELIGIBLE}"
+        )
+    projection = terminal_projection_bytes(profiles)
+    meta = {
+        "terminal_profiles_identity": identity,
+        "profile_count": len(profiles),
+        "eligible_count": eligible,
+        "projection_sha256": hashlib.sha256(projection).hexdigest(),
+        "projection_bytes": len(projection),
+    }
+    return profiles, projection, meta
+
+
+def _guard_terminal_preconditions(artifact_dir: Path, producing_commit: str) -> None:
+    if not re.fullmatch(r"[0-9a-f]{7,40}", producing_commit or ""):
+        raise PublicationRefused(f"invalid producing commit: {producing_commit!r}")
+    for name in TERMINAL_REQUIRED_ARTIFACTS:
+        if not (artifact_dir / name).is_file():
+            raise PublicationRefused(f"missing required terminal artifact: {name}")
+    coverage = json.loads((artifact_dir / "coverage.json").read_text())
+    if coverage.get("day_files_opened_2025") != 0:
+        raise PublicationRefused("zero-2025 evidence absent (opened_2025 != 0)")
+    if coverage.get("locked_2025_holdout_accessed") is not False:
+        raise PublicationRefused("zero-2025 evidence absent (holdout accessed)")
+
+
+def publish_terminal(
+    *,
+    artifact_dir: Path,
+    bucket: str,
+    kms_key_arn: str,
+    producing_commit: str,
+    s3_client: Any | None = None,
+) -> dict[str, Any]:
+    """Reproduce, verify, and publish the compact terminal projection.
+
+    Uploads under the existing batter feature identity prefix WITHOUT overwriting
+    the full historical artifacts (distinct filenames).
+    """
+    _guard_terminal_preconditions(artifact_dir, producing_commit)
+    _profiles, projection, meta = reproduce_terminal(
+        artifact_dir / "batter_game_history.parquet"
+    )
+
+    if s3_client is None:
+        import importlib
+
+        s3_client = importlib.import_module("boto3").client("s3")
+
+    uploads: list[dict[str, Any]] = []
+    uploads.append(
+        _put(
+            s3_client,
+            bucket,
+            f"{LAKE_PREFIX}/terminal_batter_profiles.jsonl",
+            projection,
+            kms_key_arn,
+        )
+    )
+    for name in (
+        "terminal_profile_coverage.json",
+        "terminal_profile_schema.json",
+        "terminal_determinism_evidence.json",
+    ):
+        uploads.append(
+            _put(
+                s3_client,
+                bucket,
+                f"{LAKE_PREFIX}/{name}",
+                (artifact_dir / name).read_bytes(),
+                kms_key_arn,
+            )
+        )
+
+    published = {
+        "schema_version": "batter_terminal_publication.v1",
+        "profile_identity": PROFILE_IDENTITY,
+        "terminal_profile_version": TERMINAL_PROFILE_VERSION,
+        "feature_version": BATTER_FEATURE_VERSION,
+        "producing_commit": producing_commit,
+        "reproduced_in_runner": True,
+        "terminal_projection_key": f"{LAKE_PREFIX}/terminal_batter_profiles.jsonl",
+        "historical_prediction_join_eligible": False,
+        "historical_lineup_timing_available": False,
+        "locked_2025_holdout_accessed": False,
+        "uploads": uploads,
+        **meta,
+    }
+    _put(
+        s3_client,
+        bucket,
+        f"{LAKE_PREFIX}/terminal_published_manifest.json",
+        canonical_json_bytes(published),
+        kms_key_arn,
+    )
+    return published
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--artifact-dir", type=Path, required=True)
     parser.add_argument("--verify-only", action="store_true")
+    parser.add_argument(
+        "--terminal",
+        action="store_true",
+        help="operate on the compact terminal per-batter projection",
+    )
     parser.add_argument("--bucket")
     parser.add_argument("--kms-key-arn")
     parser.add_argument("--producing-commit", default="")
     args = parser.parse_args(argv)
 
     if args.verify_only:
+        if args.terminal:
+            _profiles, _projection, meta = reproduce_terminal(
+                args.artifact_dir / "batter_game_history.parquet"
+            )
+            print(json.dumps({"verified": True, **meta}, sort_keys=True))
+            return 0
         _history, _snapshots, identities = reproduce_features(
             args.artifact_dir / "batter_game_history.parquet"
         )
@@ -303,12 +448,20 @@ def main(argv: list[str] | None = None) -> int:
 
     if not args.bucket or not args.kms_key_arn:
         raise SystemExit("--bucket and --kms-key-arn are required to publish")
-    published = publish(
-        artifact_dir=args.artifact_dir,
-        bucket=args.bucket,
-        kms_key_arn=args.kms_key_arn,
-        producing_commit=args.producing_commit,
-    )
+    if args.terminal:
+        published = publish_terminal(
+            artifact_dir=args.artifact_dir,
+            bucket=args.bucket,
+            kms_key_arn=args.kms_key_arn,
+            producing_commit=args.producing_commit,
+        )
+    else:
+        published = publish(
+            artifact_dir=args.artifact_dir,
+            bucket=args.bucket,
+            kms_key_arn=args.kms_key_arn,
+            producing_commit=args.producing_commit,
+        )
     print(json.dumps(published, sort_keys=True))
     return 0
 
