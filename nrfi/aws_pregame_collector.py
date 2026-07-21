@@ -345,12 +345,14 @@ def lambda_handler(event: Any, context: Any) -> dict[str, Any]:
                 str(forward_admission.DEFAULT_FRESHNESS_LIMIT_SECONDS),
             )
         )
+        terminal_key = os.environ.get("NRFI_TERMINAL_BATTER_PROFILES_KEY", "") or None
         summary["assembly"] = forward_admission.run_assembly(
             s3_client,
             bucket,
             kms_key_arn,
             [capture["target_date"] for capture in summary["captures"]],
             profiles_key=profiles_key,
+            terminal_profiles_key=terminal_key,
             freshness_limit_seconds=freshness_limit,
         )
     print(json.dumps(summary, sort_keys=True, separators=(",", ":")))

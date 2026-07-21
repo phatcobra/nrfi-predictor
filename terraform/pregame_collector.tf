@@ -8,6 +8,10 @@ locals {
   # target (its read grant is preserved) so reverting is a one-line change.
   pitcher_profiles_key          = "features/pitcher-statcast-strict-prior-2015-2024-v1/profiles.jsonl"
   pitcher_profiles_rollback_key = "features/pitcher-statcast-strict-prior-v1/profiles.jsonl"
+  # Compact terminal batter projection (~9.46 MB) that the assembly loads and
+  # verifies (identity 7e7fc570, 2606 rows, 1543 eligible). NOT the 1.7 GB
+  # historical projection. Omitting the env var reverts to pitcher-only assembly.
+  terminal_batter_profiles_key = "features/batter-statcast-strict-prior-2015-2024-v1/terminal_batter_profiles.jsonl"
 }
 
 data "archive_file" "pregame_collector" {
@@ -32,6 +36,26 @@ data "archive_file" "pregame_collector" {
   source {
     content  = file("${path.module}/../nrfi/lineup_snapshot.py")
     filename = "nrfi/lineup_snapshot.py"
+  }
+
+  source {
+    content  = file("${path.module}/../nrfi/lineup_admission.py")
+    filename = "nrfi/lineup_admission.py"
+  }
+
+  source {
+    content  = file("${path.module}/../nrfi/batter_profile_loader.py")
+    filename = "nrfi/batter_profile_loader.py"
+  }
+
+  source {
+    content  = file("${path.module}/../nrfi/batter_top_of_order.py")
+    filename = "nrfi/batter_top_of_order.py"
+  }
+
+  source {
+    content  = file("${path.module}/../nrfi/batter_eligibility.py")
+    filename = "nrfi/batter_eligibility.py"
   }
 
   source {
@@ -72,8 +96,10 @@ data "aws_iam_policy_document" "pregame_collector" {
     actions = ["s3:GetObject"]
     resources = [
       "${aws_s3_bucket.lake.arn}/${local.pregame_forward_prefix}/*",
+      "${aws_s3_bucket.lake.arn}/${local.pregame_lineup_prefix}/*",
       "${aws_s3_bucket.lake.arn}/${local.pitcher_profiles_key}",
       "${aws_s3_bucket.lake.arn}/${local.pitcher_profiles_rollback_key}",
+      "${aws_s3_bucket.lake.arn}/${local.terminal_batter_profiles_key}",
     ]
   }
 
@@ -85,7 +111,10 @@ data "aws_iam_policy_document" "pregame_collector" {
     condition {
       test     = "StringLike"
       variable = "s3:prefix"
-      values   = ["${local.pregame_forward_prefix}/*"]
+      values = [
+        "${local.pregame_forward_prefix}/*",
+        "${local.pregame_lineup_prefix}/*",
+      ]
     }
   }
 
@@ -176,11 +205,16 @@ resource "aws_lambda_function" "pregame_collector" {
 
   environment {
     variables = {
-      NRFI_LAKE_BUCKET                = aws_s3_bucket.lake.id
-      NRFI_PLATFORM_KMS_KEY_ARN       = aws_kms_key.platform.arn
-      NRFI_LOCKED_HOLDOUT_ACCESS      = "DENIED"
-      NRFI_PITCHER_PROFILES_KEY       = local.pitcher_profiles_key
-      NRFI_ASSEMBLY_FRESHNESS_SECONDS = "21600"
+      NRFI_LAKE_BUCKET                      = aws_s3_bucket.lake.id
+      NRFI_PLATFORM_KMS_KEY_ARN             = aws_kms_key.platform.arn
+      NRFI_LOCKED_HOLDOUT_ACCESS            = "DENIED"
+      NRFI_PITCHER_PROFILES_KEY             = local.pitcher_profiles_key
+      NRFI_ASSEMBLY_FRESHNESS_SECONDS       = "21600"
+      NRFI_TERMINAL_BATTER_PROFILES_KEY     = local.terminal_batter_profiles_key
+      NRFI_TERMINAL_BATTER_PROFILES_SHA256  = "5ce26a4a87b66ea4a34b150a07e0ac53eb1303e27d9ef4b65ca1e9ab87a86be2"
+      NRFI_TERMINAL_BATTER_PROFILE_IDENTITY = "7e7fc570d5ad4ea58fc087a87a488f54c63a07e729ae532ace1fd20e37f97299"
+      NRFI_TERMINAL_BATTER_PROFILE_ROWS     = "2606"
+      NRFI_TERMINAL_BATTER_PROFILE_ELIGIBLE = "1543"
     }
   }
 
@@ -192,6 +226,7 @@ resource "aws_lambda_function" "pregame_collector" {
           local.pregame_lineup_prefix,
           local.pregame_assembly_prefix,
           local.pitcher_profiles_key,
+          local.terminal_batter_profiles_key,
         ] :
         !strcontains(lower(prefix), "holdout") && !strcontains(prefix, "2025")
       ])
