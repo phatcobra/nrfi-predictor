@@ -151,6 +151,16 @@ def _totals(rows: Sequence[Mapping[str, Any]]) -> dict[str, int]:
     return totals
 
 
+def _empty_totals() -> dict[str, int]:
+    return {field: 0 for field in _SUM_FIELDS}
+
+
+def _add_totals(totals: dict[str, int], row: Mapping[str, Any]) -> None:
+    totals["games"] += 1
+    for field in _SUM_FIELDS[1:]:
+        totals[field] += int(row[field])
+
+
 def _metrics(t: Mapping[str, int]) -> dict[str, float | None]:
     g = t["games"]
     return {
@@ -205,17 +215,29 @@ def build_team_feature_snapshots(
     snapshots: list[dict[str, Any]] = []
     for team_id, rows in _by_team(records).items():
         prior: list[Mapping[str, Any]] = []
-        season_rows: list[Mapping[str, Any]] = []
+        career = _empty_totals()
+        home = _empty_totals()
+        away = _empty_totals()
+        season = _empty_totals()
         current_season: int | None = None
         for target in rows:
             if target["season"] != current_season:
                 current_season = target["season"]
-                season_rows = [r for r in prior if r["season"] == current_season]
-            values = _window_values(prior)
-            std = _totals(season_rows)
-            values["prior_games_season_to_date"] = std["games"]
-            values.update({f"{m}_season_to_date": v for m, v in _metrics(std).items()})
-            career_games = len(prior)
+                season = _empty_totals()
+            values: dict[str, Any] = {}
+            for name, length in WINDOWS:
+                totals = career if length is None else _totals(prior[-length:])
+                values[f"prior_games_{name}"] = totals["games"]
+                values.update({f"{m}_{name}": v for m, v in _metrics(totals).items()})
+            values["prior_games_season_to_date"] = season["games"]
+            values.update(
+                {f"{m}_season_to_date": v for m, v in _metrics(season).items()}
+            )
+            values["home_scored_rate"] = _ratio(home["scored"], home["games"])
+            values["home_allowed_rate"] = _ratio(home["allowed"], home["games"])
+            values["away_scored_rate"] = _ratio(away["scored"], away["games"])
+            values["away_allowed_rate"] = _ratio(away["allowed"], away["games"])
+            career_games = career["games"]
             core = {
                 "schema_version": "team_feature_snapshot.v1",
                 "feature_version": TEAM_FEATURE_VERSION,
@@ -232,8 +254,9 @@ def build_team_feature_snapshots(
             }
             snapshots.append({**core, "feature_hash": _identity(core)})
             prior.append(target)
-            if target["season"] == current_season:
-                season_rows.append(target)
+            _add_totals(career, target)
+            _add_totals(season, target)
+            _add_totals(home if target["is_home"] else away, target)
     snapshots.sort(
         key=lambda row: (row["prediction_cutoff"], row["game_pk"], row["team_id"])
     )
