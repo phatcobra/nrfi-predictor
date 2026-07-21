@@ -112,7 +112,7 @@ jobs:
           echo "Collector configuration:"
           aws lambda get-function-configuration \
             --function-name nrfi-probability-dev-pregame-collector \
-            --query '[MemorySize,LastUpdateStatus,Environment.Variables.NRFI_PITCHER_PROFILES_KEY,Environment.Variables.NRFI_TERMINAL_BATTER_PROFILES_KEY]' \
+            --query '[MemorySize,LastUpdateStatus,Environment.Variables.NRFI_PITCHER_PROFILES_KEY,Environment.Variables.NRFI_TERMINAL_BATTER_PROFILES_KEY,Environment.Variables.NRFI_TEAM_TERMINAL_PROFILES_KEY]' \
             --output text
           echo "Invoking collector (rebuilds assemblies from the new profiles):"
           aws lambda invoke --function-name nrfi-probability-dev-pregame-collector \
@@ -125,10 +125,12 @@ jobs:
           summary = [
               {k: r.get(k) for k in (
                   "official_date", "profiles_status", "batter_profiles_status",
-                  "batter_profile_identity", "games",
+                  "batter_profile_identity", "team_profiles_status",
+                  "team_profile_identity", "games",
                   "pitcher_profile_eligible_games",
                   "lineup_feature_eligible_games",
                   "batter_feature_eligible_games",
+                  "team_context_eligible_games",
                   "unified_feature_set_eligible_games", "admitted_captures")}
               for r in results
           ]

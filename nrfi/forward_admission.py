@@ -26,6 +26,13 @@ from nrfi.pregame_snapshot import (
     canonical_json_bytes,
     join_pitcher_profiles_from_profiles,
 )
+from nrfi.team_profile_loader import (
+    STATUS_LOADED as TEAM_PROFILES_LOADED,
+)
+from nrfi.team_profile_loader import (
+    TEAM_TERMINAL_KEY,
+    read_team_profiles_from_s3,
+)
 
 FORWARD_KEY_PREFIX = "signals/pregame/official-statsapi/forward"
 ASSEMBLY_KEY_PREFIX = "signals/pregame/assembly"
@@ -43,14 +50,19 @@ IMPLEMENTED_FEATURE_STAGES = (
     "pitcher_profile_eligible",
     "lineup_feature_eligible",
     "batter_feature_eligible",
+    "team_context_eligible",
 )
 UNIMPLEMENTED_FEATURE_STAGES = (
-    "team_context_eligible",
     "park_context_eligible",
     "weather_context_eligible",
     "umpire_context_eligible",
     "schedule_travel_eligible",
 )
+
+TEAM_MINIMUM_PRIOR_GAMES = 20
+TEAM_IDENTITY_MISSING = "TEAM_IDENTITY_MISSING"
+TEAM_PROFILE_MISSING = "TEAM_PROFILE_MISSING"
+TEAM_HISTORY_INSUFFICIENT = "TEAM_HISTORY_INSUFFICIENT"
 UNIMPLEMENTED_STAGE_REASON = "FEATURE_DOMAIN_NOT_YET_IMPLEMENTED"
 PACKAGE_SCHEMA_VERSION = "pregame_assembly_package.v1"
 PROFILE_TABLE_SCHEMA = "pitcher-statcast-strict-prior-v1"
@@ -422,6 +434,58 @@ def _batter_side(
     }
 
 
+def _team_side(
+    game_pk: int,
+    side: str,
+    team_ids: Mapping[tuple[int, str], int] | None,
+    team_profiles: Mapping[int, Mapping[str, Any]],
+    team_profiles_status: str | None,
+) -> dict[str, Any]:
+    """Evaluate the team-context stage for one side; shared replay/live."""
+    reasons: list[str] = []
+    team_id = (team_ids or {}).get((game_pk, side))
+    if team_id is None:
+        reasons.append(TEAM_IDENTITY_MISSING)
+        return {
+            "team_id": None,
+            "team_context_eligible": False,
+            "team_profile_present": False,
+            "team_minimum_history_met": False,
+            "team_career_games": None,
+            "team_feature_values": None,
+            "team_context_reasons": reasons,
+        }
+    profile = team_profiles.get(int(team_id))
+    if profile is None:
+        if team_profiles_status is not None and team_profiles_status != (
+            TEAM_PROFILES_LOADED
+        ):
+            reasons.append(team_profiles_status)
+        else:
+            reasons.append(TEAM_PROFILE_MISSING)
+        return {
+            "team_id": int(team_id),
+            "team_context_eligible": False,
+            "team_profile_present": False,
+            "team_minimum_history_met": False,
+            "team_career_games": None,
+            "team_feature_values": None,
+            "team_context_reasons": reasons,
+        }
+    eligible = bool(profile.get("team_context_feature_eligible"))
+    if not eligible:
+        reasons.append(TEAM_HISTORY_INSUFFICIENT)
+    return {
+        "team_id": int(team_id),
+        "team_context_eligible": eligible,
+        "team_profile_present": True,
+        "team_minimum_history_met": eligible,
+        "team_career_games": profile.get("career_games"),
+        "team_feature_values": profile.get("feature_values"),
+        "team_context_reasons": reasons,
+    }
+
+
 def assemble_games(
     selections: Mapping[tuple[int, str], dict[str, Any]],
     profiles: Mapping[int, list[dict[str, Any]]],
@@ -431,9 +495,13 @@ def assemble_games(
     lineup_selections: Mapping[tuple[int, str], Mapping[str, Any]] | None = None,
     terminal_profiles: Mapping[int, Mapping[str, Any]] | None = None,
     batter_profiles_status: str | None = None,
+    team_profiles: Mapping[int, Mapping[str, Any]] | None = None,
+    team_profiles_status: str | None = None,
+    team_ids: Mapping[tuple[int, str], int] | None = None,
 ) -> list[dict[str, Any]]:
     """Produce one fail-closed assembly result per game."""
     terminal_profiles = terminal_profiles or {}
+    team_profiles = team_profiles or {}
     selected_rows = [
         dict(selection["selected"]["row"])
         for selection in selections.values()
@@ -460,9 +528,17 @@ def assemble_games(
                 as_of,
             )
             reasons.extend(f"{side}:{r}" for r in batter["batter_stage_reasons"])
+            team = _team_side(
+                game_pk, side, team_ids, team_profiles, team_profiles_status
+            )
+            reasons.extend(f"{side}:{r}" for r in team["team_context_reasons"])
             selection = selections.get((game_pk, side))
             if selection is None:
-                sides[side] = {"selection_status": "NO_OBSERVATIONS", **batter}
+                sides[side] = {
+                    "selection_status": "NO_OBSERVATIONS",
+                    **batter,
+                    **team,
+                }
                 reasons.append(f"{side}:NO_OBSERVATIONS")
                 continue
             selected = selection["selected"]
@@ -490,6 +566,7 @@ def assemble_games(
             if selected is None:
                 reasons.append(f"{side}:{selection['selection_status']}")
                 side_result.update(batter)
+                side_result.update(team)
                 sides[side] = side_result
                 continue
             meta_row = meta_row or selected["row"]
@@ -531,6 +608,7 @@ def assemble_games(
                         f"{side}:{feature['feature_status_reason'] or feature['feature_status']}"
                     )
             side_result.update(batter)
+            side_result.update(team)
             sides[side] = side_result
         assemblies.append(
             _finalize_assembly(
@@ -588,11 +666,16 @@ def _finalize_assembly(
         sides.get(side, {}).get("batter_feature_eligible") is True
         for side in ("away", "home")
     )
+    team_context_eligible = all(
+        sides.get(side, {}).get("team_context_eligible") is True
+        for side in ("away", "home")
+    )
     eligibility = {
         "probable_starter_eligible": probable_starter_eligible,
         "pitcher_profile_eligible": pitcher_profile_eligible,
         "lineup_feature_eligible": lineup_feature_eligible,
         "batter_feature_eligible": batter_feature_eligible,
+        "team_context_eligible": team_context_eligible,
     }
     for stage in UNIMPLEMENTED_FEATURE_STAGES:
         eligibility[stage] = False
@@ -656,6 +739,9 @@ def build_assembly_package(
     batter_profiles_status: str | None = None,
     batter_profile_identity: str | None = None,
     batter_profile_version_id: str | None = None,
+    team_profiles_status: str | None = None,
+    team_profile_identity: str | None = None,
+    team_profile_version_id: str | None = None,
 ) -> dict[str, Any]:
     """Bundle admissions and assemblies into one auditable package document."""
     capture_admissions = [
@@ -680,6 +766,9 @@ def build_assembly_package(
         "batter_profiles_status": batter_profiles_status,
         "batter_profile_identity": batter_profile_identity,
         "batter_profile_version_id": batter_profile_version_id,
+        "team_profiles_status": team_profiles_status,
+        "team_profile_identity": team_profile_identity,
+        "team_profile_version_id": team_profile_version_id,
         "capture_admissions": capture_admissions,
         "admitted_captures": sum(
             1 for item in capture_admissions if item["status"] == "ADMITTED"
@@ -699,6 +788,11 @@ def build_assembly_package(
             1
             for assembly in assemblies
             if assembly["eligibility"]["batter_feature_eligible"]
+        ),
+        "team_context_eligible_games": sum(
+            1
+            for assembly in assemblies
+            if assembly["eligibility"]["team_context_eligible"]
         ),
         "unified_feature_set_eligible_games": sum(
             1
@@ -769,6 +863,7 @@ def run_assembly(
     *,
     profiles_key: str,
     terminal_profiles_key: str | None = None,
+    team_profiles_key: str | None = None,
     now: Callable[[], datetime] | None = None,
     freshness_limit_seconds: int = DEFAULT_FRESHNESS_LIMIT_SECONDS,
 ) -> dict[str, Any]:
@@ -783,6 +878,12 @@ def run_assembly(
         batter_load = read_terminal_profiles_from_s3(s3_client, bucket)
     batter_profiles_status = batter_load["load_status"]
     terminal_profiles = batter_load["profiles"]
+    if team_profiles_key:
+        team_load = read_team_profiles_from_s3(s3_client, bucket, team_profiles_key)
+    else:
+        team_load = read_team_profiles_from_s3(s3_client, bucket)
+    team_profiles_status = team_load["load_status"]
+    team_profiles = team_load["profiles"]
     results: list[dict[str, Any]] = []
     for official_date in official_dates:
         if str(official_date).startswith(str(LOCKED_HOLDOUT_SEASON)):
@@ -800,6 +901,18 @@ def run_assembly(
         lineup_history = build_lineup_observation_history(lineup_admissions)
         lineup_selections = select_lineups(lineup_history, as_of=as_of)
 
+        team_ids: dict[tuple[int, str], int] = {}
+        for (game_pk, side), selection in selections.items():
+            selected = selection.get("selected")
+            row = selected["row"] if selected else None
+            tid = _integer(row.get("team_id")) if isinstance(row, Mapping) else None
+            if tid is not None:
+                team_ids[(int(game_pk), str(side))] = tid
+        for (game_pk, side), lineup_selection in lineup_selections.items():
+            tid = _integer(lineup_selection.get("team_id"))
+            if tid is not None:
+                team_ids.setdefault((int(game_pk), str(side)), tid)
+
         assemblies = assemble_games(
             selections,
             profiles,
@@ -808,6 +921,9 @@ def run_assembly(
             lineup_selections=lineup_selections,
             terminal_profiles=terminal_profiles,
             batter_profiles_status=batter_profiles_status,
+            team_profiles=team_profiles,
+            team_profiles_status=team_profiles_status,
+            team_ids=team_ids,
         )
         package = build_assembly_package(
             str(official_date),
@@ -818,6 +934,9 @@ def run_assembly(
             batter_profiles_status=batter_profiles_status,
             batter_profile_identity=batter_load.get("profile_identity"),
             batter_profile_version_id=batter_load.get("version_id"),
+            team_profiles_status=team_profiles_status,
+            team_profile_identity=team_load.get("profile_identity"),
+            team_profile_version_id=team_load.get("version_id"),
         )
         stored = store_assembly_package(s3_client, bucket, kms_key_arn, package)
         results.append(
@@ -836,20 +955,25 @@ def run_assembly(
                 "batter_feature_eligible_games": package[
                     "batter_feature_eligible_games"
                 ],
+                "team_context_eligible_games": package["team_context_eligible_games"],
                 "unified_feature_set_eligible_games": package[
                     "unified_feature_set_eligible_games"
                 ],
                 "profiles_status": profiles_status,
                 "batter_profiles_status": batter_profiles_status,
                 "batter_profile_identity": batter_load.get("profile_identity"),
+                "team_profiles_status": team_profiles_status,
+                "team_profile_identity": team_load.get("profile_identity"),
                 "stored": stored,
             }
         )
     return {
-        "schema_version": "forward_assembly_run.v2",
+        "schema_version": "forward_assembly_run.v3",
         "profiles_key": profiles_key,
         "terminal_profiles_key": terminal_profiles_key or TERMINAL_PROFILE_KEY,
+        "team_profiles_key": team_profiles_key or TEAM_TERMINAL_KEY,
         "batter_profiles_status": batter_profiles_status,
+        "team_profiles_status": team_profiles_status,
         "results": results,
         "wager_decision": WAGER_DECISION,
     }

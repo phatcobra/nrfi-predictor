@@ -12,6 +12,9 @@ locals {
   # verifies (identity 7e7fc570, 2606 rows, 1543 eligible). NOT the 1.7 GB
   # historical projection. Omitting the env var reverts to pitcher-only assembly.
   terminal_batter_profiles_key = "features/batter-statcast-strict-prior-2015-2024-v1/terminal_batter_profiles.jsonl"
+  # Compact terminal team projection (30 rows, ~52 KB) verified live (identity
+  # c99563f7). Omitting the env key reverts to pitcher/lineup/batter assembly.
+  terminal_team_profiles_key = "features/team-first-inning-strict-prior-2015-2024-v1/team_terminal_profiles.jsonl"
 }
 
 data "archive_file" "pregame_collector" {
@@ -59,6 +62,11 @@ data "archive_file" "pregame_collector" {
   }
 
   source {
+    content  = file("${path.module}/../nrfi/team_profile_loader.py")
+    filename = "nrfi/team_profile_loader.py"
+  }
+
+  source {
     content  = file("${path.module}/../nrfi/aws_pregame_collector.py")
     filename = "nrfi/aws_pregame_collector.py"
   }
@@ -100,6 +108,7 @@ data "aws_iam_policy_document" "pregame_collector" {
       "${aws_s3_bucket.lake.arn}/${local.pitcher_profiles_key}",
       "${aws_s3_bucket.lake.arn}/${local.pitcher_profiles_rollback_key}",
       "${aws_s3_bucket.lake.arn}/${local.terminal_batter_profiles_key}",
+      "${aws_s3_bucket.lake.arn}/${local.terminal_team_profiles_key}",
     ]
   }
 
@@ -215,6 +224,10 @@ resource "aws_lambda_function" "pregame_collector" {
       NRFI_TERMINAL_BATTER_PROFILE_IDENTITY = "7e7fc570d5ad4ea58fc087a87a488f54c63a07e729ae532ace1fd20e37f97299"
       NRFI_TERMINAL_BATTER_PROFILE_ROWS     = "2606"
       NRFI_TERMINAL_BATTER_PROFILE_ELIGIBLE = "1543"
+      NRFI_TEAM_TERMINAL_PROFILES_KEY       = local.terminal_team_profiles_key
+      NRFI_TEAM_TERMINAL_PROFILES_SHA256    = "4e931e27d0aefd309a132037604b82bbb3b70123c6ef59653900242805efd67b"
+      NRFI_TEAM_TERMINAL_PROFILE_IDENTITY   = "c99563f7a42c87219833ef4b629834c5a750c6de020601450cc97147b5807716"
+      NRFI_TEAM_TERMINAL_PROFILE_TEAMS      = "30"
     }
   }
 
@@ -227,6 +240,7 @@ resource "aws_lambda_function" "pregame_collector" {
           local.pregame_assembly_prefix,
           local.pitcher_profiles_key,
           local.terminal_batter_profiles_key,
+          local.terminal_team_profiles_key,
         ] :
         !strcontains(lower(prefix), "holdout") && !strcontains(prefix, "2025")
       ])

@@ -236,6 +236,7 @@ def test_handler_publishes_assembly_when_profiles_configured(
         profiles_key: str,
         freshness_limit_seconds: int,
         terminal_profiles_key: Any = None,
+        team_profiles_key: Any = None,
     ) -> dict[str, Any]:
         recorded.update(
             {
@@ -246,6 +247,7 @@ def test_handler_publishes_assembly_when_profiles_configured(
                 "profiles_key": profiles_key,
                 "freshness_limit_seconds": freshness_limit_seconds,
                 "terminal_profiles_key": terminal_profiles_key,
+                "team_profiles_key": team_profiles_key,
             }
         )
         return {"schema_version": "forward_assembly_run.v1"}
