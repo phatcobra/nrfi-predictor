@@ -1814,3 +1814,52 @@ Safe-stop state: git clean at `1d06291` (pushed), no running python build, no
 active Batch job, Terraform apply complete (0 destroyed), no temporary
 credential, no public endpoint, no 2025 access, no real wager. Required outputs
 remain `PREDICTIVE SKILL NOT ESTABLISHED` and `NO QUALIFIED WAGER`.
+
+## Checkpoint 2026-07-21 (g) — team domain LIVE + scheduled batter proof
+
+Op1 confirmed pending: the one-time task `nrfi-confirmed-lineup-verify` is still
+enabled (nextRunAt 2026-07-21T19:30Z, lastRunAt none) — at 07:42-12:24 UTC it was
+too early for CONFIRMED batting orders (early live runs show confirmed_lineups=0,
+the correct fail-closed result). The scheduled run covers the CONFIRMED
+end-to-end proof + by-reason census.
+
+TEAM DOMAIN fully built → published → loaded → wired → deployed → verified live:
+- `8c6daf5` (`[publish-team]`) published team artifacts (run `29831006821`) under
+  `features/team-first-inning-strict-prior-2015-2024-v1/`:
+  team_game_records.jsonl (17,412,177 B, v`zxwQPnoQb9PtEVgcPsNcKMrw_.fztvYh`),
+  team_features.jsonl (98,923,633 B, v`wfQ3N9EJb5vvU2yXE2uv_zBc9zvq3Yth`),
+  team_terminal_profiles.jsonl (52,105 B, sha `4e931e27`, identity `c99563f7`,
+  v`xKHKMyQ5CAM2spRhg.Ev8c_RqTJMyaTt`), + coverage/schema/determinism + manifest;
+  identities `1520a5ea`/`5124bebb`/`c99563f7` reproduced on the Linux runner; 30
+  teams / 45,522 records; KMS + versioned; no pitcher/batter overwrite. Also
+  optimized `build_team_feature_snapshots` to running totals (O(n·window) not
+  O(n²)) — byte-identical output.
+- `d625394` `nrfi/team_profile_loader.py` (8 tests): verifies sha `4e931e27`,
+  identity `c99563f7`, team count 30, schema, no dup team ids; statuses
+  TEAM_PROFILES_LOADED/ARTIFACT_INVALID/IDENTITY_MISMATCH/SCHEMA_INVALID/LOAD_FAILED.
+- `053fa33` (`[tf-apply]`) wired `team_context_eligible` into
+  `forward_admission` via the shared `_team_side` (both clubs must have eligible
+  terminal profiles); moved to IMPLEMENTED_FEATURE_STAGES; run.v3/package report
+  `team_context_eligible_games` + `team_profile_identity`; reasons
+  TEAM_IDENTITY_MISSING/PROFILE_MISSING/HISTORY_INSUFFICIENT/LOAD_FAILED;
+  park/weather/umpire/schedule + unified stay false. API surfaces
+  team_profiles_status + team_profile_identity. Terraform bundled
+  team_profile_loader into BOTH Lambdas, added the team GetObject grant + env
+  vars + holdout precondition. Deploy run `29832040949`: plan `0 add, 3 change, 0
+  destroy`; Apply complete `0 added, 3 changed, 0 destroyed`.
+- LIVE VERIFY (`39939ff` `[verify-live]`, run `29832199975`):
+  `team_profiles_status=TEAM_PROFILES_LOADED`, `team_profile_identity=c99563f7…`,
+  `team_context_eligible_games=15` for BOTH 2026-07-21 and 2026-07-22 (all 30
+  clubs have >=20 prior games), while lineup/batter eligible = 0 (no confirmed
+  lineups yet) and `unified_feature_set_eligible_games_total=0` (enforced) —
+  probability blocked. Gates: ruff clean, pyright 0 errors, 271 passed / 1 skipped.
+
+NEXT: Phase B park factors, C starter workload/rest, D schedule/travel; then
+weather, umpire, unified freeze, model comparison/calibration, market, ledgers.
+Also pending: platoon-handedness refinement; AWS Batch productionization; the
+scheduled confirmed-lineup batter proof (19:30Z).
+
+Safe-stop state: git clean at `39939ff` (pushed), no running python build, no
+active Batch job, Terraform apply complete (0 destroyed), no temporary
+credential, no public endpoint, no 2025 access, no real wager. Required outputs
+remain `PREDICTIVE SKILL NOT ESTABLISHED` and `NO QUALIFIED WAGER`.
