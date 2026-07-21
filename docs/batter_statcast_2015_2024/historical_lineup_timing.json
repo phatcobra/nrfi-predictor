@@ -1,0 +1,15 @@
+{
+  "schema_version": "historical_lineup_timing_classification.v1",
+  "classification": "HISTORICAL_LINEUP_TIMING_UNAVAILABLE",
+  "historical_lineup_timing_available": false,
+  "summary": "For the 2015-2024 batter feature domain, no lawful timestamp-verifiable pregame batting-order publication is available. Statcast provides plate-appearance attribution only postgame; the actual batting order is therefore postgame evidence and must never be treated as a pregame lineup snapshot.",
+  "consequences": {
+    "historical_prediction_join_eligible": false,
+    "historical_lineup_timing_unavailable": true,
+    "top_of_order_features_historical": "NOT_EMITTED",
+    "reason_code": "HISTORICAL_LINEUP_TIMING_UNAVAILABLE"
+  },
+  "live_path_note": "Top-of-order (live) batter features are only assembled from forward lineup snapshots captured strictly before each game's prediction cutoff; a postgame lineup may never substitute for a missing pregame lineup.",
+  "cross_reference": "docs/historical_inventory/2026-07-20/lineup_evidence.md",
+  "batter_profiles_scope": "Strict-prior per-batter rate profiles ARE lawful historically (each window uses only pre-cutoff, label-available prior games); only the pregame BATTING ORDER is unavailable historically."
+}

@@ -1,0 +1,72 @@
+{
+  "schema_version": "batter_determinism_evidence.v1",
+  "comparison_result": "BYTE_IDENTICAL",
+  "byte_identical": true,
+  "mismatches": [],
+  "producing_commit": "cc3bf81",
+  "verification_method": "independent recomputation of every artifact SHA-256 plus re-derivation of canonical history/feature/ledger identities directly from on-disk parquet/jsonl (not from manifest identity fields); build one and build two compared directly",
+  "builds": {
+    "build_one": {
+      "path": "C:/Users/ameis/nrfi_batter_builds/b1",
+      "producing_commit": "cc3bf81",
+      "aggregation_seconds": 2828,
+      "completed_at": "2026-07-19T23:50-local",
+      "exit_status": 0
+    },
+    "build_two": {
+      "path": "C:/Users/ameis/nrfi_batter_builds/b2",
+      "producing_commit": "cc3bf81",
+      "aggregation_seconds": 3297,
+      "completed_at": "2026-07-20T01:13-local",
+      "exit_status": 0
+    }
+  },
+  "source_counts": {
+    "admitted_day_files": 2450,
+    "day_files_opened_2025": 0,
+    "source_file_ledger_rows": 2493
+  },
+  "row_counts": {
+    "batter_game_history_rows": 472585,
+    "batter_feature_snapshot_rows": 472585,
+    "distinct_batters": 2606,
+    "profile_feature_eligible_rows": 439314,
+    "profile_feature_eligible_pct": 92.959785
+  },
+  "canonical_identities": {
+    "history_partition_identity": "596194c2fbf6b7b6d3e0ce1ebc727cc83a69d23f4f151ffaf5d9a7b234759496",
+    "feature_partition_identity": "edd1ff171779a57854dbefea4ad654a13746dc4bf2814969f3c31415b0de355d",
+    "source_file_ledger_identity": "b0f2a0f9e96819d29910f52250bdb4a033add742c43284fef75b7ad0f0069d16",
+    "history_equal_across_builds": true,
+    "feature_equal_across_builds": true,
+    "ledger_equal_across_builds": true,
+    "identities_match_coverage_fields": true
+  },
+  "artifact_sha256": {
+    "batter_game_history.parquet": "49f91096f690f354ceff6c5c2b2f82254f783f0e5d67c65adbfecafda75509b6",
+    "batter_features.parquet": "69219e026bf8be6878966477bd0b21d8c16d9db3ab2d02055871643b2994a630",
+    "source_file_ledger.jsonl": "89c53d15d8d7ac79c79d485b1fdbee8f5135139aa7d6c833f1b92d96d5714841",
+    "rejections.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "coverage.json": "7076282c1eb4ab9eca9864ede372529649f50a11cb5159e27f5a3f358fb20dcd",
+    "artifact_manifest.json": "c2755c56d4392583093e67b26c01b734a519a1704cf0f08de3ac406b32390c8f",
+    "all_artifacts_equal_b1_vs_b2": true
+  },
+  "zero_2025_evidence": {
+    "day_files_opened_2025": 0,
+    "locked_2025_holdout_accessed": false,
+    "note": "The 2015-2024 allowlist ledger admitted 2450 files; the 2025 directory was never traversed. Three runtime layers refuse a locked-2025 file: file-date refusal, season>=2025 refusal, and post-open assertion."
+  },
+  "checks": {
+    "admitted_sources_equal": true,
+    "distinct_batters_equal": true,
+    "feature_identity_equal": true,
+    "feature_matches_coverage": true,
+    "history_identity_equal": true,
+    "history_matches_coverage": true,
+    "ledger_identity_equal": true,
+    "ledger_matches_coverage": true,
+    "row_counts_equal": true,
+    "zero_2025": true
+  },
+  "note_features_parquet": "batter_features.parquet is 107 MB (exceeds GitHub's 100 MiB limit) and is NOT committed. Its SHA-256 and canonical feature identity are recorded here; the OIDC publish runner reproduces it deterministically from the committed batter_game_history.parquet and re-verifies the feature identity before upload."
+}
