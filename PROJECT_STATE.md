@@ -1675,3 +1675,68 @@ Safe-stop confirmed: git clean at `1d66aac` (pushed), no running python build,
 no active Batch job, no Terraform apply (skipped), no temporary credential, no
 public endpoint, no 2025 access, no real wager. Required outputs remain
 `PREDICTIVE SKILL NOT ESTABLISHED` and `NO QUALIFIED WAGER`.
+
+## Checkpoint 2026-07-21 (d) — batter domain LIVE (terminal load + lineup + eligibility)
+
+Commits (pushed): `c6a41ed` terminal publish path; `08a7172` lineup_admission;
+`7f40650` `[publish-terminal]` (terminal projection published to
+`.../terminal_batter_profiles.jsonl`, 9,460,808 bytes, identity `7e7fc570…`,
+sha `5ce26a4a…`, KMS+versioned); `1246022`/`11d3fba`/`1d66aac` terminal profiles
++ top-of-order + eligibility cores; `6c17d57` shared-assembly wiring +
+`nrfi/batter_profile_loader.py`; `bf5767d` deploy (`[tf-apply]`); `43680a4`
+`[verify-live]`.
+
+Shared-path wiring (`6c17d57`): `nrfi/batter_profile_loader.py` fail-closed
+loader (verifies object sha `5ce26a4a`, identity `7e7fc570`, rows 2606, eligible
+1543, per-row schema, no dup ids; statuses BATTER_PROFILES_LOADED /
+ARTIFACT_INVALID / LOAD_FAILED / SCHEMA_INVALID / IDENTITY_MISMATCH; never loads
+the 1.7 GB projection). `forward_admission.assemble_games`/`run_assembly` now
+load the terminal projection + lineup selections and compute
+`lineup_feature_eligible` / `batter_feature_eligible` per side via the shared
+lineup_admission + batter_top_of_order + batter_eligibility functions (same code
+for replay + live + API); both stages moved to IMPLEMENTED_FEATURE_STAGES;
+`unified_feature_set_eligible` stays false (team/park/weather/umpire/schedule
+remain unimplemented); probability blocked. Assembly schema `run.v2` +
+package now report lineup/batter eligible-game counts + batter profile identity.
+NOTE: platoon-vs-starter-hand is None for now (opposing starter handedness not
+exposed in the live pitcher projection — refinement pending). Gates: ruff clean,
+pyright 0 errors, 246 passed / 1 skipped.
+
+Deploy (`[tf-apply]`, terraform-deploy run `29805303405`, job `88554510941`,
+53s): plan `0 to add, 3 to change, 0 to destroy`; `Apply complete! 0 added, 3
+changed, 0 destroyed` — IAM policy + collector Lambda + probability_api Lambda
+(both share the code path) updated in place. terraform/pregame_collector.tf:
+bundled the 4 batter modules into BOTH Lambda archives, added
+`terminal_batter_profiles_key` local, s3:GetObject for the terminal key + lineup
+captures, s3:ListBucket for the lineups prefix, env vars
+NRFI_TERMINAL_BATTER_PROFILES_KEY/SHA256/IDENTITY/ROWS/ELIGIBLE, and extended the
+locked-holdout precondition. Rollback: omit the terminal env key → pitcher-only;
+a missing/invalid artifact already degrades gracefully (BATTER_PROFILE_LOAD_FAILED).
+
+LIVE VERIFICATION (`[verify-live]`, publish-profiles run `29805511144`, job
+`88555107233`, 57s). Collector invoked live:
+- terminal projection LOADS: `batter_profiles_status=BATTER_PROFILES_LOADED`,
+  `batter_profile_identity=7e7fc570…`,
+  `terminal_profiles_key=features/batter-statcast-strict-prior-2015-2024-v1/terminal_batter_profiles.jsonl`.
+- lineup captures discovered: 30 rows/date (15 games × 2 sides) for 2026-07-21
+  and 2026-07-22; `confirmed_lineups=0` (no batting orders posted this early), so
+  `lineup_feature_eligible_games=0` and `batter_feature_eligible_games=0` — the
+  correct fail-closed result (LINEUP_NOT_AVAILABLE). Later scheduled runs closer
+  to first pitch will confirm lineups and raise these counts.
+- pitcher_profile_eligible_games 6 (07-21) / 7 (07-22); games 15/15.
+- `unified_feature_set_eligible_games_total=0` (assertion enforced) → probability
+  stays blocked. Pre-invoke AWS-state guard: Batch all 0, 0 objects with "2025".
+Rejection census (live): all game sides on both dates → LINEUP_NOT_AVAILABLE
+(confirmed_lineups=0), i.e. the lineup stage is uniformly not-yet-available;
+pitcher/unified stay ineligible per the frozen contract.
+
+STILL OUTSTANDING: unauth-API-403 + authenticated-game-query check (needs the API
+Gateway URL + SigV4 — API Lambda already carries the code); platoon handedness
+refinement; AWS Batch productionization (pitcher + batter). Continue with
+team/park/schedule/travel/weather/umpire domains, unified freeze, model
+comparison/calibration, market, ledgers, monitoring.
+
+Safe-stop state: git clean at `43680a4` (pushed), no running python build, no
+active Batch job, Terraform apply complete (0 destroyed), no temporary
+credential, no public endpoint, no 2025 access, no real wager. Required outputs
+remain `PREDICTIVE SKILL NOT ESTABLISHED` and `NO QUALIFIED WAGER`.
