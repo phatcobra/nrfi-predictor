@@ -1740,3 +1740,43 @@ Safe-stop state: git clean at `43680a4` (pushed), no running python build, no
 active Batch job, Terraform apply complete (0 destroyed), no temporary
 credential, no public endpoint, no 2025 access, no real wager. Required outputs
 remain `PREDICTIVE SKILL NOT ESTABLISHED` and `NO QUALIFIED WAGER`.
+
+## Checkpoint 2026-07-21 (e) — API regression fix + live 403/200 verification
+
+REGRESSION FOUND + FIXED: `nrfi/aws_probability_api.py` imports
+`nrfi.forward_admission`, which now imports the 4 batter modules (and
+lineup_admission imports lineup_snapshot), but the probability_api Lambda archive
+in `terraform/probability_api.tf` bundled none of them — so the `[tf-apply]` in
+`bf5767d` shipped an API zip that would `ModuleNotFoundError` on cold start.
+`6f3bbcc` (`[tf-apply]`, terraform-deploy run `29811692313`) bundled
+lineup_snapshot + lineup_admission + batter_profile_loader + batter_top_of_order
++ batter_eligibility into the API archive; apply `0 add, 1 change, 0 destroy`.
+
+`d0e8fd3` (`[tf-apply][verify-api]`, terraform-deploy run `29811985329`, 1m7s):
+API game-assembly response now surfaces `batter_profiles_status` +
+`batter_profile_identity` in `assembly_package`; added a post-apply
+API-verification step. LIVE API PROOF (function URL
+`https://42ajmftf4o2h4jiyaze2f447wm0jxiof.lambda-url.us-east-2.on.aws/`, AWS_IAM):
+- unauthenticated request → HTTP 403.
+- SigV4-authenticated baseline → HTTP 200.
+- authenticated real game query (`game_pk=822787`, today) → HTTP 200
+  `response_class=game-assembly-status` (a live game record, NOT the generic
+  preserved response), surfacing `batter_profiles_status=BATTER_PROFILES_LOADED`,
+  `batter_profile_identity=7e7fc570…`, selected
+  `lineup_snapshot_id=c14ebfac…`, `unified_feature_set_eligible=False`,
+  `wager_decision=NO QUALIFIED WAGER`. Step asserts unified + model_probability
+  false.
+Gates: ruff clean, pyright 0 errors, 246 passed / 1 skipped.
+
+PENDING (scheduled): the CONFIRMED-lineup end-to-end proof + by-reason census
+needs real posted batting orders (this ran at 07:52 UTC — far too early;
+confirmed_lineups=0). A one-time scheduled task `nrfi-confirmed-lineup-verify`
+fires 2026-07-21T19:30Z to push `[verify-live]`, read the assembly, produce the
+census, and confirm `batter_feature_eligible>0` where lineups are CONFIRMED while
+unified stays 0. Also pending: platoon-handedness refinement; AWS Batch
+productionization; the team/park/workload/schedule feature domain (starting now).
+
+Safe-stop state: git clean at `d0e8fd3` (pushed), no running python build, no
+active Batch job, Terraform apply complete (0 destroyed), no temporary
+credential, no public endpoint, no 2025 access, no real wager. Required outputs
+remain `PREDICTIVE SKILL NOT ESTABLISHED` and `NO QUALIFIED WAGER`.
