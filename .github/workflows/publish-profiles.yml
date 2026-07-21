@@ -1,4 +1,5 @@
 name: publish-profiles
+# 2026-07-21b: verify live team_context stage (team profiles + counts).
 # 2026-07-21: activate the compact terminal batter projection publication
 # (features/batter-statcast-strict-prior-2015-2024-v1/terminal_batter_profiles.jsonl).
 # Live assembly now reports staged eligibility (pregame_game_assembly.v3).
