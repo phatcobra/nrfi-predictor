@@ -23,6 +23,31 @@ data "archive_file" "probability_api" {
   }
 
   source {
+    content  = file("${path.module}/../nrfi/lineup_snapshot.py")
+    filename = "nrfi/lineup_snapshot.py"
+  }
+
+  source {
+    content  = file("${path.module}/../nrfi/lineup_admission.py")
+    filename = "nrfi/lineup_admission.py"
+  }
+
+  source {
+    content  = file("${path.module}/../nrfi/batter_profile_loader.py")
+    filename = "nrfi/batter_profile_loader.py"
+  }
+
+  source {
+    content  = file("${path.module}/../nrfi/batter_top_of_order.py")
+    filename = "nrfi/batter_top_of_order.py"
+  }
+
+  source {
+    content  = file("${path.module}/../nrfi/batter_eligibility.py")
+    filename = "nrfi/batter_eligibility.py"
+  }
+
+  source {
     content  = file("${path.module}/../nrfi/aws_pregame_collector.py")
     filename = "nrfi/aws_pregame_collector.py"
   }
