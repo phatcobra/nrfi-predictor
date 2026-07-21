@@ -109,7 +109,7 @@ jobs:
           echo "Collector configuration:"
           aws lambda get-function-configuration \
             --function-name nrfi-probability-dev-pregame-collector \
-            --query '[MemorySize,LastUpdateStatus,Environment.Variables.NRFI_PITCHER_PROFILES_KEY]' \
+            --query '[MemorySize,LastUpdateStatus,Environment.Variables.NRFI_PITCHER_PROFILES_KEY,Environment.Variables.NRFI_TERMINAL_BATTER_PROFILES_KEY]' \
             --output text
           echo "Invoking collector (rebuilds assemblies from the new profiles):"
           aws lambda invoke --function-name nrfi-probability-dev-pregame-collector \
@@ -117,15 +117,26 @@ jobs:
           python - <<'PY'
           import json
           d = json.load(open("out.json"))
-          results = d.get("assembly", {}).get("results", [])
+          assembly = d.get("assembly", {})
+          results = assembly.get("results", [])
           summary = [
               {k: r.get(k) for k in (
-                  "official_date", "profiles_status", "games",
+                  "official_date", "profiles_status", "batter_profiles_status",
+                  "batter_profile_identity", "games",
                   "pitcher_profile_eligible_games",
+                  "lineup_feature_eligible_games",
+                  "batter_feature_eligible_games",
                   "unified_feature_set_eligible_games", "admitted_captures")}
               for r in results
           ]
           print("assembly_summary=", json.dumps(summary, sort_keys=True))
+          print("batter_profiles_status=", assembly.get("batter_profiles_status"))
+          print("terminal_profiles_key=", assembly.get("terminal_profiles_key"))
+          total_unified = sum(
+              x.get("unified_feature_set_eligible_games", 0) for x in results
+          )
+          assert total_unified == 0, "unified_feature_set_eligible must be zero"
+          print("unified_feature_set_eligible_games_total=", total_unified)
           lineups = [
               {k: c.get(k) for k in (
                   "target_date", "row_count", "confirmed_lineups",
