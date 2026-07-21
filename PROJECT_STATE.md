@@ -1610,3 +1610,68 @@ Exact continuation command / next steps:
 State: no temporary credentials, no active Batch jobs, no public endpoint, no
 2025 access, no real wager. Required outputs remain `PREDICTIVE SKILL NOT
 ESTABLISHED` and `NO QUALIFIED WAGER`.
+
+## Checkpoint 2026-07-21 (b) — Phase 5/6 live batter decision core (offline)
+
+Three pure, deterministic, fully-tested modules landed and pushed (all reuse the
+frozen extraction window metrics; none reads 2025; none uses postgame batting
+orders):
+- `1246022` `nrfi/batter_live_profiles.py` — ONE compact terminal strict-prior
+  profile per batter (career + last-20/50/100 over the complete 2015-2024
+  history). Built from the committed canonical history: 2,606 batters, 1,543
+  profile-eligible, terminal identity `7e7fc570…`, projection sha
+  `5ce26a4a…`, **9.46 MB** (vs the 1.7 GB full historical projection) and
+  byte-identical across two real builds. This is the live-servable join table.
+- `11d3fba` `nrfi/batter_top_of_order.py` — pure top-of-order feature builder for
+  one side: first 3/4 batter ids, present/eligible/missing counts + coverage,
+  aggregate career OBP/K-avoid/BB/contact/whiff/hard-hit/barrel over eligible
+  top-of-order batters, handedness sequence, platoon OBP/K vs the probable
+  starter hand, minimum-history indicator; reason codes
+  BATTER_IDENTITY_MISSING / BATTER_PROFILE_MISSING / BATTER_HISTORY_INSUFFICIENT.
+- `1d66aac` `nrfi/batter_eligibility.py` — fail-closed evaluator mapping a
+  selected pre-cutoff lineup selection + terminal profiles + pitcher hand to
+  `lineup_feature_eligible` / `batter_feature_eligible` + ordered reasons
+  (LINEUP_NOT_AVAILABLE/AFTER_CUTOFF/STALE/PROJECTED_ONLY/WITHDRAWN,
+  HISTORICAL_LINEUP_TIMING_UNAVAILABLE, BATTER_*). After-cutoff/postgame lineups
+  are never eligible; unified stays false by construction.
+Suite now 224 passed / 1 skipped; ruff + pyright clean.
+
+STILL OUTSTANDING (next atomic operation — Phase 5/6 wiring + Phase 7 deploy):
+1. `nrfi/lineup_admission.py` — read the collector's immutable lineup captures
+   (`signals/pregame/official-statsapi/lineups`, schema from
+   `nrfi/lineup_snapshot.py` `lineup_snapshot.v1`), build per-(game_pk, side)
+   revision history, select the latest snapshot observed strictly before the
+   cutoff, and derive status CONFIRMED/NOT_AVAILABLE/UPDATED/WITHDRAWN
+   (PROJECTED not derivable from StatsAPI). Emit `batting_order_ids` +
+   `observed_before_cutoff` + `revision_count` in the shape
+   `batter_eligibility.evaluate_side_eligibility` expects.
+2. Wire into `forward_admission.assemble_games`: move `lineup_feature_eligible`
+   and `batter_feature_eligible` from UNIMPLEMENTED_FEATURE_STAGES to
+   IMPLEMENTED, compute them per side from the lineup selections + a loaded
+   terminal-profile table + the already-selected probable starter hand, attach
+   the top-of-order features and reasons; `unified_feature_set_eligible` and
+   `model_probability_eligible` STAY false (team/park/weather/umpire/schedule
+   remain unimplemented). Update `pregame_game_assembly.v3` counts + tests.
+3. Publish the 9.46 MB terminal live projection to
+   `features/batter-statcast-strict-prior-2015-2024-v1/live_profiles.jsonl` by
+   extending `nrfi/aws_publish_batter_profiles.py` + the `[publish-batter]`
+   workflow step (reproduced in-runner from the committed history parquet).
+4. Deploy collector/API via Terraform+OIDC; wire the terminal projection key
+   into the Lambda env; live-verify (immutable lineup revisions written,
+   after-cutoff lineups stored-but-ineligible, lineup/batter eligible counts
+   reported, unified stays 0, unauth API 403, probability blocked); produce a
+   lineup/batter rejection census by reason.
+5. Phase 4 actual AWS Batch productionization for batter + the outstanding
+   pitcher job (ECR image+digest, Batch job-def revision, submit from the
+   versioned canonical-history S3 object, CloudWatch logs, cost, output
+   versions, local/OIDC/Batch identity equality, zero active jobs after).
+
+Continuation command: implement `nrfi/lineup_admission.py` first (mirror
+`forward_admission.read_capture`/`select_starters`), then the
+`forward_admission` wiring + tests, then publish the live projection, then the
+Terraform+OIDC deploy and live verification.
+
+Safe-stop confirmed: git clean at `1d66aac` (pushed), no running python build,
+no active Batch job, no Terraform apply (skipped), no temporary credential, no
+public endpoint, no 2025 access, no real wager. Required outputs remain
+`PREDICTIVE SKILL NOT ESTABLISHED` and `NO QUALIFIED WAGER`.
