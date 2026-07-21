@@ -71,3 +71,58 @@ jobs:
           ${{ (github.event_name == 'workflow_dispatch' && inputs.action == 'apply') ||
               (github.event_name == 'push' && contains(github.event.head_commit.message, '[tf-apply]')) }}
         run: terraform apply -input=false tfplan
+      - name: Verify IAM-authed probability API (403 unauth, 200 authed)
+        if: >-
+          ${{ github.event_name == 'push' &&
+              contains(github.event.head_commit.message, '[verify-api]') }}
+        env:
+          LAKE_BUCKET: nrfi-probability-dev-660838763909-us-east-2-lake
+        run: |
+          set -euo pipefail
+          URL=$(terraform output -raw probability_api_url)
+          echo "api_url=$URL"
+          UNAUTH=$(curl -s -o /dev/null -w "%{http_code}" "$URL")
+          echo "unauthenticated_status=$UNAUTH"
+          test "$UNAUTH" = "403"
+          sig() { curl -s --aws-sigv4 "aws:amz:${AWS_REGION}:lambda" \
+            --user "${AWS_ACCESS_KEY_ID}:${AWS_SECRET_ACCESS_KEY}" \
+            -H "x-amz-security-token: ${AWS_SESSION_TOKEN}" "$@"; }
+          BASE=$(sig -o base.json -w "%{http_code}" "$URL")
+          echo "authenticated_baseline_status=$BASE"
+          test "$BASE" = "200"
+          DATE=$(date -u +%F)
+          KEY=$(aws s3api list-objects-v2 --bucket "$LAKE_BUCKET" \
+            --prefix "signals/pregame/assembly/${DATE}/" \
+            --query 'sort_by(Contents,&LastModified)[-1].Key' --output text 2>/dev/null || echo None)
+          if [ "$KEY" = "None" ] || [ -z "$KEY" ]; then
+            echo "no_assembly_package_for_today=true (skipping game query)"; exit 0
+          fi
+          aws s3 cp "s3://${LAKE_BUCKET}/${KEY}" pkg.json >/dev/null
+          GAMEPK=$(python -c "import json;p=json.load(open('pkg.json'));print(p['games'][0]['game_pk'])")
+          echo "game_pk=$GAMEPK"
+          GS=$(sig -o game.json -w "%{http_code}" "${URL}?game_pk=${GAMEPK}")
+          echo "authenticated_game_status=$GS"
+          test "$GS" = "200"
+          python - <<'PY'
+          import json
+          g = json.load(open("game.json"))
+          pm = g.get("assembly_package", {})
+          game = g.get("game", {})
+          elig = game.get("eligibility", {})
+          away = game.get("sides", {}).get("away", {})
+          print("response_class=", g.get("response_class"))
+          print("batter_profiles_status=", pm.get("batter_profiles_status"))
+          print("batter_profile_identity=", pm.get("batter_profile_identity"))
+          print("lineup_snapshot_id=", away.get("lineup_snapshot_id"))
+          print("lineup_previous_snapshot_ids=", away.get("lineup_previous_snapshot_ids"))
+          print("top_of_order_present=", away.get("top_of_order") is not None)
+          print("lineup_feature_eligible=", elig.get("lineup_feature_eligible"))
+          print("batter_feature_eligible=", elig.get("batter_feature_eligible"))
+          print("unified_feature_set_eligible=", elig.get("unified_feature_set_eligible"))
+          print("rejection_reasons=", json.dumps(game.get("rejection_reasons")))
+          print("wager_decision=", g.get("wager_decision"))
+          assert g.get("response_class") == "game-assembly-status", "must be a live game record"
+          assert g.get("wager_decision") == "NO QUALIFIED WAGER"
+          assert elig.get("unified_feature_set_eligible") is False
+          assert elig.get("model_probability_eligible") is False
+          PY
