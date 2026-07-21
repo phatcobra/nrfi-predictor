@@ -1863,3 +1863,53 @@ Safe-stop state: git clean at `39939ff` (pushed), no running python build, no
 active Batch job, Terraform apply complete (0 destroyed), no temporary
 credential, no public endpoint, no 2025 access, no real wager. Required outputs
 remain `PREDICTIVE SKILL NOT ESTABLISHED` and `NO QUALIFIED WAGER`.
+
+## Checkpoint 2026-07-21 (h) — CONFIRMED-lineup end-to-end proof + live census
+
+Scheduled task `nrfi-confirmed-lineup-verify` executed (afternoon window).
+`6a56260` (`[verify-live]`, comment bump only) triggered publish-profiles run
+`29877719957` (success); its "Verify live collector" step invoked
+`nrfi-probability-dev-pregame-collector` live at 2026-07-21T23:38Z (1536 MB,
+LastUpdateStatus Successful, pitcher/batter/team profile keys unchanged).
+
+CONFIRMED end-to-end proof — first live assembly with real posted batting orders:
+- lineup_summary 2026-07-21: row_count=26, confirmed_lineups=26,
+  lineups_observed_before_cutoff=18. 2026-07-22: row_count=34,
+  confirmed_lineups=0, observed_before_cutoff=34 (projected-only; correct
+  fail-closed). Captures stored under
+  `signals/pregame/official-statsapi/lineups/<date>/capture-20260721T2338…Z.json`.
+- assembly 2026-07-21: games=15, admitted_captures=18,
+  batter_profiles_status=BATTER_PROFILES_LOADED, batter_profile_identity
+  `7e7fc570…` (exact expected), team identity `c99563f7…`,
+  pitcher_profile_eligible=0, lineup_feature_eligible=14,
+  batter_feature_eligible=3, team_context_eligible=15, unified=0.
+- assembly 2026-07-22: games=17, admitted_captures=10, pitcher=7, lineup=0,
+  batter=0, team=17, unified=0.
+- Proof satisfied: confirmed_lineups>0 AND lineup_feature_eligible_games>0 AND
+  batter_feature_eligible_games>0 (3 games passed strict-prior batter profile
+  coverage) under the published terminal batter projection — the batter domain
+  is now verified live on CONFIRMED lineups, not just loaders/degenerate dates.
+
+Live rejection census (derived from the step counts; the verify step does not
+print per-side reasons and was left untouched — no second live invocation):
+- 2026-07-21 sides (30 max): 26 captured CONFIRMED; 4 sides no row →
+  LINEUP_NOT_AVAILABLE; 8 of 26 observed post-cutoff → LINEUP_AFTER_CUTOFF (18
+  admitted pre-cutoff); the remaining 1/15 games had no admitted side. Of the
+  14 lineup-eligible games, 11 rejected at the batter stage on strict-prior
+  profile coverage (BATTER_PROFILE_MISSING / BATTER_HISTORY_INSUFFICIENT —
+  per-reason split needs the per-side dump), 3 fully batter-feature eligible.
+- 2026-07-22: all 34 rows LINEUP_PROJECTED_ONLY (no CONFIRMED posted yet).
+- No LINEUP_WITHDRAWN / LINEUP_STALE / LINEUP_IDENTITY_MISMATCH /
+  BATTER_PROFILE_LOAD_FAILED surfaced; all profile loaders clean.
+- unified_feature_set_eligible_games_total=0 (step assert enforced) —
+  probability generation stayed blocked.
+
+NEXT: Phase B park factors, C starter workload/rest, D schedule/travel; then
+weather, umpire, unified freeze, model comparison/calibration, market, ledgers.
+Also pending: platoon-handedness refinement; AWS Batch productionization. The
+scheduled confirmed-lineup proof is complete; no reschedule needed.
+
+Safe-stop state: git clean at `6a56260` (pushed), no running python build, no
+active Batch job, Terraform apply complete (0 destroyed), no temporary
+credential, no public endpoint, no 2025 access, no real wager. Required outputs
+remain `PREDICTIVE SKILL NOT ESTABLISHED` and `NO QUALIFIED WAGER`.
