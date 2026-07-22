@@ -27,9 +27,12 @@ on:
       - "nrfi/batter_live_profiles.py"
       - "nrfi/aws_publish_team_features.py"
       - "nrfi/team_features.py"
+      - "nrfi/aws_publish_context_features.py"
+      - "nrfi/context_features.py"
       - "docs/pitcher_statcast_2015_2024/**"
       - "docs/batter_statcast_2015_2024/**"
       - "docs/team_first_inning_2015_2024/**"
+      - "docs/context_foundation_v1/**"
 
 permissions:
   id-token: write
@@ -243,6 +246,39 @@ jobs:
         with:
           name: published-team-manifest
           path: published_team.json
+          if-no-files-found: error
+      - name: Reproduce context features from committed source and verify identity
+        if: >-
+          ${{ github.event_name == 'workflow_dispatch' ||
+              contains(github.event.head_commit.message, '[verify-context]') ||
+              contains(github.event.head_commit.message, '[publish-context]') }}
+        run: |
+          uv run --frozen python -m nrfi.aws_publish_context_features --verify-only \
+            --multiseason-dir docs/multiseason_2015_2024 \
+            --evidence-dir docs/context_foundation_v1 \
+            --venue-reference docs/context_foundation_v1/venue_reference.json
+      - name: Publish context features to the encrypted versioned lake
+        if: >-
+          ${{ (github.event_name == 'workflow_dispatch' && inputs.mode == 'publish') ||
+              (github.event_name == 'push' &&
+               contains(github.event.head_commit.message, '[publish-context]')) }}
+        run: |
+          uv run --frozen --with boto3 python -m nrfi.aws_publish_context_features \
+            --multiseason-dir docs/multiseason_2015_2024 \
+            --evidence-dir docs/context_foundation_v1 \
+            --venue-reference docs/context_foundation_v1/venue_reference.json \
+            --bucket "$LAKE_BUCKET" \
+            --kms-key-arn "$KMS_KEY_ARN" \
+            --producing-commit "${{ github.sha }}" | tee published_context.json
+      - name: Upload context publication manifest
+        if: >-
+          ${{ (github.event_name == 'workflow_dispatch' && inputs.mode == 'publish') ||
+              (github.event_name == 'push' &&
+               contains(github.event.head_commit.message, '[publish-context]')) }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: published-context-manifest
+          path: published_context.json
           if-no-files-found: error
       - name: Read-only per-side audit of the immutable assembly package
         if: >-
