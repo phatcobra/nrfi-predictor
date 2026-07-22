@@ -53,6 +53,16 @@ data "archive_file" "probability_api" {
   }
 
   source {
+    content  = file("${path.module}/../nrfi/context_features.py")
+    filename = "nrfi/context_features.py"
+  }
+
+  source {
+    content  = file("${path.module}/../nrfi/context_profile_loader.py")
+    filename = "nrfi/context_profile_loader.py"
+  }
+
+  source {
     content  = file("${path.module}/../nrfi/aws_pregame_collector.py")
     filename = "nrfi/aws_pregame_collector.py"
   }

@@ -33,18 +33,35 @@ import json
 import math
 import sys
 from collections import defaultdict
-from collections.abc import Mapping, Sequence
+from collections.abc import Iterable, Mapping, Sequence
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 
-from nrfi.pitcher_statcast import (
-    _identity,
-    _ratio,
-    _write_json,
-    _write_jsonl,
-    canonical_json_bytes,
-)
+from nrfi.pregame_snapshot import canonical_json_bytes
+
+
+def _identity(value: object) -> str:
+    return hashlib.sha256(canonical_json_bytes(value)).hexdigest()
+
+
+def _ratio(numerator: int | float, denominator: int | float) -> float | None:
+    return float(numerator / denominator) if denominator else None
+
+
+def _write_json(path: Path, value: object) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(canonical_json_bytes(value))
+
+
+def _write_jsonl(path: Path, rows: Iterable[Mapping[str, Any]]) -> int:
+    materialized = list(rows)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("wb") as handle:
+        for row in materialized:
+            handle.write(canonical_json_bytes(row))
+    return len(materialized)
+
 
 CONTEXT_EXTRACTION_VERSION = "context-foundation-2015-2024-v1"
 CONTEXT_FEATURE_VERSION = "context-foundation-strict-prior-v1"

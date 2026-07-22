@@ -15,6 +15,11 @@ locals {
   # Compact terminal team projection (30 rows, ~52 KB) verified live (identity
   # c99563f7). Omitting the env key reverts to pitcher/lineup/batter assembly.
   terminal_team_profiles_key = "features/team-first-inning-strict-prior-2015-2024-v1/team_terminal_profiles.jsonl"
+  # Context Foundation V1: compact terminal per-venue park projection (44 rows,
+  # ~21 KB, identity 3dacfdb5) + effective-dated venue reference (44 venues,
+  # sha d7b9c606). Omitting the env key leaves the park stage fail-closed.
+  context_park_profiles_key   = "features/context-foundation-2015-2024-v1/park_terminal_factors.jsonl"
+  context_venue_reference_key = "features/context-foundation-2015-2024-v1/venue_reference.json"
 }
 
 data "archive_file" "pregame_collector" {
@@ -67,6 +72,16 @@ data "archive_file" "pregame_collector" {
   }
 
   source {
+    content  = file("${path.module}/../nrfi/context_features.py")
+    filename = "nrfi/context_features.py"
+  }
+
+  source {
+    content  = file("${path.module}/../nrfi/context_profile_loader.py")
+    filename = "nrfi/context_profile_loader.py"
+  }
+
+  source {
     content  = file("${path.module}/../nrfi/aws_pregame_collector.py")
     filename = "nrfi/aws_pregame_collector.py"
   }
@@ -109,6 +124,8 @@ data "aws_iam_policy_document" "pregame_collector" {
       "${aws_s3_bucket.lake.arn}/${local.pitcher_profiles_rollback_key}",
       "${aws_s3_bucket.lake.arn}/${local.terminal_batter_profiles_key}",
       "${aws_s3_bucket.lake.arn}/${local.terminal_team_profiles_key}",
+      "${aws_s3_bucket.lake.arn}/${local.context_park_profiles_key}",
+      "${aws_s3_bucket.lake.arn}/${local.context_venue_reference_key}",
     ]
   }
 
@@ -228,6 +245,11 @@ resource "aws_lambda_function" "pregame_collector" {
       NRFI_TEAM_TERMINAL_PROFILES_SHA256    = "4e931e27d0aefd309a132037604b82bbb3b70123c6ef59653900242805efd67b"
       NRFI_TEAM_TERMINAL_PROFILE_IDENTITY   = "c99563f7a42c87219833ef4b629834c5a750c6de020601450cc97147b5807716"
       NRFI_TEAM_TERMINAL_PROFILE_TEAMS      = "30"
+      NRFI_CONTEXT_PARK_PROFILES_KEY        = local.context_park_profiles_key
+      NRFI_CONTEXT_PARK_PROFILES_SHA256     = "a536de6aafda1e860bc942efc97d5cd7ccf254b4f13f2b226d2766e09b6b37f6"
+      NRFI_CONTEXT_PARK_PROFILE_IDENTITY    = "3dacfdb58fb0b9bb706d7f3a31bb82eff55213f1d1998668805afa1d104c3b0b"
+      NRFI_CONTEXT_VENUE_REFERENCE_SHA256   = "d7b9c606357453ffce006f5b038dbe1fff14d221234c4885baf1ecb800a04041"
+      NRFI_CONTEXT_PARK_PROFILE_VENUES      = "44"
     }
   }
 
@@ -241,6 +263,8 @@ resource "aws_lambda_function" "pregame_collector" {
           local.pitcher_profiles_key,
           local.terminal_batter_profiles_key,
           local.terminal_team_profiles_key,
+          local.context_park_profiles_key,
+          local.context_venue_reference_key,
         ] :
         !strcontains(lower(prefix), "holdout") && !strcontains(prefix, "2025")
       ])

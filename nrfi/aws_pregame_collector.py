@@ -347,6 +347,7 @@ def lambda_handler(event: Any, context: Any) -> dict[str, Any]:
         )
         terminal_key = os.environ.get("NRFI_TERMINAL_BATTER_PROFILES_KEY", "") or None
         team_key = os.environ.get("NRFI_TEAM_TERMINAL_PROFILES_KEY", "") or None
+        context_key = os.environ.get("NRFI_CONTEXT_PARK_PROFILES_KEY", "") or None
         summary["assembly"] = forward_admission.run_assembly(
             s3_client,
             bucket,
@@ -355,6 +356,7 @@ def lambda_handler(event: Any, context: Any) -> dict[str, Any]:
             profiles_key=profiles_key,
             terminal_profiles_key=terminal_key,
             team_profiles_key=team_key,
+            context_profiles_key=context_key,
             freshness_limit_seconds=freshness_limit,
         )
     print(json.dumps(summary, sort_keys=True, separators=(",", ":")))

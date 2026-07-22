@@ -214,6 +214,8 @@ def _game_assembly_response(game_pk: int, requested_date: str | None) -> dict[st
             "batter_profile_identity": package.get("batter_profile_identity"),
             "team_profiles_status": package.get("team_profiles_status"),
             "team_profile_identity": package.get("team_profile_identity"),
+            "context_profiles_status": package.get("context_profiles_status"),
+            "context_profile_identity": package.get("context_profile_identity"),
             "official_date": official_date,
         }
         game = next(

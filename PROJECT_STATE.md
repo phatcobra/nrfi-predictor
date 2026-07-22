@@ -2038,3 +2038,55 @@ clean (ruff, format 95 files, pyright 0). NEXT (18d/18e): fail-closed context
 loader + publisher, wire park_context_eligible + schedule_travel + workload
 stages into shared assembly. weather/umpire/unified/model/market/wager stay
 false; outputs remain PREDICTIVE SKILL NOT ESTABLISHED / NO QUALIFIED WAGER.
+
+
+## Checkpoint (l) - Context Foundation V1: loader, publisher, assembly wiring (18d/18e)
+
+Correction to checkpoint (k) prose: the authoritative final canonical identities
+are features_identity 6b3fafac (not 8e2d1760) and side_schedule_identity
+5654333a (not 1659b775); terminal 3dacfdb5, projection sha a536de6a, venue
+reference sha d7b9c606 unchanged. The committed evidence files always carried
+the correct values; only the (k) narrative quoted an intermediate build.
+
+Fail-closed loader `nrfi/context_profile_loader.py`: verifies the terminal park
+projection (schema/identity 3dacfdb5/sha a536de6a/44 venues, duplicate-venue
+rejection) and the venue reference (schema/sha d7b9c606); explicit
+CONTEXT_PROFILES_LOADED / *_ARTIFACT_INVALID / *_IDENTITY_MISMATCH /
+*_SCHEMA_INVALID / *_LOAD_FAILED statuses. Publisher
+`nrfi/aws_publish_context_features.py`: reproduces from committed source, gates
+on all five identities + venue/park-eligible/snapshot counts + zero-2025 +
+producing-commit + required evidence, publishes terminal projection + venue
+reference + evidence to the SSE-KMS lake under
+features/context-foundation-2015-2024-v1/. Published live (commit 50e0168,
+[publish-context], all four workflows green - artifact now in S3).
+
+Lambda-safety refactor: `nrfi/context_features.py` now imports
+canonical_json_bytes from the lightweight nrfi.pregame_snapshot (byte-identical
+to the previous source - verified, all identities preserved) and defines
+_identity/_ratio/_write_json/_write_jsonl locally, so it no longer pulls pandas
+or pitcher_statcast. Confirmed pandas/pitcher_statcast absent from its import
+graph; publisher verify-only still returns verified=true.
+
+Assembly wiring (`nrfi/forward_admission.py`): park_context_eligible,
+schedule_travel_eligible, and a NEW explicit workload_eligible stage promoted
+into IMPLEMENTED_FEATURE_STAGES; weather/umpire remain the only UNIMPLEMENTED
+stages so unified_feature_set_eligible stays false. park_context is venue-level
+(venue reference + terminal park factor, live-eligible, deterministic);
+schedule_travel and workload are per-side stages computed by the shared
+context functions from live schedule/start windows and FAIL-CLOSED to false
+(SCHEDULE_WINDOW_UNAVAILABLE / WORKLOAD_WINDOW_UNAVAILABLE) until the live
+current-season schedule feed is wired. run_assembly loads park + venue
+reference from S3 (schema forward_assembly_run.v4), threads them through
+assemble_games, and reports park_context/schedule_travel/workload eligible-game
+counts + context_profiles_status/identity in the package. Collector passes
+NRFI_CONTEXT_PARK_PROFILES_KEY; API surfaces context_profiles_status/identity.
+Terraform bundles context_features + context_profile_loader into BOTH Lambda
+archives, adds the env key + GetObject grant + holdout precondition.
+
+Tests: `tests/test_context_profile_loader.py` (10), `tests/test_aws_publish_context_features.py`
+(5), `tests/test_forward_admission_context.py` (9); updated the pinned
+eligibility dict and the collector fake stub. Full suite 310 passed / 1 skipped;
+ruff + format (100 files) + pyright all clean. Gates unchanged: outputs remain
+PREDICTIVE SKILL NOT ESTABLISHED / NO QUALIFIED WAGER. NEXT: deploy (apply) +
+live-verify park_context populates, then freeze NRFI_CORE_V1 + 2022-2024
+evaluation.

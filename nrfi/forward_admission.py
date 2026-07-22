@@ -11,6 +11,16 @@ from nrfi.batter_eligibility import evaluate_side_eligibility
 from nrfi.batter_profile_loader import (
     STATUS_LOADED as BATTER_PROFILES_LOADED,
 )
+from nrfi.context_features import (
+    compute_schedule_travel_features,
+    compute_starter_workload,
+)
+from nrfi.context_profile_loader import (
+    PARK_TERMINAL_KEY,
+    STATUS_LOADED as CONTEXT_PROFILES_LOADED,
+    load_venue_reference_text,
+    read_park_profiles_from_s3,
+)
 from nrfi.batter_profile_loader import (
     TERMINAL_PROFILE_KEY,
     read_terminal_profiles_from_s3,
@@ -38,6 +48,7 @@ FORWARD_KEY_PREFIX = "signals/pregame/official-statsapi/forward"
 ASSEMBLY_KEY_PREFIX = "signals/pregame/assembly"
 CAPTURE_SCHEMA_VERSION = "forward_probable_starter_capture.v1"
 ASSEMBLY_SCHEMA_VERSION = "pregame_game_assembly.v3"
+VENUE_REFERENCE_KEY = "features/context-foundation-2015-2024-v1/venue_reference.json"
 
 # Ordered eligibility stages a game must clear before it can carry a
 # probability, a market comparison, or a wager decision.  The probable-starter,
@@ -51,18 +62,24 @@ IMPLEMENTED_FEATURE_STAGES = (
     "lineup_feature_eligible",
     "batter_feature_eligible",
     "team_context_eligible",
+    "park_context_eligible",
+    "schedule_travel_eligible",
+    "workload_eligible",
 )
 UNIMPLEMENTED_FEATURE_STAGES = (
-    "park_context_eligible",
     "weather_context_eligible",
     "umpire_context_eligible",
-    "schedule_travel_eligible",
 )
 
 TEAM_MINIMUM_PRIOR_GAMES = 20
 TEAM_IDENTITY_MISSING = "TEAM_IDENTITY_MISSING"
 TEAM_PROFILE_MISSING = "TEAM_PROFILE_MISSING"
 TEAM_HISTORY_INSUFFICIENT = "TEAM_HISTORY_INSUFFICIENT"
+PARK_VENUE_UNKNOWN = "PARK_VENUE_UNKNOWN"
+PARK_PROFILE_MISSING = "PARK_PROFILE_MISSING"
+PARK_HISTORY_INSUFFICIENT = "PARK_HISTORY_INSUFFICIENT"
+SCHEDULE_WINDOW_UNAVAILABLE = "SCHEDULE_WINDOW_UNAVAILABLE"
+WORKLOAD_WINDOW_UNAVAILABLE = "WORKLOAD_WINDOW_UNAVAILABLE"
 UNIMPLEMENTED_STAGE_REASON = "FEATURE_DOMAIN_NOT_YET_IMPLEMENTED"
 PACKAGE_SCHEMA_VERSION = "pregame_assembly_package.v1"
 PROFILE_TABLE_SCHEMA = "pitcher-statcast-strict-prior-v1"
@@ -486,6 +503,138 @@ def _team_side(
     }
 
 
+def _park_context(
+    venue_id: int | None,
+    park_profiles: Mapping[int, Mapping[str, Any]],
+    park_profiles_status: str | None,
+    venue_reference: Mapping[int, Mapping[str, Any]],
+) -> dict[str, Any]:
+    """Evaluate the venue-level park-context stage for one game."""
+    reasons: list[str] = []
+    if venue_id is None or int(venue_id) not in venue_reference:
+        reasons.append(PARK_VENUE_UNKNOWN)
+        return {
+            "park_context_eligible": False,
+            "venue_known": False,
+            "park_profile_present": False,
+            "park_factor": None,
+            "park_first_inning_runs_per_game": None,
+            "altitude_ft": None,
+            "park_context_reasons": reasons,
+        }
+    vid = int(venue_id)
+    ref = venue_reference[vid]
+    profile = park_profiles.get(vid)
+    if profile is None:
+        if park_profiles_status is not None and (
+            park_profiles_status != CONTEXT_PROFILES_LOADED
+        ):
+            reasons.append(park_profiles_status)
+        else:
+            reasons.append(PARK_PROFILE_MISSING)
+        return {
+            "park_context_eligible": False,
+            "venue_known": True,
+            "park_profile_present": False,
+            "park_factor": None,
+            "park_first_inning_runs_per_game": None,
+            "altitude_ft": ref.get("altitude_ft"),
+            "park_context_reasons": reasons,
+        }
+    eligible = bool(profile.get("park_context_feature_eligible"))
+    if not eligible:
+        reasons.append(PARK_HISTORY_INSUFFICIENT)
+    return {
+        "park_context_eligible": eligible,
+        "venue_known": True,
+        "park_profile_present": True,
+        "park_factor": profile.get("park_factor"),
+        "park_first_inning_runs_per_game": profile.get("first_inning_runs_per_game"),
+        "altitude_ft": ref.get("altitude_ft"),
+        "park_context_reasons": reasons,
+    }
+
+
+def _schedule_travel_game(
+    game_pk: int,
+    schedule_windows: Mapping[tuple[int, str], Mapping[str, Any]] | None,
+    venue_reference: Mapping[int, Mapping[str, Any]],
+) -> dict[str, Any]:
+    """Evaluate the schedule/travel stage from live per-side schedule windows.
+
+    Fail-closed when no live current-season schedule window is supplied (the
+    shared training/replay path feeds committed history instead).
+    """
+    if not schedule_windows:
+        return {
+            "schedule_travel_eligible": False,
+            "schedule_travel_reasons": [SCHEDULE_WINDOW_UNAVAILABLE],
+            "schedule_travel_sides": {},
+        }
+    sides: dict[str, Any] = {}
+    reasons: list[str] = []
+    eligible_sides = 0
+    for side in ("away", "home"):
+        window = schedule_windows.get((game_pk, side))
+        if not window:
+            reasons.append(f"{side}:{SCHEDULE_WINDOW_UNAVAILABLE}")
+            continue
+        features = compute_schedule_travel_features(
+            list(window.get("prior_side_games", [])),
+            window["target"],
+            venue_reference,
+        )
+        side_eligible = bool(
+            features.get("has_prior_game")
+            and features.get("venue_known")
+            and features.get("travel_miles") is not None
+        )
+        if side_eligible:
+            eligible_sides += 1
+        sides[side] = {"eligible": side_eligible, "features": features}
+    return {
+        "schedule_travel_eligible": eligible_sides == 2,
+        "schedule_travel_reasons": reasons,
+        "schedule_travel_sides": sides,
+    }
+
+
+def _workload_game(
+    game_pk: int,
+    workload_windows: Mapping[tuple[int, str], Mapping[str, Any]] | None,
+) -> dict[str, Any]:
+    """Evaluate the starter workload/rest stage from live per-side windows.
+
+    Fail-closed when no live current-season start window is supplied.
+    """
+    if not workload_windows:
+        return {
+            "workload_eligible": False,
+            "workload_reasons": [WORKLOAD_WINDOW_UNAVAILABLE],
+            "workload_sides": {},
+        }
+    sides: dict[str, Any] = {}
+    reasons: list[str] = []
+    eligible_sides = 0
+    for side in ("away", "home"):
+        window = workload_windows.get((game_pk, side))
+        if not window:
+            reasons.append(f"{side}:{WORKLOAD_WINDOW_UNAVAILABLE}")
+            continue
+        workload = compute_starter_workload(
+            list(window.get("prior_starts", [])), window["target"]
+        )
+        side_eligible = bool(workload.get("workload_feature_eligible"))
+        if side_eligible:
+            eligible_sides += 1
+        sides[side] = {"eligible": side_eligible, "workload": workload}
+    return {
+        "workload_eligible": eligible_sides == 2,
+        "workload_reasons": reasons,
+        "workload_sides": sides,
+    }
+
+
 def assemble_games(
     selections: Mapping[tuple[int, str], dict[str, Any]],
     profiles: Mapping[int, list[dict[str, Any]]],
@@ -498,10 +647,17 @@ def assemble_games(
     team_profiles: Mapping[int, Mapping[str, Any]] | None = None,
     team_profiles_status: str | None = None,
     team_ids: Mapping[tuple[int, str], int] | None = None,
+    park_profiles: Mapping[int, Mapping[str, Any]] | None = None,
+    park_profiles_status: str | None = None,
+    venue_reference: Mapping[int, Mapping[str, Any]] | None = None,
+    schedule_windows: Mapping[tuple[int, str], Mapping[str, Any]] | None = None,
+    workload_windows: Mapping[tuple[int, str], Mapping[str, Any]] | None = None,
 ) -> list[dict[str, Any]]:
     """Produce one fail-closed assembly result per game."""
     terminal_profiles = terminal_profiles or {}
     team_profiles = team_profiles or {}
+    park_profiles = park_profiles or {}
+    venue_reference = venue_reference or {}
     selected_rows = [
         dict(selection["selected"]["row"])
         for selection in selections.values()
@@ -619,6 +775,11 @@ def assemble_games(
                 as_of=as_of,
                 freshness_limit_seconds=freshness_limit_seconds,
                 selections=selections,
+                park_profiles=park_profiles,
+                park_profiles_status=park_profiles_status,
+                venue_reference=venue_reference,
+                schedule_windows=schedule_windows,
+                workload_windows=workload_windows,
             )
         )
     return assemblies
@@ -633,6 +794,11 @@ def _finalize_assembly(
     as_of: datetime,
     freshness_limit_seconds: int,
     selections: Mapping[tuple[int, str], Mapping[str, Any]],
+    park_profiles: Mapping[int, Mapping[str, Any]] | None = None,
+    park_profiles_status: str | None = None,
+    venue_reference: Mapping[int, Mapping[str, Any]] | None = None,
+    schedule_windows: Mapping[tuple[int, str], Mapping[str, Any]] | None = None,
+    workload_windows: Mapping[tuple[int, str], Mapping[str, Any]] | None = None,
 ) -> dict[str, Any]:
     snapshot_eligible = all(
         sides.get(side, {}).get("selection_status") == "SELECTED"
@@ -670,12 +836,24 @@ def _finalize_assembly(
         sides.get(side, {}).get("team_context_eligible") is True
         for side in ("away", "home")
     )
+    venue_id = meta_row.get("venue_id") if meta_row is not None else None
+    park = _park_context(
+        venue_id, park_profiles or {}, park_profiles_status, venue_reference or {}
+    )
+    schedule = _schedule_travel_game(game_pk, schedule_windows, venue_reference or {})
+    workload = _workload_game(game_pk, workload_windows)
+    reasons.extend(f"game:park:{reason}" for reason in park["park_context_reasons"])
+    reasons.extend(f"game:{reason}" for reason in schedule["schedule_travel_reasons"])
+    reasons.extend(f"game:{reason}" for reason in workload["workload_reasons"])
     eligibility = {
         "probable_starter_eligible": probable_starter_eligible,
         "pitcher_profile_eligible": pitcher_profile_eligible,
         "lineup_feature_eligible": lineup_feature_eligible,
         "batter_feature_eligible": batter_feature_eligible,
         "team_context_eligible": team_context_eligible,
+        "park_context_eligible": park["park_context_eligible"],
+        "schedule_travel_eligible": schedule["schedule_travel_eligible"],
+        "workload_eligible": workload["workload_eligible"],
     }
     for stage in UNIMPLEMENTED_FEATURE_STAGES:
         eligibility[stage] = False
@@ -711,6 +889,23 @@ def _finalize_assembly(
         "prediction_cutoff": cutoff_text,
         "venue_id": meta_row.get("venue_id") if meta_row is not None else None,
         "venue_name": meta_row.get("venue_name") if meta_row is not None else None,
+        "park_context": {
+            "park_context_eligible": park["park_context_eligible"],
+            "venue_known": park["venue_known"],
+            "park_profile_present": park["park_profile_present"],
+            "park_factor": park["park_factor"],
+            "park_first_inning_runs_per_game": park["park_first_inning_runs_per_game"],
+            "altitude_ft": park["altitude_ft"],
+            "reasons": park["park_context_reasons"],
+        },
+        "schedule_travel": {
+            "eligible": schedule["schedule_travel_eligible"],
+            "reasons": schedule["schedule_travel_reasons"],
+        },
+        "workload": {
+            "eligible": workload["workload_eligible"],
+            "reasons": workload["workload_reasons"],
+        },
         "as_of": _utc_text(as_of),
         "sides": sides,
         "freshness_seconds": freshness,
@@ -742,6 +937,9 @@ def build_assembly_package(
     team_profiles_status: str | None = None,
     team_profile_identity: str | None = None,
     team_profile_version_id: str | None = None,
+    context_profiles_status: str | None = None,
+    context_profile_identity: str | None = None,
+    context_profile_version_id: str | None = None,
 ) -> dict[str, Any]:
     """Bundle admissions and assemblies into one auditable package document."""
     capture_admissions = [
@@ -769,6 +967,9 @@ def build_assembly_package(
         "team_profiles_status": team_profiles_status,
         "team_profile_identity": team_profile_identity,
         "team_profile_version_id": team_profile_version_id,
+        "context_profiles_status": context_profiles_status,
+        "context_profile_identity": context_profile_identity,
+        "context_profile_version_id": context_profile_version_id,
         "capture_admissions": capture_admissions,
         "admitted_captures": sum(
             1 for item in capture_admissions if item["status"] == "ADMITTED"
@@ -793,6 +994,19 @@ def build_assembly_package(
             1
             for assembly in assemblies
             if assembly["eligibility"]["team_context_eligible"]
+        ),
+        "park_context_eligible_games": sum(
+            1
+            for assembly in assemblies
+            if assembly["eligibility"]["park_context_eligible"]
+        ),
+        "schedule_travel_eligible_games": sum(
+            1
+            for assembly in assemblies
+            if assembly["eligibility"]["schedule_travel_eligible"]
+        ),
+        "workload_eligible_games": sum(
+            1 for assembly in assemblies if assembly["eligibility"]["workload_eligible"]
         ),
         "unified_feature_set_eligible_games": sum(
             1
@@ -855,6 +1069,21 @@ def store_assembly_package(
     }
 
 
+def read_venue_reference_from_s3(
+    s3_client: Any, bucket: str, key: str = VENUE_REFERENCE_KEY
+) -> dict[int, dict[str, Any]]:
+    """Read + verify the published venue reference; empty dict fails closed."""
+    try:
+        response = s3_client.get_object(Bucket=bucket, Key=key)
+        raw = response["Body"].read().decode("utf-8")
+    except Exception:  # noqa: BLE001 - explicit fail-closed empty reference
+        return {}
+    result = load_venue_reference_text(raw)
+    if result["load_status"] != CONTEXT_PROFILES_LOADED:
+        return {}
+    return {int(vid): dict(row) for vid, row in result["venues"].items()}
+
+
 def run_assembly(
     s3_client: Any,
     bucket: str,
@@ -864,6 +1093,7 @@ def run_assembly(
     profiles_key: str,
     terminal_profiles_key: str | None = None,
     team_profiles_key: str | None = None,
+    context_profiles_key: str | None = None,
     now: Callable[[], datetime] | None = None,
     freshness_limit_seconds: int = DEFAULT_FRESHNESS_LIMIT_SECONDS,
 ) -> dict[str, Any]:
@@ -884,6 +1114,12 @@ def run_assembly(
         team_load = read_team_profiles_from_s3(s3_client, bucket)
     team_profiles_status = team_load["load_status"]
     team_profiles = team_load["profiles"]
+    park_load = read_park_profiles_from_s3(
+        s3_client, bucket, context_profiles_key or PARK_TERMINAL_KEY
+    )
+    context_profiles_status = park_load["load_status"]
+    park_profiles = park_load["park_profiles"]
+    venue_reference = read_venue_reference_from_s3(s3_client, bucket)
     results: list[dict[str, Any]] = []
     for official_date in official_dates:
         if str(official_date).startswith(str(LOCKED_HOLDOUT_SEASON)):
@@ -924,6 +1160,9 @@ def run_assembly(
             team_profiles=team_profiles,
             team_profiles_status=team_profiles_status,
             team_ids=team_ids,
+            park_profiles=park_profiles,
+            park_profiles_status=context_profiles_status,
+            venue_reference=venue_reference,
         )
         package = build_assembly_package(
             str(official_date),
@@ -937,6 +1176,9 @@ def run_assembly(
             team_profiles_status=team_profiles_status,
             team_profile_identity=team_load.get("profile_identity"),
             team_profile_version_id=team_load.get("version_id"),
+            context_profiles_status=context_profiles_status,
+            context_profile_identity=park_load.get("profile_identity"),
+            context_profile_version_id=park_load.get("version_id"),
         )
         stored = store_assembly_package(s3_client, bucket, kms_key_arn, package)
         results.append(
@@ -956,6 +1198,11 @@ def run_assembly(
                     "batter_feature_eligible_games"
                 ],
                 "team_context_eligible_games": package["team_context_eligible_games"],
+                "park_context_eligible_games": package["park_context_eligible_games"],
+                "schedule_travel_eligible_games": package[
+                    "schedule_travel_eligible_games"
+                ],
+                "workload_eligible_games": package["workload_eligible_games"],
                 "unified_feature_set_eligible_games": package[
                     "unified_feature_set_eligible_games"
                 ],
@@ -964,16 +1211,20 @@ def run_assembly(
                 "batter_profile_identity": batter_load.get("profile_identity"),
                 "team_profiles_status": team_profiles_status,
                 "team_profile_identity": team_load.get("profile_identity"),
+                "context_profiles_status": context_profiles_status,
+                "context_profile_identity": park_load.get("profile_identity"),
                 "stored": stored,
             }
         )
     return {
-        "schema_version": "forward_assembly_run.v3",
+        "schema_version": "forward_assembly_run.v4",
         "profiles_key": profiles_key,
         "terminal_profiles_key": terminal_profiles_key or TERMINAL_PROFILE_KEY,
         "team_profiles_key": team_profiles_key or TEAM_TERMINAL_KEY,
+        "context_profiles_key": context_profiles_key or PARK_TERMINAL_KEY,
         "batter_profiles_status": batter_profiles_status,
         "team_profiles_status": team_profiles_status,
+        "context_profiles_status": context_profiles_status,
         "results": results,
         "wager_decision": WAGER_DECISION,
     }
