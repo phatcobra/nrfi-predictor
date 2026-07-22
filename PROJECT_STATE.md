@@ -2129,3 +2129,53 @@ feature contract: pitcher + lineup/batter + team + park) and run the predeclared
 skill/market/wager gates closed until skill is demonstrably established. Also
 still pending: live schedule-window feed to populate schedule_travel/workload
 live; platoon-handedness refinement; AWS Batch productionization.
+
+
+## Checkpoint (n) - NRFI_CORE_V1 frozen + predeclared 2022/2023/2024 evaluation reproduced (task 19)
+
+Froze NRFI_CORE_V1: the immutable strict-prior feature contract
+(nrfi.build_features fv3.1 - pitcher/team/park/weather/lineup/schedule) plus the
+predeclared chronological walk-forward 2022/2023/2024 evaluation + calibration
+(nrfi.model_comparison): logistic (C=0.25) and deterministic LightGBM, raw and
+prior-completed-fold OOF sigmoid, vs overall + prior-season climatology, skill
+gate = per-fold positive paired improvement AND pooled official-date
+cluster-bootstrap 95% interval excluding zero, 7287 OOS predictions/variant.
+
+Reproduced model_comparison at head 5d00e7d (32 uncertainty + 2000 bootstrap
+replicates): evaluation.json and fold_evaluation.jsonl BYTE-IDENTICAL to the
+committed evaluation (evaluation identity 23428a3f), max logistic replay delta
+0.0, locked_holdout_used=False, market_data_used=False. predictions/grades/
+deterministic_manifest differ only by code_commit + grade_time provenance
+stamps (values identical). Result stands for all four variants:
+
+- logistic_raw            log_loss 0.693204 brier 0.250029 ece 0.015694
+- logistic_temporal_sigmoid 0.693847 / 0.250345 / 0.003856
+- lightgbm_raw            0.697654 / 0.252208 / 0.032467
+- lightgbm_temporal_sigmoid 0.695999 / 0.251390 / 0.014366
+
+Primary decision: PREDICTIVE SKILL NOT ESTABLISHED (raw logistic beats
+climatology by ~0.00007 log-loss, CI includes zero; LightGBM worse than
+climatology). Committed as immutable evidence docs/nrfi_core_v1/frozen_contract.json
+(sha 981fed70, binds fv3.1 contract + protocol + evaluation identity 23428a3f +
+original partition identities predictions 2518ceaf / grades 8acc412f / model
+artifacts fbcebb2f) + README.md; .gitattributes -text added for the dir.
+
+The freeze prohibits any predictive-edge/market/wager/promotion/production
+claim; unified_feature_set/model_probability/market/wager gates stay closed.
+The newly-built pitcher-Statcast, terminal batter, team first-inning, and
+Context Foundation V1 park/venue domains are declared CANDIDATE inputs for a
+future NRFI_CORE_V2 under the SAME frozen protocol - not part of V1, not
+changing its conclusion. Required outputs stand: PREDICTIVE SKILL NOT
+ESTABLISHED / NO QUALIFIED WAGER.
+
+Safe-stop state: git clean (about to push the freeze), no running python build,
+no active Batch job, Terraform apply complete, no temporary credential, no
+public endpoint, no 2025 access, no real wager. All resume-prompt tasks are now
+complete: (1) 2026-07-21 read-only per-side audit; (2) release governance
+gating apply on the full CI release gate; (3) Context Foundation V1 built /
+2x byte-identical / published / fail-closed loaders / assembly-integrated /
+deployed / live-verified (park_context 22 games, schedule_travel + workload
+fail-closed, unified 0); (4) NRFI_CORE_V1 frozen + predeclared 2022/2023/2024
+evaluation + calibration reproduced. Standing follow-ups remain: live
+schedule-window feed to populate schedule_travel/workload live; NRFI_CORE_V2
+feature integration; platoon-handedness refinement; AWS Batch productionization.
