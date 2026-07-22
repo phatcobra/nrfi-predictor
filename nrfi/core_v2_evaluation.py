@@ -22,6 +22,7 @@ from typing import Any
 
 import numpy as np
 
+from nrfi.deterministic_resampling import cluster_bootstrap_means
 from nrfi.pregame_snapshot import canonical_json_bytes
 
 EVAL_SCHEMA_VERSION = "nrfi_core_v2_evaluation.v1"
@@ -246,30 +247,6 @@ MODELS = {
 }
 
 
-def _cluster_bootstrap_means(
-    paired: np.ndarray, dates: np.ndarray, replicates: int, seed: int
-) -> np.ndarray:
-    """Official-date cluster-bootstrap distribution of the mean paired score.
-
-    Resamples whole official-date clusters (preserving within-day correlation)
-    using cluster sums / sizes so each replicate is an O(n_clusters) operation.
-    """
-    order = np.argsort(dates, kind="stable")
-    paired_s = paired[order]
-    dates_s = dates[order]
-    _, starts = np.unique(dates_s, return_index=True)
-    groups = np.split(paired_s, starts[1:])
-    sums = np.array([g.sum() for g in groups], dtype=float)
-    sizes = np.array([len(g) for g in groups], dtype=float)
-    rng = np.random.default_rng(seed)
-    n = len(groups)
-    means = np.empty(replicates, dtype=float)
-    for b in range(replicates):
-        idx = rng.integers(0, n, size=n)
-        means[b] = sums[idx].sum() / sizes[idx].sum()
-    return means
-
-
 def evaluate(
     matrix_rows: Sequence[dict[str, Any]],
     models: Sequence[str],
@@ -372,8 +349,8 @@ def evaluate(
     for variant, pool in variant_pool.items():
         paired = np.array(pool["paired"], dtype=float)
         pdate = np.array(pool["date"])
-        means = _cluster_bootstrap_means(
-            paired, pdate, BOOTSTRAP_REPLICATES, BOOTSTRAP_SEED
+        means = cluster_bootstrap_means(
+            paired, pdate, replicates=BOOTSTRAP_REPLICATES, seed=BOOTSTRAP_SEED
         )
         lo, hi = (float(x) for x in np.percentile(means, [lo_q, hi_q]))
         clo, chi = (float(x) for x in np.percentile(means, [clo_q, chi_q]))

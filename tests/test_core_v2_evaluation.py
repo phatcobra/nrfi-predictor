@@ -39,18 +39,6 @@ def test_log_loss_and_logit_roundtrip() -> None:
     assert np.allclose(1.0 / (1.0 + np.exp(-e._to_logit(p2))), p2)
 
 
-def test_cluster_bootstrap_is_deterministic_and_seed_sensitive() -> None:
-    rng = np.random.default_rng(0)
-    paired = rng.normal(0.001, 0.5, size=400)
-    dates = np.array([f"2024-04-{(i % 20) + 1:02d}" for i in range(400)])
-    a = e._cluster_bootstrap_means(paired, dates, 500, 20260722)
-    b = e._cluster_bootstrap_means(paired, dates, 500, 20260722)
-    c = e._cluster_bootstrap_means(paired, dates, 500, 1)
-    assert np.array_equal(a, b)  # same seed -> identical
-    assert not np.array_equal(a, c)  # different seed -> different
-    assert len(a) == 500
-
-
 def test_design_matrix_null_and_bool() -> None:
     rows = [
         {"features": {"x": 1, "y": None, "z": True}},
