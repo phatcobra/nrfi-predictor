@@ -136,17 +136,26 @@ jobs:
                   "lineup_feature_eligible_games",
                   "batter_feature_eligible_games",
                   "team_context_eligible_games",
+                  "context_profiles_status", "context_profile_identity",
+                  "park_context_eligible_games",
+                  "schedule_travel_eligible_games", "workload_eligible_games",
                   "unified_feature_set_eligible_games", "admitted_captures")}
               for r in results
           ]
           print("assembly_summary=", json.dumps(summary, sort_keys=True))
           print("batter_profiles_status=", assembly.get("batter_profiles_status"))
+          print("context_profiles_status=", assembly.get("context_profiles_status"))
           print("terminal_profiles_key=", assembly.get("terminal_profiles_key"))
+          print("context_profiles_key=", assembly.get("context_profiles_key"))
           total_unified = sum(
               x.get("unified_feature_set_eligible_games", 0) for x in results
           )
+          total_park = sum(
+              x.get("park_context_eligible_games", 0) for x in results
+          )
           assert total_unified == 0, "unified_feature_set_eligible must be zero"
           print("unified_feature_set_eligible_games_total=", total_unified)
+          print("park_context_eligible_games_total=", total_park)
           lineups = [
               {k: c.get(k) for k in (
                   "target_date", "row_count", "confirmed_lineups",
