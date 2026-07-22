@@ -1969,3 +1969,30 @@ Immutable evidence committed under `docs/assembly_audit_2026_07_21/`:
 manifest + selection rule), `README.md` (narrative). Gates unchanged:
 unified/model/market/wager all false; outputs remain `PREDICTIVE SKILL NOT
 ESTABLISHED` and `NO QUALIFIED WAGER`.
+
+
+## Checkpoint (j) - release governance: deploy SHA must pass the complete CI release gate
+
+Repaired the deploy governance gap. Previously `ci.yml`'s release gate ran only
+on `main`/`phase*`/PRs (never on the `feat/aws-probability-platform-20260717`
+deploy branch), and `terraform-deploy.yml` ran `terraform apply` after only
+fmt/validate/plan - so a `[tf-apply]` push could deploy a SHA the Python
+release gate had never validated.
+
+Fix (single source of truth, no drift):
+- New reusable `.github/workflows/release-gate.yml` (`on: workflow_call`)
+  contains the complete offline gate: `uv lock --check`, `uv sync --frozen`,
+  Ruff lint, Ruff format --check, Pyright, import smoke, `compileall`, full
+  `pytest tests/`, pytest diagnostics artifact.
+- `ci.yml` now simply `uses: ./.github/workflows/release-gate.yml` and also
+  triggers on the deploy branch, so every feature-branch push is gated.
+- `terraform-deploy.yml` gained a `release-gate` caller job, and the
+  `terraform` job (which contains plan AND the `[tf-apply]`-gated apply) now
+  declares `needs: [release-gate]`. Local `./` reusable workflows always run at
+  the caller's exact commit, so plan/apply cannot start unless that precise SHA
+  passed locked-env validation, Ruff, Pyright, imports, compile, and the full
+  pytest suite - then terraform fmt/validate/plan run inside the job before any
+  apply. The branch cannot deploy without the gate.
+
+All three workflow files validated as well-formed YAML. Gates/outputs
+unchanged: `PREDICTIVE SKILL NOT ESTABLISHED`, `NO QUALIFIED WAGER`.

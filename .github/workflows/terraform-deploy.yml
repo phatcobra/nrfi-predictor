@@ -26,7 +26,14 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # Governance: the exact SHA cannot reach terraform plan/apply unless the
+  # complete offline release gate (locked-env validation, Ruff lint+format,
+  # Pyright, import smoke, byte-compile, full pytest) passes first.
+  release-gate:
+    uses: ./.github/workflows/release-gate.yml
+
   terraform:
+    needs: [release-gate]
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
