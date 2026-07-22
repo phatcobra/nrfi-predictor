@@ -2179,3 +2179,62 @@ fail-closed, unified 0); (4) NRFI_CORE_V1 frozen + predeclared 2022/2023/2024
 evaluation + calibration reproduced. Standing follow-ups remain: live
 schedule-window feed to populate schedule_travel/workload live; NRFI_CORE_V2
 feature integration; platoon-handedness refinement; AWS Batch productionization.
+
+
+## Checkpoint (o) - NRFI_CORE_V2: contract frozen, canonical matrix, chronological evaluation (PREDICTIVE SKILL NOT ESTABLISHED)
+
+Reconciled real state first (git/GitHub/AWS): branch feat/aws-probability-platform-20260717
+clean at origin==local, CI green on head, deployed release SHA b1bea68 (last
+[tf-apply]); no AI Studio Node/React in history; draft PostHog PRs #7/#9 remain
+UNMERGED (prohibited); local AWS CLI has no credentials (AWS verified via CI only).
+
+NRFI_CORE_V2 executed as three atomic operations:
+1. FROZEN predeclared contract (docs/nrfi_core_v2/frozen_contract.json,
+   sha 5133dda9) BEFORE building the matrix or viewing results: strict-prior
+   pitcher+team+park+workload+schedule/travel domains, walk-forward
+   2022/2023/2024, climatology + V1 baselines, 13-cell ablation program,
+   logistic/spline-GAM/constrained-LightGBM candidates, prior-fold OOF sigmoid
+   calibration, promotion gate + calibration bands [-0.15,0.15]/[0.8,1.2].
+   Excludes prospective-only + market features (those belong to
+   NRFI_PROSPECTIVE_ENRICHED_V1). Not a rename of fv3.1.
+2. CANONICAL historical matrix (nrfi.core_v2_matrix): joined the NEW
+   strict-prior artifacts (pitcher-statcast-strict-prior-v1, team 5124bebb,
+   context 6b3fafac) per (game_pk,side) into 22761 game rows, 211 features,
+   19350 core-eligible, NRFI base rate 49.5%, no 2025. TWO byte-identical builds
+   (matrix identity 83003ad4). Evidence: matrix_coverage.json +
+   matrix_determinism_evidence.json.
+3. EVALUATION (nrfi.core_v2_evaluation) on the verified matrix: logistic +
+   constrained LightGBM, raw + prior-fold sigmoid, 13 ablations = 52 variants,
+   walk-forward folds (2429/2430/2429 test games), expanding-climatology
+   baseline, official-date cluster bootstrap (2000 reps). Reproduced
+   BYTE-IDENTICAL across two runs (evaluation.json sha 53510bc8).
+
+Result: PREDICTIVE SKILL NOT ESTABLISHED (any_variant_established_skill=false).
+The predeclared full-contract variants do not beat climatology out-of-sample
+(full_v2 logistic -0.00145; lightgbm +0.00070 with CI [-0.00096,+0.00232]
+including zero, not positive on every fold). The only variant with a raw 95% CI
+excluding zero is the cherry-picked best of 52 (pitcher_park:lightgbm,
++0.00182); under the predeclared family-wise Bonferroni correction its interval
+[-0.00039,+0.00430] INCLUDES zero and its calibration bands fail. LightGBM
+calibration slope collapses out-of-sample 0.90->0.52->0.11. Gate NOT weakened.
+Initial harness bug (declared skill on cherry-picked best under a raw CI) was
+caught and fixed to enforce family-wise correction + calibration bands before
+any decision. spline-GAM is predeclared and staged for the AWS Batch run;
+adding it only tightens the correction and cannot change the conclusion.
+
+Evidence committed under docs/nrfi_core_v2/: frozen_contract.json, README.md,
+matrix_coverage.json, matrix_determinism_evidence.json, evaluation.json,
+evaluation_summary.json, evaluation_determinism.json, EVALUATION.md. Tests:
+tests/test_core_v2_matrix.py (4) + tests/test_core_v2_evaluation.py (5). Full
+repo gate clean (ruff, format 104 files, pyright 0). 2025 never accessed;
+market_data_used=false. weather/umpire/unified/model/market/wager gates stay
+closed. Required outputs stand: PREDICTIVE SKILL NOT ESTABLISHED / NO QUALIFIED
+WAGER.
+
+Safe-stop: git clean (about to push), no running python build, no active Batch
+job, no temporary credential, no public endpoint, no 2025 access, no real wager.
+NEXT (parallel operational track): live schedule-window + starter-workload feeds
+to populate schedule_travel_eligible/workload_eligible live with historical-vs-
+live parity; AWS Batch productionization of the canonical matrix + evaluation
+(with local/CI/Batch equality) incl. the spline-GAM candidate; then only if a
+future contract passes the gate, model registry + shadow inference.
