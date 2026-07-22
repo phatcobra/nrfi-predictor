@@ -1996,3 +1996,45 @@ Fix (single source of truth, no drift):
 
 All three workflow files validated as well-formed YAML. Gates/outputs
 unchanged: `PREDICTIVE SKILL NOT ESTABLISHED`, `NO QUALIFIED WAGER`.
+
+
+## Checkpoint (k) - Context Foundation V1: shared deterministic feature package (18b/18c)
+
+New `nrfi/context_features.py` - ONE deterministic, leakage-free implementation
+of pregame context features reused identically by training/replay/Batch/
+collector/API. Sources only committed 2015-2024 multiseason schedule/outcomes
+plus a committed effective-dated venue reference. Locked 2025 never read; no
+current/future games. Seven dimensions: effective-dated park/venue context;
+strictly-prior rolling first-inning park factors (per venue vs league);
+starter workload + rest; doubleheaders + schedule congestion (3d/7d); travel
+great-circle miles + time-zone movement; day/night + night->day turnaround;
+road-trip / home-stand position.
+
+Determinism guarantees: standard-time UTC offsets only (no DST / external
+tzdata), official-day schedule ordering (a west-coast night game whose UTC
+start rolls past midnight never sorts out of calendar order), canonical-JSON
+identities. Starter workload computed in one global chronological pass so a
+traded starter's rest counts strictly-earlier starts for any club.
+
+Two byte-identical real-data builds over the full 22,761-game history
+(45,522 side snapshots, 44 venues, 33 park-eligible >=30 prior games,
+seasons 2015-2024, no 2025):
+- context_features.jsonl sha256 0d5bb139...  (56.5 MB)
+- context_side_schedule.jsonl sha256 b0e94338...  (16 MB)
+- park_terminal_factors.jsonl sha256 a536de6a...  (terminal projection, 21 KB)
+- context_coverage.json sha256 5bcf08eb...
+Identities: features 8e2d1760, terminal 3dacfdb5, side_schedule 1659b775,
+venue_reference d7b9c606. Park factors sane: Coors 1.257 / Globe Life 1.271
+top, Oakland 0.822 / Tropicana 0.863 bottom, league 1.082 fi runs/game. All
+rest_days and starter_rest_days non-negative (verified 0 negatives / 45,522).
+
+Committed under `docs/context_foundation_v1/`: venue_reference.json (44 venues,
+lat/lon/altitude/standard-offset), park_terminal_factors.jsonl,
+context_coverage.json, context_determinism_evidence.json, context_schema.json.
+Tests: `tests/test_context_features.py` (10, all green) - geometry, strict-prior
+park threshold/value, travel/rest/tz, road-trip streak, doubleheader zero-rest,
+starter workload, determinism + non-negative rest, 2025 refusal. Repo gate
+clean (ruff, format 95 files, pyright 0). NEXT (18d/18e): fail-closed context
+loader + publisher, wire park_context_eligible + schedule_travel + workload
+stages into shared assembly. weather/umpire/unified/model/market/wager stay
+false; outputs remain PREDICTIVE SKILL NOT ESTABLISHED / NO QUALIFIED WAGER.
