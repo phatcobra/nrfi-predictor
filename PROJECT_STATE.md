@@ -2238,3 +2238,81 @@ to populate schedule_travel_eligible/workload_eligible live with historical-vs-
 live parity; AWS Batch productionization of the canonical matrix + evaluation
 (with local/CI/Batch equality) incl. the spline-GAM candidate; then only if a
 future contract passes the gate, model registry + shadow inference.
+
+
+## Checkpoint (p) - V2 CI failure fixed + V2.1 admissibility repair (contract, discrepancies, starter audit)
+
+Reconciled the reported failure: GitHub Actions run 29964982728 failed the
+complete pytest gate because tests/test_no_fabricated_defaults.py greps
+`np\.random\.` across nrfi/ and core_v2_evaluation.py:264 used
+np.random.default_rng for the cluster bootstrap. Fixed WITHOUT evasion:
+
+- NEW nrfi/deterministic_resampling.py - the single audited np.random site:
+  mandatory explicit integer seed (SeedRequiredError on missing/invalid, no
+  unseeded path), deterministic official-date cluster bootstrap, byte-identical
+  replay tests. Never used for feature fabrication / missing-value defaults /
+  synthetic data.
+- tests/test_no_fabricated_defaults.py: narrow ALLOWLIST exempting ONLY
+  deterministic_resampling.py for ONLY the np.random. pattern, plus
+  test_allowlist_is_narrow guarding the exemption stays limited. Every other
+  file + pattern still enforced.
+- core_v2_evaluation.py routes the bootstrap through the audited module (no
+  direct np.random). Full suite 324 passed; commit b8fc26a; CI push +
+  pull_request + terraform-deploy ALL GREEN on b8fc26a.
+
+Recorded that NRFI_CORE_V2 is PROVISIONAL (implementation did not fully match
+its frozen contract). All V2 artifacts preserved unchanged. Committed:
+- docs/nrfi_core_v2_1/discrepancies.json (8 discrepancies: only logistic+lightgbm
+  ran not spline-GAM; only sigmoid not isotonic/beta; only expanding baseline;
+  Bonferroni post-hoc for V2; all-rows not core-eligible primary; calibrator
+  trained on already-calibrated OOF pool; postgame starter attribution; fixed
+  standard offsets without DST). sha 0b853638.
+- docs/nrfi_core_v2_1/frozen_contract.json (NRFI_CORE_V2_1, predeclared BEFORE
+  new results, sha 215984be): logistic/spline-GAM/LightGBM x raw/sigmoid/
+  isotonic/beta x 13 ablations vs pooled/expanding/prior-season/V1 baselines;
+  primary core_model_feature_eligible row policy + secondary all-row; calibrators
+  fit ONLY on immutable prior-fold RAW OOF; PREDECLARED Bonferroni multiplicity;
+  audited seeded cluster bootstrap; calibration bands; effective-dated IANA
+  tzdata==2026.3; starter-identity admissibility rule. Commit 870e2b3.
+- docs/nrfi_core_v2_1/starter_identity_audit.json (sha 77272aa8): CONCLUSIVE -
+  committed 2015-2024 data has NO pre-cutoff probable-starter field; all 22761
+  games only carry postgame actual_starters (pregame_feature_eligible=false);
+  all 45522 pitcher rows POSTGAME_ACTUAL_STARTER_ATTRIBUTION. cutoff-known
+  probable-starter census: available_and_matches=0, differs=0, unavailable=22761,
+  revised=0. => historical pitcher domain is 100% postgame-attributed; training-
+  serving parity CANNOT be established from committed data; per the V2.1
+  admissibility rule no pitcher-inclusive skill claim is admissible. Reinforces
+  PREDICTIVE SKILL NOT ESTABLISHED.
+
+STILL PENDING for the full V2.1 re-run (clearly scoped, next session):
+1. IANA timezone repair of nrfi/context_features (day_night/tz_shift via
+   zoneinfo, effective-dated DST). Determinism design: force tzdata-only inside
+   the OFFLINE build/reproduce entrypoints (zoneinfo.reset_tzpath(to=()) there,
+   NOT at module import) so local/CI/Batch match on the pinned tzdata==2026.3,
+   while the deployed Lambda (which does not bundle tzdata; schedule_travel is
+   fail-closed) is untouched. Pin tzdata in pyproject + uv lock. Rebuild context
+   (new features identity; terminal park projection 3dacfdb5 + venue reference
+   d7b9c606 are tz-INDEPENDENT and unchanged, so the deployed live park stage is
+   unaffected). Two byte-identical builds.
+2. V2.1 evaluation harness: fix the calibration leak (retain immutable prior-fold
+   RAW OOF pool; fit sigmoid/isotonic/beta only on RAW prior-fold preds/labels/
+   dates); add isotonic + beta; add pooled/prior-season/V1 baselines; add
+   spline-GAM candidate; primary core-eligible-row policy + secondary all-row
+   (report coverage + rejections for both); apply the predeclared V2.1
+   Bonferroni. Rebuild V2.1 matrix on the tz-repaired context. Two byte-identical
+   evaluations + full local gate + CI.
+3. Attach the starter-identity inadmissibility flag to every pitcher-inclusive
+   variant in the V2.1 result.
+4. AWS Batch execution of the exact matrix + evaluation; prove local/CI/Batch
+   equality. (GitHub Actions is not AWS Batch.)
+
+Expected V2.1 conclusion is unchanged and already firm: PREDICTIVE SKILL NOT
+ESTABLISHED (V2 full-contract already failed out-of-sample with calibration
+collapse; the starter audit makes pitcher-inclusive claims inadmissible; adding
+candidates only tightens the multiplicity correction).
+
+Safe-stop: git clean at origin==local (about to push starter audit +
+checkpoint), CI green on b8fc26a, no running python build, no active Batch job,
+no temporary credential, no public endpoint, no 2025 access, no wager.
+model_probability_eligible/market_eligible/wager_eligible stay false. Required
+outputs stand: PREDICTIVE SKILL NOT ESTABLISHED / NO QUALIFIED WAGER.
