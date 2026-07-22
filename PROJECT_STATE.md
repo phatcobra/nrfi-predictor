@@ -1913,3 +1913,59 @@ Safe-stop state: git clean at `6a56260` (pushed), no running python build, no
 active Batch job, Terraform apply complete (0 destroyed), no temporary
 credential, no public endpoint, no 2025 access, no real wager. Required outputs
 remain `PREDICTIVE SKILL NOT ESTABLISHED` and `NO QUALIFIED WAGER`.
+
+
+## Checkpoint (i) - read-only per-side assembly audit (2026-07-21), no collector invocation
+
+Built `nrfi/assembly_audit.py` (pure read-only auditor: downloads already-
+published S3 objects only; never invokes the live collector) plus
+`tests/test_assembly_audit.py` (5 tests, all green) and a `[audit-assembly]`
+CI step in `publish-profiles.yml` that lists+downloads every published
+`signals/pregame/assembly/2026-07-21/` package, records an immutability
+manifest (key/version_id/sha256/generated_at/batter_eligible per package),
+then runs the auditor over the downloaded set. `audited_no_collector_invocation=true`.
+
+Audited package (selected = max batter_eligible, tie -> latest generated_at):
+- key `signals/pregame/assembly/2026-07-21/assembly-20260721T233849Z.json`
+- S3 version_id `aSZ.sbY601kAgCsaLTUgFYmklbiUALzk`
+- object sha256 `9829a1a7886eed3072f06d351ddb15389497094a4cab1077086fe5b0cfe2cec3`
+- canonical content id `7817d8ffe9f21a33f21f945fc6b584199c5f4148d7999e223adc624117c8381e`
+- generated_at 2026-07-21T23:38:49Z; 18 packages published total.
+
+Game-level (15 games): games_before_cutoff=9, snapshot_fresh=14,
+probable_starter_eligible=9, pitcher_profile_eligible=0,
+lineup_feature_eligible=14, batter_feature_eligible=3, team_context_eligible=15,
+unified=0.
+
+Side-level (30 sides): pitcher SELECTED=30; pitcher_feature READY=8,
+BLOCKED_NO_INVENTORIED_PROFILE=11, BLOCKED_PREGAME_SNAPSHOT=10,
+BLOCKED_INSUFFICIENT_PROFILE_HISTORY=1. lineup CONFIRMED=28, NOT_AVAILABLE=2.
+team_side_eligible True=30 (no team rejections).
+
+pitcher_profile_eligible=0 explained: no game had BOTH sides simultaneously
+pregame/pre-cutoff AND both starters carrying a qualifying strict-prior
+2015-2024 Statcast profile. 8 of 30 sides READY; 10 blocked because the game
+left pregame status (6/15 games past cutoff at 23:38Z), 11 blocked
+NO_STRICT_PRIOR_STATCAST_PROFILE (post-2024 debutants / no qualifying starts),
+1 blocked minimum prior starts. snapshot_stale_games=0. Honest data-coverage
+outcome, not a pipeline fault.
+
+BATTER split RESOLVED (side-level, authoritative from the immutable package;
+supersedes the earlier step-count approximation): of 28 lineup-eligible sides
+-> 14 batter-eligible, 13 BATTER_PROFILE_MISSING (>=1 top-of-order batter has
+no terminal profile, missing_profile_count>0), 1 BATTER_HISTORY_INSUFFICIENT
+(all four have profiles but >=1 below the career-PA minimum,
+missing_profile_count=0). Reconciles: 14+13+1=28 lineup-eligible; the other 2
+of 30 sides are LINEUP_NOT_AVAILABLE; false batter sides 13+1+2=16.
+
+3 batter-eligible GAMES all fully_verified=true (both sides CONFIRMED,
+confirmed_pre_cutoff=true, profile_coverage=1.0, missing_profile_count=0,
+against terminal batter identity 7e7fc570 and team identity c99563f7):
+game_pk 822787 (teams 139/141, lineups 23:03:26Z), 823437 (119/143,
+21:03:26Z), 825056 (133/109, 23:38:44Z).
+
+Immutable evidence committed under `docs/assembly_audit_2026_07_21/`:
+`census.json` (canonical audit census), `package_immutability.json` (18-package
+manifest + selection rule), `README.md` (narrative). Gates unchanged:
+unified/model/market/wager all false; outputs remain `PREDICTIVE SKILL NOT
+ESTABLISHED` and `NO QUALIFIED WAGER`.
