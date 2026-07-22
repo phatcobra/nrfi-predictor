@@ -2090,3 +2090,42 @@ ruff + format (100 files) + pyright all clean. Gates unchanged: outputs remain
 PREDICTIVE SKILL NOT ESTABLISHED / NO QUALIFIED WAGER. NEXT: deploy (apply) +
 live-verify park_context populates, then freeze NRFI_CORE_V1 + 2022-2024
 evaluation.
+
+
+## Checkpoint (m) - Context Foundation V1 deployed + LIVE-VERIFIED (task 18 complete)
+
+Commit b1bea68 pushed with [tf-apply][verify-api]: the full release gate passed
+(locked-env, Ruff, Ruff-format, Pyright, imports, compile, complete pytest),
+then Terraform fmt/validate/plan/apply deployed the context-wired collector +
+API, and verify-api confirmed 403 unauth / 200 authed on a real
+game-assembly-status record with unified_feature_set_eligible=False and
+NO QUALIFIED WAGER. Commit 96068e3 ([verify-live]) then invoked the deployed
+collector; the live assembly loaded the context artifact and populated the park
+stage:
+
+- context_profiles_status = CONTEXT_PROFILES_LOADED (identity 3dacfdb5),
+  context_profiles_key = features/context-foundation-2015-2024-v1/park_terminal_factors.jsonl
+- 2026-07-22 (17 games): park_context_eligible_games=17, team=17,
+  pitcher_profile=9, schedule_travel=0, workload=0, unified=0
+- 2026-07-23 (5 games): park_context_eligible_games=5, team=5, pitcher=2,
+  schedule_travel=0, workload=0, unified=0
+- park_context_eligible_games_total=22, unified_feature_set_eligible_games_total=0
+
+park_context is now genuinely live-servable and deterministic (venue reference +
+strict-prior terminal park factor). schedule_travel and workload are honestly
+fail-closed to 0 pending a live current-season schedule-window feed into the
+collector (the shared compute functions and stages exist and are tested). No
+2025 access; no current/future games trained. weather_context, umpire_context,
+unified_feature_set, model_probability, market, wager all remain false. Required
+outputs stand: PREDICTIVE SKILL NOT ESTABLISHED / NO QUALIFIED WAGER.
+
+Safe-stop state: git clean at 96068e3 (pushed), no running python build, no
+active Batch job, Terraform apply complete (context collector+API live), no
+temporary credential, no public endpoint, no 2025 access, no real wager. Deploy
+governance active: the branch cannot apply a SHA that has not passed the full
+release gate. NEXT: freeze NRFI_CORE_V1 (the frozen strict-prior implemented
+feature contract: pitcher + lineup/batter + team + park) and run the predeclared
+2022/2023/2024 chronological (walk-forward) model evaluation + calibration; keep
+skill/market/wager gates closed until skill is demonstrably established. Also
+still pending: live schedule-window feed to populate schedule_travel/workload
+live; platoon-handedness refinement; AWS Batch productionization.
