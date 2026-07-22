@@ -244,3 +244,33 @@ jobs:
           name: published-team-manifest
           path: published_team.json
           if-no-files-found: error
+      - name: Read-only per-side audit of the immutable assembly package
+        if: >-
+          ${{ github.event_name == 'push' &&
+              contains(github.event.head_commit.message, '[audit-assembly]') }}
+        env:
+          LAKE_BUCKET: nrfi-probability-dev-660838763909-us-east-2-lake
+          AUDIT_DATE: "2026-07-21"
+        run: |
+          set -euo pipefail
+          mkdir -p pkgs
+          KEYS=$(aws s3api list-objects-v2 --bucket "$LAKE_BUCKET" \
+            --prefix "signals/pregame/assembly/${AUDIT_DATE}/" \
+            --query 'Contents[].Key' --output text)
+          echo "package_count=$(echo $KEYS | wc -w)"
+          : > manifest.jsonl
+          i=0
+          for K in $KEYS; do
+            VID=$(aws s3api head-object --bucket "$LAKE_BUCKET" --key "$K" \
+              --query VersionId --output text)
+            aws s3api get-object --bucket "$LAKE_BUCKET" --key "$K" "pkgs/${i}.json" \
+              >/dev/null
+            SHA=$(sha256sum "pkgs/${i}.json" | cut -d' ' -f1)
+            GEN=$(python -c "import json;print(json.load(open('pkgs/${i}.json')).get('generated_at'))")
+            BE=$(python -c "import json;p=json.load(open('pkgs/${i}.json'));print(sum(1 for g in p.get('games',[]) if g.get('eligibility',{}).get('batter_feature_eligible') is True))")
+            echo "manifest= {\"key\":\"$K\",\"version_id\":\"$VID\",\"sha256\":\"$SHA\",\"generated_at\":\"$GEN\",\"batter_eligible_games\":$BE}"
+            i=$((i+1))
+          done
+          echo "audited_no_collector_invocation=true"
+          echo "census="
+          uv run --frozen python -m nrfi.assembly_audit --select-dir pkgs
