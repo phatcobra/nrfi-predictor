@@ -2394,3 +2394,78 @@ job, no temporary credential, no public endpoint, no 2025 access, no wager.
 Do NOT promote V2.1; do NOT promote any pitcher-/workload-dependent historical
 model. model_probability_eligible/market_eligible/wager_eligible stay false.
 Required outputs: PREDICTIVE SKILL NOT ESTABLISHED / NO QUALIFIED WAGER.
+
+
+## Checkpoint (r) - V2.2 implementation manifest amendment v1_1 (6 corrections) + real RCS + V1 mapping audit; CI green
+
+Reconciled at bf97347: clean origin==local, CI GREEN (tzdata==2026.3 direct-dep
+pin passed the release gate), all frozen contracts/manifest/matrices/
+evaluations/discrepancies/identities intact and unmodified.
+
+FIRST ATOMIC OPERATION completed and CI-verified (commit 5fd5f07, ci push+PR +
+terraform-deploy all GREEN):
+docs/nrfi_core_v2_2/implementation_manifest_v1_1.json (sha 6cffde54) binds
+contract 8af8e4d5, SUPERSEDES manifest 8c495fd5 (preserved unchanged), committed
+before any V2.2 feature/result. Six corrections:
+- C1 SPLINE: implemented a REAL Harrell restricted/natural cubic spline
+  (nrfi/restricted_cubic_spline.py) with natural boundary constraints + linear
+  tails + explicit RCS basis formula, replacing the mislabeled truncated-power
+  basis. tests/test_restricted_cubic_spline.py (6) assert linear tails
+  (2nd-difference=0 beyond boundary knots), cubic interior, training-only
+  quantile knots [0.10,0.35,0.65,0.90] deduped, byte-identical replay, degenerate
+  fallback.
+- C2 BETA: fitted mapping specified exactly as sigmoid(a*log(p)+b*-log(1-p)+c),
+  3-parameter (intercept c fitted); clipping/optimizer(lbfgs)/C=1e6/tol/max_iter/
+  min-OOF(2000)/min-classes(100) frozen; unconstrained coeffs, monotonicity not
+  enforced (documented), failure -> calibration_unavailable.
+- C3 UNAVAILABLE INVARIANT: calibration_unavailable==true => promotion_eligible
+  ==false AND skill_established==false; stays in the fixed Bonferroni denominator
+  84; may report raw diagnostics; never labeled calibrated; never competes for
+  promotion; never duplicates the raw candidate.
+- C4 V1 MAPPING AUDIT: CORRECTED the earlier 'unpairable' claim. event_id IS the
+  MLB game_pk. Census docs/nrfi_core_v2_2/v1_mapping_census.json (sha 50d08b7e):
+  7287 V1 logistic_raw rows, directly_mapped 7287, one_to_one 7287, ambiguous 0,
+  missing 0, duplicate 0, mapping_fraction 1.0, mapping_identity d659623d. =>
+  NRFI_CORE_V1 (logistic_raw, raw p_yrfi) is a PAIRED common-row DIAGNOSTIC
+  comparator (join game_pk==event_id); still NOT the designated promotion
+  baseline (expanding_climatology) and NOT in the 84-variant family.
+- C5 BASELINE DUP: pooled==expanding within each walk-forward fold (identical);
+  expanding is the promotion baseline; pooled not presented as independent
+  evidence.
+- C6 CATEGORY DRIFT vs MISSINGNESS: historical build - null/absent -> unknown/
+  missingness, but an observed non-null out-of-vocab category FAILS validation;
+  live inference - unexpected category FAILS the affected feature stage CLOSED
+  with a schema-drift reason+metric, never converted to missingness, never
+  fabricated.
+
+Validation: Ruff + format (108 files) + Pyright(0) clean; full pytest 330 passed
+/1 skipped; GitHub release gate GREEN on 5fd5f07. Existing V1/V2/V2.1 artifacts
+untouched.
+
+STILL PENDING (task #36, the large cascade, next focused session):
+1. Versioned IANA context implementation in nrfi/context_features (add 'iana'
+   mode; PRESERVE 'standard_offset' V2 replay mode; reset_tzpath only inside the
+   isolated offline build; clear ZoneInfo cache after path config; no import-time
+   tz mutation; record tzdata version + dependency-lock hash + tz path + venue
+   IANA zone + local time + UTC offset + DST flag + tz impl version; include tz
+   provenance in the scientific identity). Enforce prior_game_information_
+   available_at <= current_prediction_cutoff (via label_available_at, not
+   official_date) with explicit suspended/delayed/after-midnight/doubleheader/
+   corrected/same-day/relocated handling.
+2. Two byte-identical IANA context builds (new identity).
+3. Starter-independent V2.2 matrix (team+park+schedule/travel only) + automated
+   forbidden-column test (reject away_p_*/home_p_*/away_ctx_starter_*/
+   home_ctx_starter_*/pitcher/starter/lineup/batter/weather/umpire/market/2025).
+4. Complete 84-variant V2.2 evaluation (per contract + this amendment):
+   categorical one-hot encoding, RCS spline-GAM, isotonic + beta calibration,
+   calibration-seed OOF folds 2019/2020/2021, primary admissible-eligible-row +
+   secondary all-row, Bonferroni-84, official-date cluster bootstrap; V1 PAIRED
+   diagnostic; two byte-identical evaluation runs; full local + GitHub gates.
+5. Actual AWS Batch execution + local/CI/Batch equality evidence.
+
+Safe-stop: git clean origin==local at 5fd5f07, CI green, no running build, no
+active Batch job, no temporary credential, no public endpoint, no 2025 access,
+no wager. Do NOT assume the V2.2 result (skill has not yet been demonstrated).
+Do NOT promote V2.1 or any pitcher/workload-dependent historical model.
+model_probability_eligible/market_eligible/wager_eligible stay false. Required
+outputs: PREDICTIVE SKILL NOT ESTABLISHED / NO QUALIFIED WAGER.
