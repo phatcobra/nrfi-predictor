@@ -25,6 +25,7 @@ dependencies = [
   "snowflake-sqlalchemy>=1.5.0",
   "sqlalchemy>=2.0.0",
   "tenacity>=8.2.0",
+  "tzdata==2026.3",
   "uvicorn[standard]>=0.24.0",
 ]
 
