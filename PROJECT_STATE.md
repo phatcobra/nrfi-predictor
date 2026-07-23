@@ -2316,3 +2316,81 @@ checkpoint), CI green on b8fc26a, no running python build, no active Batch job,
 no temporary credential, no public endpoint, no 2025 access, no wager.
 model_probability_eligible/market_eligible/wager_eligible stay false. Required
 outputs stand: PREDICTIVE SKILL NOT ESTABLISHED / NO QUALIFIED WAGER.
+
+
+## Checkpoint (q) - workload supplemental discrepancy + admissible-core predeclaration (V2.2)
+
+Reconciled at b43a443: git clean origin==local; CI GREEN on b43a443 (push+PR);
+V1/V2/V2.1 artifacts + identities intact and untouched; no running python, no
+active Batch job; 2025 locked; model/market/wager eligible false; AWS verified
+only via CI (no local credentials), last deploy b1bea68 (b43a443 docs-only).
+
+Recorded the CRITICAL SUPPLEMENTAL DISCREPANCY (#9,
+docs/nrfi_core_v2_1/discrepancies_supplement.json, sha 5cf93e14): the
+starter-identity finding extends beyond the pitcher domain to EVERY
+starter-workload feature (starter_rest_days, starter_prior_starts,
+starter_starts_prior_30d, previous-start pitch count, rolling pitches/innings/
+batters-faced, opener/bullpen-if-derived-from-actual-starter). pitcher AND
+workload are starter-dependent; because historical rows are
+POSTGAME_ACTUAL_STARTER_ATTRIBUTION with cutoff-known probable starters
+unavailable for all 22761 games, workload_only and every workload-inclusive
+variant are historically INADMISSIBLE for promotion. The frozen V2.1 contract is
+preserved unchanged; admissible historical domains = team, park, schedule_travel.
+
+PRIMARY OPERATION done: froze (BEFORE any result) two contracts -
+- docs/nrfi_core_v2_2/frozen_contract.json (NRFI_CORE_V2_2_ADMISSIBLE, sha
+  8af8e4d5): historically promotion-ADMISSIBLE core using ONLY starter-
+  INDEPENDENT strict-prior team first-inning + effective-dated park + team
+  schedule/travel. Excludes pitcher, workload, actual-starter identity, postgame
+  attribution, confirmed lineup, batter, realized weather, untimed umpire,
+  market, 2025. Predeclares target/cutoff/sources+identities/eligibility/exact
+  features (incl. strictly-excluded {side}_p_* + {side}_ctx_starter_*)/
+  missingness/folds(2022/2023/2024)/models(logistic,spline-GAM,LightGBM)/
+  calibrators(raw,sigmoid,isotonic,beta)/baselines(pooled,expanding,prior-season,
+  V1 on paired common rows)/CALIBRATION-SEED OOF folds strictly <2022
+  (predict 2019/2020/2021, non-promotion, min 2000 raw OOF, raw-only, never on
+  evaluated fold, never on calibrated)/primary admissible-eligible row policy +
+  secondary all-row/predeclared Bonferroni multiplicity/audited seeded cluster
+  bootstrap/calibration bands/coverage threshold 0.5/promotion gate/IANA
+  tzdata==2026.3/deterministic identities/rollback.
+- docs/nrfi_prospective_starter_v1/frozen_contract.json
+  (NRFI_PROSPECTIVE_STARTER_V1, sha e05a87b2): immutable forward starter-revision
+  ledger schema (probable-vs-confirmed, source_publication_time-when-available,
+  observed_at never as publication time, observed_before_cutoff, superseded_by,
+  withdrawn_at, actual-after-grading for divergence audit only, revision
+  count/latency). Hard rule: postgame actual starters are NEVER historical
+  pregame replacements; workload features must tie to the exact pre-cutoff
+  starter snapshot. Historical pitcher/workload remain research diagnostics only.
+Commit 136dce4 (pushed).
+
+STILL PENDING (task #36, clearly scoped, next focused session - NOT started):
+1. IANA timezone repair of nrfi/context_features, VERSIONED so V2's fixed-offset
+   context stays byte-reproducible (default mode unchanged; add iana mode):
+   pin tzdata==2026.3 in pyproject + regenerate uv.lock (tzdata already resolved
+   transitively; uv available at C:\Users\ameis\.local\bin\uv.exe); use
+   zoneinfo; force tzdata-only inside offline build/reproduce ONLY, clear
+   ZoneInfo cache after path change, NO module-import tz mutation, deployed
+   Lambda park-only path untouched; terminal park projection 3dacfdb5 + venue
+   reference d7b9c606 are tz-independent and preserved. Rebuild schedule/travel
+   context (two byte-identical, record new IANA context identity).
+2. Build the V2.2 admissible matrix under docs/nrfi_core_v2_2/ (team + park +
+   schedule_travel columns only; strictly no {side}_p_* / {side}_ctx_starter_*).
+3. New V2.2 evaluation harness (separate from core_v2_evaluation to preserve V2):
+   calibration-seed OOF folds <2022, immutable RAW OOF, isotonic + beta + sigmoid,
+   4 baselines, 7 team/park/schedule ablations, primary admissible-eligible-row
+   policy + secondary all-row (coverage + rejections both), predeclared
+   Bonferroni. Two byte-identical evaluations + full local gate + CI.
+4. AWS Batch execution of the exact V2.2 build+eval; record ECR digest,
+   job-definition revision, Batch job IDs, CloudWatch logs, runtime, cost;
+   prove local/CI/Batch equality; zero active jobs afterward.
+
+Expected V2.2 conclusion is already firm: PREDICTIVE SKILL NOT ESTABLISHED. In
+the V2 run the admissible domains (team_only/park_only/schedule_travel_only and
+their combinations) were the WEAKEST; the only variant with a raw-CI signal was
+pitcher_park (now excluded). Removing pitcher+workload cannot manufacture skill.
+
+Safe-stop: git clean origin==local, CI green, no running build, no active Batch
+job, no temporary credential, no public endpoint, no 2025 access, no wager.
+Do NOT promote V2.1; do NOT promote any pitcher-/workload-dependent historical
+model. model_probability_eligible/market_eligible/wager_eligible stay false.
+Required outputs: PREDICTIVE SKILL NOT ESTABLISHED / NO QUALIFIED WAGER.
