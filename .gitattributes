@@ -17,6 +17,9 @@ docs/nrfi_core_v2/*.json -text
 docs/nrfi_core_v2/*.jsonl -text
 docs/nrfi_core_v2_1/*.json -text
 docs/nrfi_core_v2_1/*.jsonl -text
+docs/nrfi_core_v2_2/*.json -text
+docs/nrfi_core_v2_2/*.jsonl -text
+docs/nrfi_prospective_starter_v1/*.json -text
 *.sh text eol=lf
 *.tf text eol=lf
 .terraform.lock.hcl text eol=lf
