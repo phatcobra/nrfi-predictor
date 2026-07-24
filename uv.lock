@@ -1122,6 +1122,7 @@ dependencies = [
     { name = "snowflake-sqlalchemy" },
     { name = "sqlalchemy" },
     { name = "tenacity" },
+    { name = "tzdata" },
     { name = "uvicorn", extra = ["standard"] },
 ]
 
@@ -1158,6 +1159,7 @@ requires-dist = [
     { name = "snowflake-sqlalchemy", specifier = ">=1.5.0" },
     { name = "sqlalchemy", specifier = ">=2.0.0" },
     { name = "tenacity", specifier = ">=8.2.0" },
+    { name = "tzdata", specifier = "==2026.3" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.24.0" },
 ]
 

@@ -1,0 +1,22 @@
+{
+  "schema_version": "team_determinism_evidence.v1",
+  "comparison_result": "BYTE_IDENTICAL",
+  "byte_identical": true,
+  "builder": "nrfi.team_features.generate",
+  "source": "docs/multiseason_2015_2024",
+  "builds": [
+    {"path": "C:/Users/ameis/nrfi_batter_builds/team1"},
+    {"path": "C:/Users/ameis/nrfi_batter_builds/team2"}
+  ],
+  "records_identity": "1520a5eab901fbf2190fd2089484b9d8064e8c8ebd6b2ce6dc5f1c8731c7f58a",
+  "features_identity": "5124bebb0883f57d9c92715a0ba675504a028e31b4a4c2e7ec8fed1cae3b1942",
+  "terminal_identity": "c99563f7a42c87219833ef4b629834c5a750c6de020601450cc97147b5807716",
+  "terminal_projection_sha256": "4e931e27d0aefd309a132037604b82bbb3b70123c6ef59653900242805efd67b",
+  "distinct_teams": 30,
+  "team_game_records": 45522,
+  "team_feature_snapshots": 45522,
+  "terminal_eligible_teams": 30,
+  "fc_binary_result": "no differences encountered (team_features.jsonl and team_terminal_profiles.jsonl)",
+  "locked_2025_holdout_accessed": false,
+  "note": "Two independent real builds from the committed multiseason source produced byte-identical team_features.jsonl and team_terminal_profiles.jsonl (fc /b) and identical records/features/terminal identities."
+}

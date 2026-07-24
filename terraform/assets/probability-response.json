@@ -1,0 +1,11 @@
+{
+  "p_nrfi": 0.511138831136253,
+  "p_yrfi": 0.4888611688637469,
+  "uncertainty": {
+    "lower_95": 0.4164458332468519,
+    "method": "official-date-cluster-model-bootstrap-v1",
+    "replicates": 32,
+    "standard_error": 0.03987121250858687,
+    "upper_95": 0.5626698522933542
+  }
+}

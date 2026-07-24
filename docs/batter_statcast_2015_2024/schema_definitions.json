@@ -1,0 +1,57 @@
+{
+  "schema_version": "batter_schema_definitions.v1",
+  "profile_identity": "batter-statcast-strict-prior-2015-2024-v1",
+  "extraction_version": "batter-statcast-strict-prior-2015-2024-v1",
+  "feature_version": "batter-statcast-strict-prior-v1",
+  "seasons": [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024],
+  "locked_holdout_season": 2025,
+  "minimum_prior_plate_appearances": 50,
+  "windows": ["last_20", "last_50", "last_100", "career"],
+  "batter_game_history": {
+    "record_schema": "batter_game.v1",
+    "grain": "one canonical record per (game_pk, batter_id)",
+    "identity_basis": "POSTGAME_PLATE_APPEARANCE_ATTRIBUTION",
+    "keys": [
+      "game_pk", "batter_id", "official_date", "scheduled_start_at",
+      "label_available_at", "prediction_cutoff", "batter_stand"
+    ],
+    "count_fields": [
+      "plate_appearances", "strikeouts", "walks", "hit_by_pitch", "hits",
+      "total_bases", "on_base_events", "swings", "whiffs", "contact",
+      "batted_balls", "hard_hit_balls", "barrels", "exit_velocity_sum",
+      "ground_balls", "fly_balls", "line_drives", "typed_batted_balls",
+      "vs_lhp_plate_appearances", "vs_lhp_strikeouts", "vs_lhp_on_base_events",
+      "vs_rhp_plate_appearances", "vs_rhp_strikeouts", "vs_rhp_on_base_events"
+    ]
+  },
+  "batter_feature_snapshot": {
+    "record_schema": "batter_feature_snapshot.v1",
+    "strict_prior_rule": "every window uses only prior batter-games whose scheduled_start_at < prediction_cutoff AND label_available_at <= prediction_cutoff, excluding the target game itself",
+    "per_window_metrics": [
+      "on_base_rate", "walk_rate", "strikeout_rate", "strikeout_avoidance_rate",
+      "contact_rate", "whiff_rate", "hard_hit_rate", "barrel_rate",
+      "average_exit_velocity", "ground_ball_rate", "fly_ball_rate",
+      "line_drive_rate", "total_bases_per_pa", "vs_lhp_strikeout_rate",
+      "vs_lhp_on_base_rate", "vs_rhp_strikeout_rate", "vs_rhp_on_base_rate"
+    ],
+    "per_window_counts": ["prior_games_{window}", "prior_plate_appearances_{window}"],
+    "eligibility_and_flags": [
+      "profile_feature_eligible", "career_history_available",
+      "recent_history_missing", "profile_history_gap_seasons",
+      "historical_lineup_timing_unavailable", "historical_prediction_join_eligible",
+      "feature_value_coverage_pct", "feature_hash"
+    ]
+  },
+  "runtime_projection": {
+    "object": "profiles.jsonl",
+    "record_keys": [
+      "batter_id", "prediction_cutoff", "game_pk", "batter_stand",
+      "profile_feature_eligible", "historical_prediction_join_eligible",
+      "feature_version", "feature_hash", "feature_values"
+    ],
+    "sort_order": ["prediction_cutoff", "game_pk", "batter_id"]
+  },
+  "coverage_schema": "batter_extraction_coverage.v1",
+  "manifest_schema": "batter_extraction_manifest.v1",
+  "source_authority": "https://baseballsavant.mlb.com"
+}

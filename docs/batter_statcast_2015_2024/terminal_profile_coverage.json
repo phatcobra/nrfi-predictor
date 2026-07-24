@@ -1,0 +1,16 @@
+{
+  "schema_version": "batter_terminal_coverage.v1",
+  "profile_version": "batter-terminal-strict-prior-2015-2024-v1",
+  "feature_version": "batter-statcast-strict-prior-v1",
+  "parent_profile_identity": "batter-statcast-strict-prior-2015-2024-v1",
+  "distinct_batters": 2606,
+  "profile_feature_eligible": 1543,
+  "terminal_profiles_identity": "7e7fc570d5ad4ea58fc087a87a488f54c63a07e729ae532ace1fd20e37f97299",
+  "projection_sha256": "5ce26a4a87b66ea4a34b150a07e0ac53eb1303e27d9ef4b65ca1e9ab87a86be2",
+  "projection_bytes": 9460808,
+  "source_history_identity": "596194c2fbf6b7b6d3e0ce1ebc727cc83a69d23f4f151ffaf5d9a7b234759496",
+  "minimum_prior_plate_appearances": 50,
+  "windows": ["last_20", "last_50", "last_100", "career"],
+  "locked_2025_holdout_accessed": false,
+  "note": "One terminal strict-prior profile per batter over the complete 2015-2024 history; the live-servable join table (reproduced in-runner from the committed canonical history parquet, ~9.46 MB, vs the 1.7 GB full historical projection)."
+}

@@ -1,0 +1,42 @@
+{
+  "schema_version": "team_feature_schema.v1",
+  "profile_identity": "team-first-inning-strict-prior-2015-2024-v1",
+  "extraction_version": "team-first-inning-strict-prior-2015-2024-v1",
+  "feature_version": "team-first-inning-strict-prior-v1",
+  "terminal_version": "team-first-inning-terminal-2015-2024-v1",
+  "seasons": [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024],
+  "locked_holdout_season": 2025,
+  "minimum_prior_games": 20,
+  "windows": ["last_10", "last_25", "last_50", "career", "season_to_date"],
+  "source": "docs/multiseason_2015_2024 (normalized_game.v1 first_inning outcomes)",
+  "team_game_record": {
+    "record_schema": "team_game_first_inning.v1",
+    "grain": "two team-side records per completed regular-season game",
+    "keys": [
+      "game_pk", "team_id", "opponent_team_id", "is_home", "official_date",
+      "season", "scheduled_start_at", "label_available_at", "prediction_cutoff"
+    ],
+    "measures": [
+      "runs_scored", "runs_allowed", "scored", "allowed",
+      "off_scoreless", "def_scoreless"
+    ]
+  },
+  "team_feature_snapshot": {
+    "record_schema": "team_feature_snapshot.v1",
+    "strict_prior_rule": "only prior games with label_available_at <= target prediction_cutoff, excluding the target game",
+    "per_window_metrics": [
+      "first_inning_runs_scored_per_game", "first_inning_runs_allowed_per_game",
+      "first_inning_scored_rate", "first_inning_allowed_rate",
+      "offense_scoreless_rate", "defense_scoreless_rate"
+    ],
+    "splits": [
+      "home_scored_rate", "home_allowed_rate", "away_scored_rate", "away_allowed_rate"
+    ],
+    "eligibility": "team_context_feature_eligible = prior_games >= 20"
+  },
+  "terminal_projection": {
+    "object": "team_terminal_profiles.jsonl",
+    "record_schema": "team_terminal_profile.v1",
+    "grain": "one terminal profile per team over complete 2015-2024 history (as-of end-2024)"
+  }
+}

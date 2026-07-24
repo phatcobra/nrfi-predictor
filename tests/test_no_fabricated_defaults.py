@@ -25,16 +25,34 @@ FORBIDDEN = [
     (r"recommended_action", "bet recommendation language (paper-mode redline)"),
 ]
 
+# Narrow, audited allowlist: filename -> {patterns exempted for THAT file only}.
+# The sole entry is the audited, fully-seeded resampling module, which is the
+# single permitted home for ``np.random`` (deterministic cluster bootstrap of
+# real scores; see its docstring). Every OTHER pattern still applies to it, and
+# every OTHER module remains fully guarded against ``np.random``.
+ALLOWLIST: dict[str, set[str]] = {
+    "deterministic_resampling.py": {r"np\.random\."},
+}
+
 
 def test_no_fabricated_defaults():
     violations = []
     for path in sorted(PKG.glob("*.py")):
         text = path.read_text()
+        exempt = ALLOWLIST.get(path.name, set())
         for pattern, why in FORBIDDEN:
+            if pattern in exempt:
+                continue
             for m in re.finditer(pattern, text):
                 line = text[: m.start()].count("\n") + 1
                 violations.append(f"{path.name}:{line}: {why} [{pattern}]")
     assert not violations, "fabrication patterns found:\n" + "\n".join(violations)
+
+
+def test_allowlist_is_narrow():
+    """The np.random allowlist must stay limited to the audited module."""
+    assert set(ALLOWLIST) == {"deterministic_resampling.py"}
+    assert ALLOWLIST["deterministic_resampling.py"] == {r"np\.random\."}
 
 
 def test_feature_missing_is_nan_not_default():

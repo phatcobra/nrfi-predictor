@@ -1,0 +1,82 @@
+{
+  "schema_version": "nrfi_core_v2_2_matrix_build_evidence.v1",
+  "contract_name": "NRFI_CORE_V2_2_ADMISSIBLE",
+  "timezone_mode": "iana",
+  "purpose": "Evidence that the starter-independent V2.2 matrix builds reproducibly from team + IANA context (park + DST-aware schedule/travel) only, carries no starter-dependent or 2025 column, and shares the V2 target/exclusion logic.",
+  "reproducer": "nrfi.core_v2_2_matrix",
+  "reproducer_cli": "python -m nrfi.core_v2_2_matrix --multiseason-dir docs/multiseason_2015_2024 --venue-reference docs/context_foundation_v1/venue_reference.json --output-dir <out>",
+  "two_independent_builds": {
+    "builds_compared": 2,
+    "byte_identical": true,
+    "core_v2_2_matrix_jsonl_sha256": "f5d7581b2fb6168f708be2249047ec588e0063268eae8aa25aeb4ba927ddc985",
+    "core_v2_2_coverage_json_byte_identical": true
+  },
+  "matrix_identity": "1bb6d792179d0abeccd7415ddf42fb4276d3108746e9b25dd89e50a9847e49dd",
+  "rejection_identity": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+  "matrix_rows": 22761,
+  "primary_feature_eligible_rows": 21717,
+  "nrfi_rows": 11268,
+  "yrfi_rows": 11493,
+  "feature_column_count": 239,
+  "feature_kind_counts": {
+    "continuous": 100,
+    "missing_indicator": 116,
+    "binary": 10,
+    "onehot": 13
+  },
+  "prefix_family_counts": {"away": 106, "home": 106, "g": 19, "park": 8},
+  "cross_consistency_with_v2": {
+    "note": "V2.2 shares the identical target-label and row-exclusion logic with NRFI_CORE_V2, so the following must and do match V2 exactly.",
+    "matrix_rows_match_v2": true,
+    "nrfi_rows_match_v2": true,
+    "yrfi_rows_match_v2": true,
+    "rejection_identity_matches_v2": true,
+    "v2_matrix_rows": 22761,
+    "v2_nrfi_rows": 11268,
+    "v2_yrfi_rows": 11493,
+    "v2_rejection_identity": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+  },
+  "starter_independence": {
+    "forbidden_substrings": ["pitcher", "starter", "workload", "lineup", "batter", "weather", "umpire", "market", "2025"],
+    "forbidden_prefix_patterns": ["away_p_", "home_p_", "away_ctx_starter_", "home_ctx_starter_"],
+    "forbidden_hits_in_built_columns": 0,
+    "guard": "assert_admissible_columns() runs over the full sorted column set and fails the build closed on any hit; verified 0 hits across all 239 columns.",
+    "starter_independent": true
+  },
+  "missingness_vs_schema_drift": {
+    "policy": "Every continuous and binary feature carries an explicit <col>_missing indicator (116 indicators). Categoricals are fixed-vocabulary one-hot; a null category sets <name>_missing, while a non-null UNKNOWN category raises CoreV22MatrixError (schema drift) - the two are never conflated.",
+    "categorical_vocab": {
+      "day_night": ["day", "night"],
+      "prior_day_night": ["day", "night"],
+      "trip_kind": ["home_stand", "road_trip"],
+      "doubleheader_code": ["N", "Y", "S"]
+    }
+  },
+  "primary_eligibility_rule": "primary_feature_eligible = away_team_context_eligible AND home_team_context_eligible AND park_context_eligible AND away_schedule_travel_eligible AND home_schedule_travel_eligible (NO pitcher, NO workload). The model and the expanding-climatology baseline are scored on exactly these identical primary rows.",
+  "source_artifact_identities": {
+    "team_features_identity": "5124bebb0883f57d9c92715a0ba675504a028e31b4a4c2e7ec8fed1cae3b1942",
+    "iana_context_features_identity": "610468e4d3ad7bb5613831ad86169220f7deed9a1a689e18ff0ca63f60871ba2",
+    "iana_context_scientific_identity": "417e2409985603ddec08d04b7c45aba710a17f1c4a4cf8946a9f8058551b19e6",
+    "venue_reference_sha256": "d7b9c606357453ffce006f5b038dbe1fff14d221234c4885baf1ecb800a04041"
+  },
+  "import_hygiene_change": {
+    "file": "nrfi/pitcher_statcast.py",
+    "change": "pandas / pyarrow moved from module-top imports to lazy imports inside the three functions that use them (_write_parquet, _numeric, build_pitcher_game_history); added a TYPE_CHECKING-only pandas import for the pd.DataFrame annotation.",
+    "why": "team_features borrows only pure json/hash helpers (_identity, _ratio, _write_json, _write_jsonl, canonical_json_bytes) from pitcher_statcast; the top-level pyarrow import forced the entire starter-independent path to load the parquet stack. The change is import-mechanics only.",
+    "identity_preservation": "No emitted artifact changes. Verified locally that team_features still reproduces features_identity 5124bebb; CI re-verifies pitcher features and the frozen V2 matrix identity 83003ad4 are byte-unchanged.",
+    "frozen_identities_expected_unchanged": {
+      "pitcher_feature_version": "pitcher-statcast-strict-prior-v1",
+      "team_features_identity": "5124bebb0883f57d9c92715a0ba675504a028e31b4a4c2e7ec8fed1cae3b1942",
+      "v2_matrix_identity": "83003ad4445d3f6be0cc0c7b7d3637b63ee4d8f32e2de4b3cdb89f76f00ffb74"
+    }
+  },
+  "tests": {
+    "file": "tests/test_core_v2_2_matrix.py",
+    "count": 20,
+    "result": "all passed",
+    "coverage": "forbidden-column guard (substrings + prefix patterns), continuous/binary/categorical emitters, null-missingness vs unknown-category schema-drift separation, fixed categorical vocab"
+  },
+  "required_standing_output": ["PREDICTIVE SKILL NOT ESTABLISHED", "NO QUALIFIED WAGER"],
+  "locked_2025_holdout_accessed": false,
+  "status": "V2_2_MATRIX_BUILT_REPRODUCIBLE_STARTER_INDEPENDENT"
+}

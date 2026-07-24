@@ -4,3 +4,22 @@ docs/multiseason/*.json -text
 docs/multiseason/*.jsonl -text
 docs/model_comparison/*.json -text
 docs/model_comparison/*.jsonl -text
+docs/pregame_snapshot/**/*.json -text
+docs/pregame_snapshot/**/*.jsonl -text
+docs/multiseason_2015_2024/*.json -text
+docs/multiseason_2015_2024/*.jsonl -text
+docs/pitcher_statcast_2015_2024/*.json -text
+docs/pitcher_statcast_2015_2024/*.jsonl -text
+docs/context_foundation_v1/*.json -text
+docs/context_foundation_v1/*.jsonl -text
+docs/nrfi_core_v1/*.json -text
+docs/nrfi_core_v2/*.json -text
+docs/nrfi_core_v2/*.jsonl -text
+docs/nrfi_core_v2_1/*.json -text
+docs/nrfi_core_v2_1/*.jsonl -text
+docs/nrfi_core_v2_2/*.json -text
+docs/nrfi_core_v2_2/*.jsonl -text
+docs/nrfi_prospective_starter_v1/*.json -text
+*.sh text eol=lf
+*.tf text eol=lf
+.terraform.lock.hcl text eol=lf

@@ -1,0 +1,321 @@
+name: publish-profiles
+# 2026-07-21c: confirmed-lineup live verification (afternoon window).
+# 2026-07-21b: verify live team_context stage (team profiles + counts).
+# 2026-07-21: activate the compact terminal batter projection publication
+# (features/batter-statcast-strict-prior-2015-2024-v1/terminal_batter_profiles.jsonl).
+# Live assembly now reports staged eligibility (pregame_game_assembly.v3).
+# Reproduce the expanded 2015-2024 pitcher profiles from the committed canonical
+# history and publish them to the private, versioned, SSE-KMS S3 lake via OIDC.
+# Push runs a verify-only identity reproduction; publishing requires an explicit
+# workflow_dispatch with mode=publish.
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "verify (reproduce + identity check) or publish (upload to S3)"
+        type: choice
+        required: true
+        default: verify
+        options: [verify, publish]
+  push:
+    branches: [feat/aws-probability-platform-20260717]
+    paths:
+      - ".github/workflows/publish-profiles.yml"
+      - "nrfi/aws_publish_profiles.py"
+      - "nrfi/aws_publish_batter_profiles.py"
+      - "nrfi/batter_live_profiles.py"
+      - "nrfi/aws_publish_team_features.py"
+      - "nrfi/team_features.py"
+      - "nrfi/aws_publish_context_features.py"
+      - "nrfi/context_features.py"
+      - "docs/pitcher_statcast_2015_2024/**"
+      - "docs/batter_statcast_2015_2024/**"
+      - "docs/team_first_inning_2015_2024/**"
+      - "docs/context_foundation_v1/**"
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: publish-profiles
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: us-east-2
+  LAKE_BUCKET: nrfi-probability-dev-660838763909-us-east-2-lake
+  KMS_KEY_ARN: arn:aws:kms:us-east-2:660838763909:key/7772a2e9-e516-49ff-b2e1-0067567f52a8
+  BATCH_QUEUE: nrfi-probability-dev-baseline
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: aws-actions/configure-aws-credentials@517a711dbcd0e402f90c77e7e2f81e849156e31d # v6.2.2
+        with:
+          role-to-assume: arn:aws:iam::660838763909:role/nrfi-probability-terraform-deployer
+          aws-region: us-east-2
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.11"
+      - name: Set up uv
+        uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7.6.0
+        with:
+          version: "0.11.28"
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+      - name: Synchronize locked environment
+        run: uv sync --frozen
+      - name: Verify AWS state and holdout deny controls
+        run: |
+          set -euo pipefail
+          echo "Account/Region:"
+          aws sts get-caller-identity --query '[Account,Arn]' --output text
+          echo "Active Batch jobs (expect all zero):"
+          for s in SUBMITTED PENDING RUNNABLE STARTING RUNNING; do
+            n=$(aws batch list-jobs --job-queue "$BATCH_QUEUE" --job-status "$s" \
+              --query 'length(jobSummaryList)' --output text 2>/dev/null || echo NA)
+            echo "  $s=$n"
+          done
+          echo "2025 objects in lake (expect 0):"
+          aws s3api list-objects-v2 --bucket "$LAKE_BUCKET" --prefix "features/" \
+            --query "Contents[?contains(Key, '2025')] | length(@)" --output text || echo NA
+      - name: Reproduce features from canonical history and verify identity
+        run: |
+          uv run --frozen python -m nrfi.aws_publish_profiles --verify-only \
+            --artifact-dir docs/pitcher_statcast_2015_2024 \
+            --multiseason-dir docs/multiseason_2015_2024
+      - name: Publish to the encrypted versioned lake
+        if: >-
+          ${{ (github.event_name == 'workflow_dispatch' && inputs.mode == 'publish') ||
+              (github.event_name == 'push' && contains(github.event.head_commit.message, '[publish]')) }}
+        run: |
+          uv run --frozen --with boto3 python -m nrfi.aws_publish_profiles \
+            --artifact-dir docs/pitcher_statcast_2015_2024 \
+            --multiseason-dir docs/multiseason_2015_2024 \
+            --bucket "$LAKE_BUCKET" \
+            --kms-key-arn "$KMS_KEY_ARN" \
+            --producing-commit "${{ github.sha }}" | tee published.json
+      - name: Upload publication manifest
+        if: >-
+          ${{ (github.event_name == 'workflow_dispatch' && inputs.mode == 'publish') ||
+              (github.event_name == 'push' && contains(github.event.head_commit.message, '[publish]')) }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: published-manifest
+          path: published.json
+          if-no-files-found: error
+      - name: Verify live collector uses the expanded profiles and rerun census
+        if: >-
+          ${{ github.event_name == 'push' &&
+              contains(github.event.head_commit.message, '[verify-live]') }}
+        run: |
+          set -euo pipefail
+          echo "Collector configuration:"
+          aws lambda get-function-configuration \
+            --function-name nrfi-probability-dev-pregame-collector \
+            --query '[MemorySize,LastUpdateStatus,Environment.Variables.NRFI_PITCHER_PROFILES_KEY,Environment.Variables.NRFI_TERMINAL_BATTER_PROFILES_KEY,Environment.Variables.NRFI_TEAM_TERMINAL_PROFILES_KEY]' \
+            --output text
+          echo "Invoking collector (rebuilds assemblies from the new profiles):"
+          aws lambda invoke --function-name nrfi-probability-dev-pregame-collector \
+            --cli-read-timeout 200 --payload '{}' out.json >/dev/null
+          python - <<'PY'
+          import json
+          d = json.load(open("out.json"))
+          assembly = d.get("assembly", {})
+          results = assembly.get("results", [])
+          summary = [
+              {k: r.get(k) for k in (
+                  "official_date", "profiles_status", "batter_profiles_status",
+                  "batter_profile_identity", "team_profiles_status",
+                  "team_profile_identity", "games",
+                  "pitcher_profile_eligible_games",
+                  "lineup_feature_eligible_games",
+                  "batter_feature_eligible_games",
+                  "team_context_eligible_games",
+                  "context_profiles_status", "context_profile_identity",
+                  "park_context_eligible_games",
+                  "schedule_travel_eligible_games", "workload_eligible_games",
+                  "unified_feature_set_eligible_games", "admitted_captures")}
+              for r in results
+          ]
+          print("assembly_summary=", json.dumps(summary, sort_keys=True))
+          print("batter_profiles_status=", assembly.get("batter_profiles_status"))
+          print("context_profiles_status=", assembly.get("context_profiles_status"))
+          print("terminal_profiles_key=", assembly.get("terminal_profiles_key"))
+          print("context_profiles_key=", assembly.get("context_profiles_key"))
+          total_unified = sum(
+              x.get("unified_feature_set_eligible_games", 0) for x in results
+          )
+          total_park = sum(
+              x.get("park_context_eligible_games", 0) for x in results
+          )
+          assert total_unified == 0, "unified_feature_set_eligible must be zero"
+          print("unified_feature_set_eligible_games_total=", total_unified)
+          print("park_context_eligible_games_total=", total_park)
+          lineups = [
+              {k: c.get(k) for k in (
+                  "target_date", "row_count", "confirmed_lineups",
+                  "lineups_observed_before_cutoff")}
+              for c in d.get("lineup_captures", [])
+          ]
+          print("lineup_summary=", json.dumps(lineups, sort_keys=True))
+          print("lineup_capture_keys=", json.dumps(
+              [c["stored"]["key"] for c in d.get("lineup_captures", [])]))
+          PY
+      - name: Reproduce batter features from canonical history and verify identity
+        if: >-
+          ${{ github.event_name == 'workflow_dispatch' ||
+              contains(github.event.head_commit.message, '[verify-batter]') ||
+              contains(github.event.head_commit.message, '[publish-batter]') }}
+        run: |
+          uv run --frozen python -m nrfi.aws_publish_batter_profiles --verify-only \
+            --artifact-dir docs/batter_statcast_2015_2024
+      - name: Publish batter profiles to the encrypted versioned lake
+        if: >-
+          ${{ (github.event_name == 'workflow_dispatch' && inputs.mode == 'publish') ||
+              (github.event_name == 'push' &&
+               contains(github.event.head_commit.message, '[publish-batter]')) }}
+        run: |
+          uv run --frozen --with boto3 python -m nrfi.aws_publish_batter_profiles \
+            --artifact-dir docs/batter_statcast_2015_2024 \
+            --bucket "$LAKE_BUCKET" \
+            --kms-key-arn "$KMS_KEY_ARN" \
+            --producing-commit "${{ github.sha }}" | tee published_batter.json
+      - name: Upload batter publication manifest
+        if: >-
+          ${{ (github.event_name == 'workflow_dispatch' && inputs.mode == 'publish') ||
+              (github.event_name == 'push' &&
+               contains(github.event.head_commit.message, '[publish-batter]')) }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: published-batter-manifest
+          path: published_batter.json
+          if-no-files-found: error
+      - name: Reproduce terminal batter projection and verify identity
+        if: >-
+          ${{ github.event_name == 'workflow_dispatch' ||
+              contains(github.event.head_commit.message, '[verify-terminal]') ||
+              contains(github.event.head_commit.message, '[publish-terminal]') }}
+        run: |
+          uv run --frozen python -m nrfi.aws_publish_batter_profiles --terminal \
+            --verify-only --artifact-dir docs/batter_statcast_2015_2024
+      - name: Publish terminal batter projection to the encrypted versioned lake
+        if: >-
+          ${{ (github.event_name == 'workflow_dispatch' && inputs.mode == 'publish') ||
+              (github.event_name == 'push' &&
+               contains(github.event.head_commit.message, '[publish-terminal]')) }}
+        run: |
+          uv run --frozen --with boto3 python -m nrfi.aws_publish_batter_profiles \
+            --terminal \
+            --artifact-dir docs/batter_statcast_2015_2024 \
+            --bucket "$LAKE_BUCKET" \
+            --kms-key-arn "$KMS_KEY_ARN" \
+            --producing-commit "${{ github.sha }}" | tee published_terminal.json
+      - name: Upload terminal publication manifest
+        if: >-
+          ${{ (github.event_name == 'workflow_dispatch' && inputs.mode == 'publish') ||
+              (github.event_name == 'push' &&
+               contains(github.event.head_commit.message, '[publish-terminal]')) }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: published-terminal-manifest
+          path: published_terminal.json
+          if-no-files-found: error
+      - name: Reproduce team features from committed source and verify identity
+        if: >-
+          ${{ github.event_name == 'workflow_dispatch' ||
+              contains(github.event.head_commit.message, '[verify-team]') ||
+              contains(github.event.head_commit.message, '[publish-team]') }}
+        run: |
+          uv run --frozen python -m nrfi.aws_publish_team_features --verify-only \
+            --multiseason-dir docs/multiseason_2015_2024 \
+            --evidence-dir docs/team_first_inning_2015_2024
+      - name: Publish team features to the encrypted versioned lake
+        if: >-
+          ${{ (github.event_name == 'workflow_dispatch' && inputs.mode == 'publish') ||
+              (github.event_name == 'push' &&
+               contains(github.event.head_commit.message, '[publish-team]')) }}
+        run: |
+          uv run --frozen --with boto3 python -m nrfi.aws_publish_team_features \
+            --multiseason-dir docs/multiseason_2015_2024 \
+            --evidence-dir docs/team_first_inning_2015_2024 \
+            --bucket "$LAKE_BUCKET" \
+            --kms-key-arn "$KMS_KEY_ARN" \
+            --producing-commit "${{ github.sha }}" | tee published_team.json
+      - name: Upload team publication manifest
+        if: >-
+          ${{ (github.event_name == 'workflow_dispatch' && inputs.mode == 'publish') ||
+              (github.event_name == 'push' &&
+               contains(github.event.head_commit.message, '[publish-team]')) }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: published-team-manifest
+          path: published_team.json
+          if-no-files-found: error
+      - name: Reproduce context features from committed source and verify identity
+        if: >-
+          ${{ github.event_name == 'workflow_dispatch' ||
+              contains(github.event.head_commit.message, '[verify-context]') ||
+              contains(github.event.head_commit.message, '[publish-context]') }}
+        run: |
+          uv run --frozen python -m nrfi.aws_publish_context_features --verify-only \
+            --multiseason-dir docs/multiseason_2015_2024 \
+            --evidence-dir docs/context_foundation_v1 \
+            --venue-reference docs/context_foundation_v1/venue_reference.json
+      - name: Publish context features to the encrypted versioned lake
+        if: >-
+          ${{ (github.event_name == 'workflow_dispatch' && inputs.mode == 'publish') ||
+              (github.event_name == 'push' &&
+               contains(github.event.head_commit.message, '[publish-context]')) }}
+        run: |
+          uv run --frozen --with boto3 python -m nrfi.aws_publish_context_features \
+            --multiseason-dir docs/multiseason_2015_2024 \
+            --evidence-dir docs/context_foundation_v1 \
+            --venue-reference docs/context_foundation_v1/venue_reference.json \
+            --bucket "$LAKE_BUCKET" \
+            --kms-key-arn "$KMS_KEY_ARN" \
+            --producing-commit "${{ github.sha }}" | tee published_context.json
+      - name: Upload context publication manifest
+        if: >-
+          ${{ (github.event_name == 'workflow_dispatch' && inputs.mode == 'publish') ||
+              (github.event_name == 'push' &&
+               contains(github.event.head_commit.message, '[publish-context]')) }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: published-context-manifest
+          path: published_context.json
+          if-no-files-found: error
+      - name: Read-only per-side audit of the immutable assembly package
+        if: >-
+          ${{ github.event_name == 'push' &&
+              contains(github.event.head_commit.message, '[audit-assembly]') }}
+        env:
+          LAKE_BUCKET: nrfi-probability-dev-660838763909-us-east-2-lake
+          AUDIT_DATE: "2026-07-21"
+        run: |
+          set -euo pipefail
+          mkdir -p pkgs
+          KEYS=$(aws s3api list-objects-v2 --bucket "$LAKE_BUCKET" \
+            --prefix "signals/pregame/assembly/${AUDIT_DATE}/" \
+            --query 'Contents[].Key' --output text)
+          echo "package_count=$(echo $KEYS | wc -w)"
+          : > manifest.jsonl
+          i=0
+          for K in $KEYS; do
+            VID=$(aws s3api head-object --bucket "$LAKE_BUCKET" --key "$K" \
+              --query VersionId --output text)
+            aws s3api get-object --bucket "$LAKE_BUCKET" --key "$K" "pkgs/${i}.json" \
+              >/dev/null
+            SHA=$(sha256sum "pkgs/${i}.json" | cut -d' ' -f1)
+            GEN=$(python -c "import json;print(json.load(open('pkgs/${i}.json')).get('generated_at'))")
+            BE=$(python -c "import json;p=json.load(open('pkgs/${i}.json'));print(sum(1 for g in p.get('games',[]) if g.get('eligibility',{}).get('batter_feature_eligible') is True))")
+            echo "manifest= {\"key\":\"$K\",\"version_id\":\"$VID\",\"sha256\":\"$SHA\",\"generated_at\":\"$GEN\",\"batter_eligible_games\":$BE}"
+            i=$((i+1))
+          done
+          echo "audited_no_collector_invocation=true"
+          echo "census="
+          uv run --frozen python -m nrfi.assembly_audit --select-dir pkgs

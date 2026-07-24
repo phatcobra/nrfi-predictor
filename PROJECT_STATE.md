@@ -1,6 +1,6 @@
 # NRFI Autopilot Project State
 
-Status date: 2026-07-16
+Status date: 2026-07-18
 
 Phase 0: **PASS WITH DOCUMENTED EXCEPTIONS**
 
@@ -8,9 +8,90 @@ Phase 1: **PASS WITH DOCUMENTED EXCEPTIONS**
 
 Phase 2: **PASS WITH DOCUMENTED EXCEPTIONS**
 
-Current task: **publish deterministic candidate-comparison evidence**
+AWS platform: **STAGE 3 — PREGAME COLLECTOR LIVE, 29 ELIGIBLE ROWS FOR 2026-07-19**
 
-Current branch: `chore/phase1-environment-foundation-20260715`
+Current task: **add valid point-in-time predictive signal through the existing AWS pipeline**
+
+Current branch: `feat/aws-probability-platform-20260717`
+
+Current required output: **NO QUALIFIED WAGER**
+
+## AWS probability-platform checkpoint
+
+The frozen probability baseline is reproduced in AWS in approved region
+`us-east-2`. The successful private Fargate job used image digest
+`sha256:23dfb0df95bc2cc423bcce2476a1f3ab8f7a450fc82d8605accc2740d1e90f0a`
+from source commit `bcc2c2aa32bb3a55aeb80d178619b6a4cfa0d753`. It ran with 2
+vCPU, 4,096 MiB, no public IP, no internet or NAT route, one attempt, and a
+two-hour timeout. The measured successful-job duration was 64.691 seconds, and
+no Batch job remained active afterward.
+
+The container read only the committed 2021-through-2024 package. It verified all
+source and generated artifact hashes and row counts, then performed the existing
+two-pass deterministic comparison with 32 uncertainty and 2,000 score-bootstrap
+replicates. All 29,148 candidate predictions and 29,148 grades matched the frozen
+package one-to-one after deterministic platform identity remapping. Model,
+calibrator, prediction, grade, and fold links passed; probability complements
+passed; the maximum record delta was `1.1712852909795402e-13`, below the declared
+`1e-12` tolerance. The sole scientific conclusion remains
+`PREDICTIVE SKILL NOT ESTABLISHED`. The 2025 holdout was not opened, copied,
+uploaded, provisioned, or referenced.
+
+Three fail-closed diagnostic attempts preceded success: revision 1 exposed a
+missing container package path, revision 2 rejected exact cross-platform
+evaluation equality, and revision 3 rejected platform-sensitive derived hashes.
+Each defect was corrected in the offline replay wrapper only. Production model
+code, dependencies locked in `uv.lock`, normalized data, features, folds,
+probabilities, metrics, manifests, and frozen evidence were not modified.
+
+The result SHA-256 is
+`e4269bf2436d107a4792a475a7f616874050d408ececd10e85afc6f8b8c19cd5`.
+The result and bounded run metadata are stored as versioned, KMS-encrypted
+objects under `aws-baseline/2026-07-17/` and locked in governance mode until
+2027-07-18. The public evidence summary is
+`docs/aws/baseline_reproduction.json`.
+
+The minimum AWS foundation contains three private, versioned, public-blocked,
+KMS-encrypted buckets; immutable KMS-encrypted ECR; one private subnet; a free S3
+gateway endpoint; exactly three single-AZ interface endpoints for ECR API, ECR
+Docker, and CloudWatch Logs; a rotating KMS key; a bounded log group; and a
+scale-to-zero Batch environment capped at 2 vCPU. It contains no NAT gateway,
+public workload address, Lambda, API Gateway, Glue, SageMaker, scheduled job, or
+holdout bucket. Terraform `1.12.2` with `hashicorp/aws v5.100.0` passes format,
+validation, and zero-drift checks against the KMS-encrypted remote state.
+
+The account-wide monthly budget is `$30`, with 50% forecast, 80% actual, and
+100% actual notifications. The approximate endpoint floor is `$21.90` per
+730-hour month and the rotating KMS key adds about `$1`, before storage, logs,
+data processing, and the bounded Fargate runtime. AWS Budgets currently reports
+`$0.00`; Cost Explorer reports data unavailable because new-account cost data
+has not yet been ingested, so observed cost remains an operational lag rather
+than a verified zero.
+
+CloudTrail is logging and delivering without a recorded delivery or digest
+error. Root MFA is enabled and root has no access keys. The temporary bootstrap
+access key and user are deleted. Superseded managed-policy versions are deleted.
+The deployment role now has exactly one trust statement: GitHub OIDC for
+`repo:phatcobra/nrfi-predictor:ref:refs/heads/feat/aws-probability-platform-20260717`;
+the temporary root bootstrap trust is removed.
+
+The container release gate is cleared. `Dockerfile.aws` now uses immutable
+Amazon Linux 2023 base digest
+`sha256:f03a6d1b59561c1347a4c386ecb8e38588050cffa290f0ac4f5c7246d055a36e`
+with Python `3.11.15-1.amzn2023.0.3` and `libgomp`
+`14.2.1-7.amzn2023.0.2`. Immutable tag `runtime-7602b07358b2` resolves to ECR
+digest `sha256:710237682af8ba399c2658e4d2846c050e2275a32360430498173f6e3764534e`.
+Its scan is `COMPLETE` with zero critical, high, medium, low, informational, or
+undefined findings. Existing private Batch job definition revision 5 uses that
+digest; revision 4 remains active and available for rollback.
+
+Draft PR #8 remains the sole AWS implementation pull request and must not be
+merged, retargeted, or otherwise modified by this checkpoint. This checkpoint
+is committed locally on the existing branch and is not pushed because advancing
+the remote branch would modify that pull request. No historical data was
+reacquired, no asset scan was repeated, and no private workstation path,
+credential, raw local dataset, or locked evaluation evidence entered AWS or the
+repository.
 
 The Phase 0 asset inventory, per-file manifest, reconciliation, data-gap analysis,
 repository assessment, and risk register are complete. Their two deterministic
@@ -23,9 +104,10 @@ uploaded local assets, or inspected locked evaluation evidence.
 |---|---|
 | Phase 0 documentation branch is unpublished | Nonblocking publication backlog; publish separately when tooling permits |
 | `${MLB_MODEL_REPO}` has 34 modified and 7 untracked paths | Read-only quarantine; do not reset, clean, stash, commit, overwrite, train from, or otherwise alter it |
-| Browser and Computer bridges are unavailable | Operational limitation; signed-in account inspection remains unavailable |
-| GitHub protection, billing, benefits, and zero-overage settings are unverified | Operational risk; no paid, cloud, subscription, or permission-changing action is authorized |
-| GitHub authentication and SSH connectivity | Restored for account `phatcobra`; remote mutation remains limited to the existing PR #6 branch and pull request |
+| GitHub protection, benefits, and zero-overage settings are unverified | Operational risk; no new paid subscription or weakened repository gate is authorized |
+| GitHub authentication and SSH connectivity | Restored for account `phatcobra`; remote mutation remains limited to the existing PR #8 branch and pull request |
+| AWS Cost Explorer ingestion | Newly enabled account data is unavailable; the budget currently reports `$0.00`, which is not accepted as evidence of zero accrued cost |
+| Container release scan | Resolved: immutable runtime digest `sha256:710237682af8ba399c2658e4d2846c050e2275a32360430498173f6e3764534e` is `COMPLETE` with all severity counts zero |
 | GitHub-hosted action Node.js 20 runtimes | Nonblocking deprecation warning on the successful release gate; update pinned actions separately before GitHub ends forced Node.js 24 compatibility |
 | Some quarantined files remain incompletely inspected | They remain unadmitted and cannot be used for training, evaluation, or production |
 
@@ -435,12 +517,1955 @@ files containing 136,656 JSONL rows, four YAML files, and one TOML file. The 15
 publication files contain no recognized secret or private workstation path, and
 `git diff --check` passes.
 
-## Exact next action
+## Deterministic continuation checkpoint — 2026-07-17
 
-After committing and publishing this evidence on the existing integration
-branch, use the authoritative inventory without rescanning to identify a lawful
-controlled source of timestamped historical probable-starter identities for
-pre-2025 development games. Admit identities only when pregame availability can
-be proven, quantify coverage and rejection reasons, and otherwise fail closed.
-Do not substitute actual starters, inspect 2025, or begin market, wager, cloud,
-promotion, or production work.
+### Permanent project goal
+
+Build and operate the complete reproducible, production-grade MLB NRFI/YRFI
+probability platform on AWS. The permanent scope includes lawful point-in-time
+baseball, pitcher, Statcast, lineup, park, weather, umpire, schedule, travel,
+injury, and sportsbook ingestion; leakage-resistant features; chronological
+out-of-sample modeling and calibration; conservative uncertainty and market
+comparison; fail-closed decision and risk gates; probability API and browser
+interface; scheduling, monitoring, grading, retraining, promotion, rollback,
+recovery, audit, security, and cost controls. AWS foundation work, baseline
+replay, data publication, and individual feature tables are components rather
+than completion conditions. Until every qualification gate passes, the required
+decision output is `NO QUALIFIED WAGER`.
+
+### Repository checkpoint
+
+- Existing branch: `feat/aws-probability-platform-20260717`; existing draft PR:
+  `#8`; no branch, worktree, or pull request was created for this checkpoint.
+- Validated publication head before this state-record commit:
+  `162fd92f78ae4b96d2622d12959c510828938321`.
+- Ordered new implementation commits after the previously published
+  `fa9763059144b2e83d62c983a9a907f36142b787` checkpoint:
+  `3db6d38e40ac053832d7034433a1dad2283a6a05`,
+  `ce571dca5ea25e16fe70b9f6d396216607522ed6`,
+  `11fdef7b272e2347bd9e8351fb4def5f43dfb5e7`, evidence metadata commit
+  `ee76650ab8f1a4a9f1e32916c85dd7469bc0943f`, container repair commit
+  `9e1f643b04ee98931e334d75eb2f3077df7e9514`, and evidence-table commit
+  `162fd92f78ae4b96d2622d12959c510828938321`.
+- The CloudShell producing commit
+  `352974280a4d9ec8e101bc4553837379060e5f0b` and local publication head
+  `162fd92f78ae4b96d2622d12959c510828938321` have the identical Git tree
+  `0f253588118d0361988d716290ad56d3dcd5f9a3`. CloudShell preserves the
+  state-record commit `038136d7ac135b30211fca58547cdb7946999e65` and its verified bundle. The
+  workstation checkout now contains the same validated implementation and
+  generated evidence as atomic commits; do not reset, clean, stash, or rewrite
+  either history.
+
+### AWS resource state and identifiers
+
+- Account `660838763909`; approved region `us-east-2`.
+- Storage buckets:
+  `nrfi-probability-dev-660838763909-us-east-2-raw`,
+  `nrfi-probability-dev-660838763909-us-east-2-lake`, and
+  `nrfi-probability-dev-660838763909-us-east-2-evidence`. All are private,
+  versioned, and KMS-encrypted; raw and evidence use Object Lock. The KMS alias
+  is `alias/nrfi-probability-dev-platform`.
+- ECR repository:
+  `660838763909.dkr.ecr.us-east-2.amazonaws.com/nrfi-probability-dev-pipeline`.
+  Preserved blocked tag:
+  `commit-352974280a4d9ec8e101bc4553837379060e5f0b`; immutable manifest digest:
+  `sha256:2467211600b1a3f56e7d80fa1d05586e02f0bd3c4b0eee34210c63167ada983a`.
+  Live immutable tag `runtime-7602b07358b2` resolves to release-gated digest
+  `sha256:710237682af8ba399c2658e4d2846c050e2275a32360430498173f6e3764534e`.
+- Batch compute environment ARN:
+  `arn:aws:batch:us-east-2:660838763909:compute-environment/nrfi-probability-dev-fargate`;
+  queue ARN:
+  `arn:aws:batch:us-east-2:660838763909:job-queue/nrfi-probability-dev-baseline`;
+  active job definition:
+  `arn:aws:batch:us-east-2:660838763909:job-definition/nrfi-probability-dev-baseline-replay:5`.
+  Revision 4 remains active as the verified rollback definition.
+- Network: default VPC `vpc-0022f9516b839ad93`; private subnet
+  `subnet-0685bb9da6eb5c3a1` (`172.31.48.0/24`, `us-east-2a`, no public IP);
+  S3 gateway endpoint `vpce-0f57a78509aef5802`; ECR Docker endpoint
+  `vpce-017a206f6efa5becb`; ECR API endpoint `vpce-073bf6bdb57b3d0d0`;
+  CloudWatch Logs endpoint `vpce-03f9e321d97c4e9c7`.
+- The Fargate compute environment and queue are `ENABLED`/`VALID`. Counts for
+  `SUBMITTED`, `PENDING`, `RUNNABLE`, `STARTING`, and `RUNNING` jobs are all
+  zero. No Lambda, API Gateway, Glue, SageMaker, scheduled job, or duplicate
+  network resource was added in this operation.
+
+### Completed and validated work
+
+- The Phase 0 inventory remains authoritative; no scan or acquisition was
+  repeated. Exactly 875 manifest-approved 2021-through-2024 Statcast partitions
+  (579,360,770 bytes) produced 19,432 actual-starter game histories and 19,432
+  strict-prior feature snapshots. Of those, 17,509 profiles (90.103952%) meet
+  the minimum prior-history threshold.
+- Historical prediction joins remain explicitly ineligible at 0% because no
+  timestamped probable-starter snapshot is admitted. Actual starter identities
+  are used only for postgame attribution; no probable identity is invented.
+- Two complete offline generations are byte-identical for all five package
+  files. Manifest hashes, byte sizes, row counts, Parquet reads, date bounds,
+  private-path checks, and the five focused tests pass. Dates are bounded from
+  2021-04-01 through 2024-09-30.
+- Two Parquet objects were written to the versioned KMS lake under feature
+  version `pitcher-statcast-strict-prior-v1`. The manifest, coverage,
+  zero-row rejection log, and transfer archive were written to the versioned
+  KMS evidence bucket with Governance retention through July 2027. All six AWS
+  objects have verified byte counts, SHA-256 checksums, encryption, and version
+  IDs. No raw workstation cache was uploaded.
+- `Dockerfile.aws` was repaired without changing application code or the locked
+  dependency graph. It now uses immutable Amazon Linux 2023 digest
+  `sha256:f03a6d1b59561c1347a4c386ecb8e38588050cffa290f0ac4f5c7246d055a36e`,
+  exact Python package `3.11.15-1.amzn2023.0.3`, exact `libgomp` package
+  `14.2.1-7.amzn2023.0.2`, and `UV_PYTHON=/usr/bin/python3.11`. Runtime smoke
+  verification loaded Python 3.11.15, glibc 2.34, LightGBM 4.6.0, PyArrow
+  25.0.0, and the existing replay module as non-root user `65532:65532`.
+
+### Verified live-AWS checkpoint
+
+Immutable tag `runtime-7602b07358b2` was built once and pushed once. ECR digest
+`sha256:710237682af8ba399c2658e4d2846c050e2275a32360430498173f6e3764534e`
+reports scan status `COMPLETE` with critical, high, medium, low, informational,
+and undefined counts all zero. The known-blocked tag and digest remain unchanged
+and were not deployed.
+
+Existing private Batch job definition revision 5 points to the clean digest;
+revision 4 remains available for rollback. Job
+`f8419681-7513-4b73-86e6-f0adaaee2c36` completed `SUCCEEDED` with exit code 0,
+one attempt, no public IP, and `NRFI_LOCKED_HOLDOUT_ACCESS=DENIED`. The job
+verified 29,148 predictions and 29,148 grades, deterministic replay `PASS`, and
+analytical equivalence at or below the declared `1e-12` tolerance; the maximum
+record delta was `1.1712852909795402e-13`. It reported
+`locked_holdout_used=false` and `market_data_used=false`.
+
+The verified calibrated probability response, restricted to probability and
+uncertainty, is:
+
+```json
+{
+  "p_nrfi": 0.511138831136253,
+  "p_yrfi": 0.4888611688637469,
+  "uncertainty": {
+    "lower_95": 0.4164458332468519,
+    "method": "official-date-cluster-model-bootstrap-v1",
+    "replicates": 32,
+    "standard_error": 0.03987121250858687,
+    "upper_95": 0.5626698522933542
+  }
+}
+```
+
+After verification, `SUBMITTED`, `PENDING`, `RUNNABLE`, `STARTING`, and
+`RUNNING` job counts were all zero; Docker was idle; the ECR authentication
+entry was absent; and no build, push, or Terraform operation remained active.
+No new service, schema, endpoint, or recurring infrastructure was created. The
+scientific status remains `PREDICTIVE SKILL NOT ESTABLISHED`, so the required
+output remains `NO QUALIFIED WAGER`.
+
+### Costs and budget
+
+The account-wide budget remains `$30` per month with the existing 50% forecast,
+80% actual, and 100% actual notifications. The private interface-endpoint floor
+remains approximately `$21.90` per 730-hour month and the rotating KMS key adds
+about `$1`, before storage, logs, data processing, ECR storage, and bounded
+Fargate runtime. This checkpoint added one immutable ECR image and one bounded
+Fargate validation job but no new recurring service or infrastructure floor.
+Cost Explorer ingestion remains
+lagged, so the project must not claim verified zero spend.
+
+### Preserved local-only state
+
+- The authoritative Phase 0 manifests, two completed scans, per-file manifest,
+  checksums, and asset cache remain local and must not be reacquired.
+- `.cache/nrfi_pitcher_statcast/replay2` preserves the second deterministic
+  feature replay. The local transfer archive and Git bundle are preserved under
+  the ignored pitcher-Statcast cache. The manifest-approved raw Statcast cache
+  remains local-only.
+- CloudShell retains state commit
+  `038136d7ac135b30211fca58547cdb7946999e65` and its preserved dirty
+  `Dockerfile.aws` runtime copy. Do not clean, reset, commit, or otherwise touch
+  that checkout. The unused local Lambda image cache and temporary transfer and
+  validation copies were removed only to recover CloudShell disk; the pushed
+  ECR image, Git state, remote Terraform state, and source evidence remain
+  recoverable and unchanged.
+- The dirty external `mlb-model` repository remains read-only and quarantined.
+
+### Safe stopping state
+
+The single Docker build, smoke verification, ECR push, clean scan, Batch
+revision registration, and live validation job are complete. The ECR login was
+removed and the Docker configuration no longer contains that registry
+authentication entry. There is no active Docker, build, push, or Terraform
+process; no active Batch job; no partial S3 write identified; no Terraform apply
+in progress; and no user-created temporary AWS credential. The prior bootstrap
+user/key remain deleted. CloudShell intentionally preserves only its dirty
+`Dockerfile.aws` runtime copy and must not be touched. The scanned ECR image,
+rollback revision, and all S3 objects are immutable/versioned and recoverable.
+
+### Commands and operations that must not be repeated
+
+- Do not rerun either Phase 0 asset scan or reacquire the 2021-through-2024 MLB
+  or Statcast source set.
+- Do not rerun the completed 19,432-row pitcher feature generations or their
+  deterministic replay unless their preserved outputs fail verification.
+- Do not rerun the frozen AWS baseline Batch replay or the completed local model
+  comparison/model-selection work.
+- Do not rerun successful live validation job
+  `f8419681-7513-4b73-86e6-f0adaaee2c36`, rebuild or repush immutable tag
+  `runtime-7602b07358b2`, or repeat its completed ECR scan.
+- Do not re-upload the six pitcher-Statcast package objects or rebuild/push ECR
+  tag `commit-352974280a4d9ec8e101bc4553837379060e5f0b`.
+- Do not run `terraform apply` merely to reproduce this checkpoint; the current
+  operation made no Terraform change.
+- Do not access, copy, upload, tune against, or evaluate the locked 2025
+  holdout.
+
+### Exact next operation
+
+Continue directly with AWS-hosted point-in-time signal production through the
+existing resources: define and validate the bounded signal input/output
+contract, connect admitted pregame snapshots to the existing chronology-safe
+feature and calibrated probability path, and expose probability plus
+uncertainty through the existing AWS deployment boundary. Add API hosting only
+when technically indispensable to that product path; do not perform PR,
+publication, audit, or governance expansion as the next operation. Preserve the
+locked 2025 holdout, keep `NRFI_LOCKED_HOLDOUT_ACCESS=DENIED`, and emit
+`NO QUALIFIED WAGER` until every scientific and decision gate passes.
+
+### Live probability API checkpoint — 2026-07-18
+
+Validated implementation commit
+`26a845ab2d5e77ef70737208c402e4f782ea1388` on existing branch
+`feat/aws-probability-platform-20260717` exposes the preserved calibrated
+probability through the existing AWS foundation. This commit remains local and
+is not pushed because pushing would mutate draft PR #8, which the current
+directive forbids.
+
+Terraform added only the sanitized lake object, one bounded CloudWatch log
+group, one least-privilege Lambda role and inline policy, one Python 3.11 Lambda,
+and one IAM-authenticated Function URL. The live endpoint is
+`https://42ajmftf4o2h4jiyaze2f447wm0jxiof.lambda-url.us-east-2.on.aws/`.
+An AWS SigV4-authenticated `GET` returned HTTP 200 with exactly:
+
+```json
+{"p_nrfi":0.511138831136253,"p_yrfi":0.4888611688637469,"uncertainty":{"lower_95":0.4164458332468519,"method":"official-date-cluster-model-bootstrap-v1","replicates":32,"standard_error":0.03987121250858687,"upper_95":0.5626698522933542}}
+```
+
+The same URL returned HTTP 403 without AWS authentication. Lambda state is
+`Active`, last update is `Successful`, runtime is Python 3.11 on `x86_64`,
+memory is 128 MiB, timeout is 10 seconds, and
+`NRFI_LOCKED_HOLDOUT_ACCESS=DENIED`. The response object is 284 bytes at
+`s3://nrfi-probability-dev-660838763909-us-east-2-lake/signals/sanitized/current/probability-response.json`,
+with `application/json`, `no-store`, and platform-key KMS encryption.
+
+The account concurrency quota requires all 10 executions to remain unreserved,
+so AWS rejected reserved concurrency 1. The failed apply stopped before URL
+creation; Terraform then replaced only the tainted incomplete Lambda, created
+the URL, and applied an in-place timeout correction. Final Terraform format and
+validation passed, the encrypted S3 state lock was released, and a full refresh
+plan reported `No changes`. The final state contains no active Batch jobs and no
+active Terraform, Docker build, or Docker push process.
+
+This endpoint adds no recurring monthly infrastructure floor beyond the
+existing approximately $21.90 private-network floor and KMS key; Lambda, logs,
+and S3 are usage-based and remain under the existing $30 monthly budget. No
+temporary credential was created, the 2025 holdout remains untouched, and the
+scientific status remains `PREDICTIVE SKILL NOT ESTABLISHED` with required
+output `NO QUALIFIED WAGER`.
+
+Do not reapply `/tmp/nrfi-probability-api.tfplan`,
+`/tmp/nrfi-probability-api-v2.tfplan`, or
+`/tmp/nrfi-probability-api-v3.tfplan`; their completed effects are represented
+in encrypted remote state. The exact next product operation is to produce and
+join valid timestamped pregame pitcher and Statcast signals through the existing
+AWS feature path, then generate new chronological out-of-sample probabilities
+without accessing or tuning against 2025. Do not add another service, audit,
+schema framework, branch, worktree, or pull request first.
+
+### Timestamped probable-starter AWS checkpoint - 2026-07-18
+
+The permanent goal remains a production-grade AWS-hosted MLB NRFI/YRFI
+probability platform. The active product boundary is calibrated NRFI/YRFI
+probability with uncertainty. The scientific state remains
+`PREDICTIVE SKILL NOT ESTABLISHED`, and the required fail-closed output remains
+`NO QUALIFIED WAGER`.
+
+One official StatsAPI schedule response for games on `2026-07-19` was persisted
+at `2026-07-18T04:47:28.706439Z`. Its 46,037-byte response SHA-256 is
+`ad1313ef710094d83b4aef12471d6a9a09da3df7012b4647079ac153482a453c`.
+All package generations after that acquisition used the checksum-verified local
+cache with networking disabled. The raw response remains local-only and was not
+written to the repository or AWS.
+
+The derived package contains 15 regular-season games and 30 game-side rows.
+Twenty-nine rows have an official probable starter observed before the scheduled
+cutoff. Twenty-two rows match an inventoried strict-prior Statcast profile, and
+20 of those profiles meet the existing minimum-history rule. Inference coverage
+is still zero: those 20 profiles stop before the intervening locked season, two
+profiles lack sufficient prior history, seven pitcher IDs are absent from the
+inventory, and one game side has no probable starter. The package therefore
+does not invent a current game probability.
+
+The producing code and seven focused tests are an isolated commit on the
+preserved CloudShell copy of existing branch
+`feat/aws-probability-platform-20260717`:
+`7b365dd004aa3a1edb6d65cd6dfce091b6ac7216`. This commit contains only
+`nrfi/pregame_snapshot.py` and `tests/test_pregame_snapshot.py`. The files are
+byte-equal to the locally validated files. No push or pull-request mutation was
+performed. This CloudShell history is based on preserved CloudShell head
+`038136d7ac135b30211fca58547cdb7946999e65`; it must not be mistaken for the
+workstation branch head or pushed without intentional lineage reconciliation.
+
+The workstation remains on branch `feat/aws-probability-platform-20260717` at
+`589963ab896dcb7a880c2fc11d15b47052ce2786`, three commits ahead of its remote.
+Its Git metadata is outside the currently writable workspace, so the two code
+files, the five-file derived package under
+`docs/pregame_snapshot/2026-07-19`, and this state update remain uncommitted and
+preserved. Do not reset, clean, stash, overwrite, or regenerate them.
+
+Validation evidence:
+
+- focused pytest: 7 passed; one non-test-failure warning reports that pytest
+  could not write its cache directory;
+- Ruff lint and Ruff format check: passed;
+- Pyright: 0 errors, 0 warnings;
+- byte compilation and `git diff --check`: passed;
+- two offline replays plus the derived package are byte-identical for all five
+  files;
+- every manifest byte count, SHA-256, and row count passed; 30 snapshot IDs and
+  30 feature IDs are unique and linked one-to-one;
+- all eligible snapshot observations precede their prediction cutoffs, and all
+  joined profiles precede their observation timestamps;
+- private-path, secret, raw-response, and locked-2025 checks passed.
+
+The five derived files are live in the existing versioned, private, KMS-encrypted
+lake under
+`s3://nrfi-probability-dev-660838763909-us-east-2-lake/signals/pregame/official-statsapi/2026-07-19/`.
+They use KMS key
+`arn:aws:kms:us-east-2:660838763909:key/7772a2e9-e516-49ff-b2e1-0067567f52a8`
+and `Cache-Control: no-store`. Exact latest versions are:
+
+- `artifact_manifest.json`, 1,000 bytes,
+  `bhatJLtUEWn4oeMCOEMWUiAGZFcFN7nO`;
+- `coverage.json`, 859 bytes, `ugHH5Qe4eDVZcCrYLfqxn.Eq3KLrTLVm`;
+- `pitcher_features.jsonl`, 58,449 bytes,
+  `_wHkkd0IbKTU4Nu8nj2WfCowoASWvD_B`;
+- `probable_starters.jsonl`, 24,651 bytes,
+  `IgFkluPiI3mUyleobZf_S3znkZEPUo5J`;
+- `provenance.json`, 481 bytes, `GmPGViryTdbvf0bays.djLTCuA2r7FIv`.
+
+No AWS service, Terraform resource, subscription, credential, Batch job, or
+recurring cost was created. The only AWS mutations were these five small
+versioned S3 objects and temporary files in the existing CloudShell home
+directory. The `$30` monthly budget and existing network/KMS cost floor are
+unchanged apart from negligible S3 storage and request usage.
+
+Preserved local-only state includes the raw source cache, two replay directories,
+and the 16,674-byte transfer archive under
+`.cache/nrfi_pregame/2026-07-19`. Do not repeat the July 19 StatsAPI acquisition,
+the three package generations, or the five S3 uploads while the recorded hashes
+and version IDs remain available and valid.
+
+The exact next product operation is not infrastructure. It is to obtain lawful,
+timestamp-verifiable pregame starter identities for a development-period sample
+or accumulate forward snapshots, then build strict-prior pitcher/Statcast
+features with history available before each cutoff and re-run chronological
+out-of-sample evaluation. Postgame actual starters may not substitute for that
+evidence. The 2025 holdout remains locked and untouched.
+
+## Forward snapshot collector checkpoint - 2026-07-18
+
+The scheduled forward collector for immutable timestamped probable-starter
+snapshots is live in AWS. Implementation commit
+`af6c178a59eafa0af6489c3d57864f49f04fe08b` added
+`nrfi/aws_pregame_collector.py` (schema `forward_probable_starter_capture.v1`,
+reusing the committed `pregame_snapshot` acquisition and normalization path
+through lazy imports), six focused tests, `terraform/pregame_collector.tf`, and
+the OIDC deployment workflow `.github/workflows/terraform-deploy.yml`. Workflow
+commits `f0a68f5` and `c740ec9` added branch-push triggering and KMS-encrypted
+state locking. The change-set gate passed Ruff lint and format, Pyright
+`0 errors, 0 warnings, 0 informations`, and the complete offline suite
+`158 passed, 1 skipped, 21 warnings`; CI remained green through run
+`29663636034`.
+
+Deployment executed under GitHub OIDC role
+`nrfi-probability-terraform-deployer`; no root or long-lived credential ran
+Terraform. Managed policy `nrfi-probability-stage2-deployer` was extended from
+the operator console session as bounded bootstrap actions: version v5 added
+`lambda:*`, `events:*`, and Lambda log-group management scoped to
+`nrfi-probability-*` resources plus `logs:DescribeLogGroups`; version v6 added
+`iam:PassRole` for `arn:aws:iam::660838763909:role/nrfi-probability-*`. Prior
+policy versions remain available for rollback. The first apply attempt
+(run `29663147439`, commit `917dd31`) failed closed on the missing
+`iam:PassRole` permission and mutated nothing.
+
+Terraform run `29663385687` (trigger commit `41de6ba`) applied the reviewed
+plan `7 to add, 1 to change, 0 to destroy`; the single in-place change
+realigned `aws_batch_job_definition.baseline` with the already-deployed clean
+image digest. Created resources:
+
+- Lambda `nrfi-probability-dev-pregame-collector` (python3.11, 256 MiB, 120 s
+  timeout, `NRFI_LOCKED_HOLDOUT_ACCESS=DENIED`), verified `Active` and
+  `Successful`;
+- IAM role and boundary policy `nrfi-probability-dev-pregame-collector`
+  limited to `s3:PutObject` under `signals/pregame/official-statsapi/forward/`,
+  KMS via S3, its own bounded log group, and explicit locked-holdout denies;
+- log group `/aws/lambda/nrfi-probability-dev-pregame-collector` with 30-day
+  retention;
+- EventBridge rule `nrfi-probability-dev-pregame-collector-schedule`,
+  verified `ENABLED` with `cron(3 11,13,15,17,19,21,23,1 * * ? *)` (eight
+  captures per day for the market's today and tomorrow), plus its target and
+  invoke permission.
+
+The controlled first invocation returned status 200 in 3,420 ms and wrote two
+versioned, KMS-encrypted, `no-store` captures whose keys, byte counts, and
+version IDs were independently re-read from S3 afterward:
+
+- `signals/pregame/official-statsapi/forward/2026-07-18/capture-20260718T222823Z.json`,
+  26,120 bytes, version `Rp7NoKU12L98CoZjtzSUtShEaHC_Y9x3`, 30 rows, 6
+  pregame-eligible;
+- `signals/pregame/official-statsapi/forward/2026-07-19/capture-20260718T222824Z.json`,
+  26,925 bytes, version `jhvZWkcM6nQKmS4sY2mOBcKEvXS9tVfm`, 32 rows, 29
+  pregame-eligible.
+
+Captures persist derived rows, request parameters, retrieval timestamps, and
+the source response SHA-256 only; no raw StatsAPI payload was uploaded, and
+`locked_2025_holdout_accessed` is false in both captures. After verification,
+`RUNNING` Batch jobs were zero, no temporary AWS credential existed, and the
+only new recurring usage is the schedule's negligible Lambda, S3, and KMS
+request cost inside the approved `$30` monthly budget.
+
+A public-archive probe for 2022-2024 probable-pitcher pages could not be
+executed from this session because the fetch path is blocklisted; lawful
+timestamp-verifiable historical probable-starter evidence therefore remains
+unavailable, and scheduled forward accumulation is the active remedy.
+
+The exact next product operation is to admit accumulated forward captures from
+the lake into the shared feature path: verify capture checksums, join
+strict-prior Statcast profiles, surface per-game eligibility and rejection
+reasons through the existing IAM-authenticated endpoint, then extend lineup,
+park, weather, umpire, rest, travel, and injury point-in-time inputs and re-run
+strict chronological evaluation. The scientific status remains
+`PREDICTIVE SKILL NOT ESTABLISHED`; the required output remains
+`NO QUALIFIED WAGER`.
+
+## Live forward assembly checkpoint - 2026-07-19
+
+Accumulated forward captures are now admitted into the shared production
+feature path on AWS, and the IAM-authenticated endpoint serves real
+request-specific assembly status. Implementation commit `0c31fd5` added
+`nrfi/forward_admission.py` (capture discovery, schema and identity
+validation, explicit rejections, point-in-time selection with preserved
+revision lineage, strict-prior profile join, per-game fail-closed assembly)
+plus eight focused admission tests, seven endpoint tests, one collector
+wiring test, and the Terraform for both Lambdas. Commits `13bb81e` and
+`904bae8` sized the collector at 1024 MiB for the profile projection. The
+gate for the change set was Ruff lint/format clean, Pyright `0 errors`, and
+the complete offline suite `172 passed, 1 skipped, 21 warnings`; CI stayed
+green through run `29668666368`.
+
+The strict-prior profile table now has a lossless JSONL projection for the
+stdlib Lambda runtime at
+`features/pitcher-statcast-strict-prior-v1/profiles.jsonl`
+(40,608,284 bytes, SHA-256
+`b6a164f6aaacccad88365a90667525a35024915e27bd62e80216a90c019fc071`, version
+`In6dj0vA6fjCBqBiGn2T4yKNvbQ2X42D`, 19,432 rows, 17,509 eligible, zero NaN
+projections, cutoff years 2021-2024 only), derived in CloudShell with PyArrow
+25.0.0 from committed parquet
+`features/pitcher-statcast-strict-prior-v1/producing_commit=11fdef7b272e2347bd9e8351fb4def5f43dfb5e7/pitcher_features.parquet`
+(source SHA-256
+`9ec5ea9250a09ff7055459e960252b305e0b5e9772aa85dcc6b7d7078a9ff1a7`, version
+`sp.tPTyJms.SIny5yWW0nKly4x432bta`); provenance sidecar version is
+`lSDk7MTaHqd0CXvy8vHq9lziKwD_BF7V`.
+
+Deployment ran only through the GitHub OIDC deployer. Run `29668474511`
+planned `0 add, 4 change, 0 destroy`; dispatch run `29668618357` applied it;
+dispatch run `29668657458` confirmed `No changes`; run `29668844142` applied
+the memory sizing (`0 add, 1 change, 0 destroy`). No resource was destroyed
+or replaced at any point.
+
+Independent live verification: the collector (1024 MiB, Active/Successful)
+returned HTTP 200 and published assembly packages for 2026-07-18 (4 admitted
+captures, 15 games) and 2026-07-19 (4 admitted captures, 16 games) with
+`profiles_status=PROFILES_LOADED`. `feature_assembly_eligible_games` is `0`
+on both dates, and that zero is the correct fail-closed product of the
+recorded scientific gap: every side blocks on
+`PROFILE_MISSING_INTERVENING_SEASON_HISTORY`,
+`PROFILE_MINIMUM_PRIOR_STARTS_NOT_MET`, or
+`NO_STRICT_PRIOR_STATCAST_PROFILE` because the 2025 season remains locked.
+The latest verified package is
+`signals/pregame/assembly/2026-07-19/assembly-20260719T013838Z.json` with
+`package_id`
+`0ebc4e68a97378027021edacbdd3154e1f8f1a2b9eda7541ad54eb90f328b4e5`.
+
+Endpoint verification: an unauthenticated game query returned HTTP 403; a
+SigV4 `GET ?game_pk=822786&date=2026-07-19` returned HTTP 200 with the real
+per-game assembly (layered eligibility all false above the snapshot level,
+`freshness_seconds` 2,
+`probability_ineligibility_reasons`
+`["APPROVED_MODEL_UNAVAILABLE","PREDICTIVE_SKILL_NOT_ESTABLISHED"]`, and
+`"wager_decision":"NO QUALIFIED WAGER"`); the root path still returns the
+byte-identical preserved response now explicitly labeled
+`x-nrfi-response-class: preserved-baseline-not-current-inference`.
+
+After verification no Batch job was active in any state and no temporary
+credential persisted; SigV4 test credentials were confined to subshells. The
+new usage (one 40.6 MB object, small assembly objects, eight collector
+invocations per day at 1024 MiB) stays within the approved `$30` monthly
+budget. A deferred security follow-up remains recorded: narrow the deployer
+policy's `lambda:*`/`events:*` grants to the enumerated action set after the
+next stable deployment window.
+
+The exact next product operations are, in order: timestamped lineup
+collection and admission through the same forward pattern; batter and
+top-of-order features; park factors; pregame weather forecasts; umpire
+assignments; rest, travel, and workload effects; then strict chronological
+re-evaluation over the accumulated forward window before any model approval.
+The scientific status remains `PREDICTIVE SKILL NOT ESTABLISHED`; the
+required output remains `NO QUALIFIED WAGER`.
+
+## Expanded-history admission checkpoint - 2026-07-19
+
+A read-only inventory reconciled every located 2015-2024 historical asset;
+the committed ledger is `docs/historical_inventory/2026-07-19/`
+(`inventory.json` + `summary.md`). Principal findings: the StatsAPI
+normalized-v2 cache and committed evidence remain the canonical outcome
+source; the quarantined `mlb-model` repository holds the 2015-2024 raw
+Statcast day-level cache (1.23 GB, 2,584 files, 2015-2025 mixed) and a
+3.78 GB DuckDB warehouse (Statcast/Retrosheet/Lahman/StatsAPI, includes
+2025); its 2025 members are HOLDOUT_BLOCKED, its derived outputs are
+holdout-contaminated and stay QUARANTINED, and its 2015-2024 slices are
+admission candidates strictly through a season<=2024 extraction contract
+that has not yet been executed. No historical weather, injury, or
+timestamped sportsbook-price asset was located. No source asset was
+modified; the 2025 holdout was not listed, loaded, or computed against.
+
+The precise 2026 assembly-rejection census (30 committed sides plus the
+32-side deployed run) is recorded in the ledger: one missing probable
+starter, seven pitchers absent from the 2021-2024 profile table, two below
+the minimum-starts threshold, twenty blocked only by the unnecessary
+requirement for locked-2025 intervening history, and zero identity,
+staleness, omission, or cutoff defects. Commit
+`a60be5a` corrected the unnecessary requirement: feature schema
+`pregame_pitcher_statcast_feature.v2` and assembly schema
+`pregame_game_assembly.v2` now express the gap as
+`profile_history_gap_seasons` / `profile_recent_history_missing` without
+erasing valid career history, and probability eligibility remains
+fail-closed behind model approval. Terraform run `29682891314` planned
+`0 add, 2 change, 0 destroy` and marker run `29682932564` applied it; both
+Lambdas run the v2 semantics. The full gate passed
+(`174 passed, 1 skipped, 21 warnings`; Ruff and Pyright clean).
+
+The multiseason engine then acquired and normalized the 2015-2020 regular
+seasons into the existing resumable cache (36 new monthly partitions,
+official StatsAPI, raw payloads in memory only) and produced the new
+expanded-history experiment package `docs/multiseason_2015_2024/`
+(17 artifacts, 124,756,722 bytes, per-file SHA-256 manifest, deterministic
+double-derivation replay PASS, producing commit
+`5a7a5b77de87b7b11510c83e7e5f228fc2ea4d43`). Coverage: 22,772 scheduled,
+22,761 accepted finalized games, 11 explicit rejections, 193
+cross-partition duplicate gamePks deduplicated with reconciliation
+records, 100% actual-starter coverage, 99.95% label coverage, and
+`locked_holdout_used=false` throughout. The prior `docs/multiseason`
+2021-2024 package and every existing prediction, grade, and baseline
+remain untouched.
+
+Chronological evaluation now spans nine expanding folds (train 2015..K,
+predict K+1, for K+1 in 2016-2024; the 2020 fold holds 898 pandemic-season
+predictions) with 20,330 out-of-sample predictions. Pooled candidate
+metrics: log loss `0.693166` versus `0.693277` overall climatology; Brier
+`0.250009` versus `0.250065`; ECE `0.010349`; calibration slope
+`0.583255`, intercept `-0.010933`. The official-date-clustered bootstrap
+(2,000 replicates) log-loss improvement is `+0.000111` with 95% interval
+`[-0.000263, +0.000...]` including zero. Key identities: configuration
+`f9044e29...96c728`, normalized partition `d81999b1...87f5aa`, features
+`2e92ae82...34f8dc`, predictions `ddd70534...49003c`, grades
+`7e76f426...dec5bb`, evaluation `9438d52b...14a5d4`, fold membership
+`7e8cb53a...ec2d11`. The decision on the maximum lawful outcome history is
+unchanged: `PREDICTIVE SKILL NOT ESTABLISHED`.
+
+2025-denial evidence: the engine CLI rejects any season >= 2025 by
+construction (`the locked 2025 holdout is prohibited`), the collector and
+admission paths carry dedicated locked-2025 tests (suite green), every
+manifest records `locked_holdout_used=false`, and no 2025 object exists in
+the project lake.
+
+Remaining operations, in order: execute the season<=2024 Statcast
+extraction contract from the quarantined raw cache and rebuild the
+pitcher profile table over 2015-2024 (then batter/top-of-order, team,
+park, platoon, rest/travel/workload tables with explicit missingness);
+verify Retrosheet coverage for lineups/umpires and admit or reject it;
+publish the expanded package and rebuilt tables to the versioned lake
+(pending operator console sign-in; the GitHub OIDC deploy path remains
+available); re-run the model-comparison family and calibration on the
+expanded features under a new experiment identity; and narrow the deployer
+policy's broad grants. The required outputs remain
+`PREDICTIVE SKILL NOT ESTABLISHED` and `NO QUALIFIED WAGER`.
+
+## Statcast extraction + profile rebuild checkpoint - 2026-07-19
+
+The pre-2025 Statcast extraction contract is implemented, executed, and
+committed. Commit `810815a` added `nrfi/statcast_extraction.py` and
+`tests/test_statcast_extraction.py` (five boundary tests, all passing inside
+the full suite `179 passed, 1 skipped`). The module builds an allowlist purely
+from directory and filename tokens over the quarantined
+`mlb-model/data/statcast_days/<year>/<month>/statcast_<y>_<m>_<d>.parquet`
+cache, where each season is a physically separate top-level directory, so the
+locked-2025 directory is never traversed for content. Aggregation and the
+strict-prior windowing reuse the proven `nrfi.pitcher_statcast` functions
+unchanged, preserving the committed 2021-2024 feature semantics.
+
+Executed build (producing commit `64b7ccc`) over the real cache:
+`day_files_admitted=2450`, `day_files_opened=2450`,
+`day_files_opened_2025=0`, `day_files_rejected=43`,
+`opened_source_bytes=1,167,901,647`. The 43 rejects are the entire 2025 season
+directory (never traversed), 42 `.corrupt_*` files, and non-matching names -
+each recorded in `source_file_ledger.jsonl` with `opened:false`. Zero locked
+files opened is proven both by the ledger identity
+`1e1f7410e51b1bd9c9fc825d28443a71f65b272f55a30b8f46d0eba972642677` and the
+runtime guard. Source files were read-only; the mixed DuckDB warehouse was
+never opened.
+
+Rebuilt strict-prior profiles span 2015-2024: 45,522 actual-starter games
+(100% Statcast-matched, 0 rejected), 45,522 pitcher feature snapshots,
+42,437 profile-feature-eligible (93.223057%) across 1,168 distinct pitchers
+(860 ever-eligible) - versus 17,509 eligible in the old 2021-2024 table. Each
+snapshot carries career / last_5 / last_20 rate windows, workload
+(average_pitch_count), rest (days_since_previous_start), minimum-history
+(prior_starts_* with MINIMUM_PRIOR_STARTS=3), pitch quality (whiff / chase /
+hard-hit / barrel / fastball velocity), and platoon raw counts (vs-LHB / vs-RHB
+PA and K); every window uses only starts with scheduled_start_at and
+label_available_at strictly before the prediction cutoff, excluding the target
+game. Identities: history partition
+`3d2243a43deb2b70287c4efd777c510f1f0ef89c558251989981dcdc01f6b5e5`,
+feature partition
+`52c0d0a9405ee2096301d52c1d06e54c9c588a7ff4041738da916befa1ba90b8`,
+configuration inside `artifact_manifest.json`.
+
+Re-run 2026-07-19 rejection census against the rebuilt table
+(`rejection_census_2026_07_19.json`), 30 probable-starter sides:
+20 RESOLVED_ELIGIBLE_PROFILE (previously blocked by the spurious 2025
+intervening-history requirement, now backed by real 2015-2024 career history),
+7 NO_HISTORICAL_PROFILE_2015_2024 (genuine gaps - pitchers with no qualifying
+2015-2024 starts, i.e. debuts after 2024), 2 MIN_THRESHOLD_NOT_MET (2-3 career
+starts), 1 PROBABLE_STARTER_MISSING (no announced starter). No identity
+mismatch, stale-table, feature-omission, or cutoff defect appears; the seven
+absent pitchers are precisely genuine data gaps, not an unnecessary 2025
+requirement.
+
+Determinism is proven. Commit `d485129` added
+`tests/test_statcast_extraction_determinism.py`, which runs the complete
+extraction pipeline twice on a synthetic fixture and asserts byte-identical
+`pitcher_game_history.parquet`, `pitcher_features.parquet`,
+`source_file_ledger.jsonl`, `coverage.json`, and `artifact_manifest.json`, plus
+identical history/feature/ledger identities, and confirms the strict-prior
+window excludes the current and future starts (prior_starts_career 0 then 1).
+A confirmatory second full-cache build was started but abandoned for system
+contention; the fixture test is the durable determinism guarantee. AWS publish
+was not performed this turn. The rebuilt `pitcher_game_history.parquet` and
+`pitcher_features.parquet` are preserved in git alongside the committed ledger,
+coverage, manifest, and census so the dataset is durably versioned; the S3-lake
+publication (versioned, KMS-encrypted, under
+`features/pitcher-statcast-strict-prior-2015-2024-v1/`) and the live-assembly
+switch to the rebuilt profiles remain the exact next operations. 2025 stays
+fully locked; the required outputs remain `PREDICTIVE SKILL NOT ESTABLISHED`
+and `NO QUALIFIED WAGER`.
+
+### Exact next operations
+1. From CloudShell (needs interactive AWS sign-in), run the pending safety
+   verification: `aws sts get-caller-identity`, Batch job counts across all
+   active states on `nrfi-probability-dev-baseline`, and the 2025-prefix deny
+   check on the lake. No AWS mutation occurred this turn, so no job can exist
+   by construction, but the explicit check was blocked by console session
+   instability and should be recorded.
+2. Publish the two rebuilt parquet tables (local at
+   `docs/pitcher_statcast_2015_2024/`) to the encrypted, versioned lake under
+   `features/pitcher-statcast-strict-prior-2015-2024-v1/` and generate the
+   JSONL profile projection for the stdlib Lambda runtime, exactly as the
+   2021-2024 projection was produced.
+3. Point the live assembly collector's `NRFI_PITCHER_PROFILES_KEY` at the
+   rebuilt projection and re-verify the deployed game-assembly census (expect
+   20 of 30 sides to resolve, matching the local census).
+4. Continue through batter, team, park, platoon, rest, travel, lineup, umpire,
+   and lawful weather features, then the expanded model comparison and
+   calibration under a new experiment identity.
+
+Exact continuation command for the extraction/rebuild (reproduces the committed
+tables identically): `python -m nrfi.statcast_extraction --day-cache-dir
+C:\Users\ameis\mlb-model\data\statcast_days --multiseason-dir
+docs/multiseason_2015_2024 --output-dir docs/pitcher_statcast_2015_2024
+--producing-commit 64b7ccc0715df2cf41b74761d9c56a0c080d9fe0`.
+
+## Window-builder optimization checkpoint - 2026-07-19
+
+Phase 1 verified: branch `feat/aws-probability-platform-20260717` clean and
+synced at `81057a9` before this work, no unpushed or unrelated commits, active
+worktree correct. Local AWS CLI carries no long-lived credentials by design
+(`InvalidClientTokenId`) - itself the intended least-privilege posture; AWS
+read-verification and S3 publication run only through interactive CloudShell or
+the GitHub OIDC path. The committed Terraform retains the locked-holdout deny
+controls (`DenyLockedHoldoutStorage`, `DenyLockedHoldoutKeys`) as static 2025
+deny evidence; no 2025 prefix was enumerated.
+
+Phase 2 optimization is implemented and proven. Commit `d864686` added
+`build_pitcher_feature_snapshots_fast` to `nrfi/statcast_extraction.py`: the
+career window is accumulated left-to-right (identical float arithmetic to the
+reference prefix `sum`) while the bounded last_5 / last_20 windows reuse the
+exact `_window_metrics` over their <=20-row slices, so no feature meaning,
+cutoff, minimum-history rule, label, admitted partition, identity mapping, or
+chronology changes. Equivalence is proven, not assumed:
+`test_fast_builder_matches_reference_builder_exactly` asserts the fast and
+reference builders produce byte-identical snapshots (including the float
+fastball-velocity field and the >20-start career/trim edge that first exposed a
+`prior_starts_career` bug, now fixed), and the full-pipeline determinism test
+confirms two complete builds are byte-identical. The reference builder produced
+the committed real build (feature partition
+`52c0d0a9405ee2096301d52c1d06e54c9c588a7ff4041738da916befa1ba90b8`), so the
+fast builder reproduces that identity by proven equivalence. Eight extraction
+tests pass; Ruff and Pyright clean.
+
+A confirmatory real-cache fast build (`--output-dir %TEMP%/nrfi-fast-build1`)
+was launched to reprint the feature identity directly from the 2015-2024 day
+cache, but its file-read/checksum phase (2,450 files, 1.17 GB) hung past 30
+minutes under environmental disk contention this session and was stopped; it
+wrote nothing to the repository and opened no 2025 file. The optimization made
+the window stage near-instant; the remaining cost is pure source I/O, which is
+environmental. Exact command to reproduce and confirm the identity equals
+`52c0d0a9...` (fast path is the default):
+`python -m nrfi.statcast_extraction --day-cache-dir
+C:\Users\ameis\mlb-model\data\statcast_days --multiseason-dir
+docs/multiseason_2015_2024 --output-dir <fresh_dir> --producing-commit
+64b7ccc0715df2cf41b74761d9c56a0c080d9fe0` (add `--reference-slow` to run the
+unoptimized oracle).
+
+### Remaining phases and exact next operations
+- Phase 3 (publish to S3 lake) and Phase 5 (switch live assembly to the
+  rebuilt profiles) require AWS write access. The OIDC deployer role holds
+  `s3:*` on `nrfi-probability-*` buckets, so the non-interactive path is: add a
+  step to the existing `terraform-deploy` OIDC workflow (or a sibling job) that
+  regenerates the JSONL projection from the committed manifest identities and
+  `aws s3 cp --sse aws:kms` publishes ledger, manifest, coverage, history,
+  features, and projection under
+  `features/pitcher-statcast-strict-prior-2015-2024-v1/`, then Terraform points
+  the collector `NRFI_PITCHER_PROFILES_KEY` at the new projection (old key kept
+  as rollback). The rebuilt parquet are gitignored per repo convention; publish
+  requires either force-committing them for the runner or generating them in
+  Batch (Phase 4) from the admitted canonical multiseason input.
+- Phases 4, 6-15 (Batch equivalence, remaining feature domains, unified feature
+  store, expanded model comparison, registry/inference, market pipeline, risk
+  gates, ledgers, automation, monitoring/DR, IAM narrowing) remain open and
+  depend on the S3 publish + live switch landing first.
+
+No temporary credentials exist, no Batch job was started, no Terraform apply
+ran, and no 2025 source file was opened this turn. Required outputs remain
+`PREDICTIVE SKILL NOT ESTABLISHED` and `NO QUALIFIED WAGER`.
+
+## Direct real-data determinism proof complete - 2026-07-19
+
+The direct real-cache two-build determinism proof is complete and passes. A
+second full build from the exact committed 2015-2024 allowlist, using the
+optimized `build_pitcher_feature_snapshots_fast`, is byte-identical to the
+committed reference build across every artifact:
+`pitcher_game_history.parquet`, `pitcher_features.parquet`,
+`source_file_ledger.jsonl`, `coverage.json`, and `rejections.jsonl` all match;
+history identity `3d2243a4...`, feature identity `52c0d0a9...`, ledger identity
+`1e1f7410...`, 2450 files opened, 0 opened for 2025, 43 rejected, 45,522
+snapshots, 42,437 eligible. Evidence is committed at
+`docs/pitcher_statcast_2015_2024/determinism_evidence.json`. This is a direct
+real-data comparison, not synthetic-fixture transitivity.
+
+Read-phase diagnosis (Phase 1 of the request): the loop is not a hang. Env-gated
+progress logging (`NRFI_EXTRACTION_PROGRESS`, stderr only, artifacts unchanged;
+commit `4f3d728`) showed a steady ~0.5 s/file, 0.7-0.9 MiB/s, ~1350 s total for
+2,450 files (1.17 GB); CPU time and the processed-file counter advanced
+monotonically throughout. The cost is per-file parquet open + column read + a
+full-file SHA-256 second read plus per-open Windows scanning - pure source I/O,
+environmental, unchanged by the window optimization (which made the window stage
+near-instant).
+
+Nondeterminism found and corrected (Phase 4 of the request): the first optimized
+build differed from the reference in exactly one row - game 632352, pitcher
+663753, home - where the fast path counted 3 prior starts and the reference 2,
+flipping eligibility. Root cause: a chronologically-prior start was suspended and
+its label became available after this game's prediction cutoff, so the reference
+excludes it while a pure chronological prefix wrongly includes it (an
+availability-filter difference, not ordering, float, null, schema, or
+serialization). Fix (commit `4f1f009`): pitchers whose prediction cutoffs are
+non-decreasing and whose each label precedes the next start's cutoff use the fast
+prefix path (provably equal to the reference availability set); all others fall
+back to the exact reference builder for that pitcher. A dedicated suspended-game
+regression test plus the fast-vs-reference equivalence and full-pipeline
+determinism tests pass (nine extraction determinism tests; Ruff and Pyright
+clean). Commits this turn: `4f3d728`, `4f1f009`, and this checkpoint.
+
+### Remaining phases (unchanged plan, need AWS write)
+Phase 3 publish and Phase 5 live switch require AWS write, reached
+non-interactively through the OIDC deployer (holds `s3:*` on
+`nrfi-probability-*`). The efficient Phase 3/4 design: the canonical immutable
+input is the small `pitcher_game_history.parquet` (1.2 MB) plus the 2015-2024
+multiseason package; `pitcher_features.parquet` is a pure deterministic
+derivation of that history via `build_pitcher_feature_snapshots_fast`, so AWS
+Batch can rebuild and hash-compare features from the uploaded canonical history
+without any raw 2015-2024 Statcast in S3 (respecting source licensing). Publish
+under `features/pitcher-statcast-strict-prior-2015-2024-v1/` (SSE-KMS, versioned)
+with ledger, manifest, coverage, determinism evidence, schema, and producing
+commit; then Terraform points the collector `NRFI_PITCHER_PROFILES_KEY` at the
+new JSONL projection (old key kept as rollback) and the deployed game-assembly
+census is re-run (expect 20 of 30 sides to resolve). Phases 6-15 follow.
+
+2025 remains fully locked; no 2025 file was opened; no temporary credential,
+Batch job, or Terraform apply exists. Required outputs remain
+`PREDICTIVE SKILL NOT ESTABLISHED` and `NO QUALIFIED WAGER`.
+
+## Expanded profiles published and activated on AWS - 2026-07-19
+
+The expanded 2015-2024 pitcher profiles are published to the lake, reproduced
+in a clean AWS runner, and live in the assembly path. All work ran through the
+existing GitHub OIDC deployer (`nrfi-probability-terraform-deployer`); no
+interactive credentials and no long-lived keys were used.
+
+Phase 1 verification (in the OIDC runner, run `29702278090`): account
+`660838763909`, region `us-east-2`, assumed role
+`nrfi-probability-terraform-deployer/GitHubActions`, Batch jobs
+SUBMITTED/PENDING/RUNNABLE/STARTING/RUNNING all `0`, lake 2025-object query run.
+
+New module `nrfi/aws_publish_profiles.py` (commit `7614ddf`) reproduces
+`pitcher_features` deterministically from the committed canonical
+`pitcher_game_history.parquet` plus the committed multiseason starters and
+requires the canonical-JSON identities to equal the locally verified values;
+five tests pass. The canonical history parquet and the features parquet were
+force-committed (repo `.gitignore` excludes `*.parquet`) so the runner has the
+exact verified bytes. Workflow `.github/workflows/publish-profiles.yml`
+(OIDC, `uv sync --frozen`) verifies AWS, reproduces + checks identity on every
+push, and publishes on a `[publish]` marker.
+
+Cross-environment determinism: the Linux runner reproduced
+`feature_partition_identity = 52c0d0a9...` and
+`history_partition_identity = 3d2243a4...` from the canonical history
+(runs `29702278090` verify and `29702353732` publish) - the same identities
+verified locally, satisfying the Phase 3 "rebuild from immutable canonical
+input" equivalence without any raw 2015-2024 Statcast in S3.
+
+Publication (run `29702353732`, producing commit `10c880f`) uploaded to
+`s3://nrfi-probability-dev-660838763909-us-east-2-lake/features/pitcher-statcast-strict-prior-2015-2024-v1/`
+with SSE-KMS (platform key `7772a2e9...`), bucket versioning, and SHA-256
+checksums; the prior 2021-2024 prefix was not overwritten. Object versions:
+
+- `profiles.jsonl` 80,686,673 B, sha256 `7fb12a6c...`, version `ogQs7yc37ueyX3I8Av25EDKaPfiSD6JN`, 45,522 rows;
+- `pitcher_features.parquet` 7,812,825 B, sha256 `cff85495...`, version `jf9LQtX4sHF1u.Nuk2LDR7HmA7laAN93`;
+- `pitcher_game_history.parquet` 1,209,324 B, sha256 `77acfafb...`, version `MdCA4Q2sh4yUHvwL9Hoty6ncK_4WwfE1`;
+- `source_file_ledger.jsonl` version `GzKdafvqYI6Va7NupYtiAdnEhLECjKqp`;
+- `coverage.json` version `844JG9Jfps78pvy1y8geu0QMtQKhVVTG`;
+- `artifact_manifest.json` version `AuU0wLZrU4vNAH2UVMiR1LYWMK3oK.np`;
+- `determinism_evidence.json` version `C755mLzFAI0k3NOxL8F_TreXxZi0l.yR`;
+- `rejection_census_2026_07_19.json` version `cOykzSm221wJbj92YkK2TQODKSos5dTR`;
+- `rejections.jsonl` version `J_08DdZMwcROfZVs18S_IuAY1WYKYJBN`;
+- plus `published_manifest.json`.
+
+Live switch (Terraform `pregame_collector.tf`, commit `766863f`, apply run
+`29702591158`): plan `0 to add, 2 to change, 0 to destroy`; the collector's
+`NRFI_PITCHER_PROFILES_KEY` now points at the 2015-2024 projection and its
+memory is 1536 MB (for the 80.7 MB projection). The prior 2021-2024 key is
+retained in `local.pitcher_profiles_rollback_key` with its S3 read grant
+preserved, so rollback is a one-line change. The holdout precondition still
+passes (the new key contains neither "2025" nor "holdout").
+
+Live verification (run `29702678823`): collector `LastUpdateStatus=Successful`,
+memory `1536`, `NRFI_PITCHER_PROFILES_KEY` = the 2015-2024 projection. A live
+invocation returned `PROFILES_LOADED` for both dates and, for 2026-07-20,
+`feature_assembly_eligible_games = 8` of 15 (versus ~0 under the prior
+2021-2024 table) - the expanded history now supplies strict-prior profiles for
+far more starters. 2026-07-19 shows 0 eligible purely because that day's games
+are already underway (freshness/cutoff gate), not a profile gap. No side is
+rejected solely because 2025 is locked; probability remains blocked behind
+model approval.
+
+Batch note: the deterministic feature rebuild from the immutable canonical
+history was reproduced in the OIDC runner (Linux). A dedicated scale-to-zero
+Batch job definition for the same rebuild is the remaining Phase 4
+productionization; the equivalence it would assert is already demonstrated by
+the runner reproduction with identical identities.
+
+Required outputs remain `PREDICTIVE SKILL NOT ESTABLISHED` and
+`NO QUALIFIED WAGER`. Next: rerun the full game-specific rejection census in the
+live path, then continue through batter/lineup, team, park, platoon, rest,
+travel, weather, umpire, and unified point-in-time features, the expanded
+chronological model comparison and calibration, and the market/decision/grading
+layers. No 2025 file was opened; no temporary credential, active Batch job, or
+in-flight Terraform apply remains.
+
+## Staged eligibility correction - 2026-07-19
+
+The single misleading `feature_assembly` eligibility flag is replaced by
+explicit, honest eligibility stages (commit `f48f212`, assembly schema
+`pregame_game_assembly.v3`). Each game assembly now reports:
+`probable_starter_eligible`, `pitcher_profile_eligible`,
+`lineup_feature_eligible`, `batter_feature_eligible`, `team_context_eligible`,
+`park_context_eligible`, `weather_context_eligible`, `umpire_context_eligible`,
+`schedule_travel_eligible`, `unified_feature_set_eligible`,
+`model_probability_eligible`, `market_eligible`, and `wager_eligible`. Only the
+first two feature domains are implemented; every later domain is `False` with
+reason `FEATURE_DOMAIN_NOT_YET_IMPLEMENTED`, and `unified_feature_set_eligible`
+is the AND of all feature domains, so it is always `False` today - no game is
+ever described as complete-feature eligible before the frozen model's required
+feature contract passes. Freshness and cutoff are exposed separately
+(`snapshot_fresh`, `before_prediction_cutoff`) and fold into
+`probable_starter_eligible`. `probability_ineligibility_reasons` now includes
+`UNIFIED_FEATURE_SET_INCOMPLETE`. Package/run summaries renamed
+`feature_assembly_eligible_games` to `pitcher_profile_eligible_games` and added
+`unified_feature_set_eligible_games` (always 0 until the domains exist). Full
+suite `188 passed, 1 skipped`; Ruff and Pyright clean.
+
+The `8 of 15` figure reported for 2026-07-20 in the prior checkpoint is
+therefore precisely `pitcher_profile_eligible_games`, not complete-feature
+eligibility; `unified_feature_set_eligible_games` is `0`, and probability,
+market, and wager remain blocked.
+
+Deployed and verified live. terraform-deploy run `29711295729` applied
+`0 add, 2 change, 0 destroy` (both the collector and probability_api Lambdas
+bundle `forward_admission.py`, so both moved to the v3 runtime). Live collector
+invocation (run `29711351773`) returned, with `profiles_status=PROFILES_LOADED`:
+2026-07-19 -> `pitcher_profile_eligible_games=0`,
+`unified_feature_set_eligible_games=0` (games already underway); 2026-07-20 ->
+`pitcher_profile_eligible_games=8`, `unified_feature_set_eligible_games=0`. The
+live path now labels eligibility honestly by stage and never reports a game as
+complete-feature eligible. No temporary credentials, no active Batch jobs, no
+public endpoint, no 2025 access.
+
+Remaining phases (unchanged): Phase A AWS Batch productionization of the
+profile rebuild (immutable ECR image, scale-to-zero Batch job definition,
+rebuild from the versioned canonical-history S3 object, local/OIDC/Batch
+identity equality, rollback test); Phase B lineups + batter features; Phase C
+team/park/schedule/travel context; Phase D weather + umpires (forward-only
+where historical timing is unprovable); Phase E unified point-in-time feature
+generation; Phase F expanded model comparison under a new experiment identity;
+Phase G market, decisioning, grading, monitoring, retraining, and IAM
+narrowing. 2025 stays locked. Required outputs remain
+`PREDICTIVE SKILL NOT ESTABLISHED` and `NO QUALIFIED WAGER`.
+
+## Forward lineup collection live + lineup evidence inventory - 2026-07-20
+
+Phase 1 (forward lineup snapshot collection) is built, deployed, and verified
+live. New module `nrfi/lineup_snapshot.py` normalizes the official StatsAPI
+`lineups` hydration into deterministic point-in-time snapshot rows carrying
+game/team/side identity, batting-order position, defensive position where
+present, `lineup_status` (`CONFIRMED` when posted, `NOT_AVAILABLE` otherwise),
+`lineup_observed_at`, `source_publication_time` (always `None` - StatsAPI does
+not expose lineup publication time, so it is never fabricated),
+`prediction_cutoff`, `observed_before_cutoff`, source-response SHA-256, and a
+deterministic `snapshot_id`. The existing forward collector Lambda now also
+fetches lineups and writes immutable, versioned, SSE-KMS `no-store` lineup
+captures under `signals/pregame/official-statsapi/lineups/<date>/`, reusing the
+same EventBridge schedule (no new recurring service). Because every timestamped
+capture is preserved immutably, the not-available -> confirmed -> revised
+progression and any late scratch are recoverable; revision selection will live
+in the admission layer. Run schema is now `forward_collector_run.v2`.
+
+Commits: `9b95901` (module + collector wiring + Terraform archive/IAM/precondition
+for the lineup prefix + tests; full suite `195 passed, 1 skipped`, Ruff and
+Pyright clean) and `1f0e50a` (live verification step). terraform-deploy run
+`29711892603` applied `0 add, 3 change, 0 destroy` (collector code + its IAM
+policy, plus the probability_api archive that bundles the collector module).
+Live verification (run `29711964582`): the collector invocation wrote lineup
+captures
+`signals/pregame/official-statsapi/lineups/2026-07-19/capture-20260720T020750Z.json`
+and `.../2026-07-20/capture-20260720T020750Z.json`; for 2026-07-19 it observed
+32 confirmed lineups (games already under way, so 0 before cutoff), and for
+2026-07-20 it observed 30 game-sides with lineups not yet posted (0 confirmed,
+all 30 before cutoff) - exactly the expected pregame progression.
+
+Phase 2 (historical lineup evidence) is inventoried in
+`docs/historical_inventory/2026-07-20/lineup_evidence.md`. Determination:
+timestamp-verifiable historical pregame lineups are UNAVAILABLE for 2015-2024 -
+StatsAPI historical batting orders and Retrosheet are postgame/in-game
+attribution with no pregame publication time. Consequence (already the design):
+forward-only lineups for production, lineup-independent strict-prior batter
+aggregations for model development, and explicit historical lineup missingness;
+`lineup_feature_eligible` stays false for historical folds. No timestamp is
+fabricated; 2025 not inspected.
+
+### Exact next operations (continuation)
+1. Phase 3 - strict-prior batter features: build canonical batter-game and
+   batter-feature tables from the 2015-2024 day cache via a batter analogue of
+   `nrfi/statcast_extraction.py` (aggregate pitch rows by (game_pk, batter);
+   career/rolling PA, OBP proxy, K%, BB%, whiff, chase, hard-hit, barrel,
+   GB/FB, handedness, platoon vs pitcher hand, home/away, min-history and
+   missingness; strict-prior windows only; same allowlist/ledger/determinism
+   pattern; ~20-minute read using the committed progress logging). Reuse the
+   proven fast-window builder pattern.
+2. Phase 4 - top-of-order/matchup features from the forward lineup snapshot
+   (expected first 3/4 batters, top-of-order OBP/K-avoid/contact/hard-contact,
+   handedness sequence, batter-vs-pitcher-hand, depth, projected-vs-confirmed,
+   freshness, revision count, missing-profile count), recording which lineup
+   representation produced each row; never substitute the postgame actual
+   lineup.
+3. Phase 5 - wire `lineup_feature_eligible` / `batter_feature_eligible` into the
+   staged eligibility (unified stays false until all frozen critical domains
+   pass); Phase 6 determinism/leakage tests; Phase 7 S3 publication via the
+   existing OIDC publish workflow; Phase 8 live verification + full lineup/batter
+   rejection census.
+4. Parallel: Phase A pitcher Batch productionization (immutable ECR image,
+   scale-to-zero Batch job def, rebuild from the versioned canonical-history S3
+   object, local/OIDC/Batch identity equality, rollback test).
+5. Then team/park/schedule/travel/weather/umpire domains, unified feature freeze,
+   predeclared promotion criteria, expanded chronological model comparison and
+   calibration, market collection + de-vigging, decisioning, ledgers,
+   monitoring, retraining, rollback/recovery, and IAM narrowing.
+
+No temporary credentials, no active Batch jobs, no public endpoint, no 2025
+access, no real wager. Required outputs remain `PREDICTIVE SKILL NOT
+ESTABLISHED` and `NO QUALIFIED WAGER`.
+
+## Checkpoint 2026-07-21 — batter profiles: determinism proven + published
+
+Commits (branch `feat/aws-probability-platform-20260717`, pushed to origin):
+- `cc3bf81` strict-prior batter extraction module + tests (ruff/pyright clean,
+  full suite green). Aggregation is a ~10x-heavier per-group workload than the
+  pitcher path (~420k batter-game groups); a full real build takes ~60-75 min.
+- `fdaf0ab` real-data determinism evidence + Phase-8 OIDC publish path. Adds
+  `docs/batter_statcast_2015_2024/` (canonical `batter_game_history.parquet`
+  force-added past the `*.parquet` ignore, plus `source_file_ledger.jsonl`,
+  `rejections.jsonl`, `coverage.json`, `artifact_manifest.json`,
+  `determinism_evidence.json`, `schema_definitions.json`,
+  `historical_lineup_timing.json`), `nrfi/aws_publish_batter_profiles.py` (fail-
+  closed reproduce/verify/publish with refusal guards on identity, zero-2025,
+  required artifacts, producing commit, row counts, schema), its tests, and the
+  batter verify+publish steps in `publish-profiles.yml`. The 107 MB
+  `batter_features.parquet` is intentionally NOT committed (exceeds GitHub's
+  100 MiB limit); the runner reproduces it from the canonical history.
+
+PHASE 1 real-data determinism — PROVEN. Two independent full real builds:
+- build one `C:\Users\ameis\nrfi_batter_builds\b1` (aggregation 2828 s, exit 0)
+- build two `C:\Users\ameis\nrfi_batter_builds\b2` (aggregation 3297 s, exit 0)
+- 472,585 batter-game rows, 472,585 feature snapshots, 2,606 distinct batters,
+  2,450 admitted source files, 0 files opened from 2025, 92.96 % profile
+  eligible (439,314 rows), source-ledger 2,493 rows.
+- Independent verification (memory-safe, one build at a time; NOT trusting the
+  manifest identity fields): every one of the six artifacts is byte-identical
+  b1 vs b2 by recomputed SHA-256, and history/feature/ledger canonical
+  identities re-derived from each build's on-disk parquet/jsonl equal the
+  expected values and each other:
+  - history  `596194c2fbf6b7b6d3e0ce1ebc727cc83a69d23f4f151ffaf5d9a7b234759496`
+  - feature  `edd1ff171779a57854dbefea4ad654a13746dc4bf2814969f3c31415b0de355d`
+  - ledger   `b0f2a0f9e96819d29910f52250bdb4a033add742c43284fef75b7ad0f0069d16`
+  - artifact SHA-256: history parquet `49f91096…`, features parquet
+    `69219e02…`, ledger `89c53d15…`, coverage `7076282c…`, manifest
+    `c2755c56…`, rejections empty `e3b0c442…`.
+  Evidence: `docs/batter_statcast_2015_2024/determinism_evidence.json`.
+
+CI runs on push of `fdaf0ab`:
+- `29794687793` build/ci (pull_request #8) — success, 1m12s (full suite Linux).
+- `29794685043` terraform-deploy — success, 46s, apply step SKIPPED (no
+  `[tf-apply]` marker); plan/validate only, no infra change.
+- `29794685055` publish-profiles — success, publish job 22m18s.
+  Pre-publish AWS-state guard: Batch SUBMITTED/PENDING/RUNNABLE/STARTING/RUNNING
+  all 0; `features/` objects containing "2025" = 0. Batter verify step
+  reproduced the feature identity on the Linux OIDC runner (cross-environment
+  identity equality) BEFORE publish; the publish step's in-runner features
+  parquet came out byte-identical to local (`69219e02…`).
+
+PHASE 3 publication — DONE. Private, versioned, SSE-KMS lake
+`nrfi-probability-dev-660838763909-us-east-2-lake`, NEW immutable prefix
+`features/batter-statcast-strict-prior-2015-2024-v1/`, producing commit
+`fdaf0ab1227f2bd8a3caea923c89d8a1c5c1c5de`, KMS key
+`…/7772a2e9-e516-49ff-b2e1-0067567f52a8`. Pitcher artifacts untouched. Objects
+(key → bytes, version id):
+- `batter_game_history.parquet` 5,271,285 `q0uHOviEqAMq4nJE3w.iTTodwu7iVZh3`
+- `batter_features.parquet` 107,287,476 `AtaGCetvafxOMQkhyiH6zpq.VllWq1fC`
+  (reproduced in runner, sha `69219e02…`)
+- `profiles.jsonl` 1,713,469,044 `ccWLufLQ2dyJA6x24P5oM7t9edrxA42q`
+  (sha `1230edbd…`; full historical projection of all 472,585 snapshots —
+  NOTE: 1.7 GB; live serving must project only the needed per-batter subset,
+  not load this whole object)
+- `source_file_ledger.jsonl` 596,134 `CvuCC42bvtOghiXki6I1fYtV9Kr197uF`
+- `rejections.jsonl` 0 `qG0oMdFn0zCuJHADrx5f3FbbF2o1.Dax`
+- `coverage.json` 971 `FNq3nipq5scPiIpZ58aUQtS04TryGVFx`
+- `artifact_manifest.json` 1,232 `Q8zMy_yS5gijwGbIOskOQEFcqaXzAPZD`
+- `determinism_evidence.json` 3,438 `Ys8LvL7K0Gfu9NPexVO84lYlvgngIVAB`
+- `schema_definitions.json` 2,862 `9LD_Ony8Tc3Eteem9HojpwXUR81yO1Cg`
+- `historical_lineup_timing.json` 1,254 `Bds4smZeQJcoj0YKSODjAYQnuKrDFYNB`
+- `published_manifest.json` (schema `batter_profile_publication.v1`) written last.
+All uploads used `ServerSideEncryption=aws:kms` + `ChecksumAlgorithm=SHA256`;
+every object returned a VersionId (bucket versioning on). No object key contains
+2025. `historical_prediction_join_eligible=false`,
+`historical_lineup_timing_available=false`.
+
+PHASE 4 (partial) — cross-environment reproduction on the Linux OIDC runner
+matched local identities exactly. STILL OUTSTANDING: actual AWS Batch
+productionization (ECR image + digest, Batch job-def revision, submit job from
+the versioned canonical-history S3 object, CloudWatch logs, cost, output
+versions, local/OIDC/Batch identity equality, zero active jobs after) for BOTH
+batter and the still-outstanding pitcher Batch job. A GitHub Actions runner is
+NOT AWS Batch.
+
+Exact continuation command / next steps:
+1. Phase 5 live top-of-order assembly from pre-cutoff forward lineup snapshots
+   (statuses NOT_AVAILABLE/PROJECTED/CONFIRMED/UPDATED/WITHDRAWN; first 3/4
+   batter ids, aggregate OBP/K-avoid/BB/contact/whiff/hard-hit/barrel,
+   handedness sequence, platoon vs probable starter, top-of-order min-history);
+   same batter feature implementation for replay and live.
+2. Phase 6 wire `lineup_feature_eligible` / `batter_feature_eligible` into
+   `forward_admission.py` staged v3 with explicit reason codes; unified stays
+   false. Build a batter live-projection object (latest per batter) instead of
+   the 1.7 GB full projection.
+3. Phase 7 deploy collector/API via Terraform+OIDC, verify live, rejection
+   census. Phase 4 AWS Batch productionization (batter + pitcher).
+
+State: no temporary credentials, no active Batch jobs, no public endpoint, no
+2025 access, no real wager. Required outputs remain `PREDICTIVE SKILL NOT
+ESTABLISHED` and `NO QUALIFIED WAGER`.
+
+## Checkpoint 2026-07-21 (b) — Phase 5/6 live batter decision core (offline)
+
+Three pure, deterministic, fully-tested modules landed and pushed (all reuse the
+frozen extraction window metrics; none reads 2025; none uses postgame batting
+orders):
+- `1246022` `nrfi/batter_live_profiles.py` — ONE compact terminal strict-prior
+  profile per batter (career + last-20/50/100 over the complete 2015-2024
+  history). Built from the committed canonical history: 2,606 batters, 1,543
+  profile-eligible, terminal identity `7e7fc570…`, projection sha
+  `5ce26a4a…`, **9.46 MB** (vs the 1.7 GB full historical projection) and
+  byte-identical across two real builds. This is the live-servable join table.
+- `11d3fba` `nrfi/batter_top_of_order.py` — pure top-of-order feature builder for
+  one side: first 3/4 batter ids, present/eligible/missing counts + coverage,
+  aggregate career OBP/K-avoid/BB/contact/whiff/hard-hit/barrel over eligible
+  top-of-order batters, handedness sequence, platoon OBP/K vs the probable
+  starter hand, minimum-history indicator; reason codes
+  BATTER_IDENTITY_MISSING / BATTER_PROFILE_MISSING / BATTER_HISTORY_INSUFFICIENT.
+- `1d66aac` `nrfi/batter_eligibility.py` — fail-closed evaluator mapping a
+  selected pre-cutoff lineup selection + terminal profiles + pitcher hand to
+  `lineup_feature_eligible` / `batter_feature_eligible` + ordered reasons
+  (LINEUP_NOT_AVAILABLE/AFTER_CUTOFF/STALE/PROJECTED_ONLY/WITHDRAWN,
+  HISTORICAL_LINEUP_TIMING_UNAVAILABLE, BATTER_*). After-cutoff/postgame lineups
+  are never eligible; unified stays false by construction.
+Suite now 224 passed / 1 skipped; ruff + pyright clean.
+
+STILL OUTSTANDING (next atomic operation — Phase 5/6 wiring + Phase 7 deploy):
+1. `nrfi/lineup_admission.py` — read the collector's immutable lineup captures
+   (`signals/pregame/official-statsapi/lineups`, schema from
+   `nrfi/lineup_snapshot.py` `lineup_snapshot.v1`), build per-(game_pk, side)
+   revision history, select the latest snapshot observed strictly before the
+   cutoff, and derive status CONFIRMED/NOT_AVAILABLE/UPDATED/WITHDRAWN
+   (PROJECTED not derivable from StatsAPI). Emit `batting_order_ids` +
+   `observed_before_cutoff` + `revision_count` in the shape
+   `batter_eligibility.evaluate_side_eligibility` expects.
+2. Wire into `forward_admission.assemble_games`: move `lineup_feature_eligible`
+   and `batter_feature_eligible` from UNIMPLEMENTED_FEATURE_STAGES to
+   IMPLEMENTED, compute them per side from the lineup selections + a loaded
+   terminal-profile table + the already-selected probable starter hand, attach
+   the top-of-order features and reasons; `unified_feature_set_eligible` and
+   `model_probability_eligible` STAY false (team/park/weather/umpire/schedule
+   remain unimplemented). Update `pregame_game_assembly.v3` counts + tests.
+3. Publish the 9.46 MB terminal live projection to
+   `features/batter-statcast-strict-prior-2015-2024-v1/live_profiles.jsonl` by
+   extending `nrfi/aws_publish_batter_profiles.py` + the `[publish-batter]`
+   workflow step (reproduced in-runner from the committed history parquet).
+4. Deploy collector/API via Terraform+OIDC; wire the terminal projection key
+   into the Lambda env; live-verify (immutable lineup revisions written,
+   after-cutoff lineups stored-but-ineligible, lineup/batter eligible counts
+   reported, unified stays 0, unauth API 403, probability blocked); produce a
+   lineup/batter rejection census by reason.
+5. Phase 4 actual AWS Batch productionization for batter + the outstanding
+   pitcher job (ECR image+digest, Batch job-def revision, submit from the
+   versioned canonical-history S3 object, CloudWatch logs, cost, output
+   versions, local/OIDC/Batch identity equality, zero active jobs after).
+
+Continuation command: implement `nrfi/lineup_admission.py` first (mirror
+`forward_admission.read_capture`/`select_starters`), then the
+`forward_admission` wiring + tests, then publish the live projection, then the
+Terraform+OIDC deploy and live verification.
+
+Safe-stop confirmed: git clean at `1d66aac` (pushed), no running python build,
+no active Batch job, no Terraform apply (skipped), no temporary credential, no
+public endpoint, no 2025 access, no real wager. Required outputs remain
+`PREDICTIVE SKILL NOT ESTABLISHED` and `NO QUALIFIED WAGER`.
+
+## Checkpoint 2026-07-21 (d) — batter domain LIVE (terminal load + lineup + eligibility)
+
+Commits (pushed): `c6a41ed` terminal publish path; `08a7172` lineup_admission;
+`7f40650` `[publish-terminal]` (terminal projection published to
+`.../terminal_batter_profiles.jsonl`, 9,460,808 bytes, identity `7e7fc570…`,
+sha `5ce26a4a…`, KMS+versioned); `1246022`/`11d3fba`/`1d66aac` terminal profiles
++ top-of-order + eligibility cores; `6c17d57` shared-assembly wiring +
+`nrfi/batter_profile_loader.py`; `bf5767d` deploy (`[tf-apply]`); `43680a4`
+`[verify-live]`.
+
+Shared-path wiring (`6c17d57`): `nrfi/batter_profile_loader.py` fail-closed
+loader (verifies object sha `5ce26a4a`, identity `7e7fc570`, rows 2606, eligible
+1543, per-row schema, no dup ids; statuses BATTER_PROFILES_LOADED /
+ARTIFACT_INVALID / LOAD_FAILED / SCHEMA_INVALID / IDENTITY_MISMATCH; never loads
+the 1.7 GB projection). `forward_admission.assemble_games`/`run_assembly` now
+load the terminal projection + lineup selections and compute
+`lineup_feature_eligible` / `batter_feature_eligible` per side via the shared
+lineup_admission + batter_top_of_order + batter_eligibility functions (same code
+for replay + live + API); both stages moved to IMPLEMENTED_FEATURE_STAGES;
+`unified_feature_set_eligible` stays false (team/park/weather/umpire/schedule
+remain unimplemented); probability blocked. Assembly schema `run.v2` +
+package now report lineup/batter eligible-game counts + batter profile identity.
+NOTE: platoon-vs-starter-hand is None for now (opposing starter handedness not
+exposed in the live pitcher projection — refinement pending). Gates: ruff clean,
+pyright 0 errors, 246 passed / 1 skipped.
+
+Deploy (`[tf-apply]`, terraform-deploy run `29805303405`, job `88554510941`,
+53s): plan `0 to add, 3 to change, 0 to destroy`; `Apply complete! 0 added, 3
+changed, 0 destroyed` — IAM policy + collector Lambda + probability_api Lambda
+(both share the code path) updated in place. terraform/pregame_collector.tf:
+bundled the 4 batter modules into BOTH Lambda archives, added
+`terminal_batter_profiles_key` local, s3:GetObject for the terminal key + lineup
+captures, s3:ListBucket for the lineups prefix, env vars
+NRFI_TERMINAL_BATTER_PROFILES_KEY/SHA256/IDENTITY/ROWS/ELIGIBLE, and extended the
+locked-holdout precondition. Rollback: omit the terminal env key → pitcher-only;
+a missing/invalid artifact already degrades gracefully (BATTER_PROFILE_LOAD_FAILED).
+
+LIVE VERIFICATION (`[verify-live]`, publish-profiles run `29805511144`, job
+`88555107233`, 57s). Collector invoked live:
+- terminal projection LOADS: `batter_profiles_status=BATTER_PROFILES_LOADED`,
+  `batter_profile_identity=7e7fc570…`,
+  `terminal_profiles_key=features/batter-statcast-strict-prior-2015-2024-v1/terminal_batter_profiles.jsonl`.
+- lineup captures discovered: 30 rows/date (15 games × 2 sides) for 2026-07-21
+  and 2026-07-22; `confirmed_lineups=0` (no batting orders posted this early), so
+  `lineup_feature_eligible_games=0` and `batter_feature_eligible_games=0` — the
+  correct fail-closed result (LINEUP_NOT_AVAILABLE). Later scheduled runs closer
+  to first pitch will confirm lineups and raise these counts.
+- pitcher_profile_eligible_games 6 (07-21) / 7 (07-22); games 15/15.
+- `unified_feature_set_eligible_games_total=0` (assertion enforced) → probability
+  stays blocked. Pre-invoke AWS-state guard: Batch all 0, 0 objects with "2025".
+Rejection census (live): all game sides on both dates → LINEUP_NOT_AVAILABLE
+(confirmed_lineups=0), i.e. the lineup stage is uniformly not-yet-available;
+pitcher/unified stay ineligible per the frozen contract.
+
+STILL OUTSTANDING: unauth-API-403 + authenticated-game-query check (needs the API
+Gateway URL + SigV4 — API Lambda already carries the code); platoon handedness
+refinement; AWS Batch productionization (pitcher + batter). Continue with
+team/park/schedule/travel/weather/umpire domains, unified freeze, model
+comparison/calibration, market, ledgers, monitoring.
+
+Safe-stop state: git clean at `43680a4` (pushed), no running python build, no
+active Batch job, Terraform apply complete (0 destroyed), no temporary
+credential, no public endpoint, no 2025 access, no real wager. Required outputs
+remain `PREDICTIVE SKILL NOT ESTABLISHED` and `NO QUALIFIED WAGER`.
+
+## Checkpoint 2026-07-21 (e) — API regression fix + live 403/200 verification
+
+REGRESSION FOUND + FIXED: `nrfi/aws_probability_api.py` imports
+`nrfi.forward_admission`, which now imports the 4 batter modules (and
+lineup_admission imports lineup_snapshot), but the probability_api Lambda archive
+in `terraform/probability_api.tf` bundled none of them — so the `[tf-apply]` in
+`bf5767d` shipped an API zip that would `ModuleNotFoundError` on cold start.
+`6f3bbcc` (`[tf-apply]`, terraform-deploy run `29811692313`) bundled
+lineup_snapshot + lineup_admission + batter_profile_loader + batter_top_of_order
++ batter_eligibility into the API archive; apply `0 add, 1 change, 0 destroy`.
+
+`d0e8fd3` (`[tf-apply][verify-api]`, terraform-deploy run `29811985329`, 1m7s):
+API game-assembly response now surfaces `batter_profiles_status` +
+`batter_profile_identity` in `assembly_package`; added a post-apply
+API-verification step. LIVE API PROOF (function URL
+`https://42ajmftf4o2h4jiyaze2f447wm0jxiof.lambda-url.us-east-2.on.aws/`, AWS_IAM):
+- unauthenticated request → HTTP 403.
+- SigV4-authenticated baseline → HTTP 200.
+- authenticated real game query (`game_pk=822787`, today) → HTTP 200
+  `response_class=game-assembly-status` (a live game record, NOT the generic
+  preserved response), surfacing `batter_profiles_status=BATTER_PROFILES_LOADED`,
+  `batter_profile_identity=7e7fc570…`, selected
+  `lineup_snapshot_id=c14ebfac…`, `unified_feature_set_eligible=False`,
+  `wager_decision=NO QUALIFIED WAGER`. Step asserts unified + model_probability
+  false.
+Gates: ruff clean, pyright 0 errors, 246 passed / 1 skipped.
+
+PENDING (scheduled): the CONFIRMED-lineup end-to-end proof + by-reason census
+needs real posted batting orders (this ran at 07:52 UTC — far too early;
+confirmed_lineups=0). A one-time scheduled task `nrfi-confirmed-lineup-verify`
+fires 2026-07-21T19:30Z to push `[verify-live]`, read the assembly, produce the
+census, and confirm `batter_feature_eligible>0` where lineups are CONFIRMED while
+unified stays 0. Also pending: platoon-handedness refinement; AWS Batch
+productionization; the team/park/workload/schedule feature domain (starting now).
+
+Safe-stop state: git clean at `d0e8fd3` (pushed), no running python build, no
+active Batch job, Terraform apply complete (0 destroyed), no temporary
+credential, no public endpoint, no 2025 access, no real wager. Required outputs
+remain `PREDICTIVE SKILL NOT ESTABLISHED` and `NO QUALIFIED WAGER`.
+
+## Checkpoint 2026-07-21 (f) — Phase A team first-inning feature domain (offline)
+
+`1d06291` `nrfi/team_features.py` + tests: deterministic strict-prior team
+first-inning offense/prevention domain sourced only from the committed 2015-2024
+multiseason outcomes (the existing `team-league-strict-prior-v2` in
+`features.jsonl` is a historical-evaluation feature set only — this is a new
+live-servable domain). Two team-side records per completed R game (away batted
+for away_runs / allowed home_runs; home the reverse); strict-prior snapshots over
+career/last-10/25/50 + season-to-date windows + home/away splits (runs
+scored/allowed per game, scored/allowed rates, offense/defense scoreless rates,
+min-history-20 gate, missingness); compact terminal per-team projection
+(as-of end-2024) as the live-servable join table.
+Real build (two, byte-identical): 30 teams, 45,522 records + 45,522 snapshots,
+all 30 terminal-eligible, zero 2025. Identities: records `1520a5ea…`, features
+`5124bebb…`, terminal `c99563f7…`, terminal projection sha `4e931e27…`. Gates:
+ruff clean, pyright 0 errors, full suite 253 passed / 1 skipped.
+
+NEXT for the team domain (mirror the batter rollout): publish the terminal team
+projection to the lake under a new immutable identity (fail-closed reproduce +
+identity `c99563f7` + sha `4e931e27` + 30 rows guards); add a team terminal
+loader; wire `team_context_eligible` into `forward_admission.assemble_games`
+(true only when BOTH clubs have eligible team profiles); keep
+`unified_feature_set_eligible` false; deploy + live-verify. Then Phases B (park),
+C (starter workload/rest), D (schedule/travel), then weather/umpire, unified
+freeze, model comparison/calibration, market, ledgers, monitoring. Also pending:
+the scheduled confirmed-lineup batter verification (`nrfi-confirmed-lineup-verify`
+fires 2026-07-21T19:30Z); platoon-handedness refinement; AWS Batch
+productionization.
+
+Safe-stop state: git clean at `1d06291` (pushed), no running python build, no
+active Batch job, Terraform apply complete (0 destroyed), no temporary
+credential, no public endpoint, no 2025 access, no real wager. Required outputs
+remain `PREDICTIVE SKILL NOT ESTABLISHED` and `NO QUALIFIED WAGER`.
+
+## Checkpoint 2026-07-21 (g) — team domain LIVE + scheduled batter proof
+
+Op1 confirmed pending: the one-time task `nrfi-confirmed-lineup-verify` is still
+enabled (nextRunAt 2026-07-21T19:30Z, lastRunAt none) — at 07:42-12:24 UTC it was
+too early for CONFIRMED batting orders (early live runs show confirmed_lineups=0,
+the correct fail-closed result). The scheduled run covers the CONFIRMED
+end-to-end proof + by-reason census.
+
+TEAM DOMAIN fully built → published → loaded → wired → deployed → verified live:
+- `8c6daf5` (`[publish-team]`) published team artifacts (run `29831006821`) under
+  `features/team-first-inning-strict-prior-2015-2024-v1/`:
+  team_game_records.jsonl (17,412,177 B, v`zxwQPnoQb9PtEVgcPsNcKMrw_.fztvYh`),
+  team_features.jsonl (98,923,633 B, v`wfQ3N9EJb5vvU2yXE2uv_zBc9zvq3Yth`),
+  team_terminal_profiles.jsonl (52,105 B, sha `4e931e27`, identity `c99563f7`,
+  v`xKHKMyQ5CAM2spRhg.Ev8c_RqTJMyaTt`), + coverage/schema/determinism + manifest;
+  identities `1520a5ea`/`5124bebb`/`c99563f7` reproduced on the Linux runner; 30
+  teams / 45,522 records; KMS + versioned; no pitcher/batter overwrite. Also
+  optimized `build_team_feature_snapshots` to running totals (O(n·window) not
+  O(n²)) — byte-identical output.
+- `d625394` `nrfi/team_profile_loader.py` (8 tests): verifies sha `4e931e27`,
+  identity `c99563f7`, team count 30, schema, no dup team ids; statuses
+  TEAM_PROFILES_LOADED/ARTIFACT_INVALID/IDENTITY_MISMATCH/SCHEMA_INVALID/LOAD_FAILED.
+- `053fa33` (`[tf-apply]`) wired `team_context_eligible` into
+  `forward_admission` via the shared `_team_side` (both clubs must have eligible
+  terminal profiles); moved to IMPLEMENTED_FEATURE_STAGES; run.v3/package report
+  `team_context_eligible_games` + `team_profile_identity`; reasons
+  TEAM_IDENTITY_MISSING/PROFILE_MISSING/HISTORY_INSUFFICIENT/LOAD_FAILED;
+  park/weather/umpire/schedule + unified stay false. API surfaces
+  team_profiles_status + team_profile_identity. Terraform bundled
+  team_profile_loader into BOTH Lambdas, added the team GetObject grant + env
+  vars + holdout precondition. Deploy run `29832040949`: plan `0 add, 3 change, 0
+  destroy`; Apply complete `0 added, 3 changed, 0 destroyed`.
+- LIVE VERIFY (`39939ff` `[verify-live]`, run `29832199975`):
+  `team_profiles_status=TEAM_PROFILES_LOADED`, `team_profile_identity=c99563f7…`,
+  `team_context_eligible_games=15` for BOTH 2026-07-21 and 2026-07-22 (all 30
+  clubs have >=20 prior games), while lineup/batter eligible = 0 (no confirmed
+  lineups yet) and `unified_feature_set_eligible_games_total=0` (enforced) —
+  probability blocked. Gates: ruff clean, pyright 0 errors, 271 passed / 1 skipped.
+
+NEXT: Phase B park factors, C starter workload/rest, D schedule/travel; then
+weather, umpire, unified freeze, model comparison/calibration, market, ledgers.
+Also pending: platoon-handedness refinement; AWS Batch productionization; the
+scheduled confirmed-lineup batter proof (19:30Z).
+
+Safe-stop state: git clean at `39939ff` (pushed), no running python build, no
+active Batch job, Terraform apply complete (0 destroyed), no temporary
+credential, no public endpoint, no 2025 access, no real wager. Required outputs
+remain `PREDICTIVE SKILL NOT ESTABLISHED` and `NO QUALIFIED WAGER`.
+
+## Checkpoint 2026-07-21 (h) — CONFIRMED-lineup end-to-end proof + live census
+
+Scheduled task `nrfi-confirmed-lineup-verify` executed (afternoon window).
+`6a56260` (`[verify-live]`, comment bump only) triggered publish-profiles run
+`29877719957` (success); its "Verify live collector" step invoked
+`nrfi-probability-dev-pregame-collector` live at 2026-07-21T23:38Z (1536 MB,
+LastUpdateStatus Successful, pitcher/batter/team profile keys unchanged).
+
+CONFIRMED end-to-end proof — first live assembly with real posted batting orders:
+- lineup_summary 2026-07-21: row_count=26, confirmed_lineups=26,
+  lineups_observed_before_cutoff=18. 2026-07-22: row_count=34,
+  confirmed_lineups=0, observed_before_cutoff=34 (projected-only; correct
+  fail-closed). Captures stored under
+  `signals/pregame/official-statsapi/lineups/<date>/capture-20260721T2338…Z.json`.
+- assembly 2026-07-21: games=15, admitted_captures=18,
+  batter_profiles_status=BATTER_PROFILES_LOADED, batter_profile_identity
+  `7e7fc570…` (exact expected), team identity `c99563f7…`,
+  pitcher_profile_eligible=0, lineup_feature_eligible=14,
+  batter_feature_eligible=3, team_context_eligible=15, unified=0.
+- assembly 2026-07-22: games=17, admitted_captures=10, pitcher=7, lineup=0,
+  batter=0, team=17, unified=0.
+- Proof satisfied: confirmed_lineups>0 AND lineup_feature_eligible_games>0 AND
+  batter_feature_eligible_games>0 (3 games passed strict-prior batter profile
+  coverage) under the published terminal batter projection — the batter domain
+  is now verified live on CONFIRMED lineups, not just loaders/degenerate dates.
+
+Live rejection census (derived from the step counts; the verify step does not
+print per-side reasons and was left untouched — no second live invocation):
+- 2026-07-21 sides (30 max): 26 captured CONFIRMED; 4 sides no row →
+  LINEUP_NOT_AVAILABLE; 8 of 26 observed post-cutoff → LINEUP_AFTER_CUTOFF (18
+  admitted pre-cutoff); the remaining 1/15 games had no admitted side. Of the
+  14 lineup-eligible games, 11 rejected at the batter stage on strict-prior
+  profile coverage (BATTER_PROFILE_MISSING / BATTER_HISTORY_INSUFFICIENT —
+  per-reason split needs the per-side dump), 3 fully batter-feature eligible.
+- 2026-07-22: all 34 rows LINEUP_PROJECTED_ONLY (no CONFIRMED posted yet).
+- No LINEUP_WITHDRAWN / LINEUP_STALE / LINEUP_IDENTITY_MISMATCH /
+  BATTER_PROFILE_LOAD_FAILED surfaced; all profile loaders clean.
+- unified_feature_set_eligible_games_total=0 (step assert enforced) —
+  probability generation stayed blocked.
+
+NEXT: Phase B park factors, C starter workload/rest, D schedule/travel; then
+weather, umpire, unified freeze, model comparison/calibration, market, ledgers.
+Also pending: platoon-handedness refinement; AWS Batch productionization. The
+scheduled confirmed-lineup proof is complete; no reschedule needed.
+
+Safe-stop state: git clean at `6a56260` (pushed), no running python build, no
+active Batch job, Terraform apply complete (0 destroyed), no temporary
+credential, no public endpoint, no 2025 access, no real wager. Required outputs
+remain `PREDICTIVE SKILL NOT ESTABLISHED` and `NO QUALIFIED WAGER`.
+
+
+## Checkpoint (i) - read-only per-side assembly audit (2026-07-21), no collector invocation
+
+Built `nrfi/assembly_audit.py` (pure read-only auditor: downloads already-
+published S3 objects only; never invokes the live collector) plus
+`tests/test_assembly_audit.py` (5 tests, all green) and a `[audit-assembly]`
+CI step in `publish-profiles.yml` that lists+downloads every published
+`signals/pregame/assembly/2026-07-21/` package, records an immutability
+manifest (key/version_id/sha256/generated_at/batter_eligible per package),
+then runs the auditor over the downloaded set. `audited_no_collector_invocation=true`.
+
+Audited package (selected = max batter_eligible, tie -> latest generated_at):
+- key `signals/pregame/assembly/2026-07-21/assembly-20260721T233849Z.json`
+- S3 version_id `aSZ.sbY601kAgCsaLTUgFYmklbiUALzk`
+- object sha256 `9829a1a7886eed3072f06d351ddb15389497094a4cab1077086fe5b0cfe2cec3`
+- canonical content id `7817d8ffe9f21a33f21f945fc6b584199c5f4148d7999e223adc624117c8381e`
+- generated_at 2026-07-21T23:38:49Z; 18 packages published total.
+
+Game-level (15 games): games_before_cutoff=9, snapshot_fresh=14,
+probable_starter_eligible=9, pitcher_profile_eligible=0,
+lineup_feature_eligible=14, batter_feature_eligible=3, team_context_eligible=15,
+unified=0.
+
+Side-level (30 sides): pitcher SELECTED=30; pitcher_feature READY=8,
+BLOCKED_NO_INVENTORIED_PROFILE=11, BLOCKED_PREGAME_SNAPSHOT=10,
+BLOCKED_INSUFFICIENT_PROFILE_HISTORY=1. lineup CONFIRMED=28, NOT_AVAILABLE=2.
+team_side_eligible True=30 (no team rejections).
+
+pitcher_profile_eligible=0 explained: no game had BOTH sides simultaneously
+pregame/pre-cutoff AND both starters carrying a qualifying strict-prior
+2015-2024 Statcast profile. 8 of 30 sides READY; 10 blocked because the game
+left pregame status (6/15 games past cutoff at 23:38Z), 11 blocked
+NO_STRICT_PRIOR_STATCAST_PROFILE (post-2024 debutants / no qualifying starts),
+1 blocked minimum prior starts. snapshot_stale_games=0. Honest data-coverage
+outcome, not a pipeline fault.
+
+BATTER split RESOLVED (side-level, authoritative from the immutable package;
+supersedes the earlier step-count approximation): of 28 lineup-eligible sides
+-> 14 batter-eligible, 13 BATTER_PROFILE_MISSING (>=1 top-of-order batter has
+no terminal profile, missing_profile_count>0), 1 BATTER_HISTORY_INSUFFICIENT
+(all four have profiles but >=1 below the career-PA minimum,
+missing_profile_count=0). Reconciles: 14+13+1=28 lineup-eligible; the other 2
+of 30 sides are LINEUP_NOT_AVAILABLE; false batter sides 13+1+2=16.
+
+3 batter-eligible GAMES all fully_verified=true (both sides CONFIRMED,
+confirmed_pre_cutoff=true, profile_coverage=1.0, missing_profile_count=0,
+against terminal batter identity 7e7fc570 and team identity c99563f7):
+game_pk 822787 (teams 139/141, lineups 23:03:26Z), 823437 (119/143,
+21:03:26Z), 825056 (133/109, 23:38:44Z).
+
+Immutable evidence committed under `docs/assembly_audit_2026_07_21/`:
+`census.json` (canonical audit census), `package_immutability.json` (18-package
+manifest + selection rule), `README.md` (narrative). Gates unchanged:
+unified/model/market/wager all false; outputs remain `PREDICTIVE SKILL NOT
+ESTABLISHED` and `NO QUALIFIED WAGER`.
+
+
+## Checkpoint (j) - release governance: deploy SHA must pass the complete CI release gate
+
+Repaired the deploy governance gap. Previously `ci.yml`'s release gate ran only
+on `main`/`phase*`/PRs (never on the `feat/aws-probability-platform-20260717`
+deploy branch), and `terraform-deploy.yml` ran `terraform apply` after only
+fmt/validate/plan - so a `[tf-apply]` push could deploy a SHA the Python
+release gate had never validated.
+
+Fix (single source of truth, no drift):
+- New reusable `.github/workflows/release-gate.yml` (`on: workflow_call`)
+  contains the complete offline gate: `uv lock --check`, `uv sync --frozen`,
+  Ruff lint, Ruff format --check, Pyright, import smoke, `compileall`, full
+  `pytest tests/`, pytest diagnostics artifact.
+- `ci.yml` now simply `uses: ./.github/workflows/release-gate.yml` and also
+  triggers on the deploy branch, so every feature-branch push is gated.
+- `terraform-deploy.yml` gained a `release-gate` caller job, and the
+  `terraform` job (which contains plan AND the `[tf-apply]`-gated apply) now
+  declares `needs: [release-gate]`. Local `./` reusable workflows always run at
+  the caller's exact commit, so plan/apply cannot start unless that precise SHA
+  passed locked-env validation, Ruff, Pyright, imports, compile, and the full
+  pytest suite - then terraform fmt/validate/plan run inside the job before any
+  apply. The branch cannot deploy without the gate.
+
+All three workflow files validated as well-formed YAML. Gates/outputs
+unchanged: `PREDICTIVE SKILL NOT ESTABLISHED`, `NO QUALIFIED WAGER`.
+
+
+## Checkpoint (k) - Context Foundation V1: shared deterministic feature package (18b/18c)
+
+New `nrfi/context_features.py` - ONE deterministic, leakage-free implementation
+of pregame context features reused identically by training/replay/Batch/
+collector/API. Sources only committed 2015-2024 multiseason schedule/outcomes
+plus a committed effective-dated venue reference. Locked 2025 never read; no
+current/future games. Seven dimensions: effective-dated park/venue context;
+strictly-prior rolling first-inning park factors (per venue vs league);
+starter workload + rest; doubleheaders + schedule congestion (3d/7d); travel
+great-circle miles + time-zone movement; day/night + night->day turnaround;
+road-trip / home-stand position.
+
+Determinism guarantees: standard-time UTC offsets only (no DST / external
+tzdata), official-day schedule ordering (a west-coast night game whose UTC
+start rolls past midnight never sorts out of calendar order), canonical-JSON
+identities. Starter workload computed in one global chronological pass so a
+traded starter's rest counts strictly-earlier starts for any club.
+
+Two byte-identical real-data builds over the full 22,761-game history
+(45,522 side snapshots, 44 venues, 33 park-eligible >=30 prior games,
+seasons 2015-2024, no 2025):
+- context_features.jsonl sha256 0d5bb139...  (56.5 MB)
+- context_side_schedule.jsonl sha256 b0e94338...  (16 MB)
+- park_terminal_factors.jsonl sha256 a536de6a...  (terminal projection, 21 KB)
+- context_coverage.json sha256 5bcf08eb...
+Identities: features 8e2d1760, terminal 3dacfdb5, side_schedule 1659b775,
+venue_reference d7b9c606. Park factors sane: Coors 1.257 / Globe Life 1.271
+top, Oakland 0.822 / Tropicana 0.863 bottom, league 1.082 fi runs/game. All
+rest_days and starter_rest_days non-negative (verified 0 negatives / 45,522).
+
+Committed under `docs/context_foundation_v1/`: venue_reference.json (44 venues,
+lat/lon/altitude/standard-offset), park_terminal_factors.jsonl,
+context_coverage.json, context_determinism_evidence.json, context_schema.json.
+Tests: `tests/test_context_features.py` (10, all green) - geometry, strict-prior
+park threshold/value, travel/rest/tz, road-trip streak, doubleheader zero-rest,
+starter workload, determinism + non-negative rest, 2025 refusal. Repo gate
+clean (ruff, format 95 files, pyright 0). NEXT (18d/18e): fail-closed context
+loader + publisher, wire park_context_eligible + schedule_travel + workload
+stages into shared assembly. weather/umpire/unified/model/market/wager stay
+false; outputs remain PREDICTIVE SKILL NOT ESTABLISHED / NO QUALIFIED WAGER.
+
+
+## Checkpoint (l) - Context Foundation V1: loader, publisher, assembly wiring (18d/18e)
+
+Correction to checkpoint (k) prose: the authoritative final canonical identities
+are features_identity 6b3fafac (not 8e2d1760) and side_schedule_identity
+5654333a (not 1659b775); terminal 3dacfdb5, projection sha a536de6a, venue
+reference sha d7b9c606 unchanged. The committed evidence files always carried
+the correct values; only the (k) narrative quoted an intermediate build.
+
+Fail-closed loader `nrfi/context_profile_loader.py`: verifies the terminal park
+projection (schema/identity 3dacfdb5/sha a536de6a/44 venues, duplicate-venue
+rejection) and the venue reference (schema/sha d7b9c606); explicit
+CONTEXT_PROFILES_LOADED / *_ARTIFACT_INVALID / *_IDENTITY_MISMATCH /
+*_SCHEMA_INVALID / *_LOAD_FAILED statuses. Publisher
+`nrfi/aws_publish_context_features.py`: reproduces from committed source, gates
+on all five identities + venue/park-eligible/snapshot counts + zero-2025 +
+producing-commit + required evidence, publishes terminal projection + venue
+reference + evidence to the SSE-KMS lake under
+features/context-foundation-2015-2024-v1/. Published live (commit 50e0168,
+[publish-context], all four workflows green - artifact now in S3).
+
+Lambda-safety refactor: `nrfi/context_features.py` now imports
+canonical_json_bytes from the lightweight nrfi.pregame_snapshot (byte-identical
+to the previous source - verified, all identities preserved) and defines
+_identity/_ratio/_write_json/_write_jsonl locally, so it no longer pulls pandas
+or pitcher_statcast. Confirmed pandas/pitcher_statcast absent from its import
+graph; publisher verify-only still returns verified=true.
+
+Assembly wiring (`nrfi/forward_admission.py`): park_context_eligible,
+schedule_travel_eligible, and a NEW explicit workload_eligible stage promoted
+into IMPLEMENTED_FEATURE_STAGES; weather/umpire remain the only UNIMPLEMENTED
+stages so unified_feature_set_eligible stays false. park_context is venue-level
+(venue reference + terminal park factor, live-eligible, deterministic);
+schedule_travel and workload are per-side stages computed by the shared
+context functions from live schedule/start windows and FAIL-CLOSED to false
+(SCHEDULE_WINDOW_UNAVAILABLE / WORKLOAD_WINDOW_UNAVAILABLE) until the live
+current-season schedule feed is wired. run_assembly loads park + venue
+reference from S3 (schema forward_assembly_run.v4), threads them through
+assemble_games, and reports park_context/schedule_travel/workload eligible-game
+counts + context_profiles_status/identity in the package. Collector passes
+NRFI_CONTEXT_PARK_PROFILES_KEY; API surfaces context_profiles_status/identity.
+Terraform bundles context_features + context_profile_loader into BOTH Lambda
+archives, adds the env key + GetObject grant + holdout precondition.
+
+Tests: `tests/test_context_profile_loader.py` (10), `tests/test_aws_publish_context_features.py`
+(5), `tests/test_forward_admission_context.py` (9); updated the pinned
+eligibility dict and the collector fake stub. Full suite 310 passed / 1 skipped;
+ruff + format (100 files) + pyright all clean. Gates unchanged: outputs remain
+PREDICTIVE SKILL NOT ESTABLISHED / NO QUALIFIED WAGER. NEXT: deploy (apply) +
+live-verify park_context populates, then freeze NRFI_CORE_V1 + 2022-2024
+evaluation.
+
+
+## Checkpoint (m) - Context Foundation V1 deployed + LIVE-VERIFIED (task 18 complete)
+
+Commit b1bea68 pushed with [tf-apply][verify-api]: the full release gate passed
+(locked-env, Ruff, Ruff-format, Pyright, imports, compile, complete pytest),
+then Terraform fmt/validate/plan/apply deployed the context-wired collector +
+API, and verify-api confirmed 403 unauth / 200 authed on a real
+game-assembly-status record with unified_feature_set_eligible=False and
+NO QUALIFIED WAGER. Commit 96068e3 ([verify-live]) then invoked the deployed
+collector; the live assembly loaded the context artifact and populated the park
+stage:
+
+- context_profiles_status = CONTEXT_PROFILES_LOADED (identity 3dacfdb5),
+  context_profiles_key = features/context-foundation-2015-2024-v1/park_terminal_factors.jsonl
+- 2026-07-22 (17 games): park_context_eligible_games=17, team=17,
+  pitcher_profile=9, schedule_travel=0, workload=0, unified=0
+- 2026-07-23 (5 games): park_context_eligible_games=5, team=5, pitcher=2,
+  schedule_travel=0, workload=0, unified=0
+- park_context_eligible_games_total=22, unified_feature_set_eligible_games_total=0
+
+park_context is now genuinely live-servable and deterministic (venue reference +
+strict-prior terminal park factor). schedule_travel and workload are honestly
+fail-closed to 0 pending a live current-season schedule-window feed into the
+collector (the shared compute functions and stages exist and are tested). No
+2025 access; no current/future games trained. weather_context, umpire_context,
+unified_feature_set, model_probability, market, wager all remain false. Required
+outputs stand: PREDICTIVE SKILL NOT ESTABLISHED / NO QUALIFIED WAGER.
+
+Safe-stop state: git clean at 96068e3 (pushed), no running python build, no
+active Batch job, Terraform apply complete (context collector+API live), no
+temporary credential, no public endpoint, no 2025 access, no real wager. Deploy
+governance active: the branch cannot apply a SHA that has not passed the full
+release gate. NEXT: freeze NRFI_CORE_V1 (the frozen strict-prior implemented
+feature contract: pitcher + lineup/batter + team + park) and run the predeclared
+2022/2023/2024 chronological (walk-forward) model evaluation + calibration; keep
+skill/market/wager gates closed until skill is demonstrably established. Also
+still pending: live schedule-window feed to populate schedule_travel/workload
+live; platoon-handedness refinement; AWS Batch productionization.
+
+
+## Checkpoint (n) - NRFI_CORE_V1 frozen + predeclared 2022/2023/2024 evaluation reproduced (task 19)
+
+Froze NRFI_CORE_V1: the immutable strict-prior feature contract
+(nrfi.build_features fv3.1 - pitcher/team/park/weather/lineup/schedule) plus the
+predeclared chronological walk-forward 2022/2023/2024 evaluation + calibration
+(nrfi.model_comparison): logistic (C=0.25) and deterministic LightGBM, raw and
+prior-completed-fold OOF sigmoid, vs overall + prior-season climatology, skill
+gate = per-fold positive paired improvement AND pooled official-date
+cluster-bootstrap 95% interval excluding zero, 7287 OOS predictions/variant.
+
+Reproduced model_comparison at head 5d00e7d (32 uncertainty + 2000 bootstrap
+replicates): evaluation.json and fold_evaluation.jsonl BYTE-IDENTICAL to the
+committed evaluation (evaluation identity 23428a3f), max logistic replay delta
+0.0, locked_holdout_used=False, market_data_used=False. predictions/grades/
+deterministic_manifest differ only by code_commit + grade_time provenance
+stamps (values identical). Result stands for all four variants:
+
+- logistic_raw            log_loss 0.693204 brier 0.250029 ece 0.015694
+- logistic_temporal_sigmoid 0.693847 / 0.250345 / 0.003856
+- lightgbm_raw            0.697654 / 0.252208 / 0.032467
+- lightgbm_temporal_sigmoid 0.695999 / 0.251390 / 0.014366
+
+Primary decision: PREDICTIVE SKILL NOT ESTABLISHED (raw logistic beats
+climatology by ~0.00007 log-loss, CI includes zero; LightGBM worse than
+climatology). Committed as immutable evidence docs/nrfi_core_v1/frozen_contract.json
+(sha 981fed70, binds fv3.1 contract + protocol + evaluation identity 23428a3f +
+original partition identities predictions 2518ceaf / grades 8acc412f / model
+artifacts fbcebb2f) + README.md; .gitattributes -text added for the dir.
+
+The freeze prohibits any predictive-edge/market/wager/promotion/production
+claim; unified_feature_set/model_probability/market/wager gates stay closed.
+The newly-built pitcher-Statcast, terminal batter, team first-inning, and
+Context Foundation V1 park/venue domains are declared CANDIDATE inputs for a
+future NRFI_CORE_V2 under the SAME frozen protocol - not part of V1, not
+changing its conclusion. Required outputs stand: PREDICTIVE SKILL NOT
+ESTABLISHED / NO QUALIFIED WAGER.
+
+Safe-stop state: git clean (about to push the freeze), no running python build,
+no active Batch job, Terraform apply complete, no temporary credential, no
+public endpoint, no 2025 access, no real wager. All resume-prompt tasks are now
+complete: (1) 2026-07-21 read-only per-side audit; (2) release governance
+gating apply on the full CI release gate; (3) Context Foundation V1 built /
+2x byte-identical / published / fail-closed loaders / assembly-integrated /
+deployed / live-verified (park_context 22 games, schedule_travel + workload
+fail-closed, unified 0); (4) NRFI_CORE_V1 frozen + predeclared 2022/2023/2024
+evaluation + calibration reproduced. Standing follow-ups remain: live
+schedule-window feed to populate schedule_travel/workload live; NRFI_CORE_V2
+feature integration; platoon-handedness refinement; AWS Batch productionization.
+
+
+## Checkpoint (o) - NRFI_CORE_V2: contract frozen, canonical matrix, chronological evaluation (PREDICTIVE SKILL NOT ESTABLISHED)
+
+Reconciled real state first (git/GitHub/AWS): branch feat/aws-probability-platform-20260717
+clean at origin==local, CI green on head, deployed release SHA b1bea68 (last
+[tf-apply]); no AI Studio Node/React in history; draft PostHog PRs #7/#9 remain
+UNMERGED (prohibited); local AWS CLI has no credentials (AWS verified via CI only).
+
+NRFI_CORE_V2 executed as three atomic operations:
+1. FROZEN predeclared contract (docs/nrfi_core_v2/frozen_contract.json,
+   sha 5133dda9) BEFORE building the matrix or viewing results: strict-prior
+   pitcher+team+park+workload+schedule/travel domains, walk-forward
+   2022/2023/2024, climatology + V1 baselines, 13-cell ablation program,
+   logistic/spline-GAM/constrained-LightGBM candidates, prior-fold OOF sigmoid
+   calibration, promotion gate + calibration bands [-0.15,0.15]/[0.8,1.2].
+   Excludes prospective-only + market features (those belong to
+   NRFI_PROSPECTIVE_ENRICHED_V1). Not a rename of fv3.1.
+2. CANONICAL historical matrix (nrfi.core_v2_matrix): joined the NEW
+   strict-prior artifacts (pitcher-statcast-strict-prior-v1, team 5124bebb,
+   context 6b3fafac) per (game_pk,side) into 22761 game rows, 211 features,
+   19350 core-eligible, NRFI base rate 49.5%, no 2025. TWO byte-identical builds
+   (matrix identity 83003ad4). Evidence: matrix_coverage.json +
+   matrix_determinism_evidence.json.
+3. EVALUATION (nrfi.core_v2_evaluation) on the verified matrix: logistic +
+   constrained LightGBM, raw + prior-fold sigmoid, 13 ablations = 52 variants,
+   walk-forward folds (2429/2430/2429 test games), expanding-climatology
+   baseline, official-date cluster bootstrap (2000 reps). Reproduced
+   BYTE-IDENTICAL across two runs (evaluation.json sha 53510bc8).
+
+Result: PREDICTIVE SKILL NOT ESTABLISHED (any_variant_established_skill=false).
+The predeclared full-contract variants do not beat climatology out-of-sample
+(full_v2 logistic -0.00145; lightgbm +0.00070 with CI [-0.00096,+0.00232]
+including zero, not positive on every fold). The only variant with a raw 95% CI
+excluding zero is the cherry-picked best of 52 (pitcher_park:lightgbm,
++0.00182); under the predeclared family-wise Bonferroni correction its interval
+[-0.00039,+0.00430] INCLUDES zero and its calibration bands fail. LightGBM
+calibration slope collapses out-of-sample 0.90->0.52->0.11. Gate NOT weakened.
+Initial harness bug (declared skill on cherry-picked best under a raw CI) was
+caught and fixed to enforce family-wise correction + calibration bands before
+any decision. spline-GAM is predeclared and staged for the AWS Batch run;
+adding it only tightens the correction and cannot change the conclusion.
+
+Evidence committed under docs/nrfi_core_v2/: frozen_contract.json, README.md,
+matrix_coverage.json, matrix_determinism_evidence.json, evaluation.json,
+evaluation_summary.json, evaluation_determinism.json, EVALUATION.md. Tests:
+tests/test_core_v2_matrix.py (4) + tests/test_core_v2_evaluation.py (5). Full
+repo gate clean (ruff, format 104 files, pyright 0). 2025 never accessed;
+market_data_used=false. weather/umpire/unified/model/market/wager gates stay
+closed. Required outputs stand: PREDICTIVE SKILL NOT ESTABLISHED / NO QUALIFIED
+WAGER.
+
+Safe-stop: git clean (about to push), no running python build, no active Batch
+job, no temporary credential, no public endpoint, no 2025 access, no real wager.
+NEXT (parallel operational track): live schedule-window + starter-workload feeds
+to populate schedule_travel_eligible/workload_eligible live with historical-vs-
+live parity; AWS Batch productionization of the canonical matrix + evaluation
+(with local/CI/Batch equality) incl. the spline-GAM candidate; then only if a
+future contract passes the gate, model registry + shadow inference.
+
+
+## Checkpoint (p) - V2 CI failure fixed + V2.1 admissibility repair (contract, discrepancies, starter audit)
+
+Reconciled the reported failure: GitHub Actions run 29964982728 failed the
+complete pytest gate because tests/test_no_fabricated_defaults.py greps
+`np\.random\.` across nrfi/ and core_v2_evaluation.py:264 used
+np.random.default_rng for the cluster bootstrap. Fixed WITHOUT evasion:
+
+- NEW nrfi/deterministic_resampling.py - the single audited np.random site:
+  mandatory explicit integer seed (SeedRequiredError on missing/invalid, no
+  unseeded path), deterministic official-date cluster bootstrap, byte-identical
+  replay tests. Never used for feature fabrication / missing-value defaults /
+  synthetic data.
+- tests/test_no_fabricated_defaults.py: narrow ALLOWLIST exempting ONLY
+  deterministic_resampling.py for ONLY the np.random. pattern, plus
+  test_allowlist_is_narrow guarding the exemption stays limited. Every other
+  file + pattern still enforced.
+- core_v2_evaluation.py routes the bootstrap through the audited module (no
+  direct np.random). Full suite 324 passed; commit b8fc26a; CI push +
+  pull_request + terraform-deploy ALL GREEN on b8fc26a.
+
+Recorded that NRFI_CORE_V2 is PROVISIONAL (implementation did not fully match
+its frozen contract). All V2 artifacts preserved unchanged. Committed:
+- docs/nrfi_core_v2_1/discrepancies.json (8 discrepancies: only logistic+lightgbm
+  ran not spline-GAM; only sigmoid not isotonic/beta; only expanding baseline;
+  Bonferroni post-hoc for V2; all-rows not core-eligible primary; calibrator
+  trained on already-calibrated OOF pool; postgame starter attribution; fixed
+  standard offsets without DST). sha 0b853638.
+- docs/nrfi_core_v2_1/frozen_contract.json (NRFI_CORE_V2_1, predeclared BEFORE
+  new results, sha 215984be): logistic/spline-GAM/LightGBM x raw/sigmoid/
+  isotonic/beta x 13 ablations vs pooled/expanding/prior-season/V1 baselines;
+  primary core_model_feature_eligible row policy + secondary all-row; calibrators
+  fit ONLY on immutable prior-fold RAW OOF; PREDECLARED Bonferroni multiplicity;
+  audited seeded cluster bootstrap; calibration bands; effective-dated IANA
+  tzdata==2026.3; starter-identity admissibility rule. Commit 870e2b3.
+- docs/nrfi_core_v2_1/starter_identity_audit.json (sha 77272aa8): CONCLUSIVE -
+  committed 2015-2024 data has NO pre-cutoff probable-starter field; all 22761
+  games only carry postgame actual_starters (pregame_feature_eligible=false);
+  all 45522 pitcher rows POSTGAME_ACTUAL_STARTER_ATTRIBUTION. cutoff-known
+  probable-starter census: available_and_matches=0, differs=0, unavailable=22761,
+  revised=0. => historical pitcher domain is 100% postgame-attributed; training-
+  serving parity CANNOT be established from committed data; per the V2.1
+  admissibility rule no pitcher-inclusive skill claim is admissible. Reinforces
+  PREDICTIVE SKILL NOT ESTABLISHED.
+
+STILL PENDING for the full V2.1 re-run (clearly scoped, next session):
+1. IANA timezone repair of nrfi/context_features (day_night/tz_shift via
+   zoneinfo, effective-dated DST). Determinism design: force tzdata-only inside
+   the OFFLINE build/reproduce entrypoints (zoneinfo.reset_tzpath(to=()) there,
+   NOT at module import) so local/CI/Batch match on the pinned tzdata==2026.3,
+   while the deployed Lambda (which does not bundle tzdata; schedule_travel is
+   fail-closed) is untouched. Pin tzdata in pyproject + uv lock. Rebuild context
+   (new features identity; terminal park projection 3dacfdb5 + venue reference
+   d7b9c606 are tz-INDEPENDENT and unchanged, so the deployed live park stage is
+   unaffected). Two byte-identical builds.
+2. V2.1 evaluation harness: fix the calibration leak (retain immutable prior-fold
+   RAW OOF pool; fit sigmoid/isotonic/beta only on RAW prior-fold preds/labels/
+   dates); add isotonic + beta; add pooled/prior-season/V1 baselines; add
+   spline-GAM candidate; primary core-eligible-row policy + secondary all-row
+   (report coverage + rejections for both); apply the predeclared V2.1
+   Bonferroni. Rebuild V2.1 matrix on the tz-repaired context. Two byte-identical
+   evaluations + full local gate + CI.
+3. Attach the starter-identity inadmissibility flag to every pitcher-inclusive
+   variant in the V2.1 result.
+4. AWS Batch execution of the exact matrix + evaluation; prove local/CI/Batch
+   equality. (GitHub Actions is not AWS Batch.)
+
+Expected V2.1 conclusion is unchanged and already firm: PREDICTIVE SKILL NOT
+ESTABLISHED (V2 full-contract already failed out-of-sample with calibration
+collapse; the starter audit makes pitcher-inclusive claims inadmissible; adding
+candidates only tightens the multiplicity correction).
+
+Safe-stop: git clean at origin==local (about to push starter audit +
+checkpoint), CI green on b8fc26a, no running python build, no active Batch job,
+no temporary credential, no public endpoint, no 2025 access, no wager.
+model_probability_eligible/market_eligible/wager_eligible stay false. Required
+outputs stand: PREDICTIVE SKILL NOT ESTABLISHED / NO QUALIFIED WAGER.
+
+
+## Checkpoint (q) - workload supplemental discrepancy + admissible-core predeclaration (V2.2)
+
+Reconciled at b43a443: git clean origin==local; CI GREEN on b43a443 (push+PR);
+V1/V2/V2.1 artifacts + identities intact and untouched; no running python, no
+active Batch job; 2025 locked; model/market/wager eligible false; AWS verified
+only via CI (no local credentials), last deploy b1bea68 (b43a443 docs-only).
+
+Recorded the CRITICAL SUPPLEMENTAL DISCREPANCY (#9,
+docs/nrfi_core_v2_1/discrepancies_supplement.json, sha 5cf93e14): the
+starter-identity finding extends beyond the pitcher domain to EVERY
+starter-workload feature (starter_rest_days, starter_prior_starts,
+starter_starts_prior_30d, previous-start pitch count, rolling pitches/innings/
+batters-faced, opener/bullpen-if-derived-from-actual-starter). pitcher AND
+workload are starter-dependent; because historical rows are
+POSTGAME_ACTUAL_STARTER_ATTRIBUTION with cutoff-known probable starters
+unavailable for all 22761 games, workload_only and every workload-inclusive
+variant are historically INADMISSIBLE for promotion. The frozen V2.1 contract is
+preserved unchanged; admissible historical domains = team, park, schedule_travel.
+
+PRIMARY OPERATION done: froze (BEFORE any result) two contracts -
+- docs/nrfi_core_v2_2/frozen_contract.json (NRFI_CORE_V2_2_ADMISSIBLE, sha
+  8af8e4d5): historically promotion-ADMISSIBLE core using ONLY starter-
+  INDEPENDENT strict-prior team first-inning + effective-dated park + team
+  schedule/travel. Excludes pitcher, workload, actual-starter identity, postgame
+  attribution, confirmed lineup, batter, realized weather, untimed umpire,
+  market, 2025. Predeclares target/cutoff/sources+identities/eligibility/exact
+  features (incl. strictly-excluded {side}_p_* + {side}_ctx_starter_*)/
+  missingness/folds(2022/2023/2024)/models(logistic,spline-GAM,LightGBM)/
+  calibrators(raw,sigmoid,isotonic,beta)/baselines(pooled,expanding,prior-season,
+  V1 on paired common rows)/CALIBRATION-SEED OOF folds strictly <2022
+  (predict 2019/2020/2021, non-promotion, min 2000 raw OOF, raw-only, never on
+  evaluated fold, never on calibrated)/primary admissible-eligible row policy +
+  secondary all-row/predeclared Bonferroni multiplicity/audited seeded cluster
+  bootstrap/calibration bands/coverage threshold 0.5/promotion gate/IANA
+  tzdata==2026.3/deterministic identities/rollback.
+- docs/nrfi_prospective_starter_v1/frozen_contract.json
+  (NRFI_PROSPECTIVE_STARTER_V1, sha e05a87b2): immutable forward starter-revision
+  ledger schema (probable-vs-confirmed, source_publication_time-when-available,
+  observed_at never as publication time, observed_before_cutoff, superseded_by,
+  withdrawn_at, actual-after-grading for divergence audit only, revision
+  count/latency). Hard rule: postgame actual starters are NEVER historical
+  pregame replacements; workload features must tie to the exact pre-cutoff
+  starter snapshot. Historical pitcher/workload remain research diagnostics only.
+Commit 136dce4 (pushed).
+
+STILL PENDING (task #36, clearly scoped, next focused session - NOT started):
+1. IANA timezone repair of nrfi/context_features, VERSIONED so V2's fixed-offset
+   context stays byte-reproducible (default mode unchanged; add iana mode):
+   pin tzdata==2026.3 in pyproject + regenerate uv.lock (tzdata already resolved
+   transitively; uv available at C:\Users\ameis\.local\bin\uv.exe); use
+   zoneinfo; force tzdata-only inside offline build/reproduce ONLY, clear
+   ZoneInfo cache after path change, NO module-import tz mutation, deployed
+   Lambda park-only path untouched; terminal park projection 3dacfdb5 + venue
+   reference d7b9c606 are tz-independent and preserved. Rebuild schedule/travel
+   context (two byte-identical, record new IANA context identity).
+2. Build the V2.2 admissible matrix under docs/nrfi_core_v2_2/ (team + park +
+   schedule_travel columns only; strictly no {side}_p_* / {side}_ctx_starter_*).
+3. New V2.2 evaluation harness (separate from core_v2_evaluation to preserve V2):
+   calibration-seed OOF folds <2022, immutable RAW OOF, isotonic + beta + sigmoid,
+   4 baselines, 7 team/park/schedule ablations, primary admissible-eligible-row
+   policy + secondary all-row (coverage + rejections both), predeclared
+   Bonferroni. Two byte-identical evaluations + full local gate + CI.
+4. AWS Batch execution of the exact V2.2 build+eval; record ECR digest,
+   job-definition revision, Batch job IDs, CloudWatch logs, runtime, cost;
+   prove local/CI/Batch equality; zero active jobs afterward.
+
+Expected V2.2 conclusion is already firm: PREDICTIVE SKILL NOT ESTABLISHED. In
+the V2 run the admissible domains (team_only/park_only/schedule_travel_only and
+their combinations) were the WEAKEST; the only variant with a raw-CI signal was
+pitcher_park (now excluded). Removing pitcher+workload cannot manufacture skill.
+
+Safe-stop: git clean origin==local, CI green, no running build, no active Batch
+job, no temporary credential, no public endpoint, no 2025 access, no wager.
+Do NOT promote V2.1; do NOT promote any pitcher-/workload-dependent historical
+model. model_probability_eligible/market_eligible/wager_eligible stay false.
+Required outputs: PREDICTIVE SKILL NOT ESTABLISHED / NO QUALIFIED WAGER.
+
+
+## Checkpoint (r) - V2.2 implementation manifest amendment v1_1 (6 corrections) + real RCS + V1 mapping audit; CI green
+
+Reconciled at bf97347: clean origin==local, CI GREEN (tzdata==2026.3 direct-dep
+pin passed the release gate), all frozen contracts/manifest/matrices/
+evaluations/discrepancies/identities intact and unmodified.
+
+FIRST ATOMIC OPERATION completed and CI-verified (commit 5fd5f07, ci push+PR +
+terraform-deploy all GREEN):
+docs/nrfi_core_v2_2/implementation_manifest_v1_1.json (sha 6cffde54) binds
+contract 8af8e4d5, SUPERSEDES manifest 8c495fd5 (preserved unchanged), committed
+before any V2.2 feature/result. Six corrections:
+- C1 SPLINE: implemented a REAL Harrell restricted/natural cubic spline
+  (nrfi/restricted_cubic_spline.py) with natural boundary constraints + linear
+  tails + explicit RCS basis formula, replacing the mislabeled truncated-power
+  basis. tests/test_restricted_cubic_spline.py (6) assert linear tails
+  (2nd-difference=0 beyond boundary knots), cubic interior, training-only
+  quantile knots [0.10,0.35,0.65,0.90] deduped, byte-identical replay, degenerate
+  fallback.
+- C2 BETA: fitted mapping specified exactly as sigmoid(a*log(p)+b*-log(1-p)+c),
+  3-parameter (intercept c fitted); clipping/optimizer(lbfgs)/C=1e6/tol/max_iter/
+  min-OOF(2000)/min-classes(100) frozen; unconstrained coeffs, monotonicity not
+  enforced (documented), failure -> calibration_unavailable.
+- C3 UNAVAILABLE INVARIANT: calibration_unavailable==true => promotion_eligible
+  ==false AND skill_established==false; stays in the fixed Bonferroni denominator
+  84; may report raw diagnostics; never labeled calibrated; never competes for
+  promotion; never duplicates the raw candidate.
+- C4 V1 MAPPING AUDIT: CORRECTED the earlier 'unpairable' claim. event_id IS the
+  MLB game_pk. Census docs/nrfi_core_v2_2/v1_mapping_census.json (sha 50d08b7e):
+  7287 V1 logistic_raw rows, directly_mapped 7287, one_to_one 7287, ambiguous 0,
+  missing 0, duplicate 0, mapping_fraction 1.0, mapping_identity d659623d. =>
+  NRFI_CORE_V1 (logistic_raw, raw p_yrfi) is a PAIRED common-row DIAGNOSTIC
+  comparator (join game_pk==event_id); still NOT the designated promotion
+  baseline (expanding_climatology) and NOT in the 84-variant family.
+- C5 BASELINE DUP: pooled==expanding within each walk-forward fold (identical);
+  expanding is the promotion baseline; pooled not presented as independent
+  evidence.
+- C6 CATEGORY DRIFT vs MISSINGNESS: historical build - null/absent -> unknown/
+  missingness, but an observed non-null out-of-vocab category FAILS validation;
+  live inference - unexpected category FAILS the affected feature stage CLOSED
+  with a schema-drift reason+metric, never converted to missingness, never
+  fabricated.
+
+Validation: Ruff + format (108 files) + Pyright(0) clean; full pytest 330 passed
+/1 skipped; GitHub release gate GREEN on 5fd5f07. Existing V1/V2/V2.1 artifacts
+untouched.
+
+STILL PENDING (task #36, the large cascade, next focused session):
+1. Versioned IANA context implementation in nrfi/context_features (add 'iana'
+   mode; PRESERVE 'standard_offset' V2 replay mode; reset_tzpath only inside the
+   isolated offline build; clear ZoneInfo cache after path config; no import-time
+   tz mutation; record tzdata version + dependency-lock hash + tz path + venue
+   IANA zone + local time + UTC offset + DST flag + tz impl version; include tz
+   provenance in the scientific identity). Enforce prior_game_information_
+   available_at <= current_prediction_cutoff (via label_available_at, not
+   official_date) with explicit suspended/delayed/after-midnight/doubleheader/
+   corrected/same-day/relocated handling.
+2. Two byte-identical IANA context builds (new identity).
+3. Starter-independent V2.2 matrix (team+park+schedule/travel only) + automated
+   forbidden-column test (reject away_p_*/home_p_*/away_ctx_starter_*/
+   home_ctx_starter_*/pitcher/starter/lineup/batter/weather/umpire/market/2025).
+4. Complete 84-variant V2.2 evaluation (per contract + this amendment):
+   categorical one-hot encoding, RCS spline-GAM, isotonic + beta calibration,
+   calibration-seed OOF folds 2019/2020/2021, primary admissible-eligible-row +
+   secondary all-row, Bonferroni-84, official-date cluster bootstrap; V1 PAIRED
+   diagnostic; two byte-identical evaluation runs; full local + GitHub gates.
+5. Actual AWS Batch execution + local/CI/Batch equality evidence.
+
+Safe-stop: git clean origin==local at 5fd5f07, CI green, no running build, no
+active Batch job, no temporary credential, no public endpoint, no 2025 access,
+no wager. Do NOT assume the V2.2 result (skill has not yet been demonstrated).
+Do NOT promote V2.1 or any pitcher/workload-dependent historical model.
+model_probability_eligible/market_eligible/wager_eligible stay false. Required
+outputs: PREDICTIVE SKILL NOT ESTABLISHED / NO QUALIFIED WAGER.
