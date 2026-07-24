@@ -16,14 +16,20 @@ import json
 from collections import defaultdict
 from datetime import date, datetime
 from pathlib import Path
-from typing import Any, Iterable, Mapping, Sequence
+from typing import TYPE_CHECKING, Any, Iterable, Mapping, Sequence
 from urllib.parse import parse_qs, urlparse
 
-import pandas as pd
-import pyarrow as pa
-import pyarrow.parquet as pq
-
 from nrfi.real_vertical_slice import VerticalSliceError, canonical_json_bytes
+
+if TYPE_CHECKING:
+    import pandas as pd
+
+# NOTE: pandas / pyarrow are imported lazily inside the three functions that use
+# them (_write_parquet, _numeric, _aggregate...). Keeping them off the module top
+# lets pure-Python consumers (e.g. nrfi.team_features, which only borrows the
+# json/hash helpers below) import this module without loading the heavy parquet
+# stack. This is an import-hygiene change only; every emitted artifact — and thus
+# every frozen identity — is byte-for-byte unchanged.
 
 DEFAULT_SEASONS = (2021, 2022, 2023, 2024)
 LOCKED_HOLDOUT_SEASON = 2025
@@ -129,6 +135,9 @@ def _write_jsonl(path: Path, rows: Iterable[Mapping[str, Any]]) -> int:
 
 
 def _write_parquet(path: Path, rows: Iterable[Mapping[str, Any]]) -> int:
+    import pyarrow as pa
+    import pyarrow.parquet as pq
+
     materialized = list(rows)
     if not materialized:
         raise VerticalSliceError(f"cannot write an empty analytical table: {path.name}")
@@ -330,6 +339,8 @@ def load_development_context(
 
 
 def _numeric(series: Any) -> Any:
+    import pandas as pd
+
     return pd.to_numeric(series, errors="coerce")
 
 
@@ -394,6 +405,9 @@ def build_pitcher_game_history(
     starters: Sequence[Mapping[str, Any]],
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     """Aggregate real Statcast pitches to actual historical starter games."""
+    import pandas as pd
+    import pyarrow.parquet as pq
+
     starter_by_pair = {
         (int(row["game_pk"]), int(row["pitcher_id"])): row for row in starters
     }
