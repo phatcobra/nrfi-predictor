@@ -1,0 +1,100 @@
+{
+  "schema_version": "nrfi_core_v2_2_iana_context_build_evidence.v1",
+  "contract_name": "NRFI_CORE_V2_2_ADMISSIBLE",
+  "timezone_mode": "iana",
+  "purpose": "Evidence that the versioned timezone_mode=iana V2.2 context path builds reproducibly, is starter-independent, never accesses the 2025 holdout, and leaves every existing standard_offset artifact byte-unchanged.",
+  "reproducer": "nrfi.context_features_iana",
+  "reproducer_cli": "python -m nrfi.context_features_iana --multiseason-dir docs/multiseason_2015_2024 --venue-reference docs/context_foundation_v1/venue_reference.json --output-dir <out> --lock uv.lock",
+  "feature_version": "context-foundation-iana-strict-prior-v2_2",
+  "extraction_version": "context-foundation-iana-2015-2024-v2_2",
+  "schema_version_row": "context_feature_snapshot_iana.v1",
+  "coverage_schema_version": "context_iana_coverage.v1",
+  "timezone_implementation_version": "iana-tzdata-pinned-v1",
+  "context_snapshots": 45522,
+  "side_log_rows": 45522,
+  "seasons": [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024],
+  "starter_independent": true,
+  "locked_2025_holdout_accessed": false,
+  "iana_context_identities": {
+    "features_identity": "610468e4d3ad7bb5613831ad86169220f7deed9a1a689e18ff0ca63f60871ba2",
+    "scientific_identity": "417e2409985603ddec08d04b7c45aba710a17f1c4a4cf8946a9f8058551b19e6",
+    "identity_method": "sha256(canonical_json_bytes(value)); canonical = sort_keys, compact separators; scientific_identity = sha256 over {features_identity, timezone_provenance}"
+  },
+  "two_independent_builds": {
+    "builds_compared": 2,
+    "byte_identical": true,
+    "context_iana_features_jsonl_sha256": "8a4235681be86ccb474ff136459506d86f261201d9297905122a18b5659bd6f9",
+    "context_iana_coverage_json_byte_identical": true,
+    "note": "Build 1 and Build 2 were run as independent isolated processes; both features files and both coverage files are byte-for-byte identical."
+  },
+  "timezone_provenance": {
+    "timezone_implementation_version": "iana-tzdata-pinned-v1",
+    "timezone_source_strategy": "packaged_tzdata_only",
+    "tzdata_version": "2026.3",
+    "python_version": "3.11.15",
+    "dependency_lock_sha256": "fb785ca41eb020e3c73e1a115d950b8acc4a0d6d1de5fdb08d7f3071b4102389",
+    "effective_tz_search_path": [],
+    "isolation": "force_tzdata_only() calls zoneinfo.reset_tzpath(to=[]) then ZoneInfo.clear_cache() inside the offline build entry point ONLY; never mutated at module import.",
+    "venue_reference_sha256": "d7b9c606357453ffce006f5b038dbe1fff14d221234c4885baf1ecb800a04041",
+    "dst_awareness_spot_checks": {
+      "America/New_York_2019-07-01": {"utc_offset_hours": -4.0, "dst_active": true},
+      "America/New_York_2019-01-01": {"utc_offset_hours": -5.0, "dst_active": false},
+      "Europe/London_2019-07-01": {"utc_offset_hours": 1.0, "note": "British Summer Time, not +0"},
+      "Asia/Tokyo_2019-07-01": {"utc_offset_hours": 9.0, "dst_active": false}
+    }
+  },
+  "unchanged_reference_artifacts": {
+    "verification_method": "git working tree clean except two NEW untracked files (nrfi/context_features_iana.py, tests/test_context_features_iana.py); no existing source or doc modified. venue_reference.json re-hashed on disk and matches the frozen value.",
+    "standard_offset_context_features_identity": "6b3fafac08a7a6ec70cd38b4ad480af76d10bf6cf26b5de19db368ba95eed421",
+    "standard_offset_side_schedule_identity": "5654333afdc22b79b96359c8fe44515fb5cd2772d883a06e05b1272319046fac",
+    "park_terminal_identity": "3dacfdb58fb0b9bb706d7f3a31bb82eff55213f1d1998668805afa1d104c3b0b",
+    "park_terminal_projection_sha256": "a536de6aafda1e860bc942efc97d5cd7ccf254b4f13f2b226d2766e09b6b37f6",
+    "venue_reference_sha256": "d7b9c606357453ffce006f5b038dbe1fff14d221234c4885baf1ecb800a04041",
+    "park_terminal_timezone_independence": "The park terminal projection is a function of venue identity and first-inning run counts only (no schedule clock/timezone input), so it is correctly unaffected by the IANA timezone repair and remains byte-identical."
+  },
+  "version_distinctness": {
+    "standard_offset": {
+      "timezone_mode": "standard_offset",
+      "feature_version": "context-foundation-strict-prior-v1",
+      "reproducer": "nrfi.context_features",
+      "status": "UNCHANGED_V1_V2_REPLAY_PATH"
+    },
+    "iana": {
+      "timezone_mode": "iana",
+      "feature_version": "context-foundation-iana-strict-prior-v2_2",
+      "reproducer": "nrfi.context_features_iana",
+      "status": "NEW_V2_2_ONLY_PATH"
+    }
+  },
+  "availability_safe_prior_policy": {
+    "admission_rule": "source.game_pk != target.game_pk AND source.label_available_at <= target.prediction_cutoff",
+    "ordering": "sort admitted priors by (label_available_at, scheduled_start_at, game_number, game_pk); never ordered solely by official_date",
+    "same_admitted_set_feeds": ["rest_days", "games_prior_3d", "games_prior_7d", "travel_miles", "prior_venue_id", "prior_day_night", "night_to_day_turnaround", "trip_game_index", "trip_kind", "tz_shift_hours", "prior_utc_offset_hours"],
+    "doubleheader_policy": "first DH game becomes a prior for the second only when first.label_available_at <= second.prediction_cutoff",
+    "suspended_resumed_policy": "availability boundary is label_available_at; games not complete-and-available by the cutoff are rejected (prior_rejected_after_cutoff_count) while official_date and scheduled_start_at are preserved separately",
+    "strict_prior_park_self_exclusion": "explicit source.game_pk != target.game_pk enforced in addition to the label check; proven by tests/test_context_features_iana.py::test_park_factor_excludes_malformed_self_target using a malformed target whose label_available_at precedes its own cutoff",
+    "self_inclusion_guard": "admitted_prior_games hard-fails with ContextFeatureError(TARGET_ENTERED_OWN_PRIOR_HISTORY) if the target ever enters its own history"
+  },
+  "starter_independence": {
+    "forbidden_substrings": ["starter", "pitcher", "workload", "lineup", "batter", "weather", "umpire", "market"],
+    "guard": "_assert_starter_independent() runs over every emitted feature_values mapping; build fails closed on any forbidden substring",
+    "verified_by_tests": true
+  },
+  "tests": {
+    "file": "tests/test_context_features_iana.py",
+    "count": 21,
+    "result": "all passed",
+    "highlights": [
+      "test_park_factor_excludes_malformed_self_target (REQUIRED strict-prior self-exclusion with malformed target)",
+      "test_prior_set_uses_label_available_not_official_date",
+      "test_doubleheader_first_admitted_only_when_label_ready",
+      "test_doubleheader_first_not_admitted_when_label_late",
+      "test_iana_offset_is_dst_aware",
+      "test_force_tzdata_only_returns_empty_path",
+      "test_schedule_travel_night_to_day_and_tz_shift",
+      "test_assert_starter_independent_rejects_forbidden"
+    ]
+  },
+  "required_standing_output": ["PREDICTIVE SKILL NOT ESTABLISHED", "NO QUALIFIED WAGER"],
+  "status": "IANA_CONTEXT_BUILT_REPRODUCIBLE_STARTER_INDEPENDENT"
+}
